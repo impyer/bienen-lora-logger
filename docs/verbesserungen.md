@@ -31,10 +31,10 @@ Priorität: **1** = verfälscht oder verliert Daten, **2** = schränkt ein, **3*
 | Nr. | Prio | Befund (siehe `docs/server-analyse.md`) | Lösung |
 |---|---|---|---|
 | S1 | 1 | **B2: Winterzeit-Umstellung am 25.10.2026** – eine Stunde wird 60 min zu spät gespeichert, die nächste verworfen | Eigener LoRa-Eingang oder Patch: UTC-Zeit aus `received_at` bzw. Messzeitpunkt |
-| S2 | 1 | B1: Zeitstempel = Empfangszeit, gekürzt auf die Minute | wie S1 |
-| S3 | 2 | B3/B4: Aux2 = RSSI, Aux3 = Sketch-ID | eigene Felder für RSSI, SNR, Sketch-ID, FFT |
-| S4 | 2 | B5: Single nimmt kein `TempIn2` an | eigene Spalte bzw. Zusatzdatei |
-| S5 | 2 | B9: Triple lehnt Pakete ohne `Gewicht3` ab | Typ aus dem Verzeichnis nehmen, nicht aus dem Paket |
+| S2 | erledigt (LoRa-Eingang) | B1: Zeitstempel = Empfangszeit, gekürzt auf die Minute | wie S1 |
+| S3 | erledigt (LoRa-Eingang) | B3/B4: Aux2 = RSSI, Aux3 = Sketch-ID | eigene Felder für RSSI, SNR, Sketch-ID, FFT |
+| S4 | erledigt (Aux-Zuordnung / Zusatzdatei) | B5: Single nimmt kein `TempIn2` an | eigene Spalte bzw. Zusatzdatei |
+| S5 | erledigt (LoRa-Eingang) | B9: Triple lehnt Pakete ohne `Gewicht3` ab | Typ aus dem Verzeichnis nehmen, nicht aus dem Paket |
 | S6 | 3 | B7, B8, B10: `error_reporting(0)`, Tippfehler, Passwort in der URL | Protokollierung, Fehler beheben, Passwort als Header |
 
 ## Reihenfolge (Vorschlag)

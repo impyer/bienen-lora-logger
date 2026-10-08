@@ -104,4 +104,4 @@ Wie die Werte belegt werden, entscheidest du. Laut Code gilt Folgendes:
 ## Offen
 
 - Funkformat v2: festgelegt in `docs/funkformat-v2.md`, Formatter in `formatter/` (08.10.2026).
-- Entscheidung: eigener LoRa-Eingang am Server oder Patch an `beelogger_log.php`.
+- Eigener LoRa-Eingang am Server: umgesetzt in `server/lora/` (08.10.2026).

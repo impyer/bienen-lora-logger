@@ -39,3 +39,7 @@ desktop.ini
 node_modules/
 tests/formatter/goja/goja
 vek_*.json
+
+# LoRa-Eingang: Zugangsdaten und Protokoll
+server/lora/lora_config.php
+server/lora/lora_log/

@@ -17,3 +17,9 @@ if command -v node >/dev/null 2>&1; then
 else
   echo "Node.js fehlt: Formatter-Tests übersprungen"
 fi
+if command -v php >/dev/null 2>&1; then
+  php server/test_lora_funktionen.php
+  if command -v node >/dev/null 2>&1; then bash server/test_lora_eingang.sh; fi
+else
+  echo "PHP fehlt: Server-Tests übersprungen"
+fi

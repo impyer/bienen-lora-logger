@@ -18,9 +18,12 @@ Die Dateien bleiben byte-genau (`.gitattributes`). So zeigt jeder Patch einen sa
 
 Analyse: [`../docs/server-analyse.md`](../docs/server-analyse.md).
 
+## `lora/`
+
+Eigener LoRa-Eingang (Webhook-Ziel für TTN) mit richtiger Messzeit und Zusatzdatei; die beelogger-Skripte bleiben unverändert. Siehe [`lora/README.md`](lora/README.md).
+
 ## Geplant
 
-- Eigener LoRa-Eingang mit UTC-Zeitstempel und eigenen Feldern für RSSI, Sketch-ID, FFT und Deckeltemperatur (siehe Analyse, Abschnitt 3)
 - Werte der Wetterstation SenseCAP S2120 als Standreferenz
 - Übertragung an BEEP mit Messzeitpunkt
 

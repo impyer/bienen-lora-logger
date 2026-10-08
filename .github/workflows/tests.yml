@@ -65,6 +65,23 @@ jobs:
           go run . ../../../formatter/formatter.js ../../../vek_quelle.json
           go run . ../../../formatter/ttn_formatter.min.js ../../../vek_min.json
 
+  server:
+    name: LoRa-Eingang (PHP, Ende-zu-Ende mit beelogger M.40)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP des Runners (mit curl)
+        run: php -v && php -m | grep -qi '^curl$'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax
+        run: for f in server/lora/*.php; do php -l "$f"; done
+      - name: Unit-Tests
+        run: php tests/server/test_lora_funktionen.php
+      - name: Ende-zu-Ende
+        run: bash tests/server/test_lora_eingang.sh
+
   windows-programme:
     name: Windows-Programme für die PC-Tests
     runs-on: ubuntu-latest

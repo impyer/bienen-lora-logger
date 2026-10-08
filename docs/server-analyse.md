@@ -64,22 +64,19 @@ Eine Spalte für eine zweite Innentemperatur gibt es beim Single nicht.
 
 B2 habe ich in einer Nachbildung der drei Zeilen nachgerechnet, nicht auf einem laufenden Server.
 
-## 3. Vorschlag: eigener, sauberer LoRa-Eingang
+## 3. Umsetzung: eigener LoRa-Eingang (08.10.2026)
 
-Statt `beelogger_log.php` an vielen Stellen zu ändern, schlage ich einen **eigenen LoRa-Eingang** vor (`server/lora_eingang.php`):
+Umgesetzt in `server/lora/` (Beschreibung: `server/lora/README.md`).
+Der Eingang gibt jeden Uplink über den **EE-Weg** von `beelogger_log.php` weiter: Dieser Weg kennt einen Zeitstempel je Datensatz (Z. 296 ff.).
+`beelogger_log.php` selbst bleibt unverändert.
 
-1. Er nimmt den TTN-Webhook an. Das Passwort kommt als Header.
-2. Den Zeitstempel bildet er aus dem **Messzeitpunkt des Geräts**. Fehlt der, nimmt er `received_at` von TTN. Gerechnet wird in UTC, umgerechnet in Ortszeit erst beim Schreiben der CSV-Zeile. Damit sind B1 und B2 behoben.
-3. Er schreibt die CSV-Zeilen im **bestehenden beelogger-Format**. Anzeige, Auswertung und Archiv bleiben nutzbar.
-4. Er legt RSSI, SNR, Sketch-ID, FFT-Werte und Deckeltemperatur in eigenen, klar benannten Spalten ab bzw. in einer Zusatzdatei. Die Aux-Felder werden nicht mehr doppelt belegt (B3–B5).
-5. Er gibt die Werte mit dem richtigen Zeitstempel an BEEP weiter.
-
-**[P]** Vorher prüfen, ob `beelogger_show.php` zusätzliche CSV-Spalten verträgt (Spalten 15 und 16 sind heute leer).
-Sonst kommen die neuen Werte in eine eigene Datei.
-
-Alternative mit weniger Aufwand: ein kleiner Patch an `beelogger_log.php`:
-- Aux2 aus dem JSON hat Vorrang vor dem RSSI.
-- Die Sketch-ID kommt als eigenes Feld `SketchID`.
-- Der Zeitstempel kommt aus `received_at`.
-
-Ein Patch muss aber bei jedem beelogger-Update neu eingespielt werden.
+| Befund | Stand |
+|---|---|
+| B1 Empfangszeit statt Messzeit | **behoben**: Gerätezeit, sonst `received_at` von TTN |
+| B2 Winterzeit | **besteht weiter** im Speichern der Ortszeit: Ende-zu-Ende-Test mit den echten Skripten, 2 von 7 Datensätzen in der Umstellungsnacht verworfen. Folgt in Schritt 4. |
+| B3 Aux2 = RSSI | **behoben**: Aux1–3 frei zuordenbar, RSSI in `lora_zusatz.csv` |
+| B4 Aux3 = Sketch-ID | **behoben**: Sketch-ID bzw. Firmware-ID in `lora_zusatz.csv` |
+| B5 kein TempIn2 bei Einzel | **umgehbar**: über die Aux-Zuordnung oder `lora_zusatz.csv` |
+| B9 Triple-Ablehnung | **behoben**: Typ kommt aus dem Verzeichnisnamen |
+| B10 Passwort in der URL | **behoben** für TTN → Eingang (Header). Der interne Aufruf an `beelogger_log.php` braucht das Passwort weiterhin in der URL. |
+| B6, B7, B8 | unverändert (beelogger-Code) |

@@ -60,15 +60,12 @@ Hinweis zum NTP des Gateways: TTN nimmt für die Zeitantwort die GPS-Zeit des Ga
 
 ## Webhook zum eigenen beelogger-Server
 
-Ein einziger Webhook mit dem Pfadplatzhalter für den Gerätenamen:
+Ab 08.10.2026 geht der Webhook an den eigenen **LoRa-Eingang** `server/lora/lora_eingang.php`, nicht mehr direkt an `beelogger_log.php`.
+Einrichtung und Webhook-Einstellungen stehen in [`../server/lora/README.md`](../server/lora/README.md).
 
-- Format: JSON
-- Base URL: `https://<server>/<pfad>`
-- Uplink message path: `{/devID}/beelogger_log.php?Passwort=<passwort>&LORA=1`
-
-Aus `beelogger-03` wird dann `https://<server>/<pfad>/beelogger-03/beelogger_log.php?...`. Die Verzeichnisse auf dem Server heißen genauso wie die Geräte.
-Ob TTN `?` und `&` im Pfad unverändert weitergibt, steht nicht in der Doku; mit „Simulate uplink“ prüfen.
-**Kein Webhook je Logger:** Jeder Webhook bekommt die Daten aller Geräte der Applikation.
+- Ein Webhook für alle Geräte. Der Eingang ordnet die Geräte über `lora_config.php` den Verzeichnissen `beelogger1` … `beelogger10` zu.
+- Die Verzeichnisse behalten die beelogger-Namen. Hinweis zur früheren Empfehlung, die Verzeichnisse wie die Geräte zu benennen (`beelogger-03`): `beelogger_log.php` liest die Nummer aus dem Namen (`intval("-03")` = −3). Davon rate ich ab.
+- Das Passwort steht nicht mehr in der URL, sondern als Header `X-Bienen-Token`.
 
 Quellen:
 - TTS-Quelltext v3.33 (`pkg/networkserver`)
