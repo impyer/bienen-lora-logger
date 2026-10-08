@@ -1,7 +1,15 @@
 diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/beelogger1/beelogger_log.php
 --- beelogger_M40_original/beelogger1/beelogger_log.php	2026-10-08 15:12:18.733060320 +0200
-+++ beelogger_eigen/beelogger1/beelogger_log.php	2026-10-08 17:19:52.630130120 +0200
-@@ -28,7 +28,11 @@
++++ beelogger_eigen/beelogger1/beelogger_log.php	2026-10-08 18:09:15.157573690 +0200
+@@ -21,6 +21,7 @@
+ 
+ 
+ $Softwareversion = "M.40";//vom 04.10.2026 - beelogger_log.php
++$BL_UTC_FAEHIG=1;//eigen-utc-2: Merkmal für den LoRa-Eingang – dieser Endpunkt wertet UTC=1 aus (nicht entfernen)
+ 
+ error_reporting(0);
+ 
+@@ -28,7 +29,11 @@
  if(file_exists("../general_ini.php"))include("../general_ini.php");
  if(file_exists("../beelogger_sprachfiles/Log_Sprache_".$Sprache.".php"))include("../beelogger_sprachfiles/Log_Sprache_".$Sprache.".php");//Sprache einbinden
  
@@ -14,7 +22,7 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/be
  $beelg=substr(dirname(__FILE__),strrpos(dirname(__FILE__),"/")+1);
  
  if(file_exists("beelogger_ini.php"))include("beelogger_ini.php");
-@@ -62,6 +66,8 @@
+@@ -62,6 +67,8 @@
  
  
  $LORA=0;$NeubeeloggerSketchID="";
@@ -23,7 +31,7 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/be
  $int_Check=0.0;$EE_type=0;$ext_M_Type=1;$ext_M_Data="";$TimeSync="";
  $ext_T_Out="";$ext_F_Out="";$ext_L="";$ext_VB="";$ext_VS="";$ext_B_In="";$ext_B_Out="";
  $ext_T_In1="";$ext_F_In1="";$ext_G_1="";
-@@ -292,7 +298,8 @@
+@@ -292,7 +299,8 @@
  $BeepDataArray=array();
  $ThingsPeakDataArray=array();
  
@@ -33,7 +41,7 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/be
  if($ext_Passwort==$BeeloggerLogPasswort){
    if($ext_M_Data !=""){//M_Data Verarbeitung
       $M_D_Arr=explode(",",$ext_M_Data);
-@@ -315,6 +322,10 @@
+@@ -315,6 +323,10 @@
          $p=strpos($M_D_Arr[$G],'_');
          if($p==10){
            $zeit=$M_D_Arr[$G];$zeit[10]=' ';$zeit[17]='0';$zeit[18]='0';
@@ -44,7 +52,7 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/be
        	  $G++; break;
          }
        	$G++;
-@@ -476,6 +487,7 @@
+@@ -476,6 +488,7 @@
  function Auswertung($Answer){
  
  //Globale Variablen definieren
@@ -52,7 +60,7 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/be
    global $NeubeeloggerSketchID,$M_Type,$M_Name,$M_Sign,$M_Num,$beelg,$zeit,$Softwareversion,$ext_Show,$ExternDataCounter,$BeepDataArray,$ThingsPeakDataArray,$BeepArray,$BeepIdArray,$ThingsPeakArray,$ThingsPeakApiArray,$ThingsPeakChannelArray,$TimeSync,$PushToken,$PushUser,$T_Token,$T_Chat_Id,$Empfaenger_Email,$Absender_Email;//Allgemeine globale Multi-Daten
    global $ext_WaegTemp,$ext_T_In1,$ext_T_In2,$ext_T_In3,$ext_T_In4,$ext_T_In5,$ext_T_In6,$ext_T_Out,$ext_F_In1,$ext_F_In2,$ext_F_In3,$ext_F_In4,$ext_F_In5,$ext_F_In6,$ext_F_Out,$ext_L,$ext_G_1,$ext_G_2,$ext_G_3,$ext_G_4,$ext_G_5,$ext_G_6,$ext_VB,$ext_VS,$ext_Service,$ext_B_In,$ext_B_Out,$ext_Aux1,$ext_Aux2,$ext_Aux3,$ext_rssi,$LAs;
  
-@@ -539,7 +551,7 @@
+@@ -539,7 +552,7 @@
    }
  
  $Date_Min="1735686000";//1735686000=2025  1577833200=2020
@@ -61,9 +69,39 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/be
  
  $LetztesGewichtArray=array("","","","","","","","");
  $AktualisierungStampArray=array($Date_Min,$Date_Min,$Date_Min,$Date_Min,$Date_Min,$Date_Min,$Date_Min);
+@@ -762,6 +775,11 @@
+  else if(($timestamp>($akttime+110))AND((int)$ext_Service<0))$store=1;
+  else if(($timestamp>$akttime)AND((int)$ext_Service==99))$store=1;
+  else if($KalibrierTemperatur=="99.9"  AND($timestamp>($akttime+55)))$store=1;
++ if(!$store){//eigen-utc-2 (SRV26-05): abgelehnten Datensatz nicht an BEEP/ThingSpeak senden
++   $ExternDataCounter--;
++   if(is_array($BeepDataArray))foreach(array_keys($BeepDataArray) as $k)unset($BeepDataArray[$k][$ExternDataCounter]);
++   if(is_array($ThingsPeakDataArray))foreach(array_keys($ThingsPeakDataArray) as $k)unset($ThingsPeakDataArray[$k][$ExternDataCounter]);
++ }
+ 
+  if($store){
+ 
+@@ -1257,7 +1275,7 @@
+   for($ib=0;$ib<$M_Type;$ib++){
+     if(($M_Type==1 AND $ib==0)OR($M_Type>1)){//nur für Single- oder Unterbeelogger aussenden - nicht für Master vom Multi
+ //Beep
+-     if(($BeepArray[$ib]=="aktiviert")AND($BeepIdArray[$ib] !="meineID" OR $BeepIdArray[$ib] !="" OR $BeepIdArray[$ib] !="meine BeepID")AND $ib<$M_Type){//wenn aktiviert
++     if(($BeepArray[$ib]=="aktiviert")AND($BeepIdArray[$ib] !="meineID" AND $BeepIdArray[$ib] !="" AND $BeepIdArray[$ib] !="meine BeepID")/*eigen-utc-2: AND statt OR*/AND $ib<$M_Type){//wenn aktiviert
+       $burl="https://api.beep.nl/api/sensors_auth?key=".$BeepIdArray[$ib];
+       $ch=curl_init($burl);//cURL ínit   
+       if(file_exists("../../BeepApiHeader.php"))include("../../BeepApiHeader.php");
+@@ -1273,7 +1291,7 @@
+ 
+ //ThingsPeak
+       if($ia==($ExternDataCounter-1)){//Letzter Datensatz - bitte alles bulken
+-        if(($ThingsPeakArray[$ib]=="aktiviert")AND($ThingsPeakApiArray[$ib] !="meine Api" OR $ThingsPeakApiArray[$ib] !="")){//wenn aktiviert
++        if(($ThingsPeakArray[$ib]=="aktiviert")AND($ThingsPeakApiArray[$ib] !="meine Api" AND $ThingsPeakApiArray[$ib] !="")/*eigen-utc-2: AND statt OR*/){//wenn aktiviert
+ 		$ThingsBulkArray=array(array());
+         for($js=0;$js<$ExternDataCounter;$js++){//JSON anlegen
+          if(is_numeric($ThingsPeakDataArray[$ib][$js][0])){
 diff -ruN beelogger_M40_original/beelogger1/beelogger_show.php beelogger_eigen/beelogger1/beelogger_show.php
 --- beelogger_M40_original/beelogger1/beelogger_show.php	2026-10-08 15:12:18.733190188 +0200
-+++ beelogger_eigen/beelogger1/beelogger_show.php	2026-10-08 17:19:52.639167643 +0200
++++ beelogger_eigen/beelogger1/beelogger_show.php	2026-10-08 17:46:00.869563684 +0200
 @@ -20,6 +20,18 @@
  
  
@@ -168,7 +206,7 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_show.php beelogger_eigen/b
            $b++;$y=explode("&",$Anmerkung);array_push($anmerkungen,$y[0]);//Anmerkung kurz im Array merken
 diff -ruN beelogger_M40_original/beelogger1/beelogger_sml.php beelogger_eigen/beelogger1/beelogger_sml.php
 --- beelogger_M40_original/beelogger1/beelogger_sml.php	2026-10-08 15:12:18.733411098 +0200
-+++ beelogger_eigen/beelogger1/beelogger_sml.php	2026-10-08 17:19:52.646075130 +0200
++++ beelogger_eigen/beelogger1/beelogger_sml.php	2026-10-08 17:46:00.869638155 +0200
 @@ -21,6 +21,18 @@
  
  
@@ -273,7 +311,7 @@ diff -ruN beelogger_M40_original/beelogger1/beelogger_sml.php beelogger_eigen/be
            $b++;$y=explode("&",$Anmerkung);array_push($anmerkungen,$y[0]);//Anmerkung kurz im Array merken
 diff -ruN beelogger_M40_original/beelogger_cron21.php beelogger_eigen/beelogger_cron21.php
 --- beelogger_M40_original/beelogger_cron21.php	2026-10-08 15:12:18.732812536 +0200
-+++ beelogger_eigen/beelogger_cron21.php	2026-10-08 17:19:52.649992131 +0200
++++ beelogger_eigen/beelogger_cron21.php	2026-10-08 17:46:00.868634309 +0200
 @@ -1,4 +1,7 @@
  <?php
 +// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
@@ -282,172 +320,9 @@ diff -ruN beelogger_M40_original/beelogger_cron21.php beelogger_eigen/beelogger_
  set_time_limit(300);  // script may run up to 5 minutes
  error_reporting(E_ERROR | E_WARNING | E_PARSE);
  
-Binary files beelogger_M40_original/beelogger_icons/.DS_Store and beelogger_eigen/beelogger_icons/.DS_Store differ
-Binary files beelogger_M40_original/beelogger_icons/Akku00.png and beelogger_eigen/beelogger_icons/Akku00.png differ
-Binary files beelogger_M40_original/beelogger_icons/Akku100.png and beelogger_eigen/beelogger_icons/Akku100.png differ
-Binary files beelogger_M40_original/beelogger_icons/Akku25.png and beelogger_eigen/beelogger_icons/Akku25.png differ
-Binary files beelogger_M40_original/beelogger_icons/Akku50.png and beelogger_eigen/beelogger_icons/Akku50.png differ
-Binary files beelogger_M40_original/beelogger_icons/Beute.png and beelogger_eigen/beelogger_icons/Beute.png differ
-Binary files beelogger_M40_original/beelogger_icons/Triggeralarm.png and beelogger_eigen/beelogger_icons/Triggeralarm.png differ
-Binary files beelogger_M40_original/beelogger_icons/Xanalyse.png and beelogger_eigen/beelogger_icons/Xanalyse.png differ
-Binary files beelogger_M40_original/beelogger_icons/Xanalyse_inaktiv.png and beelogger_eigen/beelogger_icons/Xanalyse_inaktiv.png differ
-Binary files beelogger_M40_original/beelogger_icons/arrow.png and beelogger_eigen/beelogger_icons/arrow.png differ
-Binary files beelogger_M40_original/beelogger_icons/bat.png and beelogger_eigen/beelogger_icons/bat.png differ
-Binary files beelogger_M40_original/beelogger_icons/beep-icon.png and beelogger_eigen/beelogger_icons/beep-icon.png differ
-Binary files beelogger_M40_original/beelogger_icons/bienen_in.png and beelogger_eigen/beelogger_icons/bienen_in.png differ
-Binary files beelogger_M40_original/beelogger_icons/bienen_out.png and beelogger_eigen/beelogger_icons/bienen_out.png differ
-Binary files beelogger_M40_original/beelogger_icons/bw_beep.png and beelogger_eigen/beelogger_icons/bw_beep.png differ
-Binary files beelogger_M40_original/beelogger_icons/bw_ibeekeeper.png and beelogger_eigen/beelogger_icons/bw_ibeekeeper.png differ
-Binary files beelogger_M40_original/beelogger_icons/bw_map.png and beelogger_eigen/beelogger_icons/bw_map.png differ
-Binary files beelogger_M40_original/beelogger_icons/bw_minus.png and beelogger_eigen/beelogger_icons/bw_minus.png differ
-Binary files beelogger_M40_original/beelogger_icons/bw_plus.png and beelogger_eigen/beelogger_icons/bw_plus.png differ
-Binary files beelogger_M40_original/beelogger_icons/bw_temp.png and beelogger_eigen/beelogger_icons/bw_temp.png differ
-Binary files beelogger_M40_original/beelogger_icons/cancel.png and beelogger_eigen/beelogger_icons/cancel.png differ
-Binary files beelogger_M40_original/beelogger_icons/clear-day.png and beelogger_eigen/beelogger_icons/clear-day.png differ
-Binary files beelogger_M40_original/beelogger_icons/download.png and beelogger_eigen/beelogger_icons/download.png differ
-Binary files beelogger_M40_original/beelogger_icons/favicon-16x16.png and beelogger_eigen/beelogger_icons/favicon-16x16.png differ
-Binary files beelogger_M40_original/beelogger_icons/favicon-32x32.png and beelogger_eigen/beelogger_icons/favicon-32x32.png differ
-Binary files beelogger_M40_original/beelogger_icons/favicon-96x96.png and beelogger_eigen/beelogger_icons/favicon-96x96.png differ
-Binary files beelogger_M40_original/beelogger_icons/frequenz.png and beelogger_eigen/beelogger_icons/frequenz.png differ
-Binary files beelogger_M40_original/beelogger_icons/h_Triggeralarm.png and beelogger_eigen/beelogger_icons/h_Triggeralarm.png differ
-Binary files beelogger_M40_original/beelogger_icons/honey.png and beelogger_eigen/beelogger_icons/honey.png differ
-Binary files beelogger_M40_original/beelogger_icons/honigraum.png and beelogger_eigen/beelogger_icons/honigraum.png differ
-Binary files beelogger_M40_original/beelogger_icons/hum_i.png and beelogger_eigen/beelogger_icons/hum_i.png differ
-Binary files beelogger_M40_original/beelogger_icons/hum_o.png and beelogger_eigen/beelogger_icons/hum_o.png differ
-Binary files beelogger_M40_original/beelogger_icons/info.png and beelogger_eigen/beelogger_icons/info.png differ
-Binary files beelogger_M40_original/beelogger_icons/kaefig.png and beelogger_eigen/beelogger_icons/kaefig.png differ
-Binary files beelogger_M40_original/beelogger_icons/konfig.png and beelogger_eigen/beelogger_icons/konfig.png differ
-Binary files beelogger_M40_original/beelogger_icons/konfig1.png and beelogger_eigen/beelogger_icons/konfig1.png differ
-Binary files beelogger_M40_original/beelogger_icons/like.png and beelogger_eigen/beelogger_icons/like.png differ
-Binary files beelogger_M40_original/beelogger_icons/loeschen.png and beelogger_eigen/beelogger_icons/loeschen.png differ
-Binary files beelogger_M40_original/beelogger_icons/mCheck.png and beelogger_eigen/beelogger_icons/mCheck.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_aio.png and beelogger_eigen/beelogger_icons/m_aio.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_back.png and beelogger_eigen/beelogger_icons/m_back.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_balance.png and beelogger_eigen/beelogger_icons/m_balance.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_beelogger_logo_small.png and beelogger_eigen/beelogger_icons/m_beelogger_logo_small.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_delta.png and beelogger_eigen/beelogger_icons/m_delta.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_dia.png and beelogger_eigen/beelogger_icons/m_dia.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_help.png and beelogger_eigen/beelogger_icons/m_help.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_info_1.png and beelogger_eigen/beelogger_icons/m_info_1.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_refresh.png and beelogger_eigen/beelogger_icons/m_refresh.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_time.png and beelogger_eigen/beelogger_icons/m_time.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_time1.png and beelogger_eigen/beelogger_icons/m_time1.png differ
-Binary files beelogger_M40_original/beelogger_icons/m_time24.png and beelogger_eigen/beelogger_icons/m_time24.png differ
-Binary files beelogger_M40_original/beelogger_icons/map_aktiv.png and beelogger_eigen/beelogger_icons/map_aktiv.png differ
-Binary files beelogger_M40_original/beelogger_icons/map_inaktiv.png and beelogger_eigen/beelogger_icons/map_inaktiv.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_1 Leerrahmen hinzu.png and beelogger_eigen/beelogger_icons/n_1 Leerrahmen hinzu.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_1 Rahmen mit Mittelwand hinzu.png and beelogger_eigen/beelogger_icons/n_1 Rahmen mit Mittelwand hinzu.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_2 Leerrahmen hinzu.png and beelogger_eigen/beelogger_icons/n_2 Leerrahmen hinzu.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_2 Rahmen mit Mittelwand hinzu.png and beelogger_eigen/beelogger_icons/n_2 Rahmen mit Mittelwand hinzu.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Absperrgitter.png and beelogger_eigen/beelogger_icons/n_Absperrgitter.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Akkutausch.png and beelogger_eigen/beelogger_icons/n_Akkutausch.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Ameisensaeurebehandlung.png and beelogger_eigen/beelogger_icons/n_Ameisensaeurebehandlung.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Bienenflucht eingesetzt.png and beelogger_eigen/beelogger_icons/n_Bienenflucht eingesetzt.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Bluete.png and beelogger_eigen/beelogger_icons/n_Bluete.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Brutwabe entnommen.png and beelogger_eigen/beelogger_icons/n_Brutwabe entnommen.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Brutwabe hinzu.png and beelogger_eigen/beelogger_icons/n_Brutwabe hinzu.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Durchsicht - Achtung.png and beelogger_eigen/beelogger_icons/n_Durchsicht - Achtung.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Durchsicht - Alles OK.png and beelogger_eigen/beelogger_icons/n_Durchsicht - Alles OK.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Durchsicht.png and beelogger_eigen/beelogger_icons/n_Durchsicht.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Fuetterung.png and beelogger_eigen/beelogger_icons/n_Fuetterung.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Futterkranzprobe.png and beelogger_eigen/beelogger_icons/n_Futterkranzprobe.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Futterwabe entnommen.png and beelogger_eigen/beelogger_icons/n_Futterwabe entnommen.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Futterwabe hinzu.png and beelogger_eigen/beelogger_icons/n_Futterwabe hinzu.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Futterzarge.png and beelogger_eigen/beelogger_icons/n_Futterzarge.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Honigernte.png and beelogger_eigen/beelogger_icons/n_Honigernte.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Honigraum entfernt.png and beelogger_eigen/beelogger_icons/n_Honigraum entfernt.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Honigraum hinzu.png and beelogger_eigen/beelogger_icons/n_Honigraum hinzu.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin befreit.png and beelogger_eigen/beelogger_icons/n_Koenigin befreit.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin blau gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin blau gekaefigt.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin blau gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin blau gezeichnet.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gelb gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin gelb gekaefigt.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gelb gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin gelb gezeichnet.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gruen gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin gruen gekaefigt.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gruen gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin gruen gezeichnet.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin rot gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin rot gekaefigt.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin rot gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin rot gezeichnet.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin weiss gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin weiss gezeichnet.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Koenigin weiss gezeichnet_K.png and beelogger_eigen/beelogger_icons/n_Koenigin weiss gezeichnet_K.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Oxalsaeurebehandlung.png and beelogger_eigen/beelogger_icons/n_Oxalsaeurebehandlung.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Schwarmabgang.png and beelogger_eigen/beelogger_icons/n_Schwarmabgang.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Totale Brutentnahme.png and beelogger_eigen/beelogger_icons/n_Totale Brutentnahme.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Triggeralarm.png and beelogger_eigen/beelogger_icons/n_Triggeralarm.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Varroabehandlung.png and beelogger_eigen/beelogger_icons/n_Varroabehandlung.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Varroaeinschub.png and beelogger_eigen/beelogger_icons/n_Varroaeinschub.png differ
-Binary files beelogger_M40_original/beelogger_icons/n_Wetter (Schnee-Hagel-Wind).png and beelogger_eigen/beelogger_icons/n_Wetter (Schnee-Hagel-Wind).png differ
-Binary files beelogger_M40_original/beelogger_icons/no.png and beelogger_eigen/beelogger_icons/no.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_bat.png and beelogger_eigen/beelogger_icons/off_bat.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_bienen_in.png and beelogger_eigen/beelogger_icons/off_bienen_in.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_bienen_out.png and beelogger_eigen/beelogger_icons/off_bienen_out.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_frequenz.png and beelogger_eigen/beelogger_icons/off_frequenz.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_honey.png and beelogger_eigen/beelogger_icons/off_honey.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_hum_i.png and beelogger_eigen/beelogger_icons/off_hum_i.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_hum_o.png and beelogger_eigen/beelogger_icons/off_hum_o.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_info.png and beelogger_eigen/beelogger_icons/off_info.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_no.png and beelogger_eigen/beelogger_icons/off_no.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_no_s.png and beelogger_eigen/beelogger_icons/off_no_s.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_press.png and beelogger_eigen/beelogger_icons/off_press.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_rain.png and beelogger_eigen/beelogger_icons/off_rain.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_service.png and beelogger_eigen/beelogger_icons/off_service.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_solar.png and beelogger_eigen/beelogger_icons/off_solar.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_sun.png and beelogger_eigen/beelogger_icons/off_sun.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_temp_i.png and beelogger_eigen/beelogger_icons/off_temp_i.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_temp_o.png and beelogger_eigen/beelogger_icons/off_temp_o.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_temp_w.png and beelogger_eigen/beelogger_icons/off_temp_w.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_volume.png and beelogger_eigen/beelogger_icons/off_volume.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_weight.png and beelogger_eigen/beelogger_icons/off_weight.png differ
-Binary files beelogger_M40_original/beelogger_icons/off_wifi.png and beelogger_eigen/beelogger_icons/off_wifi.png differ
-Binary files beelogger_M40_original/beelogger_icons/press.png and beelogger_eigen/beelogger_icons/press.png differ
-Binary files beelogger_M40_original/beelogger_icons/rain.png and beelogger_eigen/beelogger_icons/rain.png differ
-Binary files beelogger_M40_original/beelogger_icons/rain_24.png and beelogger_eigen/beelogger_icons/rain_24.png differ
-Binary files beelogger_M40_original/beelogger_icons/service.png and beelogger_eigen/beelogger_icons/service.png differ
-Binary files beelogger_M40_original/beelogger_icons/show.png and beelogger_eigen/beelogger_icons/show.png differ
-Binary files beelogger_M40_original/beelogger_icons/solar.png and beelogger_eigen/beelogger_icons/solar.png differ
-Binary files beelogger_M40_original/beelogger_icons/sun.png and beelogger_eigen/beelogger_icons/sun.png differ
-Binary files beelogger_M40_original/beelogger_icons/temp_i.png and beelogger_eigen/beelogger_icons/temp_i.png differ
-Binary files beelogger_M40_original/beelogger_icons/temp_o.png and beelogger_eigen/beelogger_icons/temp_o.png differ
-Binary files beelogger_M40_original/beelogger_icons/temp_w.png and beelogger_eigen/beelogger_icons/temp_w.png differ
-Binary files beelogger_M40_original/beelogger_icons/thingspeak_icon.png and beelogger_eigen/beelogger_icons/thingspeak_icon.png differ
-Binary files beelogger_M40_original/beelogger_icons/time.png and beelogger_eigen/beelogger_icons/time.png differ
-Binary files beelogger_M40_original/beelogger_icons/volume.png and beelogger_eigen/beelogger_icons/volume.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_01d.png and beelogger_eigen/beelogger_icons/w_01d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_01n.png and beelogger_eigen/beelogger_icons/w_01n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_02d.png and beelogger_eigen/beelogger_icons/w_02d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_02n.png and beelogger_eigen/beelogger_icons/w_02n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_03d.png and beelogger_eigen/beelogger_icons/w_03d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_03n.png and beelogger_eigen/beelogger_icons/w_03n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_04d.png and beelogger_eigen/beelogger_icons/w_04d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_04n.png and beelogger_eigen/beelogger_icons/w_04n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_09d.png and beelogger_eigen/beelogger_icons/w_09d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_09n.png and beelogger_eigen/beelogger_icons/w_09n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_10d.png and beelogger_eigen/beelogger_icons/w_10d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_10n.png and beelogger_eigen/beelogger_icons/w_10n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_11d.png and beelogger_eigen/beelogger_icons/w_11d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_11n.png and beelogger_eigen/beelogger_icons/w_11n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_13d.png and beelogger_eigen/beelogger_icons/w_13d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_13n.png and beelogger_eigen/beelogger_icons/w_13n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_50d.png and beelogger_eigen/beelogger_icons/w_50d.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_50n.png and beelogger_eigen/beelogger_icons/w_50n.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_clear-day.png and beelogger_eigen/beelogger_icons/w_clear-day.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_clear-night.png and beelogger_eigen/beelogger_icons/w_clear-night.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_cloudy.png and beelogger_eigen/beelogger_icons/w_cloudy.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_fog.png and beelogger_eigen/beelogger_icons/w_fog.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_hail.png and beelogger_eigen/beelogger_icons/w_hail.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_partly-cloudy-day.png and beelogger_eigen/beelogger_icons/w_partly-cloudy-day.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_partly-cloudy-night.png and beelogger_eigen/beelogger_icons/w_partly-cloudy-night.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_rain.png and beelogger_eigen/beelogger_icons/w_rain.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_sleet.png and beelogger_eigen/beelogger_icons/w_sleet.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_snow.png and beelogger_eigen/beelogger_icons/w_snow.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_sunriseset.png and beelogger_eigen/beelogger_icons/w_sunriseset.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_thunderstorm.png and beelogger_eigen/beelogger_icons/w_thunderstorm.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_wind.png and beelogger_eigen/beelogger_icons/w_wind.png differ
-Binary files beelogger_M40_original/beelogger_icons/w_windsock.png and beelogger_eigen/beelogger_icons/w_windsock.png differ
-Binary files beelogger_M40_original/beelogger_icons/watch.png and beelogger_eigen/beelogger_icons/watch.png differ
-Binary files beelogger_M40_original/beelogger_icons/weight.png and beelogger_eigen/beelogger_icons/weight.png differ
-Binary files beelogger_M40_original/beelogger_icons/wifi.png and beelogger_eigen/beelogger_icons/wifi.png differ
 diff -ruN beelogger_M40_original/beelogger_mobileCheck.php beelogger_eigen/beelogger_mobileCheck.php
 --- beelogger_M40_original/beelogger_mobileCheck.php	2026-10-08 15:12:18.732384650 +0200
-+++ beelogger_eigen/beelogger_mobileCheck.php	2026-10-08 17:19:52.649749229 +0200
++++ beelogger_eigen/beelogger_mobileCheck.php	2026-10-08 17:46:00.868331052 +0200
 @@ -45,7 +45,11 @@
  }
  
@@ -463,7 +338,7 @@ diff -ruN beelogger_M40_original/beelogger_mobileCheck.php beelogger_eigen/beelo
  
 diff -ruN beelogger_M40_original/beelogger_mobileWatch.php beelogger_eigen/beelogger_mobileWatch.php
 --- beelogger_M40_original/beelogger_mobileWatch.php	2026-10-08 15:12:18.732498105 +0200
-+++ beelogger_eigen/beelogger_mobileWatch.php	2026-10-08 17:19:52.649401210 +0200
++++ beelogger_eigen/beelogger_mobileWatch.php	2026-10-08 17:46:00.868373717 +0200
 @@ -21,6 +21,18 @@
  
  // beelogger:mobile -->
@@ -516,7 +391,7 @@ diff -ruN beelogger_M40_original/beelogger_mobileWatch.php beelogger_eigen/beelo
          $anmerkungen[$b] = $DatumAnmerkung;//Datumsstempel im Array merken
 diff -ruN beelogger_M40_original/beelogger_zeitzone.php beelogger_eigen/beelogger_zeitzone.php
 --- beelogger_M40_original/beelogger_zeitzone.php	1970-01-01 01:00:00.000000000 +0100
-+++ beelogger_eigen/beelogger_zeitzone.php	2026-10-08 17:19:52.624139786 +0200
++++ beelogger_eigen/beelogger_zeitzone.php	2026-10-08 17:46:00.875415732 +0200
 @@ -0,0 +1,5 @@
 +<?php
 +// eigene Server-Fassung (eigen-utc-2): Zeitzone für Anzeige, Tag/Nacht-Zeiten, Anmerkungen und CSV-Zeitspalte.
@@ -525,7 +400,7 @@ diff -ruN beelogger_M40_original/beelogger_zeitzone.php beelogger_eigen/beelogge
 +$Zeitzone="Europe/Berlin";
 diff -ruN beelogger_M40_original/local_Split_Archivnotes.php beelogger_eigen/local_Split_Archivnotes.php
 --- beelogger_M40_original/local_Split_Archivnotes.php	2026-10-08 15:12:18.732735799 +0200
-+++ beelogger_eigen/local_Split_Archivnotes.php	2026-10-08 17:19:52.650673066 +0200
++++ beelogger_eigen/local_Split_Archivnotes.php	2026-10-08 17:46:00.868543467 +0200
 @@ -1,4 +1,7 @@
  <?php
 +// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
@@ -536,7 +411,7 @@ diff -ruN beelogger_M40_original/local_Split_Archivnotes.php beelogger_eigen/loc
  //##########################################################
 diff -ruN beelogger_M40_original/local_Updater.php beelogger_eigen/local_Updater.php
 --- beelogger_M40_original/local_Updater.php	2026-10-08 15:12:18.732711410 +0200
-+++ beelogger_eigen/local_Updater.php	2026-10-08 17:19:52.650485363 +0200
++++ beelogger_eigen/local_Updater.php	2026-10-08 17:46:00.868514618 +0200
 @@ -1,4 +1,7 @@
  <?php // Listbox beelogger
 +// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
@@ -547,7 +422,7 @@ diff -ruN beelogger_M40_original/local_Updater.php beelogger_eigen/local_Updater
  
 diff -ruN beelogger_M40_original/scraper.php beelogger_eigen/scraper.php
 --- beelogger_M40_original/scraper.php	2026-10-08 15:12:18.732836680 +0200
-+++ beelogger_eigen/scraper.php	2026-10-08 17:19:52.650195942 +0200
++++ beelogger_eigen/scraper.php	2026-10-08 17:46:00.868659123 +0200
 @@ -1,4 +1,7 @@
  <?php 
 +// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)

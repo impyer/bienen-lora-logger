@@ -148,6 +148,26 @@ ersetze(W, kopf, kopf + GRAFIKZEILE)
 # ---------- beelogger_mobileCheck.php ----------
 zeitzone("beelogger_mobileCheck.php", "date_default_timezone_set('Europe/Berlin');", "'beelogger_zeitzone.php'")
 
+# ---------- beelogger_log.php: externe Ausgabe (BEEP/ThingSpeak) nur für gespeicherte Datensätze (SRV26-05) ----------
+# Das Original bereitet die BEEP-/ThingSpeak-Daten vor der Speicherentscheidung vor; ExternDataOut() sendet dann
+# auch abgelehnte Datensätze (Duplikat, zu alt). Hier wird der Eintrag zurückgenommen, wenn $store=0 bleibt.
+ersetze(L, ' else if($KalibrierTemperatur=="99.9"  AND($timestamp>($akttime+55)))$store=1;\n',
+        ' else if($KalibrierTemperatur=="99.9"  AND($timestamp>($akttime+55)))$store=1;\n'
+        ' if(!$store){//eigen-utc-2 (SRV26-05): abgelehnten Datensatz nicht an BEEP/ThingSpeak senden\n'
+        '   $ExternDataCounter--;\n'
+        '   if(is_array($BeepDataArray))foreach(array_keys($BeepDataArray) as $k)unset($BeepDataArray[$k][$ExternDataCounter]);\n'
+        '   if(is_array($ThingsPeakDataArray))foreach(array_keys($ThingsPeakDataArray) as $k)unset($ThingsPeakDataArray[$k][$ExternDataCounter]);\n'
+        ' }\n')
+# Prüfung der BEEP-ID / ThingSpeak-API war immer wahr (OR statt AND): Platzhalter wurden an BEEP gesendet
+ersetze(L, '($BeepIdArray[$ib] !="meineID" OR $BeepIdArray[$ib] !="" OR $BeepIdArray[$ib] !="meine BeepID")',
+        '($BeepIdArray[$ib] !="meineID" AND $BeepIdArray[$ib] !="" AND $BeepIdArray[$ib] !="meine BeepID")/*eigen-utc-2: AND statt OR*/')
+ersetze(L, '($ThingsPeakApiArray[$ib] !="meine Api" OR $ThingsPeakApiArray[$ib] !="")',
+        '($ThingsPeakApiArray[$ib] !="meine Api" AND $ThingsPeakApiArray[$ib] !="")/*eigen-utc-2: AND statt OR*/')
+# Erkennungsmerkmal für den LoRa-Eingang (SRV26-07): dieser Endpunkt nimmt UTC=1 an
+ersetze(L, '$Softwareversion = "M.40";//vom 04.10.2026 - beelogger_log.php\n',
+        '$Softwareversion = "M.40";//vom 04.10.2026 - beelogger_log.php\n'
+        '$BL_UTC_FAEHIG=1;//eigen-utc-2: Merkmal für den LoRa-Eingang – dieser Endpunkt wertet UTC=1 aus (nicht entfernen)\n')
+
 # ---------- Skripte im Hauptordner ohne Zeitzone (bisher: Vorgabe aus php.ini, oft UTC) ----------
 # Sie nutzen date() nur für Anzeigen; die Zeitzone wird direkt nach "<?php" in der ersten Zeile gesetzt.
 def zeitzone_kopf(datei):

@@ -90,5 +90,32 @@ gleich('Zusatz Spaltenzahl', count($z), count(le_zusatz_kopf()));
 gleich('Zusatz Statusbits', $z[18], 65);
 gleich('Zusatz Bänder', $z[17], '-40;-22.5');
 
+// Kennung der Nachricht (Duplikat-Erkennung)
+$m = array('end_device_ids' => array('device_id' => 'b1'), 'uplink_message' => array('f_port' => 2, 'f_cnt' => 5, 'frm_payload' => 'AAE=', 'received_at' => '2026-10-08T12:00:03Z'));
+$m2 = $m; $m2['uplink_message']['received_at'] = '2026-10-09T12:00:03Z';   // gleicher FCnt nach Zähler-Rücksprung
+$m3 = $m; $m3['uplink_message']['rx_metadata'] = array(array('rssi' => -80));  // andere Metadaten, gleiche Nachricht
+gleich('Kennung: 40 Hex-Zeichen', (bool)preg_match('/^[0-9a-f]{40}$/', le_nachricht_id($m)), true);
+gleich('Kennung: gleicher FCnt, anderer Empfang → verschieden', le_nachricht_id($m) === le_nachricht_id($m2), false);
+gleich('Kennung: Metadaten egal', le_nachricht_id($m) === le_nachricht_id($m3), true);
+
+// Liste verarbeiteter Kennungen
+$tmp = sys_get_temp_dir() . '/le_ids_' . getmypid() . '.txt';
+@unlink($tmp);
+gleich('Kennung unbekannt (keine Datei)', le_id_bekannt($tmp, 'abc'), false);
+gleich('Kennung merken', le_id_merken($tmp, 'abc', 1000), true);
+gleich('Kennung bekannt', le_id_bekannt($tmp, 'abc'), true);
+gleich('Teilstring zählt nicht', le_id_bekannt($tmp, 'ab'), false);
+for ($k = 0; $k < 12; $k++) le_id_merken($tmp, 'id' . $k, 1000 + $k, 10);
+gleich('Liste begrenzt auf 10 Einträge', count(file($tmp)), 10);
+gleich('älteste Kennung verdrängt', le_id_bekannt($tmp, 'abc'), false);
+gleich('neueste Kennung vorhanden', le_id_bekannt($tmp, 'id11'), true);
+@unlink($tmp);
+
+// UTC-Fähigkeit je beelogger_log.php (SRV26-07)
+$repo = __DIR__ . '/../../server';
+gleich('UTC-fähig: eigene Fassung', le_utc_faehig($repo . '/beelogger_eigen/beelogger1/beelogger_log.php'), true);
+gleich('UTC-fähig: Original M.40 nicht', le_utc_faehig($repo . '/beelogger_M40_original/beelogger1/beelogger_log.php'), false);
+gleich('UTC-fähig: Datei fehlt', le_utc_faehig($repo . '/gibt_es_nicht.php'), false);
+
 echo ($anz - $fehler) . " von $anz Tests bestanden\n";
 exit($fehler ? 1 : 0);

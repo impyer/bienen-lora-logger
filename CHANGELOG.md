@@ -1,5 +1,15 @@
 # Änderungen
 
+## 2026-10-08 – LoRa-Eingang und Server nach Review 5c1b847 (SRV26-02/03/04/05/07/08)
+
+- **SRV26-07:** Zeitbasis je Logger statt über eine Datei im Hauptordner. Der Eingang liest das Merkmal `$BL_UTC_FAEHIG=1;` im `beelogger_log.php` des Ziel-Loggers. Alte Fassung → Ortszeit (keine 2-h-Verschiebung), Meldung „Mischinstallation“. `utc_zeit=true` stellt Nachrichten an alte Endpunkte zurück.
+- **SRV26-05:** eigene Fassung (eigen-utc-2) sendet BEEP/ThingSpeak nur für gespeicherte Datensätze; Prüfung der BEEP-ID/ThingSpeak-API mit `AND` statt `OR`.
+- **SRV26-03/04:** Sperre je Logger; Kennung je Nachricht (Gerät, FPort, FCnt, Nutzdaten, `received_at`) → doppelte Nachrichten werden nicht erneut weitergegeben; Schreibfehler der Zusatzdatei werden protokolliert und gemeldet.
+- **SRV26-02:** Ergebnisklassen `gespeichert`/`abgelehnt`/`doppelt`/`ignoriert`; vorübergehende Fehler → 202 und Zwischenspeicher, `lora_nachholen.php` (cron) verarbeitet nach.
+- Aufteilung: `lora_eingang.php` (HTTP), `lora_verarbeitung.php` (Verarbeitung), `lora_nachholen.php` (Kommandozeile).
+- **SRV26-08:** Playwright 1.56.1 fest in der CI; `BROWSER_PFLICHT=1` lässt den Test ohne Browser fehlschlagen.
+- Tests: Ende-zu-Ende eigen 73, original 56 Prüfungen (neu: doppelt, 4 parallele Webhooks, Nachholen, Zeitbasis-Matrix, BEEP-Nachbildung, Schreibfehler Zusatzdatei); Unit-Tests 59. Gegenprobe: Ohne die SRV26-05-Korrektur schlagen 3 BEEP-Prüfungen fehl.
+
 ## 2026-10-08 – Eigene Server-Fassung mit UTC (eigen-utc-2)
 
 - `server/beelogger_eigen/`: beelogger M.40 mit Unix-Zeitstempel (UTC) als maßgeblicher Zeit; Zeitzone wählbar in `beelogger_zeitzone.php`

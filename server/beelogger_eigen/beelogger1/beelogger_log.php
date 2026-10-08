@@ -21,6 +21,7 @@
 
 
 $Softwareversion = "M.40";//vom 04.10.2026 - beelogger_log.php
+$BL_UTC_FAEHIG=1;//eigen-utc-2: Merkmal für den LoRa-Eingang – dieser Endpunkt wertet UTC=1 aus (nicht entfernen)
 
 error_reporting(0);
 
@@ -774,6 +775,11 @@ $GewichtsEinheit=str_replace($Klammern,"",$Sensoren[5*5+4]);
  else if(($timestamp>($akttime+110))AND((int)$ext_Service<0))$store=1;
  else if(($timestamp>$akttime)AND((int)$ext_Service==99))$store=1;
  else if($KalibrierTemperatur=="99.9"  AND($timestamp>($akttime+55)))$store=1;
+ if(!$store){//eigen-utc-2 (SRV26-05): abgelehnten Datensatz nicht an BEEP/ThingSpeak senden
+   $ExternDataCounter--;
+   if(is_array($BeepDataArray))foreach(array_keys($BeepDataArray) as $k)unset($BeepDataArray[$k][$ExternDataCounter]);
+   if(is_array($ThingsPeakDataArray))foreach(array_keys($ThingsPeakDataArray) as $k)unset($ThingsPeakDataArray[$k][$ExternDataCounter]);
+ }
 
  if($store){
 
@@ -1269,7 +1275,7 @@ function ExternDataOut(){
   for($ib=0;$ib<$M_Type;$ib++){
     if(($M_Type==1 AND $ib==0)OR($M_Type>1)){//nur für Single- oder Unterbeelogger aussenden - nicht für Master vom Multi
 //Beep
-     if(($BeepArray[$ib]=="aktiviert")AND($BeepIdArray[$ib] !="meineID" OR $BeepIdArray[$ib] !="" OR $BeepIdArray[$ib] !="meine BeepID")AND $ib<$M_Type){//wenn aktiviert
+     if(($BeepArray[$ib]=="aktiviert")AND($BeepIdArray[$ib] !="meineID" AND $BeepIdArray[$ib] !="" AND $BeepIdArray[$ib] !="meine BeepID")/*eigen-utc-2: AND statt OR*/AND $ib<$M_Type){//wenn aktiviert
       $burl="https://api.beep.nl/api/sensors_auth?key=".$BeepIdArray[$ib];
       $ch=curl_init($burl);//cURL ínit   
       if(file_exists("../../BeepApiHeader.php"))include("../../BeepApiHeader.php");
@@ -1285,7 +1291,7 @@ function ExternDataOut(){
 
 //ThingsPeak
       if($ia==($ExternDataCounter-1)){//Letzter Datensatz - bitte alles bulken
-        if(($ThingsPeakArray[$ib]=="aktiviert")AND($ThingsPeakApiArray[$ib] !="meine Api" OR $ThingsPeakApiArray[$ib] !="")){//wenn aktiviert
+        if(($ThingsPeakArray[$ib]=="aktiviert")AND($ThingsPeakApiArray[$ib] !="meine Api" AND $ThingsPeakApiArray[$ib] !="")/*eigen-utc-2: AND statt OR*/){//wenn aktiviert
 		$ThingsBulkArray=array(array());
         for($js=0;$js<$ExternDataCounter;$js++){//JSON anlegen
          if(is_numeric($ThingsPeakDataArray[$ib][$js][0])){

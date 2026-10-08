@@ -6,13 +6,28 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
-| **[main 5c1b847 — Firmware 261010, UTC-Server, Regression](2026-10-08-main-5c1b847-regression.md)** | **Commit `5c1b847`** | **5/5 CI-Jobs erfolgreich; neuer unabhängiger UTC-Teilupdate-Spotcheck; kein HiL** |
+| **[Behebung SRV26-02/03/04/05/07/08](2026-10-08-srv26-behebung.md)** | **Arbeitsstand nach `5c1b847`** (Commit-ID beim Einchecken nachtragen) | **Host-/E2E-Tests lokal (eigen 73/73, original 56/56, Unit 59/59), Gegenprobe ohne Korrektur; CI-Lauf offen; kein TTN/BEEP/HiL** |
+| [main 5c1b847 — Firmware 261010, UTC-Server, Regression](2026-10-08-main-5c1b847-regression.md) | Commit `5c1b847` | 5/5 CI-Jobs erfolgreich; neuer unabhängiger UTC-Teilupdate-Spotcheck; kein HiL |
 | [Firmware 261009 — Code-Review und isolierte SiL-Spotchecks](2026-10-08-firmware-261009-sil.md) | Commit `d735f0f` | Statisch + isolierter Host-Rechentest; kein MCU-/HiL-Test |
 | [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
 
-## Aktueller Stand nach Regression 5c1b847
+## Aktueller Stand nach Behebung SRV26 (2026-10-08)
+
+**Maßgeblich:** [Behebung SRV26-02/03/04/05/07/08](2026-10-08-srv26-behebung.md), aufbauend auf dem Review 5c1b847.
+
+- **Behoben, lokal nachgewiesen:**
+  - `SRV26-07`: Zeitbasis je Logger über das Merkmal im Ziel-`beelogger_log.php`
+  - `SRV26-05`: BEEP/ThingSpeak nur für gespeicherte Datensätze; ID-Prüfung korrigiert
+  - `SRV26-03`: Sperre je Logger und Kennung je Nachricht
+  - `SRV26-04`: Schreibfehler der Zusatzdatei werden gemeldet
+  - `SRV26-02`: Ergebnisklassen; vorübergehende Fehler → 202, Zwischenspeicher und Nachholen
+- **`SRV26-08`:** Playwright in der CI verpflichtend; wirksam erst mit dem nächsten CI-Lauf.
+- **Abweichung:** Für `SRV26-02` ist 202 + eigener Zwischenspeicher statt 5xx umgesetzt. Die Begründung (TTS-Verhalten bei Fehlerantworten) steht im Bericht.
+- **Weiter offen:** `SRV26-06`, `HW26-*`, Firmware-HiL, echter BEEP-/TTN-Betrieb.
+
+## Stand nach Regression 5c1b847 (historisch)
 
 **Maßgeblich für neue Änderungen:** [Regressionstest Firmware 261010 / UTC-Server](2026-10-08-main-5c1b847-regression.md). Der untenstehende ursprüngliche Prüfstand ist historisch und wird zur Rückverfolgung **nicht** überschrieben.
 
@@ -23,7 +38,9 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 - **Neu P2 `SRV26-08`:** Playwright-Grafiktest wurde im GitHub-CI-Lauf übersprungen.
 - **Hardware `HW26-01` und weitere Entwurfs-/HiL-Punkte bleiben offen.**
 
-## Offene Prioritäten (Stichtag 2026-10-08)
+## Offene Prioritäten (ursprünglicher Prüfstand vor 5c1b847, historisch)
+
+> Diese Tabelle ist der ursprüngliche Stand. `FW26-01` bis `-06` sind mit 5c1b847 behoben, `SRV26-01` (eigene Fassung), `-02` bis `-05` und `-07` mit der SRV26-Behebung. Aktuell offen: siehe die Abschnitte oben.
 
 | Rang | Befund | Maßnahme |
 |---|---|---|

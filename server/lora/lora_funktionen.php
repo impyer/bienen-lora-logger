@@ -145,3 +145,47 @@ function le_letzter_zeitstempel($csv)
     if (!preg_match('/,(\d{9,11})$/', $letzte, $m)) return null;
     return (int)$m[1];
 }
+
+// Eindeutige Kennung eines Uplinks für die Duplikat-Erkennung (SRV26-03/04/05).
+// FCnt allein reicht nicht: der Musterlogger setzt den Zähler bei 16384 bewusst auf 0 zurück (ABP).
+// Mit Nutzdaten und received_at ist eine Wiederholung derselben Nachricht eindeutig erkennbar.
+function le_nachricht_id(array $msg)
+{
+    $up = isset($msg['uplink_message']) && is_array($msg['uplink_message']) ? $msg['uplink_message'] : array();
+    $teile = array(
+        isset($msg['end_device_ids']['device_id']) ? (string)$msg['end_device_ids']['device_id'] : '',
+        isset($up['f_port']) ? (string)$up['f_port'] : '',
+        isset($up['f_cnt']) ? (string)$up['f_cnt'] : '',
+        isset($up['frm_payload']) ? (string)$up['frm_payload'] : '',
+        isset($up['received_at']) ? (string)$up['received_at'] : (isset($msg['received_at']) ? (string)$msg['received_at'] : ''),
+    );
+    return sha1(implode('|', $teile));
+}
+
+// Nimmt dieser beelogger_log.php UTC=1 an? (eigene Fassung ab eigen-utc-2, Merkmal $BL_UTC_FAEHIG) – SRV26-07
+// Geprüft wird je Logger-Verzeichnis, nicht über eine Datei im Hauptordner.
+function le_utc_faehig($log_php)
+{
+    if (!is_file($log_php)) return false;
+    $kopf = file_get_contents($log_php, false, null, 0, 8192);
+    return is_string($kopf) && strpos($kopf, '$BL_UTC_FAEHIG=1;') !== false;
+}
+
+// Liste verarbeiteter Kennungen: Zeilen "unixzeit kennung"; behält höchstens $max Einträge
+function le_id_bekannt($datei, $id)
+{
+    if (!is_file($datei)) return false;
+    $s = file_get_contents($datei);
+    return is_string($s) && strpos($s, ' ' . $id . "\n") !== false;
+}
+
+function le_id_merken($datei, $id, $jetzt, $max = 5000)
+{
+    $zeilen = is_file($datei) ? file($datei, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : array();
+    if (!is_array($zeilen)) $zeilen = array();
+    $zeilen[] = $jetzt . ' ' . $id;
+    if (count($zeilen) > $max) $zeilen = array_slice($zeilen, -$max);
+    $tmp = $datei . '.tmp';
+    if (@file_put_contents($tmp, implode("\n", $zeilen) . "\n") === false) return false;
+    return @rename($tmp, $datei);
+}

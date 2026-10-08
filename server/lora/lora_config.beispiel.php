@@ -40,6 +40,10 @@ return array(
     // Ordner mit beelogger1, beelogger2 … auf dem Server (Dateisystem). Vorgabe: eine Ebene über diesem Ordner.
     'beelogger_verzeichnis' => dirname(__DIR__),
 
+    // Zeitbasis je Logger: 'auto' = UTC, wenn das beelogger_log.php des Loggers die eigene Fassung ist
+    // (Merkmal $BL_UTC_FAEHIG), sonst Ortszeit; true = eigene Fassung verlangen (sonst zurückstellen); false = immer Ortszeit
+    'utc_zeit' => 'auto',
+
     'tls_pruefen' => true,
     'zeitlimit_s' => 20,
 );
