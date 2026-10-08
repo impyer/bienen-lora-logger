@@ -6,12 +6,23 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Hardware 0.4 – unabhängiges Review, Versorgung/Pinout/PCB](2026-10-09-hardware-04-review.md)** | **Hardware-Commit `5c94e1b`, CI bis `6b83d`** | **Konzept- und numerisches SiL-Review; P0 Akku-HOT, P1 PV-ADC/I²C, CI-Regression; noch kein KiCad/HiL** |
 | **[Behebung SRV26-02/03/04/05/07/08](2026-10-08-srv26-behebung.md)** | **Arbeitsstand nach `5c1b847`** (Commit-ID beim Einchecken nachtragen) | **Host-/E2E-Tests lokal (eigen 73/73, original 56/56, Unit 59/59), Gegenprobe ohne Korrektur; CI-Lauf offen; kein TTN/BEEP/HiL** |
 | [main 5c1b847 — Firmware 261010, UTC-Server, Regression](2026-10-08-main-5c1b847-regression.md) | Commit `5c1b847` | 5/5 CI-Jobs erfolgreich; neuer unabhängiger UTC-Teilupdate-Spotcheck; kein HiL |
 | [Firmware 261009 — Code-Review und isolierte SiL-Spotchecks](2026-10-08-firmware-261009-sil.md) | Commit `d735f0f` | Statisch + isolierter Host-Rechentest; kein MCU-/HiL-Test |
 | [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
+
+## Aktuell: Hardware-Definition 0.4 (09.10.2026)
+
+Maßgebliche neue Prüfung: **[Hardware-Review 0.4](2026-10-09-hardware-04-review.md)**. Die vorigen Berichte bleiben als historische Quellen erhalten.
+
+- **P0 `HW26-07`:** NTC/BQ25185 unterbindet die Ladung rechnerisch erst bei ca. 59,5 °C. Zellspezifikation (45 °C im Projekt vs. 55 °C auf aktueller BAK-Herstellerseite) klären und Hardware-Ladesperre sicher auslegen.
+- **P1 `HW26-08`–`HW26-11`:** Überspannung Solar-ADC, I²C 440 pF Worst Case, EEPROM-Stromausfallfestigkeit, thermisches Lade-IC-Modell.
+- **P2 `HW26-12`–`HW26-15`:** FFT-Rohdaten vs. 8 MiB Flash, J10/J11-Pinzahl, Ra-01SH-Chip/Schalter, STEP/Bestückung.
+- **P1 `CI26-01`:** `main`-Pipeline beim Stand `6b83d` rot (4/5 Jobs). Sieben DST-Messzeitpunkte stehen korrekt in CSV, aber nur sechs Antworten als „gespeichert“ gezählt. Browserprüfung mit Playwright bestanden; Ursache der Statusabweichung offen.
+- **Keine PCB-Freigabe:** Schaltplan, ERC, Layout, DRC, Gerber/BOM/CPL und Messwerte fehlen noch.
 
 ## Aktueller Stand nach Behebung SRV26 (2026-10-08)
 
