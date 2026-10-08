@@ -4,7 +4,7 @@ Dieses Repository enthält Teile unter verschiedenen Lizenzen. Maßgeblich ist d
 
 | Ordner | Lizenz | Text |
 |---|---|---|
-| `firmware/`, `tests/`, `server/` | GNU General Public License v3.0 oder später (GPL-3.0-or-later) | [`LICENSES/GPL-3.0-or-later.txt`](LICENSES/GPL-3.0-or-later.txt) |
+| `firmware/`, `formatter/`, `tests/`, `server/` | GNU General Public License v3.0 oder später (GPL-3.0-or-later) | [`LICENSES/GPL-3.0-or-later.txt`](LICENSES/GPL-3.0-or-later.txt) |
 | `hardware/`, `mechanik/` | CERN Open Hardware Licence v2 – Strongly Reciprocal (CERN-OHL-S-2.0) | [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt) |
 | `docs/` und die README-Dateien | Creative Commons Namensnennung – Weitergabe unter gleichen Bedingungen 4.0 (CC BY-SA 4.0) | [`LICENSES/CC-BY-SA-4.0.txt`](LICENSES/CC-BY-SA-4.0.txt) |
 

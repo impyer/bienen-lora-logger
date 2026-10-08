@@ -31,6 +31,7 @@ Wetterstation SenseCAP S2120 --LoRa--> ... gleicher Weg, dient als Referenz
 | Ordner | Inhalt | Lizenz |
 |---|---|---|
 | [`firmware/`](firmware/) | Arduino-Sketch für beelogger-STM32 (BlackPill F411CE) mit LoRaWAN | GPL-3.0-or-later |
+| [`formatter/`](formatter/) | TTN-Payload-Formatter (beelogger-Format und Funkformat v2) | GPL-3.0-or-later |
 | [`tests/`](tests/) | PC-Tests, Simulation, TTN-Auswertung, Selbsttest-Sketch | GPL-3.0-or-later |
 | [`docs/`](docs/) | Einrichtung TTN, Zeitabgleich, BEEP-Anbindung | CC BY-SA 4.0 |
 | [`hardware/`](hardware/) | eigene SMD-Platine (KiCad), Lastenheft | CERN-OHL-S-2.0 |

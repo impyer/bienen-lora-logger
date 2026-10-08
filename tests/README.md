@@ -6,6 +6,7 @@
 | `sim/` | Simulation von 10 Loggern mit dem echten ZS-Code (Modell: Quarz, Temperatur, Funk, Gateway) | `g++ -std=c++17 -O2 -DZEITSYNC_AKTIV=1 -o sim sim/sim_zeitsync.cpp && ./sim --hilfe` |
 | `ttn_auswertung/` | Auswertung von TTN-Exporten: Sendezeiten, Slots, Uhrkorrekturen, verlorene Pakete | `python3 ttn_auswertung/ttn_zeitanalyse.py export.json` |
 | `STM32_ZS_Selbsttest/` | Selbsttest-Sketch für die BlackPill (Unit-Tests + RTC-Tests auf der Hardware) | Arduino-IDE |
+| `formatter/` | TTN-Formatter: Vergleich mit dem beelogger-Original, Funkformat v2, Fehlerfälle; `goja/` prüft in der Laufzeit von The Things Stack | `node formatter/test_formatter.js`; goja: `cd formatter/goja && go run . ../../../formatter/formatter.js vektoren.json` (Vektoren mit `VEKTOREN=vektoren.json node …`) |
 | `windows/` | `tests_starten.bat` für die Windows-Programme | Die Programme aus dem Actions-Lauf laden (Artefakt `windows-tests`) |
 
 Alles auf einmal unter Linux, WSL oder macOS: `./alle_tests_linux.sh`.

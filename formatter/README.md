@@ -1,0 +1,35 @@
+# TTN-Payload-Formatter
+
+| Datei | Zweck |
+|---|---|
+| `formatter.js` | lesbarer Quelltext, hier wird bearbeitet |
+| `ttn_formatter.min.js` | verkleinerte Fassung zum Einfügen in TTN, erzeugt mit `bauen.sh` |
+| `bauen.sh` | erzeugt `ttn_formatter.min.js` (Node.js nötig, terser 5.36.0) und prüft die Größe |
+
+## Was er dekodiert
+
+- **FPort 1:** beelogger-Format (`STM32_LORA_*`). Die Ausgabe gleicht `payloadformatter_220227.js` Wert für Wert; die Tests vergleichen beide an 2000 Zufallspaketen. Neu sind nur:
+  - `Format: 1`
+  - Fehlermeldungen bei kaputten Paketen statt `NaN`-Werten
+- **FPort 2:** Funkformat v2, siehe [`../docs/funkformat-v2.md`](../docs/funkformat-v2.md).
+
+Die Feldnamen entsprechen dem beelogger-Webserver (`beelogger_log.php`, `LORA=1`). Namen für neue Werte stehen oben im Objekt `NAME` und lassen sich dort ändern, z. B. für die zweite Innentemperatur.
+
+## In TTN eintragen
+
+1. TTN-Konsole → Applikation `beelog-de-sn` → **Payload formatters** → **Uplink**.
+2. Formatter type: **Custom Javascript formatter**.
+3. Den Inhalt von `ttn_formatter.min.js` vollständig einfügen und speichern.
+4. Zum Prüfen ein Testpaket eingeben, z. B. FPort 2 mit dem Hexwert aus `docs/funkformat-v2.md` (Abschnitt „Beispiel“).
+
+Eigene Formatter sind bei TTN in der Größe begrenzt. Im Community-Forum steht dazu 4 KB je Applikation bzw. Gerät (Mai 2021, Version 3.13).
+Ob die Grenze heute noch genau so gilt, habe ich nicht nachgeprüft. Die verkleinerte Fassung ist auf unter 4096 Byte ausgelegt, und `bauen.sh` prüft das.
+
+## Tests
+
+```
+node tests/formatter/test_formatter.js                                 # Quelltext
+node tests/formatter/test_formatter.js formatter/ttn_formatter.min.js  # verkleinerte Fassung
+```
+
+Zusätzlich läuft in der CI eine Prüfung in **goja**: Das ist die JavaScript-Laufzeit von The Things Stack, in der Version aus deren aktuellem Quelltext (Stand 08.10.2026), mit dem Aufruf-Rahmen von dort (`tests/formatter/goja/`). Welche Version auf den TTN-Servern läuft, kann ich nicht sehen.

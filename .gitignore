@@ -34,3 +34,8 @@ fp-info-cache
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Formatter-Tests
+node_modules/
+tests/formatter/goja/goja
+vek_*.json

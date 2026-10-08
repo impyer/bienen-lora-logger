@@ -11,3 +11,5 @@
 *.png binary
 *.jpg binary
 *.zip binary
+# Originalskripte von beelogger.de byte-genau behalten
+server/beelogger_M40_original/** -text
