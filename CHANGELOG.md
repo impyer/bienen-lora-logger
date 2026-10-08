@@ -1,5 +1,20 @@
 # Änderungen
 
+## 2026-10-08 – Lastenheft Platine 0.4: Versorgung
+
+- `hardware/versorgung.md`: Laderegler BQ25185 (Eingang bis 18 V, Kältesperre per NTC, Ladeschluss 4,1 V), zweistufiger Tiefentladeschutz (BQ25185 3,0 V, HY2111-GB 2,9 V), Akku-Platine am Halter, LDO RT9080, Sensorschalter und Regeln gegen Rückspeisung, Regeln aus den beelogger-Erfahrungen, Montage der Panels
+- 09.10.2026: J8 (BME280) 6-polig mit freiem Pin 6 als Verwechslungsschutz zu J4 (Wägezelle, E+ 4,3 V > 4,25 V BME280-Grenze); Steckerfarbe zusätzlich
+- 09.10.2026: BME280-Leitung höchstens 1 m, Pull-ups 1,8 kΩ statt 1,5 kΩ (`hardware/i2c_leitung.py`: 290–440 pF, Anstiegszeit ≤ 671 ns); Bestückung komplett bei JLCPCB inkl. Durchsteckteile
+- 09.10.2026: `hardware/anschluesse.md`: Klemmenbelegung J1–J11 (Masse/Schirm an Pin 1), steckbare Klemmen DEGSON 3,5 mm, ESD ESDS304 bzw. TPD4E05U06 (Wägezelle, 5,5 V, ≤ 10 nA), I²C für BME280 mit 50 kHz, alle Außenklemmen an einer Kante; Lastenheft F4, F5, F10, M4, M5 angepasst
+- 09.10.2026: Wand-Lichtleiter mit Dichtung (Kandidat Bivar PLTR2, IP67); STEP-Modell des Gehäuses wird bei Camdenboss angefragt; Reedkontakt-Schaltabstand am Prototyp
+- 09.10.2026: **4 Lagen** festgelegt (L2 durchgehende Masse); **Lichtleiter durch Gehäusebohrung** mit seitlich abstrahlender LED und Reedkontakt an der Platinenkante
+- 09.10.2026: nur noch **ein HX711**; **SPI-Flash 64 Mbit fest** (SPI1, CS PB3, dauernd versorgt, Typ nach Bestand); Bedienung per Magnet mit **LED unter Lichtleiter** (Sofortmessung, Durchsicht ein/aus); Energiebilanz neu (≥ 128 Tage ohne Laden)
+- `hardware/beep-vergleich.md`: Auswertung BEEP base v3 (Schaltplan, Stückliste); übernommen: Lastschalter TPS22917, Reedkontakt an PA0, ESD-Arrays an allen Sensorklemmen, Platz für SPI-Flash; 4 Lagen zur Entscheidung
+- `hardware/mikrofon.md` und `mikrofon_filter.py`: Sallen-Key-Tiefpass 1179 Hz + RC 4,8 kHz (−36 bis −39 dB bei den Spiegelfrequenzen, ≤ 1,1 dB im Nutzband), Hochpass 22 Hz, gesiebte Versorgung, Timer + DMA, Ablaufregeln (kein Funk und kein 5-V-Wandler während der Messung)
+- `hardware/waage.md`: HX711 mit 5 V aus festem Wandler TPS61240 (Lasttrennung, EN an PB10), AVDD 4,3 V, Bosche H40A 200 kg (404 Ω, 2 mV/V), Eingangsschutz der Zellenleitungen, Auflösung ca. 1,2 g je Einzelwert; Energiebilanz neu (≥ 122 Tage ohne Laden)
+- `hardware/mcu-funk.md`: Beschaltung STM32F411 (VCAP 4,7 µF, LSE-Quarz 7 pF statt 12,5 pF nach ST AN4488), USB-C mit ESD und Laden über VBUS, Ra-01SH (Antenne an IPEX, TXEN/RXEN über Lötbrücken, Hinweis LLCC68 ohne SF11/12), EEPROM an der geschalteten Schiene, Pinbelegung 0.4
+- `hardware/energiebilanz.py`: reproduzierbare Energiebilanz mit Quellen und Status je Wert; Ergebnis 130–510 Tage Reichweite ohne Laden, Dezemberertrag ca. 40-facher Bedarf
+
 ## 2026-10-08 – LoRa-Eingang und Server nach Review 5c1b847 (SRV26-02/03/04/05/07/08)
 
 - **SRV26-07:** Zeitbasis je Logger statt über eine Datei im Hauptordner. Der Eingang liest das Merkmal `$BL_UTC_FAEHIG=1;` im `beelogger_log.php` des Ziel-Loggers. Alte Fassung → Ortszeit (keine 2-h-Verschiebung), Meldung „Mischinstallation“. `utc_zeit=true` stellt Nachrichten an alte Endpunkte zurück.

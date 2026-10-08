@@ -1,10 +1,19 @@
-# Lastenheft: eigene Logger-Platine (Entwurf 0.3, 08.10.2026)
+# Lastenheft: eigene Logger-Platine (Entwurf 0.4, 08.10.2026)
 
 Ziel ist eine offene SMD-Platine, die JLCPCB weitgehend fertig bestückt.
 Funkmodul ist das **Ai-Thinker Ra-01SH (SX1262)**. Die Firmware wird **neu aufgesetzt**; Kompatibilität zur
 beelogger-Firmware und zur beelogger-Pinbelegung ist **nicht** gefordert.
 
 Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpunkt.
+
+Änderungen gegen 0.3:
+- Abschnitt 3 Versorgung neu ausgearbeitet: [`versorgung.md`](versorgung.md) mit Energiebilanz [`energiebilanz.py`](energiebilanz.py)
+- Laderegler BQ25185 statt CN3065; Tiefentladeschutz zweistufig in Hardware; Akku-Platine am Halter mit Schutz und NTC
+- RT9080 als 3,3-V-Regler; Regeln gegen Rückspeisung; Erfahrungen aus dem beelogger
+- Vergleich mit BEEP base v3: [`beep-vergleich.md`](beep-vergleich.md) (Übernahmen: TPS22917, Reedkontakt, ESD-Arrays, 4 Lagen zur Entscheidung)
+- Block Mikrofon: [`mikrofon.md`](mikrofon.md) (Filter mit Frequenzgang-Rechnung `mikrofon_filter.py`, Versorgung, Abtastung, Ablaufregeln)
+- Block Waage: [`waage.md`](waage.md) (5 V über TPS61240, H40A 404 Ω, Auflösung, Energie)
+- Block Mikrocontroller und Funk: [`mcu-funk.md`](mcu-funk.md) (Beschaltung, Quarz 7 pF, USB-C, Antenne an IPEX, LLCC68-Hinweis, Pinbelegung)
 
 Änderungen gegen 0.2:
 - Ra-01SH festgelegt.
@@ -22,44 +31,29 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 | K4 [M] | EEPROM **AT24C256** am I²C-Bus (Messwertpuffer und LoRaWAN-Sitzung). |
 | K5 [S] | **USB-C** an PA11/PA12: Aufspielen über den eingebauten USB-DFU-Bootloader des STM32 und Service-Konsole, ohne FTDI-Adapter. Dazu ein BOOT0-Taster. Seriell (PA9/PA10) und SWD bleiben als Stiftleiste. |
 
-### Pinbelegung (Vorschlag)
+### Pinbelegung
 
-| Pin | Funktion | Bemerkung |
-|---|---|---|
-| PA0 | Service-Taster / Wakeup (WKUP1) | Pull-down extern |
-| PA1 | Mikrofon (ADC1_IN1) | Entstörung siehe 2.2 |
-| PA2 | Ra-01SH DIO1 (Interrupt) | |
-| PA3 | Ra-01SH BUSY | |
-| PA4 / PA5 / PA6 / PA7 | Ra-01SH NSS / SCK / MISO / MOSI (SPI1) | Serienwiderstände 22–100 Ω laut Moduldatenblatt |
-| PA8 | 1-Wire DS18B20 | Pull-up 4,7 kΩ |
-| PA9 / PA10 | Serial1 TX / RX | Stiftleiste Debug |
-| PA11 / PA12 | USB D− / D+ | USB-C, ESD-Schutz |
-| PA13 / PA14 | SWD | Stiftleiste |
-| PA15 | Regensensor | optional |
-| PB0 / PB1 | Spannung Akku / Solar (ADC1_IN8 / IN9) | Teiler hochohmig, abschaltbar |
-| PB2 | BOOT1 | fest über Widerstand auf GND, nicht belegen |
-| PB4 | Ra-01SH RESET | |
-| PB5 | Peripherie ein/aus | High-Side-Schalter |
-| PB6 / PB7 | I²C SCL / SDA | EEPROM, BME280 (extern), Pull-ups |
-| PB8 / PB9 | HX711 Nr. 1 DT / SCK | |
-| PB12 / PB13 | HX711 Nr. 2 DT / SCK | nicht mehr auf PB2 (BOOT1) |
-| PC13 | LED | |
-| PC14 / PC15 | LSE 32,768 kHz | |
-| PB3, PB10, PB14, PB15 | frei | Erweiterungsstecker (F9) |
+Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md), Abschnitt 4.** Änderungen gegen 0.3:
+- Ra-01SH TXEN/RXEN über Lötbrücken an PB14/PB15
+- Erweiterung: PA15, PB12, PB13 (PB10 schaltet den 5-V-Wandler der Waage, PB3 ist CS des SPI-Flashs; nur noch ein HX711)
+- PA15 nicht mehr für den Regensensor
+- EEPROM an der geschalteten Schiene
 
 ## 2. Funktionen
 
 | Nr. | Anforderung |
 |---|---|
 | F1 [M] | **Funk: Ai-Thinker Ra-01SH** (LCSC C2764087). Werte laut Datenblatt V1.1 vom 18.08.2020: 17 × 16 × 3,2 mm, 16 Stempellöcher im Raster 2 mm, −40 bis +85 °C. Einzelheiten in 2.1. |
-| F2 [M] | **Antenne**: Lötpad für λ/4-Draht (ca. 86 mm) am Pin ANT, kurze 50-Ω-Leitung, Masseflächen. Das Modul hat zusätzlich eine IPEX-Buchse auf der Oberseite. Antenne fern von Metallteilen (Datenblatt). |
-| F3 [M] | **Waage**: 2 × HX711 (SOP-16) mit eigener Analogversorgung nach Referenzschaltung. Anschluss je Wägezelle 4- oder 6-polig. |
-| F4 [M] | **Temperatur**: 1-Wire für mindestens 2 × DS18B20, zwei Klemmen am gleichen Bus. |
-| F5 [M] | **I²C außen**: Anschluss für BME280 im Strahlungsschutz, ESD-Schutz. |
-| F6 [M] | **Mikrofon GY-MAX4466** als Modul, Entstörung auf der Platine (2.2). |
-| F7 [S] | **Service**: Taster PA0, LED PC13, Reset-Taster, BOOT0-Taster. |
-| F8 [K] | Regensensor (PA15). |
-| F9 [S] | **Reserve**: Erweiterungsstecker 2,54 mm mit 3,3 V (geschaltet und dauernd), GND, I²C, Serial1, PB3, PB10, PB14, PB15. |
+| F2 [M] | **Antenne** (Entscheidung 08.10.2026): FPC-Antenne 868 MHz an der **IPEX-Buchse des Moduls**, innen an eine Seitenwand geklebt. Pin ANT ohne Leiterbahn. Einzelheiten `mcu-funk.md` 2.3. |
+| F3 [M] | **Waage** (Entscheidungen 08./09.10.2026): **1 × HX711** mit **VSUP 5 V aus festem Aufwärtswandler TPS61240** (Lasttrennung, nur beim Wiegen an), AVDD 4,3 V, **eine** Bosche H40A 200 kg. Anschluss 5-polig steckbar (E±, S±, Schirm). Einzelheiten [`waage.md`](waage.md). |
+| F4 [M] | **Temperatur**: 1-Wire für mindestens 2 × DS18B20, zwei 3-polige Klemmen J6/J7 am gleichen Bus (GND, DQ, 3V3_SW), 4,7 kΩ an der geschalteten Schiene, ESDS304. [`anschluesse.md`](anschluesse.md). |
+| F5 [M] | **I²C außen**: BME280 im Strahlungsschutz an J8 (6-polig mit Schirm, Pin 6 frei), ESDS304; wegen der Kabelkapazität Pull-ups **1,8 kΩ** und Takt **50 kHz**, Leitung **≤ 1 m** (Festlegung 09.10.2026). [`anschluesse.md`](anschluesse.md) 3.1. |
+| F6 [M] | **Mikrofon GY-MAX4466** als Modul, Entstörung und Filter auf der Platine (2.2). Ausgearbeitet in [`mikrofon.md`](mikrofon.md). |
+| F7 [M] | **Bedienung ohne Öffnen** (Entscheidung 09.10.2026): Reedkontakt parallel zum Service-Taster an PA0 (Magnet von außen); **seitlich abstrahlende LED** an PC13 am Platinenrand, **fertiger Wand-Lichtleiter mit Dichtung durch eine Bohrung in der Gehäusewand** (Kandidat Bivar PLTR2, IP67), außen Markierung „Magnet hier“. Lichtsignale: `mcu-funk.md` 3.3. Reset- und BOOT0-Taster innen. |
+| F8 [K] | Regensensor über den Erweiterungsstecker (F9). |
+| F9 [S] | **Reserve**: Erweiterungsstecker 2,54 mm mit 3,3 V (geschaltet und dauernd), GND, I²C, Serial1, PA15, PB12, PB13. |
+| F11 [M] | **SPI-Flash 64 Mbit** für Messwerte (fest, Entscheidung 09.10.2026): SOIC-8 208 mil, Typ nach Bestand bei der Bestellung, SPI1 mit CS an PB3, dauernd versorgt im Deep Power-down. `mcu-funk.md` 3.2. |
+| F10 [M] | **ESD-Schutz** an allen Sensorklemmen mit 4-fach-ESD-Arrays (wie BEEP base v3). An der Wägezelle mit kleinem Leckstrom; für E± Sperrspannung ≥ 5 V. Gewählt (09.10.2026): **TI ESDS304** (3,6 V, ≤ 50 nA) an DS18B20, BME280 und Mikrofon; **TI TPD4E05U06** (5,5 V, ≤ 10 nA, C138714) an der Wägezelle. Siehe [`anschluesse.md`](anschluesse.md) 2 und [`beep-vergleich.md`](beep-vergleich.md) 3.2. |
 
 ### 2.1 Ra-01SH – Befunde aus Datenblatt V1.1
 
@@ -76,25 +70,28 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 
 | Nr. | Maßnahme |
 |---|---|
-| A1 [M] | Eigene, gesiebte Versorgung: RC- oder LC-Glied hinter dem Peripherieschalter, Ferrit. **[K]** eigener rauscharmer LDO für den Analogteil. |
-| A2 [M] | **Anti-Aliasing-Tiefpass 2. Ordnung** vor PA1, Grenzfrequenz ca. 1 kHz (passiv zweistufig oder mit stromsparendem OPV). Er ist auf 8192 Hz ADC-Takt mit digitaler Dezimierung auf 2048 Hz ausgelegt; siehe `docs/fft-konzept.md`. Zusätzlich ein flacher Hochpass bei 20–30 Hz gegen Gleichanteil und Rumpeln. Die Grenze bei 55,5/60 Hz setzt die Firmware, nicht die Platine. |
-| A3 [M] | Analogmasse sternförmig an einem Punkt mit Digitalmasse. Funkmodul und SPI fern von PA1. |
+| A1 [M] | Eigene, gesiebte Versorgung 3V3_ANA: Ferrit + 47 Ω + 22 µF hinter dem Sensorschalter. |
+| A2 [M] | **Anti-Aliasing:** Sallen-Key-Tiefpass 2. Ordnung mit LMV321 (1179 Hz, Q 0,74) + RC 4,8 kHz vor PA1. Gerechnet: −36 bis −39 dB bei den Spiegelfrequenzen 7168–8192 Hz, höchstens −1,1 dB im Nutzband. Hochpass ca. 22 Hz (220 nF / 33 kΩ an VREF 1,65 V). Die Grenze bei 60 Hz setzt die Firmware. |
+| A3 [M] | Durchgehende Massefläche; Filter nahe an PA1; Funkmodul, SPI und 5-V-Wandler fern vom Mikrofonzweig; kein Rückstrom des Wandlers unter dem Filter (Hinweis HW26-04 statt „sternförmig“). |
 | A4 [M] | Abgeschirmtes Kabel (LiYCY 3 × 0,14). Schirm einseitig auf Analogmasse. |
-| A5 [M] | Messung nie während einer Funkübertragung; das legt die neue Firmware fest. |
+| A5 [M] | Messung nie während einer Funkübertragung und nie bei laufendem 5-V-Wandler; Reihenfolge Waage → Mikrofon → Senden. |
 | A6 [S] | Verstärkung am Poti so einstellen, dass nichts übersteuert. In der Firmware Welch-Mittelung, Pegel in dBFS und Bandpegel (`docs/fft-konzept.md`). |
-| A7 [M] | ADC an PA1 timergesteuert mit DMA (8192 Hz). PA1 = ADC1_IN1 und Timer-Trigger beim STM32F411 **[P]** im Referenzhandbuch bestätigen. |
+| A7 [M] | ADC an PA1 timergesteuert (TIM2/TIM3-TRGO) mit DMA2 (8192 Hz, optional 16384 Hz für 55 dB). **[P]** RM0383 Tab. 42 und 28 bestätigen. |
 
 ## 3. Versorgung
 
+Ausgearbeitet in **[`versorgung.md`](versorgung.md)**, dort mit Quellen, Rechnung und offenen Prüfpunkten. Kurzfassung:
+
 | Nr. | Anforderung |
 |---|---|
-| V1 [M] | Li-Ion 18650 **per Kabel**. Halter Keystone 1043 (bestellt) sitzt getrennt. Steckbarer Anschluss mit Verpolschutz (P-MOSFET). |
-| V2 [M] | Akku **ohne Schutzschaltung** (BAK N18650CP): Tiefentladeschutz in Hardware (Unterspannungsabschaltung) oder sicher in der Firmware. **[P]** festlegen. |
-| V3 [M] | Solarladeregler (CN3065 oder gleichwertig), Eingang für 2 Panels 6 V parallel, SMD-Schottky im Solarpfad. |
-| V4 [M] | LDO 3,3 V mit sehr kleinem Ruhestrom **und** mindestens 250 mA Spitzenstrom (Ra-01SH). **[P]** Kandidaten prüfen; MCP1700 schafft nur 250 mA und ist damit knapp. |
-| V5 [M] | High-Side-Schalter (P-MOSFET) für Sensoren, HX711, Mikrofon an PB5. |
-| V6 [S] | RTC-Pufferung über VBAT (CR2032 oder Kondensator mit Diode). |
-| V7 [S] | Ruhestrom der ganzen Platine **unter 20 µA**. **[P]** nachmessen. |
+| V1 [M] | Li-Ion 18650 **auf einer eigenen Akku-Platine** am Halter Keystone 1043, per Kabel mit kodiertem Stecker zur Hauptplatine. Auf der Akku-Platine: Zellschutz, NTC, Messbrücke. |
+| V2 [M] | **Tiefentladeschutz in Hardware, zweistufig:** BQ25185 trennt SYS bei 3,0 V; HY2111-GB + 8205 trennt die Zelle bei 2,9 V (0,1 µA). Freigabe nur durch Laden. Dazu Firmware-Stufen ab 3,5 V. |
+| V3 [M] | Laderegler **BQ25185**: Eingang bis 18 V (Panels kalt bis ca. 10 V), Eingangsspannungsregelung, **Ladesperre unter ca. +2 °C** über NTC, Ladeschluss **4,1 V**, 300 mA. Je Panel eine Schottky-Diode, TVS am Eingang. |
+| V4 [M] | LDO **RT9080-33**: 600 mA, 2 µA Ruhestrom |
+| V5 [M] | Lastschalter **TPS22917** für die Sensorschiene (Anstiegszeit über CT, aktive Ausgangsentladung, wie BEEP base v3); Rückfall AO3401A mit Gate-RC und Entladewiderstand. **Alle Pull-ups an der geschalteten Schiene** (Rückspeisung, HW26-04). |
+| V6 [S] | RTC über VBAT an 3,3 V, **keine Knopfzelle**. Bei Abschaltung durch den Schutz holt die Firmware die Zeit per DeviceTimeReq neu. |
+| V7 [S] | Ruhestrom **unter 20 µA bei 25 °C** (gerechnet 13 µA); bei 70 °C bis ca. 25 µA. **[P]** nachmessen. |
+| V8 [S] | Panels steil (60–70° Süd) montieren, Unterkante frei (Schnee) |
 
 ## 4. Gehäuse und Mechanik
 
@@ -120,13 +117,13 @@ Die PDF liegt wegen des Herstellercopyrights nicht im Repo, sondern lokal unter 
 | Nr. | Anforderung |
 |---|---|
 | M1 [M] | **Hauptplatine 121 × 121 mm**, quadratisch, Ecken gerundet, 4 Bohrungen Ø 3,4 mm auf **110,2 × 110,2 mm** (mittig). Sie liegt ganz innerhalb der erlaubten Kontur und lässt am Rand Platz für die Kabel. |
-| M2 [M] | Auf der **Unterseite** keine Bauteile; THT-Lötstellen in den zwei eingeschränkten Feldern kurz abschneiden. **[P]** Freiraum unter der Platine und Domhöhe aus dem STEP-Modell (bei Camdenboss anfragen) oder am Muster messen. |
+| M2 [M] | Auf der **Unterseite** keine Bauteile; THT-Lötstellen in den zwei eingeschränkten Feldern kurz abschneiden. **[P]** Freiraum unter der Platine und Domhöhe aus dem **STEP-Modell** (Anfrage bei Camdenboss über das Formular „STEP drawing request“, stellt Philipp). Davon hängen auch die Höhe der Lichtleiter-Bohrung (F7) und der Platz für den Akku (M3) ab. |
 | M3 [S] | **Akkuhalter** auf einer Trägerplatte an den Deckeldomen (108 × 108 mm) oder seitlich neben der Hauptplatine. **[P]** Bauhöhe 18650 im Halter gegen den Freiraum zwischen Hauptplatine und Deckel prüfen. |
-| M4 [M] | Innen **steckbare Schraubklemmen** (Raster 3,5 oder 5,08 mm), damit jeder Sensor ohne Löten getauscht werden kann. Aufdruck an jeder Klemme. |
-| M5 [S] | Klemmen an den Platinenrändern zu den späteren Durchführungen hin. Rund ein Drittel der Fläche frei für Erweiterungen. |
+| M4 [M] | Innen **steckbare Schraubklemmen**, Raster **3,5 mm** (DEGSON 15EDGRHC-3.5, 4-polig C7603445; übrige Polzahlen [P]), damit jeder Sensor ohne Löten getauscht werden kann. Masse/Schirm immer Pin 1; Aufdruck an jeder Klemme; Jede Sensorklemme eigene Polzahl: **J8 (BME280) 6-polig**, J4 (Wägezelle) 5-polig, dazu Steckerfarbe (09.10.2026). Belegung J1–J11: [`anschluesse.md`](anschluesse.md). |
+| M5 [S] | **Alle Außenklemmen an einer Platinenkante** (Solar – BME280 – DS18B20 – Mikrofon – Wägezelle), ESD direkt hinter der Klemme; Funkmodul an der gegenüberliegenden Kante. Rund ein Drittel der Fläche frei für Erweiterungen. [`anschluesse.md`](anschluesse.md) 4. |
 | M6 [K] | Kabeldurchführungen: zurückgestellt, Festlegung später. |
-| M7 [M] | SMD einseitig, möglichst JLCPCB-„Basic Parts“; „Extended Parts“ (STM32, HX711, CN3065, Ra-01SH …) nur wo nötig. |
-| M8 [S] | 2-lagig, 1,6 mm, HASL bleifrei oder ENIG; Schutzlack nach dem Test; Klemmen, USB und Antennenanschluss abdecken. |
+| M7 [M] | Bestückung **komplett bei JLCPCB, auch die Durchsteckteile** (Festlegung 09.10.2026; anschluesse.md 5). SMD einseitig, möglichst JLCPCB-„Basic Parts“; „Extended Parts“ (STM32, HX711, CN3065, Ra-01SH …) nur wo nötig. |
+| M8 [M] | **4 Lagen** (Entscheidung Philipp, 09.10.2026), 1,6 mm, Aufbau nach JLCPCB-Standard: L1 Signal/Bauteile, **L2 durchgehende Masse**, L3 Versorgung (3,3 V, SYS, 5 V) mit Masse-Füllung, L4 Signal. L2 nicht auftrennen; Masse-Durchkontaktierungen entlang der Platinenkante und um Funkmodul, Wandler und Waagen-/Mikrofonzweig. HASL bleifrei oder ENIG; Schutzlack nach dem Test; Klemmen, USB und Antennenanschluss abdecken. |
 | M9 [S] | Testpunkte für 3,3 V, Akku, Solar, GND, Mikrofon-Ausgang. |
 | M10 [M] | Temperaturbereich: alle Bauteile mindestens −20 bis +70 °C. |
 
@@ -169,6 +166,5 @@ Entschieden (08.10.2026):
 Offen:
 
 - Webserver-Skripte prüfen: Felder für Mikrofon und Deckeltemperatur (S4, `docs/datenformat.md`)
-- Tiefentladeschutz in Hardware oder Firmware (V2)
-- LDO-Typ mit 250 mA Spitzenstrom und kleinem Ruhestrom (V4)
+- Prüfpunkte der Versorgung, `versorgung.md` Abschnitt 7 (u. a. Panel-Messung, BQ25185-Eingangsbereich, HY2111-Variante)
 - Domhöhe und Freiraum (STEP-Modell), Lage des Akkuhalters (M2, M3)
