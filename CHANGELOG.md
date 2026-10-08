@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2026-10-08 – Lastenheft Platine 0.2
+
+- Funk SX1262-Modul (E22-900M22S oder Ra-01SH), Firmware-Folgen beschrieben (RadioLib)
+- Mikrofon GY-MAX4466 mit Entstörung, Akku per Kabel, Gehäuse CBHUB-02-GY mit Reserve
+
 ## 2026-10-08 – Firmware STM32_LORA_261008_ZS (Testversion, Review-Stand 2)
 
 Grundlage: beelogger `STM32_LORA_260705`.
