@@ -6,10 +6,22 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[main 5c1b847 — Firmware 261010, UTC-Server, Regression](2026-10-08-main-5c1b847-regression.md)** | **Commit `5c1b847`** | **5/5 CI-Jobs erfolgreich; neuer unabhängiger UTC-Teilupdate-Spotcheck; kein HiL** |
 | [Firmware 261009 — Code-Review und isolierte SiL-Spotchecks](2026-10-08-firmware-261009-sil.md) | Commit `d735f0f` | Statisch + isolierter Host-Rechentest; kein MCU-/HiL-Test |
 | [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
+
+## Aktueller Stand nach Regression 5c1b847
+
+**Maßgeblich für neue Änderungen:** [Regressionstest Firmware 261010 / UTC-Server](2026-10-08-main-5c1b847-regression.md). Der untenstehende ursprüngliche Prüfstand ist historisch und wird zur Rückverfolgung **nicht** überschrieben.
+
+- **Behebungen nachgewiesen:** `FW26-01` (Compile-Guard), `FW26-02` (Phantomgewicht unterdrückt), `FW26-03` (ADC-Timeout im Code), `FW26-04` (CI-Tests), `FW26-05` (SiL-SNR/59 Hz), `FW26-06` (FPort-1-FFT deaktiviert).
+- **`SRV26-01` nur bedingt behoben:** 7/7 über `server/beelogger_eigen`; das Original M.40 bleibt bei 5/7.
+- **Neu P1 `SRV26-07`:** `utc_zeit='auto'` darf nicht wegen eines einzigen Hauptordner-Markers UTC an einen alten Logger-Endpunkt schicken (Teilupdate: 2 h Verschiebung nachgewiesen).
+- **Unverändert P1:** `SRV26-02/03/04/05` (Fehlerstatus, Parallelität, CSV-Atomizität, BEEP-Duplikatrisiko).
+- **Neu P2 `SRV26-08`:** Playwright-Grafiktest wurde im GitHub-CI-Lauf übersprungen.
+- **Hardware `HW26-01` und weitere Entwurfs-/HiL-Punkte bleiben offen.**
 
 ## Offene Prioritäten (Stichtag 2026-10-08)
 

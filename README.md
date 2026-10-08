@@ -12,11 +12,11 @@ Dazu kommen eigene Erweiterungen, Tests, Dokumentation und später eine eigene, 
 
 | Teil | Stand |
 |---|---|
-| Firmware `STM32_LORA_261008_ZS` (ZS + V2-Payload + optional FFT) | SiL-/CI-Prüfung vorhanden, **noch nicht am Logger/mit TTN validiert** |
+| Firmware `STM32_LORA_261008_ZS` (Firmware-ID 261010, ZS + V2 + optionale FFT) | Host-/SiL-Tests und drei STM32-Buildvarianten CI-grün, **noch nicht am Logger/mit TTN validiert** |
 | Tests (Unit-Tests, Simulation, TTN-Auswertung, Selbsttest auf dem STM32) | lauffähig |
 | Eigene SMD-Platine | Lastenheft-Entwurf, siehe [`hardware/`](hardware/) |
 | Waagenrahmen (Alu) | geplant, siehe [`mechanik/`](mechanik/) |
-| Erweiterungen beelogger-Webserver | Eigener TTN-LoRa-Eingang implementiert und integriert getestet; siehe [`server/lora/`](server/lora/) |
+| Erweiterungen beelogger-Webserver | Eigener TTN-LoRa-Eingang und UTC-Serverfassung integriert getestet; **vollständiges Deployment nötig**, siehe [`server/`](server/) und [`docs/server-utc.md`](docs/server-utc.md) |
 
 ## Aufbau des Systems
 
