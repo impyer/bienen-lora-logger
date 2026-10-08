@@ -1,5 +1,25 @@
 # Änderungen
 
+## 2026-10-08 – Eigene Server-Fassung mit UTC (eigen-utc-2)
+
+- `server/beelogger_eigen/`: beelogger M.40 mit Unix-Zeitstempel (UTC) als maßgeblicher Zeit; Zeitzone wählbar in `beelogger_zeitzone.php`
+  - `beelogger_log.php`: `UTC=1` beim EE-Weg (vom LoRa-Eingang gesetzt); Zeitstempel nicht mehr aus dem Ortszeit-Text zurückgerechnet
+  - Grafik (`beelogger_show.php`, `beelogger_sml.php`, `beelogger_mobileWatch.php`): Zeitachse als ISO 8601 mit Versatz aus dem Zeitstempel, eindeutig auch in der doppelten Stunde; Stundenauswertung nach Zeitstempel
+  - Hauptordner-Skripte (`beelogger_cron21.php`, `scraper.php`, `local_Updater.php`, `local_Split_Archivnotes.php`) setzen die Zeitzone; bisher galt die php.ini-Vorgabe
+- `server/eigen_anpassen.py` erzeugt die Fassung aus dem Original-ZIP (jede Stelle muss genau einmal vorkommen); `server/eigen_utc.patch` zeigt den Unterschied
+- LoRa-Eingang: `utc_zeit` (`'auto'`), Speicherprüfung über den Zeitstempel
+- Tests: Ende-zu-Ende für beide Fassungen (eigen 29, original 22 Prüfungen), Grafik im Browser (Playwright); CI vergleicht die erzeugte Fassung mit dem Repo
+
+## 2026-10-08 – Firmware 261010: Korrekturen nach Trockenprüfung (Review zu 261009)
+
+- FFT-Spitze nur noch mit deutlichem Abstand zum Grundrauschen: `spitze_gueltig` erst ab 10 dB über dem Median der Linien 60–900 Hz (`BF_SNR_DB`). Gesamt- und Bandpegel werden weiter gesendet (`gueltig`). Vorher wurde bei Rauschen eine zufällige Linie als Spitze gemeldet.
+- Spitzen, deren interpolierte Frequenz außerhalb von 60–900 Hz liegt (z. B. Ton bei 59 Hz), zählen nicht; es gilt die nächstgrößere Spitze im Bereich (Toleranz 0,5 Hz).
+- ADC-Warteschleife mit Zeitgrenze (50 µs): Antwortet der ADC nicht, wird die FFT-Messung verworfen statt zu hängen.
+- Unkalibrierte Waage (`Taragewicht` = 10) wird nicht mehr als 0,01 kg gesendet und nicht als Ausfall gemeldet.
+- `#error` bei `FUNKFORMAT 2` mit mehr als 2 Waagen (Waage 3/4 haben im Funkformat v2 noch keine Bits).
+- Mit `FUNKFORMAT 1` wird keine FFT gemessen (Ergebnis würde nicht gesendet; spart 1,25 s und 38 KB RAM).
+- Tests: FFT 32 Prüfungen (neu: ±1 LSB, Rauschen ×20, Ton im Rauschen, 50/55/58/59/60/61 Hz); CI prüft zusätzlich den `#error`.
+
 ## 2026-10-08 – Firmware 261009: Funkformat v2 und FFT
 
 - `FUNKFORMAT 2` (Vorgabe): Datensatz im Funkformat v2 auf FPort 2 (`STM32_LORA_v2.ino`, `funkformat_v2.h`)

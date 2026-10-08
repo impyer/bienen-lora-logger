@@ -18,6 +18,17 @@ Die Dateien bleiben byte-genau (`.gitattributes`). So zeigt jeder Patch einen sa
 
 Analyse: [`../docs/server-analyse.md`](../docs/server-analyse.md).
 
+## `beelogger_eigen/` – eigene Fassung mit UTC (eigen-utc-2)
+
+Aus dem Original-ZIP erzeugt mit `python3 server/eigen_anpassen.py <ordner>`. Unterschied zum Original: `eigen_utc.patch`.
+
+- Gespeichert wird maßgeblich der Unix-Zeitstempel (UTC, letzte CSV-Spalte). Die erste Spalte ist nur noch Anzeige in der eingestellten Zeitzone.
+- Zeitzone wählbar in `beelogger_zeitzone.php` (Vorgabe `Europe/Berlin`). Ungültige Namen fallen auf `Europe/Berlin` zurück.
+- Behebt den Verlust in der Nacht der Winterzeit-Umstellung (Test: 7 von 7 statt 5 von 7).
+
+Details, Grenzen und Einspielen: [`../docs/server-utc.md`](../docs/server-utc.md).
+Die CI erzeugt die Fassung bei jedem Lauf neu und vergleicht sie mit dem Ordner. Änderungen deshalb nur in `eigen_anpassen.py` machen, nicht direkt im Ordner.
+
 ## `lora/`
 
 Eigener LoRa-Eingang (Webhook-Ziel für TTN) mit richtiger Messzeit und Zusatzdatei; die beelogger-Skripte bleiben unverändert. Siehe [`lora/README.md`](lora/README.md).

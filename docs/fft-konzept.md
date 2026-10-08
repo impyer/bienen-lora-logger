@@ -97,6 +97,28 @@ In der beelogger-Firmware umgesetzt (`firmware/STM32_LORA_261008_ZS`, Sketch-ID 
 | Speicher | | mit Mikrofon 41 KB RAM statt 3,3 KB (von 128 KB) |
 | Schalter | `Config_MULTI.h`: `beelogger_Audio 1`; `Config_LORA.h`: `MIC_PIN`, `MIC_ADC_DIREKT` | übertragen wird nur mit `FUNKFORMAT 2` |
 
+**Abweichung vom Konzept 3.1 (DMA):** Umgesetzt ist eine Abtastung über ADC-Register mit Takt aus dem DWT-Zyklenzähler, nicht Timer + DMA.
+Grund: Ohne DMA bleibt der Eingriff in den beelogger-Sketch klein (kein Timer, keine Interrupts, die mit LMIC kollidieren könnten).
+Nachteil: Interrupts während der Messung (z. B. SysTick) können einzelne Abtastungen verspäten. Das wird gezählt; über 1 % wird verworfen.
+Ob der Takt reicht, zeigt erst die Hardware (Debug „Ueberlaeufe“). Für die eigene Platine bleibt Timer + DMA das Ziel.
+
+**Nachträge 261010 (Trockenprüfung):**
+
+- Spitze nur gültig mit ≥ 10 dB Abstand zum Median der Linien 60–900 Hz (`spitze_gueltig`). Bei Rauschen liegt die größte Linie nach der Welch-Mittelung im Test 3,5–5 dB über dem Median.
+- ADC-Zeitgrenze 50 µs je Wandlung; danach wird die Messung verworfen.
+- **Verhalten knapp unter 60 Hz (PC-Test, Ton mit Amplitude 1000, leichtes Rauschen):**
+
+| Ton | Band 60–140 Hz / Gesamtpegel | Spitze |
+|---|---|---|
+| 50 Hz | 33,5 dB unter dem Ton | keine |
+| 55 Hz | 11,6 dB unter dem Ton | keine |
+| 58 Hz | 3,0 dB unter dem Ton | keine |
+| 59 Hz | 1,6 dB unter dem Ton | keine |
+| 60 Hz | 0,8 dB unter dem Ton | 60,0 Hz |
+
+  Die Spitze ist also sauber begrenzt. Das unterste Band und der Gesamtpegel enthalten aber Töne knapp unter 60 Hz fast voll (Leckeffekt des Hann-Fensters bei 4 Hz Teilung).
+  Netzbrummen bei 50 Hz geht mit etwa −33 dB ein. Wer das unterste Band auswertet, sollte das wissen.
+
 Gegen das Konzept geändert: Das oberste Band und der Auswertebereich enden bei **900 Hz statt 1000 Hz**.
 Grund: Töne zwischen 1024 und 1132 Hz fallen nach der Dezimierung gespiegelt auf 916–1024 Hz. Der FIR dämpft sie dort noch nicht voll.
 
@@ -105,6 +127,7 @@ Grund: Töne zwischen 1024 und 1132 Hz fallen nach der Dezimierung gespiegelt au
 - Sinus 61–897 Hz: Frequenzfehler höchstens 0,064 Hz, Pegelfehler höchstens 0,33 dB
 - Töne 1140–4000 Hz: mindestens 60 dB unterdrückt (digitaler Teil; über 4096 Hz muss der analoge Tiefpass sorgen)
 - 50-Hz-Brummen wird ignoriert, auch neben einem 42 dB leiseren Ton
+- Rauschen ohne Ton (auch ±1 LSB) ergibt keine Spitze; 50–59 Hz ergeben keine Spitze
 - Rauschen: Gesamtpegel stimmt mit der Rechnung auf ±1 dB; Summe der Bänder = Gesamtpegel
 - Stille, Übersteuerung und zu viele verpasste Abtastungen werden erkannt
 

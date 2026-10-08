@@ -1,0 +1,558 @@
+diff -ruN beelogger_M40_original/beelogger1/beelogger_log.php beelogger_eigen/beelogger1/beelogger_log.php
+--- beelogger_M40_original/beelogger1/beelogger_log.php	2026-10-08 15:12:18.733060320 +0200
++++ beelogger_eigen/beelogger1/beelogger_log.php	2026-10-08 17:19:52.630130120 +0200
+@@ -28,7 +28,11 @@
+ if(file_exists("../general_ini.php"))include("../general_ini.php");
+ if(file_exists("../beelogger_sprachfiles/Log_Sprache_".$Sprache.".php"))include("../beelogger_sprachfiles/Log_Sprache_".$Sprache.".php");//Sprache einbinden
+ 
+-date_default_timezone_set('Europe/Berlin');
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';
++if(file_exists('../beelogger_zeitzone.php'))include('../beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';
++date_default_timezone_set($Zeitzone);
+ $beelg=substr(dirname(__FILE__),strrpos(dirname(__FILE__),"/")+1);
+ 
+ if(file_exists("beelogger_ini.php"))include("beelogger_ini.php");
+@@ -62,6 +66,8 @@
+ 
+ 
+ $LORA=0;$NeubeeloggerSketchID="";
++$zeit_unix=null;//eigen-utc-1: Messzeit als Unix-Zeitstempel (UTC), maßgeblich für Speichern und Weitergabe
++$zeit_utc=(isset($_GET["UTC"])&&$_GET["UTC"]=="1");//eigen-utc-1: EE-Zeiten kommen in UTC (LoRa-Eingang)
+ $int_Check=0.0;$EE_type=0;$ext_M_Type=1;$ext_M_Data="";$TimeSync="";
+ $ext_T_Out="";$ext_F_Out="";$ext_L="";$ext_VB="";$ext_VS="";$ext_B_In="";$ext_B_Out="";
+ $ext_T_In1="";$ext_F_In1="";$ext_G_1="";
+@@ -292,7 +298,8 @@
+ $BeepDataArray=array();
+ $ThingsPeakDataArray=array();
+ 
+-$zeit=date("Y/m/d H:i:00");
++$zeit_unix=time();$zeit_unix-=$zeit_unix%60;//eigen-utc-1: Empfangszeit, Sekunden auf :00 wie bisher
++$zeit=date("Y/m/d H:i:00",$zeit_unix);
+ if($ext_Passwort==$BeeloggerLogPasswort){
+   if($ext_M_Data !=""){//M_Data Verarbeitung
+      $M_D_Arr=explode(",",$ext_M_Data);
+@@ -315,6 +322,10 @@
+         $p=strpos($M_D_Arr[$G],'_');
+         if($p==10){
+           $zeit=$M_D_Arr[$G];$zeit[10]=' ';$zeit[17]='0';$zeit[18]='0';
++          if($zeit_utc){//eigen-utc-1: Zeit in UTC -> eindeutiger Zeitstempel, Anzeige in der eingestellten Zeitzone
++            $zd=DateTime::createFromFormat('Y/m/d H:i:s',$zeit,new DateTimeZone('UTC'));
++            if($zd){$zeit_unix=$zd->getTimestamp();$zeit=date('Y/m/d H:i:00',$zeit_unix);}else $zeit_unix=null;
++          }else $zeit_unix=strtotime($zeit);//Ortszeit wie bisher (in der doppelten Stunde nicht eindeutig)
+       	  $G++; break;
+         }
+       	$G++;
+@@ -476,6 +487,7 @@
+ function Auswertung($Answer){
+ 
+ //Globale Variablen definieren
++  global $zeit_unix;//eigen-utc-1
+   global $NeubeeloggerSketchID,$M_Type,$M_Name,$M_Sign,$M_Num,$beelg,$zeit,$Softwareversion,$ext_Show,$ExternDataCounter,$BeepDataArray,$ThingsPeakDataArray,$BeepArray,$BeepIdArray,$ThingsPeakArray,$ThingsPeakApiArray,$ThingsPeakChannelArray,$TimeSync,$PushToken,$PushUser,$T_Token,$T_Chat_Id,$Empfaenger_Email,$Absender_Email;//Allgemeine globale Multi-Daten
+   global $ext_WaegTemp,$ext_T_In1,$ext_T_In2,$ext_T_In3,$ext_T_In4,$ext_T_In5,$ext_T_In6,$ext_T_Out,$ext_F_In1,$ext_F_In2,$ext_F_In3,$ext_F_In4,$ext_F_In5,$ext_F_In6,$ext_F_Out,$ext_L,$ext_G_1,$ext_G_2,$ext_G_3,$ext_G_4,$ext_G_5,$ext_G_6,$ext_VB,$ext_VS,$ext_Service,$ext_B_In,$ext_B_Out,$ext_Aux1,$ext_Aux2,$ext_Aux3,$ext_rssi,$LAs;
+ 
+@@ -539,7 +551,7 @@
+   }
+ 
+ $Date_Min="1735686000";//1735686000=2025  1577833200=2020
+-$timestamp=strtotime($zeit);
++$timestamp=($zeit_unix!==null)?$zeit_unix:strtotime($zeit);//eigen-utc-1: Zeitstempel nicht aus dem Ortszeit-Text zurückrechnen
+ 
+ $LetztesGewichtArray=array("","","","","","","","");
+ $AktualisierungStampArray=array($Date_Min,$Date_Min,$Date_Min,$Date_Min,$Date_Min,$Date_Min,$Date_Min);
+diff -ruN beelogger_M40_original/beelogger1/beelogger_show.php beelogger_eigen/beelogger1/beelogger_show.php
+--- beelogger_M40_original/beelogger1/beelogger_show.php	2026-10-08 15:12:18.733190188 +0200
++++ beelogger_eigen/beelogger1/beelogger_show.php	2026-10-08 17:19:52.639167643 +0200
+@@ -20,6 +20,18 @@
+ 
+ 
+ $Softwareversion = "M.40";//vom 03.10.2026 - beelogger_show.php
++// eigen-utc-1: Zeitspalte für Dygraph aus dem Unix-Zeitstempel (letzte Spalte) als ISO 8601 mit Versatz,
++// z. B. 2026-10-25T02:15:00+02:00. Zeilen ohne Zeitstempel bleiben unverändert.
++if(!function_exists('bl_grafikzeile')){
++function bl_grafikzeile($zeile){
++  $zeile=trim($zeile);
++  $p=strrpos($zeile,",");$k=strpos($zeile,",");
++  if($p===false||$k===false)return $zeile;
++  $ts=substr($zeile,$p+1);
++  if(!preg_match('/^\d{9,11}$/',$ts))return $zeile;
++  return date("Y-m-d\TH:i:sP",(int)$ts).substr($zeile,$k);
++}}
++
+ $show_version=0;//0, 1, 2 Programmertool
+ 
+ header('Content-Type: text/html; charset=UTF-8');
+@@ -73,7 +85,11 @@
+ $bhome=0;
+ if(file_exists("home.php"))include("home.php");
+ 
+-date_default_timezone_set('Europe/Berlin');
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';
++if(file_exists('../beelogger_zeitzone.php'))include('../beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';
++date_default_timezone_set($Zeitzone);
+ 
+ 
+ $ForscherDateiName=basename(__DIR__).".csv";//Datei löschen
+@@ -344,7 +360,7 @@
+         if($x[$s-1] !='')break;
+       }
+      }
+-     $NewArray[$NewCount][0]=date("Y/m/d H",$x[$s-1]);//Datum
++     $NewArray[$NewCount][0]=intdiv((int)$x[$s-1],3600)*3600;//eigen-utc-1: volle Stunde als Zeitstempel
+      $NewArray[$NewCount][1+$Xana]=$x[$XanalyseSensor];//Sensordaten
+      $NewCount++;
+      array_push($NewArray,$n_array);
+@@ -352,9 +368,9 @@
+       $what=trim($DateiArray[$ix]);
+       $x=explode(",", $what);
+       $s=sizeof($x);
+-      if(date("Y/m/d H",$x[$s-1])!=$NewArray[$NewCount-1][0]){//Neue Stunde angebrochen
++      if(intdiv((int)$x[$s-1],3600)*3600!=$NewArray[$NewCount-1][0]){//Neue Stunde angebrochen (eigen-utc-1)
+         array_push($NewArray,$n_array);
+-        $NewArray[$NewCount][0]=date("Y/m/d H",$x[$s-1]);//Datum
++        $NewArray[$NewCount][0]=intdiv((int)$x[$s-1],3600)*3600;//eigen-utc-1: volle Stunde als Zeitstempel
+         $NewArray[$NewCount][1+$Xana]=$x[$XanalyseSensor];//Sensordaten
+         $NewCount++;
+       }
+@@ -366,7 +382,7 @@
+  if(sizeof($NewArray)> 5){//sort and save
+   $Lastvalue="";
+   $LastArrayCount=0;
+-  asort($NewArray);
++  asort($NewArray);//eigen-utc-1: sortiert jetzt nach Zeitstempel (Zahl)
+   $LastArray=array();
+   foreach($NewArray as $value){
+     if($value[0] !=$Lastvalue){
+@@ -387,18 +403,17 @@
+   $Message=$SAs[63];
+  }
+  else{//just some data
+-  $LastArray=array(["2022/03/04 05","18.10","","","",""],["2022/03/04 06","18.60","","","",""]);
++  $LastArray=array([strtotime("2022-03-04 05:00"),"18.10","","","",""],[strtotime("2022-03-04 06:00"),"18.60","","","",""]);//eigen-utc-1
+   $Message=$SAs[148];
+  }
+ 
+   $aktion=fopen($Csvdatei,"w");
+   foreach($LastArray as $val){//make csv-string
+-  $Output=$val[0].":00,";
+-  $HelpDate=str_replace("/", "-", $Output);
++  $Output=date("Y/m/d H",(int)$val[0]).":00,";//eigen-utc-1: Anzeige aus dem Zeitstempel
+   for($iV=1;$iV <($Xana);$iV++){
+     $Output .=$val[$iV].",";
+   }
+-  $Output .=",,,".strtotime($HelpDate)."\r\n";
++  $Output .=",,,".(int)$val[0]."\r\n";//eigen-utc-1: Zeitstempel direkt, nicht aus dem Text
+   fputs($aktion,$Output);
+   }
+   fclose($aktion);
+@@ -2128,7 +2143,7 @@
+   <?php
+   if(file_exists($Csvdatei)){
+     $array=file($Csvdatei);$i=sizeof($array);
+-    for($x=0;$x<$i;$x++){$what=trim($array[$x]);echo '"'.$what.'\n"';if($x<$i-1)echo '+';}
++    for($x=0;$x<$i;$x++){$what=bl_grafikzeile($array[$x]);echo '"'.$what.'\n"';if($x<$i-1)echo '+';}//eigen-utc-1
+   }
+   else echo'"2022-10-01,,,,,,,,,,,,,,,,\n" + "2022-10-06 10:00,30,,,,,,30,,30,,,,,,,\n"+ "2022-10-06 22:00,,20,,,,,,,,,,,,,,\n" + "2022-10-07 10:0,11,,,,,,11,,,20,,,,,,\n" + "2022-10-09,10,23,,,,,10,,,,,,,,,\n"+ "2022-10-11,10,23,10,,,,,,,,,,,,,\n" + "2022-10-13,17,17,,,,,,,,,,,,,,\n" + "2022-10-14,,,12,19,19,,,,,,19,,,,,\n" + "2022-10-16,,,,,23,,,,,,,,,,,\n" + "2022-10-18,,,16,11,23,,,,,,11,,,,,\n" + "2022-10-20,,,19,10,19,,,,,,10,,,,,\n" + "2022-10-22,,,,,,19,,19,,,,,,,,\n"+ "2022-10-24,,,,,,23,,13,,,,,,,,\n" + "2022-10-26,,,,16,,23,,11,,,16,,,,,\n" +"2022-10-28,,,,19,,19,,10,,,19,,30,,,\n" + "2022-11-02,,,,,,,,,,,,,,,,\n"'; ?>,
+ //Optionen
+@@ -2306,7 +2321,7 @@
+         $Sensorx=$H_Sens;//html_entity_decode($HelpArraySensoren[$Sensorx*5]);
+         $Anmerkung=html_entity_decode($x[$s-2]);$AktualisierungStamp=$x[$s-1];
+         if($AktualisierungStamp>$ErstesDatum){
+-          $DatumAnmerkung=date("Y/m/d H:i:s",$AktualisierungStamp);//Zeitformat für Dygraph umgestellt !$
++          $DatumAnmerkung=date("Y-m-d\TH:i:sP",$AktualisierungStamp);//eigen-utc-1: ISO 8601 mit Versatz, passend zur Datenzeile
+           array_push($anmerkungen,$Sensorx);//Sensor im Array merken
+           $b++;array_push($anmerkungen,$DatumAnmerkung);//Datumsstempel im Array merken
+           $b++;$y=explode("&",$Anmerkung);array_push($anmerkungen,$y[0]);//Anmerkung kurz im Array merken
+diff -ruN beelogger_M40_original/beelogger1/beelogger_sml.php beelogger_eigen/beelogger1/beelogger_sml.php
+--- beelogger_M40_original/beelogger1/beelogger_sml.php	2026-10-08 15:12:18.733411098 +0200
++++ beelogger_eigen/beelogger1/beelogger_sml.php	2026-10-08 17:19:52.646075130 +0200
+@@ -21,6 +21,18 @@
+ 
+ 
+ $Softwareversion = "M.40";//vom 03.10.2026 - beelogger_sml.php
++// eigen-utc-1: Zeitspalte für Dygraph aus dem Unix-Zeitstempel (letzte Spalte) als ISO 8601 mit Versatz,
++// z. B. 2026-10-25T02:15:00+02:00. Zeilen ohne Zeitstempel bleiben unverändert.
++if(!function_exists('bl_grafikzeile')){
++function bl_grafikzeile($zeile){
++  $zeile=trim($zeile);
++  $p=strrpos($zeile,",");$k=strpos($zeile,",");
++  if($p===false||$k===false)return $zeile;
++  $ts=substr($zeile,$p+1);
++  if(!preg_match('/^\d{9,11}$/',$ts))return $zeile;
++  return date("Y-m-d\TH:i:sP",(int)$ts).substr($zeile,$k);
++}}
++
+ $show_version=0;//0, 1, 2 Programmertool
+ 
+ SESSION_START();
+@@ -75,7 +87,11 @@
+ if(file_exists("../general_ini.php"))include("../general_ini.php");//Sprache festlegen
+ if(file_exists("../beelogger_sprachfiles/Show_Sprache_".$Sprache.".php"))include("../beelogger_sprachfiles/Show_Sprache_".$Sprache.".php");//Sprache einbinden
+ 
+-date_default_timezone_set('Europe/Berlin');
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';
++if(file_exists('../beelogger_zeitzone.php'))include('../beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';
++date_default_timezone_set($Zeitzone);
+ 
+ $beelogger=substr(dirname(__FILE__), strrpos(dirname(__FILE__),"/")+1);
+ if(strchr($beelogger,"\\")){
+@@ -235,7 +251,7 @@
+         if($x[$s-1]!='')break;
+       }
+   }
+-    $NewArray[$NewCount][0]=date("Y/m/d H",$x[$s-1]);//Datum
++    $NewArray[$NewCount][0]=intdiv((int)$x[$s-1],3600)*3600;//eigen-utc-1: volle Stunde als Zeitstempel
+     $NewArray[$NewCount][1+$Xana]=$x[$XanalyseSensor];//Sensordaten
+     $NewCount++;
+     array_push($NewArray,$n_array);
+@@ -243,9 +259,9 @@
+       $what=trim($DateiArray[$ix]);
+       $x=explode(",",$what);
+       $s=sizeof($x);
+-      if(date("Y/m/d H",$x[$s-1])!=$NewArray[$NewCount-1][0]){//Neue Stunde angebrochen
++      if(intdiv((int)$x[$s-1],3600)*3600!=$NewArray[$NewCount-1][0]){//Neue Stunde angebrochen (eigen-utc-1)
+         array_push($NewArray,$n_array);
+-        $NewArray[$NewCount][0]=date("Y/m/d H",$x[$s-1]);//Datum
++        $NewArray[$NewCount][0]=intdiv((int)$x[$s-1],3600)*3600;//eigen-utc-1: volle Stunde als Zeitstempel
+         $NewArray[$NewCount][1+$Xana]=$x[$XanalyseSensor];//Sensordaten
+         $NewCount++;
+       }
+@@ -257,7 +273,7 @@
+  if(sizeof($NewArray)>5){//sort and save
+   $Lastvalue="";
+   $LastArrayCount=0;
+-  asort($NewArray);
++  asort($NewArray);//eigen-utc-1: sortiert jetzt nach Zeitstempel (Zahl)
+   $LastArray=array();
+   foreach($NewArray as $value){
+     if($value[0]!=$Lastvalue){
+@@ -278,18 +294,17 @@
+   $Message=$SAs[63];
+  }
+  else{//just some data
+-  $LastArray=array(["2022/03/04 05","18.10","","","",""],["2022/03/04 06","18.60","","","",""]);
++  $LastArray=array([strtotime("2022-03-04 05:00"),"18.10","","","",""],[strtotime("2022-03-04 06:00"),"18.60","","","",""]);//eigen-utc-1
+   $Message=$SAs[148];
+  }
+ 
+   $aktion=fopen($Csvdatei,"w");
+   foreach($LastArray as $val){//make csv-string
+-  $Output=$val[0].":00,";
+-  $HelpDate=str_replace("/","-",$Output);
++  $Output=date("Y/m/d H",(int)$val[0]).":00,";//eigen-utc-1
+   for($iV=1;$iV <($Xana);$iV++){
+     $Output.=$val[$iV].",";
+   }
+-  $Output.=",,,".strtotime($HelpDate)."\r\n";
++  $Output.=",,,".(int)$val[0]."\r\n";
+   fputs($aktion,$Output);
+   }
+   fclose($aktion);
+@@ -1418,7 +1433,7 @@
+   <?php
+   if(file_exists($Csvdatei)){
+     $array=file($Csvdatei);$i=sizeof($array);
+-    for($x=0;$x<$i;$x++){$what=trim($array[$x]);echo '"'.$what.'\n"';if($x<$i-1)echo '+';}
++    for($x=0;$x<$i;$x++){$what=bl_grafikzeile($array[$x]);echo '"'.$what.'\n"';if($x<$i-1)echo '+';}//eigen-utc-1
+   }
+   else echo'"2022-10-01,,,,,,,,,,,,,,,,\n" + "2022-10-06 10:00,30,,,,,,30,,30,,,,,,,\n"+ "2022-10-06 22:00,,20,,,,,,,,,,,,,,\n" + "2022-10-07 10:0,11,,,,,,11,,,20,,,,,,\n" + "2022-10-09,10,23,,,,,10,,,,,,,,,\n"+ "2022-10-11,10,23,10,,,,,,,,,,,,,\n" + "2022-10-13,17,17,,,,,,,,,,,,,,\n" + "2022-10-14,,,12,19,19,,,,,,19,,,,,\n" + "2022-10-16,,,,,23,,,,,,,,,,,\n" + "2022-10-18,,,16,11,23,,,,,,11,,,,,\n" + "2022-10-20,,,19,10,19,,,,,,10,,,,,\n" + "2022-10-22,,,,,,19,,19,,,,,,,,\n"+ "2022-10-24,,,,,,23,,13,,,,,,,,\n" + "2022-10-26,,,,16,,23,,11,,,16,,,,,\n" +"2022-10-28,,,,19,,19,,10,,,19,,30,,,\n" + "2022-11-02,,,,,,,,,,,,,,,,\n"'; ?>,
+ //Optionen
+@@ -1555,7 +1570,7 @@
+         $Sensorx=$H_Sens;//html_entity_decode($HelpArraySensoren[$Sensorx*5]);
+         $Anmerkung=html_entity_decode($x[$s-2]);$AktualisierungStamp=$x[$s-1];
+         if($AktualisierungStamp>$ErstesDatum){
+-          $DatumAnmerkung=date("Y/m/d H:i:s",$AktualisierungStamp);//Zeitformat für Dygraph umgestellt !$
++          $DatumAnmerkung=date("Y-m-d\TH:i:sP",$AktualisierungStamp);//eigen-utc-1: ISO 8601 mit Versatz
+           array_push($anmerkungen,$Sensorx);//Sensor im Array merken
+           $b++;array_push($anmerkungen,$DatumAnmerkung);//Datumsstempel im Array merken
+           $b++;$y=explode("&",$Anmerkung);array_push($anmerkungen,$y[0]);//Anmerkung kurz im Array merken
+diff -ruN beelogger_M40_original/beelogger_cron21.php beelogger_eigen/beelogger_cron21.php
+--- beelogger_M40_original/beelogger_cron21.php	2026-10-08 15:12:18.732812536 +0200
++++ beelogger_eigen/beelogger_cron21.php	2026-10-08 17:19:52.649992131 +0200
+@@ -1,4 +1,7 @@
+ <?php
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';if(file_exists(__DIR__.'/beelogger_zeitzone.php'))include(__DIR__.'/beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';date_default_timezone_set($Zeitzone);
+ set_time_limit(300);  // script may run up to 5 minutes
+ error_reporting(E_ERROR | E_WARNING | E_PARSE);
+ 
+Binary files beelogger_M40_original/beelogger_icons/.DS_Store and beelogger_eigen/beelogger_icons/.DS_Store differ
+Binary files beelogger_M40_original/beelogger_icons/Akku00.png and beelogger_eigen/beelogger_icons/Akku00.png differ
+Binary files beelogger_M40_original/beelogger_icons/Akku100.png and beelogger_eigen/beelogger_icons/Akku100.png differ
+Binary files beelogger_M40_original/beelogger_icons/Akku25.png and beelogger_eigen/beelogger_icons/Akku25.png differ
+Binary files beelogger_M40_original/beelogger_icons/Akku50.png and beelogger_eigen/beelogger_icons/Akku50.png differ
+Binary files beelogger_M40_original/beelogger_icons/Beute.png and beelogger_eigen/beelogger_icons/Beute.png differ
+Binary files beelogger_M40_original/beelogger_icons/Triggeralarm.png and beelogger_eigen/beelogger_icons/Triggeralarm.png differ
+Binary files beelogger_M40_original/beelogger_icons/Xanalyse.png and beelogger_eigen/beelogger_icons/Xanalyse.png differ
+Binary files beelogger_M40_original/beelogger_icons/Xanalyse_inaktiv.png and beelogger_eigen/beelogger_icons/Xanalyse_inaktiv.png differ
+Binary files beelogger_M40_original/beelogger_icons/arrow.png and beelogger_eigen/beelogger_icons/arrow.png differ
+Binary files beelogger_M40_original/beelogger_icons/bat.png and beelogger_eigen/beelogger_icons/bat.png differ
+Binary files beelogger_M40_original/beelogger_icons/beep-icon.png and beelogger_eigen/beelogger_icons/beep-icon.png differ
+Binary files beelogger_M40_original/beelogger_icons/bienen_in.png and beelogger_eigen/beelogger_icons/bienen_in.png differ
+Binary files beelogger_M40_original/beelogger_icons/bienen_out.png and beelogger_eigen/beelogger_icons/bienen_out.png differ
+Binary files beelogger_M40_original/beelogger_icons/bw_beep.png and beelogger_eigen/beelogger_icons/bw_beep.png differ
+Binary files beelogger_M40_original/beelogger_icons/bw_ibeekeeper.png and beelogger_eigen/beelogger_icons/bw_ibeekeeper.png differ
+Binary files beelogger_M40_original/beelogger_icons/bw_map.png and beelogger_eigen/beelogger_icons/bw_map.png differ
+Binary files beelogger_M40_original/beelogger_icons/bw_minus.png and beelogger_eigen/beelogger_icons/bw_minus.png differ
+Binary files beelogger_M40_original/beelogger_icons/bw_plus.png and beelogger_eigen/beelogger_icons/bw_plus.png differ
+Binary files beelogger_M40_original/beelogger_icons/bw_temp.png and beelogger_eigen/beelogger_icons/bw_temp.png differ
+Binary files beelogger_M40_original/beelogger_icons/cancel.png and beelogger_eigen/beelogger_icons/cancel.png differ
+Binary files beelogger_M40_original/beelogger_icons/clear-day.png and beelogger_eigen/beelogger_icons/clear-day.png differ
+Binary files beelogger_M40_original/beelogger_icons/download.png and beelogger_eigen/beelogger_icons/download.png differ
+Binary files beelogger_M40_original/beelogger_icons/favicon-16x16.png and beelogger_eigen/beelogger_icons/favicon-16x16.png differ
+Binary files beelogger_M40_original/beelogger_icons/favicon-32x32.png and beelogger_eigen/beelogger_icons/favicon-32x32.png differ
+Binary files beelogger_M40_original/beelogger_icons/favicon-96x96.png and beelogger_eigen/beelogger_icons/favicon-96x96.png differ
+Binary files beelogger_M40_original/beelogger_icons/frequenz.png and beelogger_eigen/beelogger_icons/frequenz.png differ
+Binary files beelogger_M40_original/beelogger_icons/h_Triggeralarm.png and beelogger_eigen/beelogger_icons/h_Triggeralarm.png differ
+Binary files beelogger_M40_original/beelogger_icons/honey.png and beelogger_eigen/beelogger_icons/honey.png differ
+Binary files beelogger_M40_original/beelogger_icons/honigraum.png and beelogger_eigen/beelogger_icons/honigraum.png differ
+Binary files beelogger_M40_original/beelogger_icons/hum_i.png and beelogger_eigen/beelogger_icons/hum_i.png differ
+Binary files beelogger_M40_original/beelogger_icons/hum_o.png and beelogger_eigen/beelogger_icons/hum_o.png differ
+Binary files beelogger_M40_original/beelogger_icons/info.png and beelogger_eigen/beelogger_icons/info.png differ
+Binary files beelogger_M40_original/beelogger_icons/kaefig.png and beelogger_eigen/beelogger_icons/kaefig.png differ
+Binary files beelogger_M40_original/beelogger_icons/konfig.png and beelogger_eigen/beelogger_icons/konfig.png differ
+Binary files beelogger_M40_original/beelogger_icons/konfig1.png and beelogger_eigen/beelogger_icons/konfig1.png differ
+Binary files beelogger_M40_original/beelogger_icons/like.png and beelogger_eigen/beelogger_icons/like.png differ
+Binary files beelogger_M40_original/beelogger_icons/loeschen.png and beelogger_eigen/beelogger_icons/loeschen.png differ
+Binary files beelogger_M40_original/beelogger_icons/mCheck.png and beelogger_eigen/beelogger_icons/mCheck.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_aio.png and beelogger_eigen/beelogger_icons/m_aio.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_back.png and beelogger_eigen/beelogger_icons/m_back.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_balance.png and beelogger_eigen/beelogger_icons/m_balance.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_beelogger_logo_small.png and beelogger_eigen/beelogger_icons/m_beelogger_logo_small.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_delta.png and beelogger_eigen/beelogger_icons/m_delta.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_dia.png and beelogger_eigen/beelogger_icons/m_dia.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_help.png and beelogger_eigen/beelogger_icons/m_help.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_info_1.png and beelogger_eigen/beelogger_icons/m_info_1.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_refresh.png and beelogger_eigen/beelogger_icons/m_refresh.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_time.png and beelogger_eigen/beelogger_icons/m_time.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_time1.png and beelogger_eigen/beelogger_icons/m_time1.png differ
+Binary files beelogger_M40_original/beelogger_icons/m_time24.png and beelogger_eigen/beelogger_icons/m_time24.png differ
+Binary files beelogger_M40_original/beelogger_icons/map_aktiv.png and beelogger_eigen/beelogger_icons/map_aktiv.png differ
+Binary files beelogger_M40_original/beelogger_icons/map_inaktiv.png and beelogger_eigen/beelogger_icons/map_inaktiv.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_1 Leerrahmen hinzu.png and beelogger_eigen/beelogger_icons/n_1 Leerrahmen hinzu.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_1 Rahmen mit Mittelwand hinzu.png and beelogger_eigen/beelogger_icons/n_1 Rahmen mit Mittelwand hinzu.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_2 Leerrahmen hinzu.png and beelogger_eigen/beelogger_icons/n_2 Leerrahmen hinzu.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_2 Rahmen mit Mittelwand hinzu.png and beelogger_eigen/beelogger_icons/n_2 Rahmen mit Mittelwand hinzu.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Absperrgitter.png and beelogger_eigen/beelogger_icons/n_Absperrgitter.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Akkutausch.png and beelogger_eigen/beelogger_icons/n_Akkutausch.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Ameisensaeurebehandlung.png and beelogger_eigen/beelogger_icons/n_Ameisensaeurebehandlung.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Bienenflucht eingesetzt.png and beelogger_eigen/beelogger_icons/n_Bienenflucht eingesetzt.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Bluete.png and beelogger_eigen/beelogger_icons/n_Bluete.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Brutwabe entnommen.png and beelogger_eigen/beelogger_icons/n_Brutwabe entnommen.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Brutwabe hinzu.png and beelogger_eigen/beelogger_icons/n_Brutwabe hinzu.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Durchsicht - Achtung.png and beelogger_eigen/beelogger_icons/n_Durchsicht - Achtung.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Durchsicht - Alles OK.png and beelogger_eigen/beelogger_icons/n_Durchsicht - Alles OK.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Durchsicht.png and beelogger_eigen/beelogger_icons/n_Durchsicht.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Fuetterung.png and beelogger_eigen/beelogger_icons/n_Fuetterung.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Futterkranzprobe.png and beelogger_eigen/beelogger_icons/n_Futterkranzprobe.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Futterwabe entnommen.png and beelogger_eigen/beelogger_icons/n_Futterwabe entnommen.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Futterwabe hinzu.png and beelogger_eigen/beelogger_icons/n_Futterwabe hinzu.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Futterzarge.png and beelogger_eigen/beelogger_icons/n_Futterzarge.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Honigernte.png and beelogger_eigen/beelogger_icons/n_Honigernte.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Honigraum entfernt.png and beelogger_eigen/beelogger_icons/n_Honigraum entfernt.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Honigraum hinzu.png and beelogger_eigen/beelogger_icons/n_Honigraum hinzu.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin befreit.png and beelogger_eigen/beelogger_icons/n_Koenigin befreit.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin blau gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin blau gekaefigt.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin blau gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin blau gezeichnet.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gelb gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin gelb gekaefigt.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gelb gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin gelb gezeichnet.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gruen gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin gruen gekaefigt.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin gruen gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin gruen gezeichnet.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin rot gekaefigt.png and beelogger_eigen/beelogger_icons/n_Koenigin rot gekaefigt.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin rot gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin rot gezeichnet.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin weiss gezeichnet.png and beelogger_eigen/beelogger_icons/n_Koenigin weiss gezeichnet.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Koenigin weiss gezeichnet_K.png and beelogger_eigen/beelogger_icons/n_Koenigin weiss gezeichnet_K.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Oxalsaeurebehandlung.png and beelogger_eigen/beelogger_icons/n_Oxalsaeurebehandlung.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Schwarmabgang.png and beelogger_eigen/beelogger_icons/n_Schwarmabgang.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Totale Brutentnahme.png and beelogger_eigen/beelogger_icons/n_Totale Brutentnahme.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Triggeralarm.png and beelogger_eigen/beelogger_icons/n_Triggeralarm.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Varroabehandlung.png and beelogger_eigen/beelogger_icons/n_Varroabehandlung.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Varroaeinschub.png and beelogger_eigen/beelogger_icons/n_Varroaeinschub.png differ
+Binary files beelogger_M40_original/beelogger_icons/n_Wetter (Schnee-Hagel-Wind).png and beelogger_eigen/beelogger_icons/n_Wetter (Schnee-Hagel-Wind).png differ
+Binary files beelogger_M40_original/beelogger_icons/no.png and beelogger_eigen/beelogger_icons/no.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_bat.png and beelogger_eigen/beelogger_icons/off_bat.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_bienen_in.png and beelogger_eigen/beelogger_icons/off_bienen_in.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_bienen_out.png and beelogger_eigen/beelogger_icons/off_bienen_out.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_frequenz.png and beelogger_eigen/beelogger_icons/off_frequenz.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_honey.png and beelogger_eigen/beelogger_icons/off_honey.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_hum_i.png and beelogger_eigen/beelogger_icons/off_hum_i.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_hum_o.png and beelogger_eigen/beelogger_icons/off_hum_o.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_info.png and beelogger_eigen/beelogger_icons/off_info.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_no.png and beelogger_eigen/beelogger_icons/off_no.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_no_s.png and beelogger_eigen/beelogger_icons/off_no_s.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_press.png and beelogger_eigen/beelogger_icons/off_press.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_rain.png and beelogger_eigen/beelogger_icons/off_rain.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_service.png and beelogger_eigen/beelogger_icons/off_service.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_solar.png and beelogger_eigen/beelogger_icons/off_solar.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_sun.png and beelogger_eigen/beelogger_icons/off_sun.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_temp_i.png and beelogger_eigen/beelogger_icons/off_temp_i.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_temp_o.png and beelogger_eigen/beelogger_icons/off_temp_o.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_temp_w.png and beelogger_eigen/beelogger_icons/off_temp_w.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_volume.png and beelogger_eigen/beelogger_icons/off_volume.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_weight.png and beelogger_eigen/beelogger_icons/off_weight.png differ
+Binary files beelogger_M40_original/beelogger_icons/off_wifi.png and beelogger_eigen/beelogger_icons/off_wifi.png differ
+Binary files beelogger_M40_original/beelogger_icons/press.png and beelogger_eigen/beelogger_icons/press.png differ
+Binary files beelogger_M40_original/beelogger_icons/rain.png and beelogger_eigen/beelogger_icons/rain.png differ
+Binary files beelogger_M40_original/beelogger_icons/rain_24.png and beelogger_eigen/beelogger_icons/rain_24.png differ
+Binary files beelogger_M40_original/beelogger_icons/service.png and beelogger_eigen/beelogger_icons/service.png differ
+Binary files beelogger_M40_original/beelogger_icons/show.png and beelogger_eigen/beelogger_icons/show.png differ
+Binary files beelogger_M40_original/beelogger_icons/solar.png and beelogger_eigen/beelogger_icons/solar.png differ
+Binary files beelogger_M40_original/beelogger_icons/sun.png and beelogger_eigen/beelogger_icons/sun.png differ
+Binary files beelogger_M40_original/beelogger_icons/temp_i.png and beelogger_eigen/beelogger_icons/temp_i.png differ
+Binary files beelogger_M40_original/beelogger_icons/temp_o.png and beelogger_eigen/beelogger_icons/temp_o.png differ
+Binary files beelogger_M40_original/beelogger_icons/temp_w.png and beelogger_eigen/beelogger_icons/temp_w.png differ
+Binary files beelogger_M40_original/beelogger_icons/thingspeak_icon.png and beelogger_eigen/beelogger_icons/thingspeak_icon.png differ
+Binary files beelogger_M40_original/beelogger_icons/time.png and beelogger_eigen/beelogger_icons/time.png differ
+Binary files beelogger_M40_original/beelogger_icons/volume.png and beelogger_eigen/beelogger_icons/volume.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_01d.png and beelogger_eigen/beelogger_icons/w_01d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_01n.png and beelogger_eigen/beelogger_icons/w_01n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_02d.png and beelogger_eigen/beelogger_icons/w_02d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_02n.png and beelogger_eigen/beelogger_icons/w_02n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_03d.png and beelogger_eigen/beelogger_icons/w_03d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_03n.png and beelogger_eigen/beelogger_icons/w_03n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_04d.png and beelogger_eigen/beelogger_icons/w_04d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_04n.png and beelogger_eigen/beelogger_icons/w_04n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_09d.png and beelogger_eigen/beelogger_icons/w_09d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_09n.png and beelogger_eigen/beelogger_icons/w_09n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_10d.png and beelogger_eigen/beelogger_icons/w_10d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_10n.png and beelogger_eigen/beelogger_icons/w_10n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_11d.png and beelogger_eigen/beelogger_icons/w_11d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_11n.png and beelogger_eigen/beelogger_icons/w_11n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_13d.png and beelogger_eigen/beelogger_icons/w_13d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_13n.png and beelogger_eigen/beelogger_icons/w_13n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_50d.png and beelogger_eigen/beelogger_icons/w_50d.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_50n.png and beelogger_eigen/beelogger_icons/w_50n.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_clear-day.png and beelogger_eigen/beelogger_icons/w_clear-day.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_clear-night.png and beelogger_eigen/beelogger_icons/w_clear-night.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_cloudy.png and beelogger_eigen/beelogger_icons/w_cloudy.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_fog.png and beelogger_eigen/beelogger_icons/w_fog.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_hail.png and beelogger_eigen/beelogger_icons/w_hail.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_partly-cloudy-day.png and beelogger_eigen/beelogger_icons/w_partly-cloudy-day.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_partly-cloudy-night.png and beelogger_eigen/beelogger_icons/w_partly-cloudy-night.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_rain.png and beelogger_eigen/beelogger_icons/w_rain.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_sleet.png and beelogger_eigen/beelogger_icons/w_sleet.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_snow.png and beelogger_eigen/beelogger_icons/w_snow.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_sunriseset.png and beelogger_eigen/beelogger_icons/w_sunriseset.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_thunderstorm.png and beelogger_eigen/beelogger_icons/w_thunderstorm.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_wind.png and beelogger_eigen/beelogger_icons/w_wind.png differ
+Binary files beelogger_M40_original/beelogger_icons/w_windsock.png and beelogger_eigen/beelogger_icons/w_windsock.png differ
+Binary files beelogger_M40_original/beelogger_icons/watch.png and beelogger_eigen/beelogger_icons/watch.png differ
+Binary files beelogger_M40_original/beelogger_icons/weight.png and beelogger_eigen/beelogger_icons/weight.png differ
+Binary files beelogger_M40_original/beelogger_icons/wifi.png and beelogger_eigen/beelogger_icons/wifi.png differ
+diff -ruN beelogger_M40_original/beelogger_mobileCheck.php beelogger_eigen/beelogger_mobileCheck.php
+--- beelogger_M40_original/beelogger_mobileCheck.php	2026-10-08 15:12:18.732384650 +0200
++++ beelogger_eigen/beelogger_mobileCheck.php	2026-10-08 17:19:52.649749229 +0200
+@@ -45,7 +45,11 @@
+ }
+ 
+ 
+-date_default_timezone_set('Europe/Berlin');
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';
++if(file_exists('beelogger_zeitzone.php'))include('beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';
++date_default_timezone_set($Zeitzone);
+ if (file_exists("general_ini.php")) include("general_ini.php"); //Sprache abfragen
+ if ($Sprache == "") $Sprache = 1; // INIT
+ 
+diff -ruN beelogger_M40_original/beelogger_mobileWatch.php beelogger_eigen/beelogger_mobileWatch.php
+--- beelogger_M40_original/beelogger_mobileWatch.php	2026-10-08 15:12:18.732498105 +0200
++++ beelogger_eigen/beelogger_mobileWatch.php	2026-10-08 17:19:52.649401210 +0200
+@@ -21,6 +21,18 @@
+ 
+ // beelogger:mobile -->
+ $Softwareversion  =  "M.40";//vom 24.09.2026 - beelogger_mobileWatch.php
++// eigen-utc-1: Zeitspalte für Dygraph aus dem Unix-Zeitstempel (letzte Spalte) als ISO 8601 mit Versatz,
++// z. B. 2026-10-25T02:15:00+02:00. Zeilen ohne Zeitstempel bleiben unverändert.
++if(!function_exists('bl_grafikzeile')){
++function bl_grafikzeile($zeile){
++  $zeile=trim($zeile);
++  $p=strrpos($zeile,",");$k=strpos($zeile,",");
++  if($p===false||$k===false)return $zeile;
++  $ts=substr($zeile,$p+1);
++  if(!preg_match('/^\d{9,11}$/',$ts))return $zeile;
++  return date("Y-m-d\TH:i:sP",(int)$ts).substr($zeile,$k);
++}}
++
+ $show_version = 0;  //Programmertool
+ $Sprache = 1; // INIT falls noch keine Speicherung stattfand
+ 
+@@ -52,7 +64,11 @@
+     $Autorange =  intval(preg_replace('/[^0-9]+/', '', $Range), 10);
+     $Range = $Range[0];
+ }
+-date_default_timezone_set('Europe/Berlin');
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';
++if(file_exists('beelogger_zeitzone.php'))include('beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';
++date_default_timezone_set($Zeitzone);
+ 
+ // PRESET variables
+ $mW_spalten = "1";
+@@ -245,7 +261,7 @@
+           if (strpos($file,"Penta") !== FALSE) $AktuellerAkkustand = $x[21];
+           if (strpos($file,"Hexa") !== FALSE) $AktuellerAkkustand = $x[24];
+         }
+-        $PrintArray[$k] = $array[$i]; //Printarray für dygraphs sichern
++        $PrintArray[$k] = bl_grafikzeile($array[$i]); //Printarray für dygraphs sichern (eigen-utc-1: ISO-Zeit)
+         $k ++;
+         if ($AktualisierungsStamp <= ($Aktuell - 86400*$mW_tage)) break;   //ticks = 60*60*24 = 86400  = 1 Tag
+       }// if ($x[$s-1] !='')
+@@ -653,7 +669,7 @@
+       $Anmerkung = html_entity_decode($x[$s-2]);
+       $AktualisierungStamp=$x[$s-1];
+       if ($AktualisierungStamp > $ErstesDatum){
+-        $DatumAnmerkung = date("Y/m/d H:i:s",$AktualisierungStamp);   //Zeitformat für Dygraph umgestellt !$
++        $DatumAnmerkung = date("Y-m-d\TH:i:sP",$AktualisierungStamp);//eigen-utc-1   //Zeitformat für Dygraph umgestellt !$
+         $anmerkungen[$b] = $Sensorlbl;       // Sensor im Array merken
+         $b++;
+         $anmerkungen[$b] = $DatumAnmerkung;//Datumsstempel im Array merken
+diff -ruN beelogger_M40_original/beelogger_zeitzone.php beelogger_eigen/beelogger_zeitzone.php
+--- beelogger_M40_original/beelogger_zeitzone.php	1970-01-01 01:00:00.000000000 +0100
++++ beelogger_eigen/beelogger_zeitzone.php	2026-10-08 17:19:52.624139786 +0200
+@@ -0,0 +1,5 @@
++<?php
++// eigene Server-Fassung (eigen-utc-2): Zeitzone für Anzeige, Tag/Nacht-Zeiten, Anmerkungen und CSV-Zeitspalte.
++// Gespeichert wird intern der Unix-Zeitstempel (UTC, letzte CSV-Spalte); die erste Spalte ist nur Anzeige.
++// Gültige Namen: https://www.php.net/manual/de/timezones.php
++$Zeitzone="Europe/Berlin";
+diff -ruN beelogger_M40_original/local_Split_Archivnotes.php beelogger_eigen/local_Split_Archivnotes.php
+--- beelogger_M40_original/local_Split_Archivnotes.php	2026-10-08 15:12:18.732735799 +0200
++++ beelogger_eigen/local_Split_Archivnotes.php	2026-10-08 17:19:52.650673066 +0200
+@@ -1,4 +1,7 @@
+ <?php
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';if(file_exists(__DIR__.'/beelogger_zeitzone.php'))include(__DIR__.'/beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';date_default_timezone_set($Zeitzone);
+ //##########################################################
+ // Split Anmerkungen
+ //##########################################################
+diff -ruN beelogger_M40_original/local_Updater.php beelogger_eigen/local_Updater.php
+--- beelogger_M40_original/local_Updater.php	2026-10-08 15:12:18.732711410 +0200
++++ beelogger_eigen/local_Updater.php	2026-10-08 17:19:52.650485363 +0200
+@@ -1,4 +1,7 @@
+ <?php // Listbox beelogger
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';if(file_exists(__DIR__.'/beelogger_zeitzone.php'))include(__DIR__.'/beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';date_default_timezone_set($Zeitzone);
+ 
+ $Softwareversion = "M.40";//vom 24.09.2026 - local_Updater.php
+ 
+diff -ruN beelogger_M40_original/scraper.php beelogger_eigen/scraper.php
+--- beelogger_M40_original/scraper.php	2026-10-08 15:12:18.732836680 +0200
++++ beelogger_eigen/scraper.php	2026-10-08 17:19:52.650195942 +0200
+@@ -1,4 +1,7 @@
+ <?php 
++// eigen-utc-2: Zeitzone aus beelogger_zeitzone.php (Vorgabe Europe/Berlin)
++$Zeitzone='Europe/Berlin';if(file_exists(__DIR__.'/beelogger_zeitzone.php'))include(__DIR__.'/beelogger_zeitzone.php');
++if(!in_array($Zeitzone,timezone_identifiers_list()))$Zeitzone='Europe/Berlin';date_default_timezone_set($Zeitzone);
+ /*
+  * (C) 2022 Thorsten Gurzan - beelogger.de
+  *

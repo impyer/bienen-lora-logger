@@ -23,6 +23,14 @@ jobs:
           g++ -std=c++11 -Wall -Wextra -Werror -O2 -o tests/host/test_zeitsync tests/host/test_zeitsync.cpp
           ./tests/host/test_zeitsync
 
+      - name: Funkformat v2 (C gegen JavaScript-Referenz) und FFT
+        run: |
+          node tests/firmware/vektoren_v2.js > tests/firmware/ff2_vektoren.h
+          g++ -std=c++11 -Wall -Wextra -Werror -O2 -o tests/firmware/test_funkformat_v2 tests/firmware/test_funkformat_v2.cpp
+          ./tests/firmware/test_funkformat_v2
+          g++ -std=c++11 -Wall -Wextra -Werror -O2 -o tests/firmware/test_bee_fft tests/firmware/test_bee_fft.cpp
+          ./tests/firmware/test_bee_fft
+
       - name: Simulation 10 Logger, 30 Tage
         run: |
           g++ -std=c++17 -Wall -Wextra -O2 -DZEITSYNC_AKTIV=1 -o tests/sim/sim_sync tests/sim/sim_zeitsync.cpp
@@ -76,11 +84,18 @@ jobs:
         with:
           node-version: 20
       - name: Syntax
-        run: for f in server/lora/*.php; do php -l "$f"; done
+        run: for f in server/lora/*.php $(find server/beelogger_eigen -name '*.php'); do php -l "$f" > /dev/null || exit 1; done
+      - name: Eigene Server-Fassung aus dem Original-ZIP neu erzeugen und mit dem Repo vergleichen
+        run: |
+          T=$(mktemp -d) && unzip -q server/M40_261004_ServerSkripte.zip -d "$T/neu"
+          python3 server/eigen_anpassen.py "$T/neu"
+          diff -r -x beelogger_icons server/beelogger_eigen "$T/neu"
       - name: Unit-Tests
         run: php tests/server/test_lora_funktionen.php
-      - name: Ende-zu-Ende
-        run: bash tests/server/test_lora_eingang.sh
+      - name: Ende-zu-Ende mit der eigenen Fassung (UTC)
+        run: VARIANTE=eigen bash tests/server/test_lora_eingang.sh
+      - name: Ende-zu-Ende mit dem Original M.40 (Winterzeit-Fehler bleibt nachgewiesen)
+        run: VARIANTE=original bash tests/server/test_lora_eingang.sh
 
   windows-programme:
     name: Windows-Programme für die PC-Tests
@@ -142,7 +157,20 @@ jobs:
         run: |
           S=firmware/STM32_LORA_261008_ZS
           cp $S/Config_Geraet.beispiel.h $S/Config_Geraet.h
+          echo "== Standard (Funkformat v2, ohne Mikrofon)"
           arduino-cli compile -b "$FQBN" --warnings all $S
+          echo "== mit Mikrofon-FFT und 2 DS18B20"
+          sed -i 's/^#define beelogger_Audio            0/#define beelogger_Audio            1/; s/^#define Anzahl_Sensoren_DS18B20 1/#define Anzahl_Sensoren_DS18B20 2/' $S/Config_MULTI.h
+          arduino-cli compile -b "$FQBN" --warnings all $S
+          echo "== beelogger-Format (FUNKFORMAT 1)"
+          sed -i 's/^#define FUNKFORMAT                2/#define FUNKFORMAT                1/' $S/Config_LORA.h
+          arduino-cli compile -b "$FQBN" --warnings all $S
+          echo "== 3 Waagen mit Funkformat v2 muss abbrechen (#error)"
+          sed -i 's/^#define FUNKFORMAT                1/#define FUNKFORMAT                2/' $S/Config_LORA.h
+          sed -i 's/^#define Anzahl_Sensoren_Gewicht 1/#define Anzahl_Sensoren_Gewicht 3/' $S/Config_MULTI.h
+          if arduino-cli compile -b "$FQBN" $S > fehler.log 2>&1; then echo "FEHLER: kein #error"; exit 1; fi
+          grep -q "Funkformat v2 hat nur Gewicht1 und Gewicht2" fehler.log
+          git checkout -- $S/Config_MULTI.h $S/Config_LORA.h
 
       - name: Selbsttest-Sketch übersetzen
         run: arduino-cli compile -b "$FQBN" --warnings all tests/STM32_ZS_Selbsttest

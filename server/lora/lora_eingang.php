@@ -43,6 +43,7 @@ $cfg += array(
     'beelogger_verzeichnis' => dirname(__DIR__),
     'tls_pruefen' => true,
     'zeitlimit_s' => 20,
+    'utc_zeit' => 'auto',   // true: Zeit in UTC an die eigene Server-Fassung (beelogger_zeitzone.php vorhanden), false: Ortszeit wie beim Original
 );
 if (empty($cfg['token']) || strlen($cfg['token']) < 16) le_ende(500, 'token in lora_config.php fehlt oder ist kürzer als 16 Zeichen');
 
@@ -87,14 +88,16 @@ $empfang = le_ttn_zeit(isset($up['received_at']) ? $up['received_at'] : (isset($
 $mz = le_messzeit($daten, $empfang, (int)$cfg['max_zeitabweichung_s']);
 if ($mz === null) le_ende(400, 'received_at fehlt oder ist ungültig');
 list($unix, $quelle) = $mz;
-$zeit_text = le_ortszeit_text($unix);
+// Eigene Server-Fassung (eigen-utc) nimmt die Zeit eindeutig in UTC an; das Original nur als Ortszeit-Text
+$utc = ($cfg['utc_zeit'] === 'auto') ? is_file(rtrim($cfg['beelogger_verzeichnis'], '/') . '/beelogger_zeitzone.php') : (bool)$cfg['utc_zeit'];
+$zeit_text = $utc ? le_ortszeit_text($unix, 'UTC') : le_ortszeit_text($unix);
 
 // ---------- an beelogger_log.php ----------
 $pw = le_log_passwort($pfad . '/beelogger_ini.php');
 if ($pw === null) le_ende(500, 'beelogger_ini.php in ' . $verz . ' fehlt oder ohne Log-Passwort');
 $ee = le_ee_datensatz($daten, $typ, $zeit_text, $cfg['aux'], $cfg['waegezellen_temp']);
 $url = rtrim($cfg['basis_url'], '/') . '/' . $verz . '/beelogger_log.php?' .
-    http_build_query(array('PW' => $pw, 'Z' => '0', 'M' . $typ => $ee), '', '&', PHP_QUERY_RFC3986);
+    http_build_query(array('PW' => $pw, 'Z' => '0', 'M' . $typ => $ee) + ($utc ? array('UTC' => '1') : array()), '', '&', PHP_QUERY_RFC3986);
 
 $week = $pfad . '/week.csv';
 clearstatcache();
@@ -114,7 +117,7 @@ curl_close($ch);
 $antwort = ($antwort === false) ? ('curl: ' . $curl_fehler) : trim(strip_tags($antwort));
 
 // Gespeichert? beelogger setzt die Sekunden auf :00 und rechnet die Ortszeit mit strtotime() zurück.
-$erwartet = strtotime(str_replace('_', ' ', substr($zeit_text, 0, 17) . '00'));
+$erwartet = $utc ? ($unix - $unix % 60) : strtotime(str_replace('_', ' ', substr($zeit_text, 0, 17) . '00'));
 clearstatcache();
 $gespeichert = (is_file($week) && filesize($week) > $groesse_vorher && le_letzter_zeitstempel($week) === $erwartet);
 
@@ -135,4 +138,4 @@ le_log($cfg, array('geraet' => $geraet, 'art' => 'ergebnis', 'zeit' => $zeit_tex
     'gespeichert' => $gespeichert, 'http' => $http, 'antwort' => substr($antwort, 0, 200)));
 
 if ($http < 200 || $http >= 300 || $antwort === '' || strpos($antwort, 'curl:') === 0) le_ende(502, 'beelogger_log.php nicht erreichbar: ' . $antwort);
-le_ende(200, ($gespeichert ? 'gespeichert ' : 'nicht gespeichert (doppelt, zu alt oder abgelehnt) ') . $zeit_text . ' | ' . $antwort);
+le_ende(200, ($gespeichert ? 'gespeichert ' : 'nicht gespeichert (doppelt, zu alt oder abgelehnt) ') . le_ortszeit_text($unix) . ($utc ? ' (UTC-Modus)' : '') . ' | ' . $antwort);

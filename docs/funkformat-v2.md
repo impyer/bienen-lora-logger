@@ -73,6 +73,8 @@ Warnungen des Formatters (TTN `warnings`): „Uhr des Loggers nicht abgeglichen�
 ## Regeln für die Firmware
 
 - Werte vor dem Kodieren auf den Bereich begrenzen, nicht überlaufen lassen (wie im Referenz-Kodierer).
+- FFT-Spitze (Bit 11) nur senden, wenn die Spitze deutlich über dem Grundrauschen liegt (Firmware: 10 dB über dem Median). Ohne deutliche Spitze werden nur Gesamt- und Bandpegel (Bits 12/13) gesendet.
+- Unkalibrierte Waagen (beelogger: `Taragewicht` = 10) nicht senden und nicht als Ausfall melden.
 - Messzeitpunkt (Bit 16) nur senden, wenn die Uhr abgeglichen ist. Zustand (Bit 15) in jedem Paket.
 - Firmware-ID (Bit 17) nach einem Neustart und dann in jedem 96. Paket (bei 15 min etwa einmal täglich), nicht in jedem Paket.
 - Neue Werte nur über die reservierten Bits 19–31, und nur zusammen mit einer neuen Version des Formatters.

@@ -107,11 +107,14 @@
 #if (FUNKFORMAT != 1) && (FUNKFORMAT != 2)
 #error "FUNKFORMAT muss 1 oder 2 sein"
 #endif
+#if (FUNKFORMAT == 2) && (Anzahl_Sensoren_Gewicht > 2)
+#error "Funkformat v2 hat nur Gewicht1 und Gewicht2 (Bits 5/6). Waage 3/4 erst mit neuen Bits (19–31) und neuem Formatter."
+#endif
 
 
 
 char ID_ID[16] = "STM32_LORA_";  //nur Grossbuchstaben,Zahlen, keine Blanks
-long l_ID = 261009;  // V2: Funkformat v2 und FFT (ZS: 261008)
+long l_ID = 261010;  // V2: Funkformat v2 und FFT (ZS: 261008; 261010: Review-Korrekturen)
 
 #define CFG_noassert 1  // supress error messages in LMIC-library
 

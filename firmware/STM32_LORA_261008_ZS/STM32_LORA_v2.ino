@@ -13,10 +13,15 @@ uint8_t  v2_neustart = FF2_NS_KEINER;   // Grund des letzten Neustarts (0 = Aufw
 float    v2_temp_cpu = No_Val;          // CPU-Temperatur aus CPU_Sensors()
 uint32_t v2_messzeit = 0;               // RTC-Zeit zu Beginn der Messung (UTC, wenn abgeglichen)
 
-#if beelogger_Audio
+// FFT wird nur mit Mikrofon und Funkformat v2 gemessen (mit FUNKFORMAT 1 würde sie nicht gesendet)
+#define V2_FFT_AKTIV (beelogger_Audio && (FUNKFORMAT == 2))
+
+#if V2_FFT_AKTIV
 static BfArbeit v2_fft_arbeit;
 static uint16_t v2_roh[BF_ROH];         // 18,7 KB, nur während der Messung genutzt
-BfErgebnis v2_fft = { false, 0, 0, 0, { 0 } };
+#endif
+#if beelogger_Audio
+BfErgebnis v2_fft = { false, false, 0, 0, 0, 0, { 0 } };
 uint32_t v2_fft_ueberlaeufe = 0;
 #endif
 
@@ -43,7 +48,7 @@ void v2_neustart_lesen() {
   Takt über den DWT-Zyklenzähler: Abtastzeitpunkt i = Start + i · SystemCoreClock / 8192.
   Liegt eine Abtastung mehr als eine Periode zu spät, zählt sie als Überlauf; über 1 % wird verworfen.
 */
-#if beelogger_Audio && MIC_ADC_DIREKT
+#if V2_FFT_AKTIV && MIC_ADC_DIREKT
 // ADC1 direkt über Register: einmal einstellen, dann je Abtastung nur Start, Warten, Lesen (ca. 4 µs).
 // analogRead() stellt den ADC bei jedem Aufruf neu ein und ist dafür zu langsam bzw. zu ungleichmäßig.
 // Kanal: PA1 = ADC1_IN1 (STM32F411, Datenblatt Tabelle „Pin definitions“). Nach der Messung wird der ADC
@@ -60,10 +65,17 @@ static void v2_adc_ein() {
   ADC1->CR2 |= ADC_CR2_ADON;
   delayMicroseconds(10);                                        // Stabilisierung (Datenblatt: tSTAB 3 µs)
 }
+// Wandlung dauert ca. 4 µs (84 + 12 Takte bei 24 MHz). Kommt nach V2_ADC_TIMEOUT_US kein EOC,
+// wird v2_adc_fehler gesetzt, die Messung abgebrochen und als ungültig verworfen (kein Hängenbleiben).
+#define V2_ADC_TIMEOUT_US 50
+static bool v2_adc_fehler = false;
 static inline uint16_t v2_adc_lesen() {
   ADC1->SR = 0;
   ADC1->CR2 |= ADC_CR2_SWSTART;
-  while (!(ADC1->SR & ADC_SR_EOC)) {}
+  const uint32_t t0 = DWT->CYCCNT, grenze = (SystemCoreClock / 1000000u) * V2_ADC_TIMEOUT_US;
+  while (!(ADC1->SR & ADC_SR_EOC)) {
+    if ((DWT->CYCCNT - t0) > grenze) { v2_adc_fehler = true; return 0; }
+  }
   return (uint16_t)ADC1->DR;
 }
 static void v2_adc_aus() {
@@ -72,12 +84,13 @@ static void v2_adc_aus() {
 #endif
 
 void Sensor_FFT() {
-#if beelogger_Audio
+#if V2_FFT_AKTIV
   CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
   DWT->CYCCNT = 0;
   DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
 #if MIC_ADC_DIREKT
+  v2_adc_fehler = false;
   v2_adc_ein();
   (void)v2_adc_lesen();
 #else
@@ -95,6 +108,7 @@ void Sensor_FFT() {
     while ((int32_t)(DWT->CYCCNT - ziel) < 0) {}
 #if MIC_ADC_DIREKT
     v2_roh[i] = v2_adc_lesen();
+    if (v2_adc_fehler) break;
 #else
     v2_roh[i] = (uint16_t)analogRead(MIC_PIN);
 #endif
@@ -103,6 +117,15 @@ void Sensor_FFT() {
   v2_adc_aus();
 #endif
   v2_fft_ueberlaeufe = ueber;
+#if MIC_ADC_DIREKT
+  if (v2_adc_fehler) {
+    BfErgebnis leer = { false, false, 0, 0, 0, 0, { 0 } };
+    v2_fft = leer;
+    debugprintlnF("FFT: ADC antwortet nicht, Messung verworfen");
+    debugflush();
+    return;
+  }
+#endif
   v2_fft = bf_auswerten(&v2_fft_arbeit, v2_roh, ueber);
 
   debugprintF("FFT [Hz/dBFS]: ");
@@ -111,6 +134,9 @@ void Sensor_FFT() {
   debugprint(v2_fft.spitze_db);
   debugprintF(" gesamt ");
   debugprint(v2_fft.gesamt_db);
+  debugprintF(" SNR ");
+  debugprint(v2_fft.snr_db);
+  debugprintF(v2_fft.spitze_gueltig ? " (Spitze ok)" : " (keine deutliche Spitze)");
   debugprintF(" Ueberlaeufe ");
   debugprintln(ueber);
   debugflush();
@@ -153,11 +179,17 @@ byte prep_payload_v2() {
   else zustand |= FF2_Z_FEHLER_DS2;
 #endif
 
-  if (Gewicht[0] != No_Value) { w.gewicht1_kg = Gewicht[0]; ff2_setze(&w, FF2_GEWICHT1); }
-  else zustand |= FF2_Z_FEHLER_WAAGE1;
+  // Taragewicht 10 = Waage nicht kalibriert (so in Config_MULTI.h vorbelegt): Sensor_Gewicht() misst dann nicht,
+  // Gewicht[] behält den Startwert 0,01. Nicht senden und nicht als Ausfall melden.
+  if (Taragewicht[0] != 10) {
+    if (Gewicht[0] != No_Value) { w.gewicht1_kg = Gewicht[0]; ff2_setze(&w, FF2_GEWICHT1); }
+    else zustand |= FF2_Z_FEHLER_WAAGE1;
+  }
 #if (Anzahl_Sensoren_Gewicht > 1)
-  if (Gewicht[1] != No_Value) { w.gewicht2_kg = Gewicht[1]; ff2_setze(&w, FF2_GEWICHT2); }
-  else zustand |= FF2_Z_FEHLER_WAAGE2;
+  if (Taragewicht[1] != 10) {
+    if (Gewicht[1] != No_Value) { w.gewicht2_kg = Gewicht[1]; ff2_setze(&w, FF2_GEWICHT2); }
+    else zustand |= FF2_Z_FEHLER_WAAGE2;
+  }
 #endif
 
   if (Batteriespannung != No_Value) { w.vbatt_v = Batteriespannung; ff2_setze(&w, FF2_VBATT); }
@@ -167,7 +199,7 @@ byte prep_payload_v2() {
 
 #if beelogger_Audio
   if (v2_fft.gueltig) {
-    w.fft_hz = v2_fft.spitze_hz; w.fft_db = v2_fft.spitze_db; ff2_setze(&w, FF2_FFT_SPITZE);
+    if (v2_fft.spitze_gueltig) { w.fft_hz = v2_fft.spitze_hz; w.fft_db = v2_fft.spitze_db; ff2_setze(&w, FF2_FFT_SPITZE); }
     w.fft_gesamt_db = v2_fft.gesamt_db; ff2_setze(&w, FF2_FFT_GESAMT);
     w.fft_anzahl = BF_BAENDER;
     for (uint8_t b = 0; b < BF_BAENDER; b++) w.fft_baender_db[b] = v2_fft.band_db[b];

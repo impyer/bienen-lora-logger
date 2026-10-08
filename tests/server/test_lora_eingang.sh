@@ -12,7 +12,7 @@ PORT=$((20000 + RANDOM % 20000))
 TOKEN="test-token-1234567890abcdef"
 FEHLER=0; ANZ=0
 
-aufraeumen() { [ -n "${SPID:-}" ] && kill "$SPID" 2>/dev/null; rm -rf "$W"; }
+aufraeumen() { [ -n "${SPID:-}" ] && kill "$SPID" 2>/dev/null; if grep -qiE "PHP (Fatal|Parse|Warning)" "$W/server.log" 2>/dev/null; then echo "--- PHP-Meldungen im Server-Log ---"; grep -iE "PHP (Fatal|Parse|Warning)" "$W/server.log" | sort | uniq -c | head -20; fi; rm -rf "$W"; }
 trap aufraeumen EXIT
 
 ok()   { ANZ=$((ANZ+1)); echo "ok   - $1"; }
@@ -21,7 +21,15 @@ pruefe() { if [ "$2" = "$3" ]; then ok "$1"; else nok "$1" "erwartet: [$3]  ist:
 enthaelt() { case "$2" in *"$3"*) ok "$1";; *) nok "$1" "erwartet enthalten: [$3]  ist: [$2]";; esac; }
 
 # --- Testserver aufbauen ---
-unzip -q "$REPO/server/M40_261004_ServerSkripte.zip" -d "$W/www"
+# VARIANTE=eigen (Vorgabe): eigene Server-Fassung (UTC); VARIANTE=original: unverändertes beelogger M.40
+VARIANTE="${VARIANTE:-eigen}"
+if [ "$VARIANTE" = "original" ]; then
+  unzip -q "$REPO/server/M40_261004_ServerSkripte.zip" -d "$W/www"
+else
+  mkdir -p "$W/www" && unzip -q "$REPO/server/M40_261004_ServerSkripte.zip" "beelogger_icons/*" -d "$W/www"   # Bilder nur im ZIP
+  cp -r "$REPO/server/beelogger_eigen/." "$W/www/"
+fi
+echo "Variante: $VARIANTE"
 cp -r "$REPO/server/lora" "$W/www/lora"
 cat > "$W/router.php" <<'EOF'
 <?php
@@ -110,8 +118,31 @@ for T in 1792884600 1792886400 1792888200 1792890000 1792891800 1792893600 17928
   A=$(senden "{\"geraet\":\"beelogger-01\",\"fport\":2,\"f_cnt\":$T,\"empfang\":\"$E\",\"werte\":{\"tOut\":5,\"status\":1,\"zeit\":$T}}")
   case "$A" in "gespeichert"*) GESP=$((GESP+1));; esac
 done
-echo "info - Winterzeit: $GESP von 7 Messungen gespeichert (beelogger M.40 verwirft die doppelte Stunde; erwartet heute 5)"
-pruefe "Winterzeit: Verhalten wie analysiert (5 von 7)" "$GESP" "5"
+if [ "$VARIANTE" = "original" ]; then
+  echo "info - Winterzeit: $GESP von 7 Messungen gespeichert (beelogger M.40 verwirft die doppelte Stunde)"
+  pruefe "Winterzeit, Original: bekannter Fehler (5 von 7)" "$GESP" "5"
+else
+  pruefe "Winterzeit, eigene Fassung: alle 7 Messungen gespeichert" "$GESP" "7"
+  # Zeitstempel der Umstellungsnacht lückenlos und aufsteigend (Abstand 1800 s)
+  ZS=$(tail -n 7 "$W/www/beelogger1/week.csv" | tr -d '\r' | awk -F, '{print $NF}' | tr '\n' ' ')
+  pruefe "Winterzeit: Zeitstempel in week.csv" "$ZS" "1792884600 1792886400 1792888200 1792890000 1792891800 1792893600 1792895400 "
+  ZT=$(tail -n 7 "$W/www/beelogger1/week.csv" | cut -d, -f1 | tr '\n' '|')
+  pruefe "Winterzeit: Anzeige-Spalte in Ortszeit (doppelte Stunde sichtbar)" "$ZT" "2026/10/25 01:30:00|2026/10/25 02:00:00|2026/10/25 02:30:00|2026/10/25 02:00:00|2026/10/25 02:30:00|2026/10/25 03:00:00|2026/10/25 03:30:00|"
+  # Grafik: die Datenzeilen gehen mit ISO-Zeit und Versatz an Dygraph, eindeutig und aufsteigend
+  curl -s "http://127.0.0.1:$PORT/beelogger1/beelogger_show.php" -o "$W/show.html"
+  enthaelt "Grafik: 02:30 Sommerzeit mit +02:00" "$(cat "$W/show.html")" "2026-10-25T02:30:00+02:00,"
+  enthaelt "Grafik: 02:30 Winterzeit mit +01:00" "$(cat "$W/show.html")" "2026-10-25T02:30:00+01:00,"
+  # Optional im echten Browser (wenn Playwright vorhanden): Dygraph liest alle Zeilen, Zeitachse steigt an
+  if node -e "require('playwright')" 2>/dev/null; then
+    G=$(node "$HIER/grafik_pruefen.js" "http://127.0.0.1:$PORT/beelogger1/beelogger_show.php")
+    echo "info - Browser: $G"
+    enthaelt "Browser: Zeitachse streng steigend" "$G" '"steigend":true'
+    enthaelt "Browser: Umstellungsnacht lückenlos" "$G" '"letzte7":[1792884600,1792886400,1792888200,1792890000,1792891800,1792893600,1792895400]'
+    enthaelt "Browser: keine JavaScript-Fehler" "$G" '"fehler":[]'
+  else
+    echo "info - Playwright fehlt: Browserprüfung übersprungen"
+  fi
+fi
 
 echo "$((ANZ-FEHLER)) von $ANZ Prüfungen bestanden"
 [ $FEHLER -eq 0 ] || { echo "--- Server-Log ---"; tail -20 "$W/server.log"; exit 1; }

@@ -68,11 +68,11 @@ Die alte Webhook-Adresse (`…/beelogger_log.php?…&LORA=1`) wird danach nicht 
 
 ## Grenzen (bekannt)
 
-- **Winterzeit-Umstellung:** beelogger speichert die Ortszeit und rechnet sie mit `strtotime()` zurück. In der doppelten Stunde verwirft beelogger deshalb weiterhin Datensätze; im Test sind es 2 von 7 bei 30-min-Takt. Behoben wird das in Schritt 4. Die Zusatzdatei hat immer die richtige UTC-Zeit.
+- **Winterzeit-Umstellung:** Mit dem **Original** M.40 verwirft beelogger in der doppelten Stunde weiterhin Datensätze (Test: 2 von 7 bei 30-min-Takt), weil es die Ortszeit speichert und mit `strtotime()` zurückrechnet. Mit der **eigenen Fassung** (`server/beelogger_eigen/`, siehe [`../../docs/server-utc.md`](../../docs/server-utc.md)) übergibt der Eingang die Zeit in UTC (`UTC=1`) und alle 7 Datensätze werden gespeichert. Umschalten: `'utc_zeit'` in `lora_config.php` (`'auto'` = UTC, wenn `beelogger_zeitzone.php` im beelogger-Ordner liegt). Die Zusatzdatei hat in beiden Fällen die richtige UTC-Zeit.
 - Duo, Triple usw. sind nur über die Feldzahl geprüft, nicht mit echten Unterverzeichnissen. **[P]** Beim ersten Duo-Logger nachsehen.
 - Der Testserver (`php -S`) braucht mehrere Arbeitsprozesse, weil der Eingang `beelogger_log.php` beim selben Server aufruft. Auf einem normalen Webserver ist das ohnehin gegeben.
 
 ## Tests
 
 - `php tests/server/test_lora_funktionen.php`: Hilfsfunktionen
-- `bash tests/server/test_lora_eingang.sh`: Ende-zu-Ende mit den echten beelogger-Skripten M.40, dem echten Formatter und einem PHP-Testserver, einschließlich Winterzeit-Fall
+- `bash tests/server/test_lora_eingang.sh`: Ende-zu-Ende mit dem echten Formatter und einem PHP-Testserver, einschließlich Winterzeit-Fall. `VARIANTE=eigen` (Vorgabe, 29 Prüfungen, mit Playwright zusätzlich die Grafik im Browser) oder `VARIANTE=original` (22 Prüfungen, weist den Fehler des Originals nach)

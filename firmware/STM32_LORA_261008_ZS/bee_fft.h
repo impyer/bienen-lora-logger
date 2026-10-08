@@ -28,11 +28,15 @@
 #define BF_BAENDER 6
 #define BF_VOLLAUSSCHLAG 2048.0f
 #define BF_UNTERGRENZE_DB (-127.5f)
+#define BF_RAND_TOL_HZ 0.5f                 // Toleranz an den Bereichsgrenzen für die interpolierte Frequenz
+#define BF_SNR_DB 10.0f                     // Spitze gilt nur, wenn sie so weit über dem Median der Linien 60–900 Hz liegt
 
 static const float bf_grenzen[BF_BAENDER + 1] = { 60.0f, 140.0f, 260.0f, 360.0f, 440.0f, 560.0f, 900.0f };
 
 struct BfErgebnis {
-  bool gueltig;             // false: kein Signal oder Messfehler
+  bool gueltig;             // Messung brauchbar: Takt eingehalten und Signal vorhanden → Gesamt- und Bandpegel gelten
+  bool spitze_gueltig;      // zusätzlich eine deutliche Spitze (≥ BF_SNR_DB über dem Median) → Frequenz und Spitzenpegel gelten
+  float snr_db;             // Abstand der Spitze zum Median der Linien (Diagnose)
   float spitze_hz;
   float spitze_db;          // dBFS
   float gesamt_db;          // dBFS, 60–900 Hz
@@ -103,10 +107,20 @@ static inline float bf_db(float leistung) {   // Leistung (Amplitude²) → dBFS
   return d;
 }
 
+// Parabolische Interpolation in dB: Versatz der Spitze gegen Linie k, begrenzt auf ±0,5 Linien
+static inline float bf_versatz(float p1, float p2, float p3) {
+  float l1 = 10.0f * log10f(p1 + 1e-12f), l2 = 10.0f * log10f(p2 + 1e-12f), l3 = 10.0f * log10f(p3 + 1e-12f);
+  float nenner = l1 - 2.0f * l2 + l3, d = 0;
+  if (nenner < 0) d = 0.5f * (l1 - l3) / nenner;
+  if (d > 0.5f) d = 0.5f;
+  if (d < -0.5f) d = -0.5f;
+  return d;
+}
+
 // roh: BF_ROH ADC-Werte (0–4095) mit 8192 Hz; ueberlaeufe: Zahl verpasster Abtastzeitpunkte
 static inline BfErgebnis bf_auswerten(BfArbeit *a, const uint16_t *roh, uint32_t ueberlaeufe) {
   BfErgebnis e;
-  e.gueltig = false; e.spitze_hz = 0; e.spitze_db = BF_UNTERGRENZE_DB; e.gesamt_db = BF_UNTERGRENZE_DB;
+  e.gueltig = false; e.spitze_gueltig = false; e.snr_db = 0; e.spitze_hz = 0; e.spitze_db = BF_UNTERGRENZE_DB; e.gesamt_db = BF_UNTERGRENZE_DB;
   for (int b = 0; b < BF_BAENDER; b++) e.band_db[b] = BF_UNTERGRENZE_DB;
   if (!a->bereit) bf_init(a);
   if (ueberlaeufe > BF_ROH / 100) return e;   // mehr als 1 % der Abtastungen verpasst: Messung verwerfen
@@ -143,29 +157,46 @@ static inline BfErgebnis bf_auswerten(BfArbeit *a, const uint16_t *roh, uint32_t
   const float df = (float)BF_FS / BF_N;   // 4,0 Hz
   int kmin = (int)ceilf(BF_F_MIN / df), kmax = (int)floorf(BF_F_MAX / df);
 
-  // Spitze: größtes lokales Maximum im Bereich
+  // Spitze: größtes lokales Maximum, dessen interpolierte Frequenz im Bereich 60–900 Hz liegt.
+  // (Ein Ton bei 59 Hz erzeugt bei 60 Hz ein lokales Maximum; interpoliert liegt es unter 60 Hz und zählt nicht.)
   int kp = -1;
+  float dp = 0;
   for (int k = kmin; k <= kmax; k++) {
     float p = a->leistung[k];
-    if (p >= a->leistung[k - 1] && p >= a->leistung[k + 1] && (kp < 0 || p > a->leistung[kp])) kp = k;
+    if (!(p > 0) || p < a->leistung[k - 1] || p < a->leistung[k + 1] || (kp >= 0 && p <= a->leistung[kp])) continue;
+    float d = bf_versatz(a->leistung[k - 1], p, a->leistung[k + 1]);
+    float f = (k + d) * df;
+    if (f < BF_F_MIN - BF_RAND_TOL_HZ || f > BF_F_MAX + BF_RAND_TOL_HZ) continue;
+    kp = k; dp = d;
   }
-  if (kp >= 0 && a->leistung[kp] > 0) {
+  if (kp >= 0) {
     float l1 = 10.0f * log10f(a->leistung[kp - 1] + 1e-12f), l2 = 10.0f * log10f(a->leistung[kp] + 1e-12f),
           l3 = 10.0f * log10f(a->leistung[kp + 1] + 1e-12f);
-    float nenner = l1 - 2.0f * l2 + l3, d = 0;
-    if (nenner < 0) d = 0.5f * (l1 - l3) / nenner;
-    if (d > 0.5f) d = 0.5f;
-    if (d < -0.5f) d = -0.5f;
+    float d = dp;
     float lmax = l2 - 0.25f * (l1 - l3) * d;
     e.spitze_hz = (kp + d) * df;
     e.spitze_db = bf_db(powf(10.0f, lmax / 10.0f));
-    e.gueltig = true;
+
+    // Abstand zum Median der Linien im Bereich (robust gegen die Spitze selbst). Bei reinem Rauschen liegt
+    // das größte Maximum nach der Mittelung über 8 Blöcke nur wenige dB über dem Median.
+    int n = 0;
+    for (int k = kmin; k <= kmax; k++) {          // Einfügesortierung in re[] (nach der FFT frei), ca. 210 Werte
+      float p = a->leistung[k];
+      int j = n++;
+      while (j > 0 && a->re[j - 1] > p) { a->re[j] = a->re[j - 1]; j--; }
+      a->re[j] = p;
+    }
+    float median = (n & 1) ? a->re[n / 2] : 0.5f * (a->re[n / 2 - 1] + a->re[n / 2]);
+    e.snr_db = (median > 0) ? 10.0f * log10f(a->leistung[kp] / median) : 99.0f;
+    e.spitze_gueltig = e.snr_db >= BF_SNR_DB;
   }
 
   // Gesamt- und Bandpegel (sinusgleiche Leistung: Summe / ENBW)
   float gesamt = 0;
   for (int k = kmin; k <= kmax; k++) gesamt += a->leistung[k];
   e.gesamt_db = bf_db(gesamt / a->enbw);
+  e.gueltig = gesamt > 0;                         // Stille (konstantes Signal) ist kein Messwert
+  if (!e.gueltig) e.spitze_gueltig = false;
   for (int b = 0; b < BF_BAENDER; b++) {
     float s = 0;
     for (int k = kmin; k <= kmax; k++) {

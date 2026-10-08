@@ -13,3 +13,6 @@
 *.zip binary
 # Originalskripte von beelogger.de byte-genau behalten
 server/beelogger_M40_original/** -text
+# eigene Server-Fassung: Zeilenenden wie im Original (einige Dateien CRLF), sonst schlägt der CI-Vergleich fehl
+server/beelogger_eigen/** -text
+server/eigen_utc.patch -text

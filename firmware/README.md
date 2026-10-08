@@ -58,6 +58,11 @@ Er beruht auf beelogger `STM32_LORA_260705`. Alle Änderungen sind mit `ZS` mark
 | `MIC_PIN`, `MIC_ADC_KANAL` | PA1, 1 | Mikrofon; FFT einschalten mit `beelogger_Audio 1` in `Config_MULTI.h` |
 | `MIC_ADC_DIREKT` | 1 | ADC über Register (schnell, gleichmäßig); 0 = `analogRead()` |
 
+### Version 261010 (V2, Korrekturen nach Trockenprüfung)
+
+- FFT-Spitze (Frequenz, Spitzenpegel) wird nur gesendet, wenn sie mindestens 10 dB über dem Median der Linien liegt; Gesamt- und Bandpegel immer bei gültiger Messung.
+- ADC-Zeitgrenze, unkalibrierte Waage nicht senden, `#error` bei mehr als 2 Waagen mit `FUNKFORMAT 2`, keine FFT mit `FUNKFORMAT 1`. Details im CHANGELOG.
+
 ### Version 261009 (V2)
 
 Änderungen gegen die ZS-Fassung sind mit `V2` markiert, der neue Teil steht in `STM32_LORA_v2.ino`, `funkformat_v2.h` und `bee_fft.h`.

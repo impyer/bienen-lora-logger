@@ -117,6 +117,53 @@ int main() {
   e = bf_auswerten(&arbeit, roh, 0);
   wahr("Übersteuerung: gültig, Spitze bei 300 Hz", e.gueltig && fabs(e.spitze_hz - 300) < 0.5);
 
+  // 10. Spitze nur mit deutlichem Abstand zum Grundrauschen (Review 261009: Rauschen als Spitze gemeldet)
+  for (int i = 0; i < BF_ROH; i++) roh[i] = (uint16_t)(2048 + (int)(gleich01() * 3) - 1);   // ±1 LSB
+  e = bf_auswerten(&arbeit, roh, 0);
+  snprintf(t, sizeof t, "±1 LSB: Messung gültig, aber keine Spitze (SNR %.1f dB)", e.snr_db);
+  wahr(t, e.gueltig && !e.spitze_gueltig);
+  printf("info - ±1 LSB: Gesamt %.1f dBFS, SNR der größten Linie %.1f dB\n", e.gesamt_db, e.snr_db);
+
+  double snr_max = 0;
+  for (int r = 0; r < 20; r++) {   // weißes Rauschen, 20 Durchläufe: nie eine Spitze
+    signal({}, 50);
+    e = bf_auswerten(&arbeit, roh, 0);
+    if (e.snr_db > snr_max) snr_max = e.snr_db;
+    if (e.spitze_gueltig) break;
+  }
+  snprintf(t, sizeof t, "Rauschen ×20: keine Spitze (größter SNR %.1f dB < %.0f dB)", snr_max, (double)BF_SNR_DB);
+  wahr(t, snr_max < BF_SNR_DB);
+  printf("info - %s\n", t);
+
+  signal({{247.3, 60}}, 50);       // Ton deutlich über dem Rauschen
+  e = bf_auswerten(&arbeit, roh, 0);
+  wahr("Ton im Rauschen: Spitze gültig bei 247,3 Hz", e.spitze_gueltig && fabs(e.spitze_hz - 247.3) < 1.0);
+
+  // 11. Netzbrummen-Nähe: 59 Hz liegt unter 60 Hz und wird nicht gemeldet; 61 Hz wird gefunden
+  signal({{59, 1000}}, 2);
+  e = bf_auswerten(&arbeit, roh, 0);
+  printf("info - 59 Hz allein: spitze_gueltig=%d, Spitze %.1f Hz, SNR %.1f dB\n", e.spitze_gueltig, e.spitze_hz, e.snr_db);
+  wahr("59 Hz allein: keine Spitze, keine Frequenz unter 60 Hz", !e.spitze_gueltig || e.spitze_hz >= 60.0);
+  signal({{59, 1800}, {180, 100}}, 2);
+  e = bf_auswerten(&arbeit, roh, 0);
+  wahr("59 Hz stark + 180 Hz leise: Spitze bei 180 Hz", e.spitze_gueltig && fabs(e.spitze_hz - 180) < 0.5);
+  printf("info - 59 Hz (1800) + 180 Hz (100): Spitze %.2f Hz, SNR %.1f dB\n", e.spitze_hz, e.snr_db);
+  signal({{61, 1000}}, 2);
+  e = bf_auswerten(&arbeit, roh, 0);
+  wahr("61 Hz: Spitze gültig", e.spitze_gueltig && fabs(e.spitze_hz - 61) < 0.5);
+
+  // 12. Tiefe Töne mit leichtem Rauschen (σ = 1 LSB): keine Scheinspitze durch Nebenkeulen; 60 Hz am Rand wird gefunden
+  const double tief[] = {50, 55, 58, 59};
+  for (double f : tief) {
+    signal({{f, 1000}}, 1);
+    e = bf_auswerten(&arbeit, roh, 0);
+    snprintf(t, sizeof t, "%.0f Hz + Rauschen: keine Spitze (gemeldet wäre %.1f Hz, SNR %.1f dB)", f, e.spitze_hz, e.snr_db);
+    wahr(t, !e.spitze_gueltig);
+  }
+  signal({{60, 1000}}, 1);
+  e = bf_auswerten(&arbeit, roh, 0);
+  wahr("60 Hz + Rauschen: Spitze gültig bei 60 Hz", e.spitze_gueltig && fabs(e.spitze_hz - 60) < 0.5);
+
   printf("bee_fft: %d von %d Prüfungen bestanden\n", anz - fehler, anz);
   return fehler ? 1 : 0;
 }

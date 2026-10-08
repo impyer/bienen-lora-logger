@@ -17,6 +17,7 @@ Priorität: **1** = verfälscht oder verliert Daten, **2** = schränkt ein, **3*
 | F6 | erledigt (V2) | Kein Messzeitpunkt im Paket; der Server setzt die Empfangszeit. | Messzeitpunkt als Abstand zur Sendezeit oder als Minutenzähler senden. Die Uhr ist durch den Zeitabgleich genau. |
 | F7 | erledigt (V2) | Kein Zustand im Paket (Zeitabgleich, Neustart-Grund, Sensorfehler) | Zustandsbyte bzw. Fehlerbits |
 | F8 | erledigt | Kommentar „3 bytes“ beim Gewicht, tatsächlich 2 Byte (int16 / 100 → höchstens 327,67 kg) | Kommentar richtigstellen. Für eine Beute reicht der Bereich. |
+| F10 | erledigt (261010) | Unkalibrierte Waage (`Taragewicht` = 10) behält den Startwert 0,01 kg und wird gesendet. | Nicht senden, nicht als Ausfall melden |
 | F9 | 3 | Frame-Counter springt bei 16384 auf 0 (ABP, „Resets frame counters“) | bleibt vorerst; bei der neuen Firmware den Zähler im EEPROM durchlaufen lassen |
 
 ## Formatter (TTN)
@@ -30,7 +31,7 @@ Priorität: **1** = verfälscht oder verliert Daten, **2** = schränkt ein, **3*
 
 | Nr. | Prio | Befund (siehe `docs/server-analyse.md`) | Lösung |
 |---|---|---|---|
-| S1 | 1 | **B2: Winterzeit-Umstellung am 25.10.2026** – eine Stunde wird 60 min zu spät gespeichert, die nächste verworfen | Eigener LoRa-Eingang oder Patch: UTC-Zeit aus `received_at` bzw. Messzeitpunkt |
+| S1 | erledigt (eigene Fassung eigen-utc-2) | **B2: Winterzeit-Umstellung am 25.10.2026** – eine Stunde wird 60 min zu spät gespeichert, die nächste verworfen | `server/beelogger_eigen/` mit Unix-Zeit (UTC), siehe `docs/server-utc.md` |
 | S2 | erledigt (LoRa-Eingang) | B1: Zeitstempel = Empfangszeit, gekürzt auf die Minute | wie S1 |
 | S3 | erledigt (LoRa-Eingang) | B3/B4: Aux2 = RSSI, Aux3 = Sketch-ID | eigene Felder für RSSI, SNR, Sketch-ID, FFT |
 | S4 | erledigt (Aux-Zuordnung / Zusatzdatei) | B5: Single nimmt kein `TempIn2` an | eigene Spalte bzw. Zusatzdatei |
