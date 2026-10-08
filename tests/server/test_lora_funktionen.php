@@ -90,6 +90,22 @@ gleich('Zusatz Spaltenzahl', count($z), count(le_zusatz_kopf()));
 gleich('Zusatz Statusbits', $z[18], 65);
 gleich('Zusatz Bänder', $z[17], '-40;-22.5');
 
+// Speicherung erkennen (CI26-01): unabhängig von der Dateigröße
+gleich('Speicherung: neue Zeit als letzte Zeile', le_speicherung_erkannt(1000, 1060, 1060), true);
+gleich('Speicherung: erste Zeile (Datei fehlte)', le_speicherung_erkannt(null, 1060, 1060), true);
+gleich('Speicherung: Zeit war schon letzte Zeile (abgelehnt)', le_speicherung_erkannt(1060, 1060, 1060), false);
+gleich('Speicherung: ältere Zeit verworfen', le_speicherung_erkannt(2000, 2000, 1060), false);
+gleich('Speicherung: keine Zeile danach', le_speicherung_erkannt(null, null, 1060), false);
+// Kürzung auf 7 Tage beim Speichern: Datei schrumpft, Zeile ist trotzdem neu
+$k = sys_get_temp_dir() . '/le_kurz_' . getmypid() . '.csv';
+file_put_contents($k, "a,1792000000\r\nb,1792001800\r\n");
+$vor = le_letzter_zeitstempel($k); $g_vor = filesize($k);
+file_put_contents($k, "c,1792886400\r\n");   // beelogger schreibt neu und kürzt
+clearstatcache();
+gleich('Kürzung: Datei kleiner als vorher', filesize($k) < $g_vor, true);
+gleich('Kürzung: trotzdem als gespeichert erkannt', le_speicherung_erkannt($vor, le_letzter_zeitstempel($k), 1792886400), true);
+@unlink($k);
+
 // Kennung der Nachricht (Duplikat-Erkennung)
 $m = array('end_device_ids' => array('device_id' => 'b1'), 'uplink_message' => array('f_port' => 2, 'f_cnt' => 5, 'frm_payload' => 'AAE=', 'received_at' => '2026-10-08T12:00:03Z'));
 $m2 = $m; $m2['uplink_message']['received_at'] = '2026-10-09T12:00:03Z';   // gleicher FCnt nach Zähler-Rücksprung

@@ -16,7 +16,7 @@
 - RTC-Zeitabgleich per LoRaWAN DeviceTimeReq ist fachlich erwünscht; Sekundengenauigkeit genügt fürs Slotraster. RX1/RX2 auf Hardware sind als Feldtest offen.
 - **FPort 1** = Legacy-Payload; **FPort 2** = neue Version mit Zustandsbits, Messzeit und FFT. Änderungen nur zusammen mit Formatter, Tests und Serververträgen.
 - Server M.40 bleibt als unveränderte Referenz erhalten. Die neue generierte Server-Fassung `server/beelogger_eigen/` behebt den DST-Datenverlust im eigenen UTC-EE-Datenpfad (7/7). Eigene Änderungen **nur** in `server/eigen_anpassen.py`, der CI-Generierungsvergleich sichert den Stand. Der LoRa-Eingang prüft die UTC-Fähigkeit je Logger über das Merkmal `$BL_UTC_FAEHIG=1;` im `beelogger_log.php` (`SRV26-07`). Beim Deployment trotzdem alle Logger-Endpunkte aktualisieren (Kontrolle: `docs/server-utc.md`, Einspielen Schritt 5).
-- Geplante **neue SMD-Platine SX1262/RadioLib** ist eine separate Entwicklung, nicht mit der Musterlogger-Firmware gleichsetzen. **Hardware 0.4 ist noch kein KiCad-Schaltplan.** Vor Layout die Review-Befunde `HW26-07` (Ladeübertemperatur, P0), `HW26-08` (Solar-ADC), `HW26-09` (I²C-Kapazität) und `HW26-10` (EEPROM-Atomicity) bearbeiten. Zellen-Datenblattrevision verbindlich prüfen.
+- Geplante **neue SMD-Platine SX1262/RadioLib** ist eine separate Entwicklung, nicht mit der Musterlogger-Firmware gleichsetzen. **Hardware 0.4 ist noch kein KiCad-Schaltplan.** `HW26-07` … `-13` sind im Entwurf bearbeitet ([Behebung](docs/testberichte/2026-10-09-hw04-ci26-behebung.md)): Ladesperre TMP390 → CE (+5 … 42 °C), EEPROM entfällt (Sitzung im SPI-Flash), Solar-Teiler 3,3 MΩ/470 kΩ, Netzwerkkabel für BME280, 150 mA. Nachweise am Muster stehen aus; Zellen-Datenblattrevision der gekauften Zelle verbindlich prüfen.
 
 ## Reproduzierbare Checks
 
@@ -27,7 +27,7 @@ node tests/formatter/test_formatter.js
 php tests/server/test_lora_funktionen.php
 ```
 
-`tests/alle_tests_linux.sh` erzeugt Buildprodukte/`ff2_vektoren.h` lokal. Vor Commit unbeabsichtigte Artefakte prüfen. GitHub Actions auf `5c1b847` führt die neuen Firmware-Hosttests und drei Buildvarianten aus (`FW26-04` behoben). Der Playwright-Browsertest ist seit `6b83d` in CI installiert und verpflichtend (`BROWSER_PFLICHT=1`, `SRV26-08`). **Trotz bestandenem Chromium-Test ist die Gesamt-CI rot**: `CI26-01`, DST-Webhooks nur 6/7 Antworten `gespeichert`, obwohl 7/7 Zeilen in `week.csv` vorhanden sind. Den Fehler diagnostizieren, Test nicht aufweichen.
+`tests/alle_tests_linux.sh` erzeugt Buildprodukte/`ff2_vektoren.h` lokal. Vor Commit unbeabsichtigte Artefakte prüfen. GitHub Actions auf `5c1b847` führt die neuen Firmware-Hosttests und drei Buildvarianten aus (`FW26-04` behoben). Der Playwright-Browsertest ist seit `6b83d` in CI installiert und verpflichtend (`BROWSER_PFLICHT=1`, `SRV26-08`). `CI26-01` (6/7 „gespeichert“) war uhrzeitabhängig: beelogger kürzt `week.csv` vor 08:00 Uhr Serverzeit, die alte Speichererkennung prüfte die Dateigröße. Behoben über `le_speicherung_erkannt()`; der E2E-Test läuft in der CI mit `SERVER_UHR` (libfaketime) um 05:00 und 14:00. Lokal: `SERVER_UHR="2026-10-09 05:00:00" bash tests/server/test_lora_eingang.sh` (braucht `faketime`).
 
 ## Arbeits- und Reviewprotokoll
 

@@ -13,7 +13,7 @@ Die Rechnung zur Energiebilanz ist reproduzierbar: `python3 hardware/energiebila
 
 | Frage | Ergebnis |
 |---|---|
-| Reicht die Energie im Winter? | **Ja, mit großer Reserve.** Bedarf rund 5–18 mAh/Tag (eine 5-V-Waage). Reichweite ohne jedes Laden 128–454 Tage, je nach Firmware, Funk und Selbstentladung. Der Dezemberertrag der Panels liegt bei grob dem 38-Fachen des Bedarfs. |
+| Reicht die Energie im Winter? | **Ja, mit großer Reserve.** Bedarf rund 5–18 mAh/Tag (eine 5-V-Waage). Reichweite ohne jedes Laden 128–452 Tage, je nach Firmware, Funk und Selbstentladung. Der Dezemberertrag der Panels liegt bei grob dem 38-Fachen des Bedarfs. |
 | Was ist kritisch? | 1. Laden **unter 0 °C** muss gesperrt sein. 2. **Tiefentladeschutz** in Hardware. 3. **Leerlaufspannung** der Panels bei Kälte (bis etwa 9–10 V). 4. Ein Kurzschluss im **Akkukabel**. |
 | Laderegler | **BQ25185** (TI) statt CN3065. Der CN3065 verträgt nur 6,5 V am Eingang und hat nur eine Temperaturschwelle; bei LCSC ist er zurzeit nicht lieferbar. |
 | Tiefentladeschutz | **zweistufig in Hardware**, dazu Stufen in der Firmware (Abschnitt 4) |
@@ -24,17 +24,18 @@ Die Rechnung zur Energiebilanz ist reproduzierbar: `python3 hardware/energiebila
 
 ```
  Panel 1 ─┬─ Schottky ─┐
- Panel 2 ─┴─ Schottky ─┴─┬─ TVS 12 V ─┬─ Teiler 3,3 MΩ/1 MΩ → ADC (Solar)
+ Panel 2 ─┴─ Schottky ─┴─┬─ TVS 12 V ─┬─ Teiler 3,3 MΩ/470 kΩ + 100 nF → ADC PB1 (Eingangsspannung Lader)
                           │            │
                           └─► BQ25185 IN
                                  │ SYS (bei Sonne 4,5 V, sonst = Akku) ──┬─► RT9080 3,3 V ──┬─► STM32, Ra-01SH, SPI-Flash
                                  │ BAT                                   │                  └─► TPS22917 ─► Sensorschiene 3,3 V
                                  │                                       │                       (HX711-DVDD, DS18B20, BME280,
-                                 │                                       │                        EEPROM, Mikrofon, Pull-ups)
+                                 │                                       │                        Mikrofon, Pull-ups)
           Akku-Platine am Halter │                                       └─► TPS61240 5 V (EN = PB10, nur beim Wiegen)
                                  │                                            └─► Filter ─► HX711 VSUP → AVDD 4,3 V → H40A
        ┌─────────────────────────┴───┐
-       │ Stecker ─ HY2111 + 8205 ─ Zelle 18650 │    NTC 10 k an der Zelle → TS des BQ25185
+       │ Stecker ─ HY2111 + 8205 ─ Zelle 18650 │    NTC 10 k an der Zelle → TS des BQ25185 (2. Stufe)
+       │ TMP390 + N-FET an der Zelle ──────────│──► CE_FREI → CE des BQ25185 (1. Stufe, 5–42 °C)
        │ (Verpolschutz, Strommessbrücke)       │
        └───────────────────────────────┘
  Akkuspannung: Teiler 2 × 2,2 MΩ + 100 nF → ADC; VREFINT zur Korrektur
@@ -50,7 +51,7 @@ Die Rechnung zur Energiebilanz ist reproduzierbar: `python3 hardware/energiebila
 | Leerlaufspannung kalt | **Auslegung auf bis 12 V Dauer** [A] | Voc steigt um etwa 0,34 %/K. Ein Panel mit 7,2–8,7 V bei 25 °C hat bei −20 °C 8,3–10 V; 12 V lässt Reserve für unbekannte Panels mit mehr Zellen. Der BQ25185 arbeitet bis 18 V. |
 | Je Panel eine Schottky-Diode | z. B. SS34 [P] (LCSC/Basic prüfen) | Kein Rückstrom von einem Panel ins andere; Verpolschutz am Panel |
 | TVS-Diode am Eingang | SMAJ12A (Sperrspannung 12 V) [P] | Begrenzt Störungen auf dem langen Panelkabel unter die 25 V Absolutgrenze des BQ25185 |
-| Messung Solarspannung | Teiler 3,3 MΩ / 1 MΩ **vor** den Dioden auf der Panelseite [A] | 12 V ergeben 2,8 V am ADC (Messbereich bis 14 V). Der Teiler belastet nur das Panel, nicht den Akku. |
+| Messung Solarspannung (HW26-08, geändert 09.10.2026) | Teiler **3,3 MΩ / 470 kΩ** + 100 nF am ADC-Knoten, **hinter** den Schottky-Dioden am Eingang IN des BQ25185 | Faktor 0,1247: 12 V → 1,50 V, 18 V → 2,24 V, **25 V (Absolutgrenze BQ25185) → 3,12 V**, also immer unter 3,3 V; der ADC-Pin braucht keine Klemmdiode. Gemessen wird die **Eingangsspannung des Laders**: das stärkere Panel minus Diodenspannung, bei angestecktem USB die VBUS-Spannung minus Diode (Firmware erkennt USB am VBUS-Teiler, mcu-funk.md 1.3). Nachts 0 V. Der Teiler belastet nur die Quelle (3,2 µA bei 12 V), nicht den Akku. Der 100-nF-Kondensator liefert die Ladung für die Abtastung; Abtastzeit lang wählen (480 Takte) [A]. **[P]** am Muster bei 0, 6, 12 V prüfen. |
 
 ### 3.2 Laderegler BQ25185 (LCSC C19725033, Extended) [V: TI-Datenblatt]
 
@@ -59,13 +60,35 @@ Die Rechnung zur Energiebilanz ist reproduzierbar: `python3 hardware/energiebila
 | Eingang | Betrieb 3,0–18 V, Absolutgrenze 25 V, Überspannungsabschaltung bei 18,5 V | Panelspannung bis 10 V ist unkritisch; keine Z-Diode nötig wie beim beelogger |
 | Schwache Quelle | VINDPM: Ladestrom wird reduziert, damit der Eingang nicht unter Akku + 0,33 V fällt | Das Panel bricht nicht zusammen. Es ist **kein MPPT**; das Panel arbeitet bei etwa 4,4 V statt etwa 6 V. Der Verlust (grob 25 %) ist bei 40-facher Reserve ohne Bedeutung. |
 | Ladeschluss | per Widerstand: u. a. 4,05 / 4,1 / 4,2 V | **4,1 V wählen** [A]: Die Zelle steht dauernd voll und warm im Sommer; das schont sie. Kostet grob 10 % Kapazität. |
-| Ladestrom | ICHG = 300 AΩ ÷ RISET, 5–1000 mA | **300 mA** mit RISET = 1 kΩ. Die Panels liefern ohnehin weniger; VINDPM regelt. |
+| Ladestrom (HW26-11, geändert 09.10.2026) | ICHG = 300 AΩ ÷ RISET, 5–1000 mA | **150 mA** mit RISET = 2,0 kΩ. Begründung Wärme siehe 3.2a. Der Bedarf liegt bei 2,4–5,5 mAh je Tag; schon eine Stunde mit 150 mA bringt das 30-Fache. |
 | Systemausgang SYS | bei Sonne 4,5 V geregelt; ohne Sonne über den Akkuschalter (115 mΩ) = Akkuspannung | Der LDO hängt an SYS. Bei Sonne versorgt das Panel den Logger direkt. |
 | **Akku-Unterspannung** | BUVLO 3,0 V fallend, Hysterese 0,11–0,19 V: trennt den Akku von SYS | **Erste Hardware-Stufe des Tiefentladeschutzes** |
 | Überstrom Akku | 3,13 A, Hiccup | zusätzlicher Schutz |
-| Temperatur (TS) | für 10-kΩ-NTC, B = 3435 K. Kalt: 1,0075 V steigend, Heiß: 0,115 V fallend. Laden außerhalb gesperrt. | siehe 3.3 |
+| Temperatur (TS) | für 10-kΩ-NTC, B = 3435 K. Kalt: 1,0075 V steigend, Heiß: 0,115 V fallend. Laden außerhalb gesperrt. **TS/MR ist zugleich Reset-Eingang:** länger auf Low gezogen, geht der Baustein in den Werksmodus („factory mode“, Akku getrennt) [V: TI-Datenblatt, Pinbeschreibung]. TS also nie aktiv auf Masse ziehen. | siehe 3.3 |
+| Laden ein/aus (CE) | **CE aktiv Low**: Low = Laden erlaubt, High = gesperrt; VIH 1,3 V, VIL 0,4 V [V] | Eingang für die externe Temperatursperre (3.3) |
 | Ruhestrom aus dem Akku | 4 µA typ., 5 µA max. (ohne Eingang) | in der Bilanz enthalten |
 | Gehäuse | WSON-10, 2,2 × 2 mm, Thermal-Pad | JLCPCB bestückt das; Handlöten ist schwer |
+
+### 3.2a Wärme im Laderegler (HW26-11)
+
+Der BQ25185 ist ein **Linearregler**: Die Differenz zwischen Eingang und Akku wird im IC zu Wärme.
+
+- P ≈ (V_IN − V_BAT) × I_CHG + (V_IN − V_SYS) × I_SYS. Die Systemlast ist klein (ca. 1 mA im Mittel) und hier vernachlässigt.
+- RθJA = **68,3 K/W** nach JEDEC-Platine [V: TI-Datenblatt]. Unsere 4-Lagen-Platine mit Massefläche unter dem Pad ist eher besser [A].
+- **Thermische Regelung bei 100 °C** Sperrschicht (TREG typ.) [V]: Wird es heißer, senkt der IC den Ladestrom selbst. Das ist kein Sicherheitsproblem, kostet aber Ladung.
+
+| Fall | V_IN − V_BAT | 300 mA | **150 mA (gewählt)** |
+|---|---|---|---|
+| „6-V“-Panel unter Last, Akku 3,5 V | 6,5 − 3,5 = 3,0 V | 0,90 W → +61 K | 0,45 W → +31 K |
+| Panel mit 12 V unter Last (Auslegungsgrenze, unbekanntes Panel) | 12 − 3,5 = 8,5 V | 2,55 W → TREG greift | 1,28 W → +87 K, TREG greift |
+| Rechenfall aus dem Review (10 V, 4,1 V) | 5,9 V | 1,77 W | 0,89 W → +60 K |
+
+Bei **50 °C im Gehäuse** und 150 mA bleibt das „6-V“-Panel bei etwa 81 °C Sperrschicht, unter TREG. Mit 300 mA würde der IC schon heute regeln. Die Leerlaufspannung (bis 12 V) tritt nur ohne Strom auf und erzeugt keine Wärme [A].
+
+Regeln:
+- Ladestrom 150 mA.
+- Der Laderegler sitzt **nicht** neben der Zelle (Zelle auf der Akku-Platine), Thermal-Pad mit 6–9 Durchkontaktierungen auf L2.
+- **[P]** Am Muster bei Sonne die Gehäusetemperatur am IC messen.
 
 **Eingangsbereich geklärt:** Die TI-Produktseite nennt „3.0V to 18V input voltage operating range“, „25V tolerant input voltage“ und „solar input support“ [V, ti.com/product/BQ25185, 08.10.2026]. Die abweichende Zeile „2,7–5,5 V“ in der Empfehlungstabelle des Datenblatts widerspricht dem. Ich halte sie für einen Fehler im Datenblatt, belegt ist das nicht. Maßgeblich für uns sind die Betriebsdaten 3,6–18 V und die Produktseite.
 
@@ -73,26 +96,52 @@ Die Rechnung zur Energiebilanz ist reproduzierbar: `python3 hardware/energiebila
 - BQ25170: hat einen NTC-Eingang mit 0 °C und 45 °C, aber eine Überspannungsabschaltung bei 6,75 V. Er bräuchte also eine Eingangsbegrenzung.
 - CN3791: echtes MPPT bis 28 V, aber kein NTC-Eingang. Die Kältesperre müsste man extern bauen.
 
-### 3.3 Temperatursperre beim Laden
+### 3.3 Temperatursperre beim Laden (HW26-07, neu 09.10.2026)
 
-Die Zelle (BAK N18650CP) darf laut Händlerangaben bei **0 bis +45 °C** geladen werden [V: keeppower.com.cn]. Das Original-Datenblatt von BAK ist noch zu lesen [P].
+**Grenzen der Zelle:**
+- Händlerangabe für die BAK N18650CP: Laden **0 bis +45 °C** [V: keeppower.com.cn].
+- BAK-Datenblatt N18650CP-34E: Laden **0 bis 55 °C**, Zelloberfläche [V: bakpower.com, Datenblatt 34E].
+- Welche Variante gekauft ist, steht noch nicht fest (Philipp, 09.10.2026). **Auslegung daher auf 45 °C.**
 
-Rechnung für einen 10-kΩ-NTC mit B = 3435 K am TS-Pin [A]. Annahme: Der TS-Pin speist den NTC mit dem Strom ITSMR = 38 µA. Das Datenblatt nennt den Wert, ordnet ihn aber nicht ausdrücklich dem NTC zu [P]:
+**Problem mit dem BQ25185 allein:** Seine TS-Schwellen sind fest [V: TI-Datenblatt]. Mit einem 10-kΩ-NTC (B 3435) und dem Messstrom 38 µA ergeben sich die Werte unten.
 
 | Schwelle | Spannung | NTC-Widerstand | Temperatur |
 |---|---|---|---|
-| Kalt (Laden aus) | 1,0075 V | 26,5 kΩ | **ca. +1,7 °C** |
+| Kalt (Laden aus) | 1,0075 V | 26,5 kΩ | ca. +1,7 °C |
 | Kalt (Laden wieder ein) | 0,820 V | 21,6 kΩ | ca. +6,3 °C |
 | Heiß (Laden aus) | 0,115 V | 3,0 kΩ | **ca. +59,5 °C** |
 | Heiß (Laden wieder ein) | 0,135 V | 3,6 kΩ | ca. +54,4 °C |
 
-- **Die Kältesperre passt.** Zwischen +1,7 °C und 10 °C wird mit vollem Strom geladen (BQ25185 hat keine JEITA-Stufen). Bei 300 mA sind das unter 0,1 C. Das Risiko einer Lithium-Abscheidung schätze ich bei so kleinem Strom als gering ein [A].
-- **Die Heißsperre liegt bei 60 °C statt 45 °C.** Sie lässt sich mit einem Parallelwiderstand auf 45 °C verschieben, aber dann wirkt die Kältesperre nicht mehr. Ausgleich:
-  - Ladeschluss 4,1 V
-  - kleiner Strom
-  - Gehäuse hell und möglichst im Schatten
-  - **[P]** Gehäusetemperatur im Sommer messen; die Firmware meldet sie ohnehin (CPU-Temperatur).
-- **Der NTC muss an der Zelle sitzen**, nicht auf der Hauptplatine (siehe 3.4).
+- Die Heißsperre liegt **über beiden Zellgrenzen** (45 bzw. 55 °C).
+- Mit Vor- oder Parallelwiderständen lässt sie sich nicht auf 45 °C bringen, ohne die Kältesperre zu verlieren. TI bestätigt das im E2E-Forum: dafür bräuchte es einen NTC mit unrealistisch großem B-Wert [V: TI E2E 1472003]. Eigene Rechnung dazu: Ein Fenster 0–45 °C verlangt ein Widerstandsverhältnis von 8,75; der NTC liefert nur 5,9 [A].
+
+**Lösung (Entscheidung Philipp, 09.10.2026): zweistufige Sperre**
+
+1. **Stufe 1, Temperaturschalter TMP390 an der Zelle → CE des BQ25185**
+   - TMP390 (TI): zwei Schwellen über je einen Widerstand eingestellt; heiß 30–124 °C in 2-°C-Schritten (OUTA), kalt −50 … +25 °C in 5-°C-Schritten (OUTB); beide Ausgänge **Open-Drain, aktiv Low**; 0,5 µA; 1,62–5,5 V; Genauigkeit Variante A2 **±1,5 °C von 0 bis 70 °C** [V: TI-Datenblatt und Produktseite]. Der Widerstandswert geht nicht in die Genauigkeit ein [V].
+   - Gewählt: **heiß 42 °C, kalt +5 °C, Hysterese 5 °C**. Mit Toleranz: Sperre spätestens bei 43,5 °C und frühestens unter 6,5 °C, also sicher im Fenster 0–45 °C [A, aus ±1,5 °C]. Wieder frei bei 37 bzw. 10 °C.
+   - Schaltung **auf der Akku-Platine**: OUTA und OUTB verbunden („wired-OR“) am Gate eines N-MOSFETs mit kleiner Schwellspannung (z. B. AO3400A, VGS(th) ≤ 1,45 V [A]); Gate-Pull-up 10 MΩ nach P+. Der Drain geht als Leitung **CE_FREI** über J3 zur Hauptplatine an CE. Auf der Hauptplatine zieht 10 MΩ CE nach SYS.
+   - Ablauf: Temperatur im Fenster → FET leitet → CE Low → Laden erlaubt. Zu heiß oder zu kalt → TMP390 zieht das Gate auf Low → FET sperrt → CE High → **Laden gesperrt**. Ohne Software.
+   - **Ausfallsicher gegen Leitungsbruch:** Ist J3 abgezogen oder die Leitung CE_FREI unterbrochen, zieht der Pull-up CE auf High: Laden gesperrt.
+   - Strom: 0,5 µA TMP390 + ca. 0,4 µA durch den CE-Pull-up (bei geleitendem FET). Der Gate-Pull-up zieht nur bei gesperrtem Laden Strom.
+   - Versorgung des TMP390: auf der Akku-Platine **hinter dem Schutz** (P+ / P−), damit die Ausgänge auf die Masse der Hauptplatine bezogen sind.
+   - Die Widerstandswerte für 42 °C, +5 °C und 5 °C Hysterese stehen in der Tabelle des Datenblatts **[P]** beim Schaltplan übernehmen. LCSC-Nummer TMP390A2DRL **[P]**.
+2. **Stufe 2, NTC am TS-Pin des BQ25185** (unverändert): sperrt unter ca. +1,7 °C und über ca. 59,5 °C und bei offenem TS [V: TI E2E]. Sie greift, wenn Stufe 1 ausfällt.
+
+**Fehlerfälle:**
+
+| Fehler | Folge |
+|---|---|
+| TMP390 ohne Versorgung (Schutz hat getrennt) | Ausgänge hochohmig → Laden erlaubt; nur Stufe 2 aktiv. Das betrifft nur das Wiederaufladen nach einer Tiefentladung. |
+| Leitung CE_FREI unterbrochen | CE über Pull-up High → **Laden gesperrt** (ausfallsicher). Die Firmware sieht am Akku, dass trotz Sonne nicht geladen wird, und meldet es [A]. |
+| NTC-Leitung offen | TS offen → BQ25185 lädt nicht [V: TI E2E] |
+| NTC-Leitung kurzgeschlossen | TS auf Masse → **Werksmodus**, Akku getrennt, bis wieder eine Quelle anliegt [V]. Stufe 1 sperrt bei falscher Temperatur trotzdem. |
+
+**Wärmekopplung:** TMP390 und NTC sitzen auf der Akku-Platine **direkt unter der Zelle**, mit Wärmeleitpad, nicht neben dem Laderegler.
+
+**Prüfung am Muster [P]:** Zelle mit Föhn und Kältespray bzw. im Gefrierfach über beide Schwellen fahren; Ladestrom (STAT-Pin oder Messbrücke) und CE-Pegel aufzeichnen; NTC-Leitung offen und kurzgeschlossen prüfen; Leitung CE_FREI abziehen.
+
+Die Kältesperre steigt damit von +1,7 °C auf +5 °C. Im Winter lädt der Logger seltener. Bei 128 Tagen Reichweite ohne Laden ist das unkritisch [A].
 
 ### 3.4 Akku-Platine am Halter (neu)
 
@@ -101,8 +150,8 @@ Rechnung für einen 10-kΩ-NTC mit B = 3435 K am TS-Pin [A]. Annahme: Der TS-Pin
 **Vorschlag:** eine kleine zweite Platine (im selben JLCPCB-Auftrag als Nutzen) mit:
 - Halter Keystone 1043 (für Leiterplattenmontage)
 - **HY2111-GB + Doppel-MOSFET 8205** direkt an der Zelle
-- NTC 10 k unter der Zelle (thermisch angekoppelt)
-- Stecker mit Kodierung zur Hauptplatine (BAT+, BAT−, NTC, GND)
+- NTC 10 k und **TMP390** unter der Zelle (thermisch angekoppelt, 3.3)
+- Stecker JST PH **4-polig** zur Hauptplatine (BAT−, NTC, CE_FREI, BAT+), siehe anschluesse.md
 - Lötbrücke bzw. Stiftleiste in BAT+ zum **Strommessen** (beelogger-Erfahrung, Abschnitt 5)
 
 | Schutz-IC HY2111-GB (LCSC C82747, SOT-23-6, 1.900 Stück am 08.10.2026) | Wert [V: HYCON-Datenblatt über LCSC, Produkttabelle Abschnitt 6 und Kennwerte Abschnitt 9] |
@@ -148,7 +197,7 @@ Der Steckverbinder ist verpolsicher kodiert. Zusätzlich P-MOSFET (AO3401A) in B
 | Schalter | **TPS22917** (LCSC C2681320, Extended) im 3,3-V-Zweig, ON an PB5 (high = ein), Pull-down 100 kΩ an ON; CT für die Anstiegszeit, QOD für die aktive Entladung (Übernahme aus BEEP base v3, beep-vergleich.md 3.1). Rückfall: AO3401A (C15127, Basic) mit Gate direkt am GPIO (low = ein). |
 | Sicher aus im Standby | **Pflicht:** Die GPIOs sind im Standby hochohmig. TPS22917: Pull-down 100 kΩ an ON. Rückfall AO3401A: Gate-Pull-up 1 MΩ nach 3,3 V. |
 | Einschaltstrom | An der Schiene hängen u. a. 22 µF (Mikrofon) und 10 µF (HX711). TPS22917: CT ≥ 1 nF für eine Anstiegszeit im ms-Bereich [A, Datenblatt-Gleichung prüfen]. Rückfall: Gate-RC 100 kΩ / 10 nF. |
-| An der Schiene | HX711 (nur DVDD; Brücke und Analogteil am 5-V-Wandler, waage.md), DS18B20, BME280, Mikrofon, **alle Pull-ups**, EEPROM (mcu-funk.md 3.1). **Nicht** an der Schiene: SPI-Flash (dauernd versorgt, Bus mit dem Funk geteilt, mcu-funk.md 3.2). |
+| An der Schiene | HX711 (nur DVDD; Brücke und Analogteil am 5-V-Wandler, waage.md), DS18B20, BME280, Mikrofon, **alle Pull-ups**. (Der EEPROM entfällt seit 09.10.2026, HW26-10; die Sitzung liegt im SPI-Flash, mcu-funk.md 3.2.) **Nicht** an der Schiene: SPI-Flash (dauernd versorgt, Bus mit dem Funk geteilt, mcu-funk.md 3.2). |
 | Ruhestrom | TPS22917 eingeschaltet 0,5 µA, aus 10 nA Leckstrom [V]; in der Bilanz wie der FET mit 0,1 µA gerechnet |
 
 **Regeln gegen Rückspeisung (HW26-04):**
@@ -178,7 +227,9 @@ Der Steckverbinder ist verpolsicher kodiert. Zusätzlich P-MOSFET (AO3401A) in B
 | Lastschalter | 0,1 | A |
 | 5-V-Wandler TPS61240 aus | 1,5 | V |
 | SPI-Flash Deep Power-down | 1,0 | A (Typ bei Bestellung) |
-| **Summe** | **15,7 µA ≈ 0,38 mAh/Tag** | |
+| TMP390 Ladesperre (3.3) | 0,5 | V |
+| CE-Pull-up 10 MΩ (3.3) | 0,4 | A |
+| **Summe** | **16,6 µA ≈ 0,40 mAh/Tag** | |
 
 Bei 70 °C im Gehäuse steigt allein der STM32 auf bis 14 µA (max.); die Summe liegt dann bei grob 25 µA. Das Ziel „unter 20 µA“ gilt also bei Raumtemperatur.
 
@@ -196,8 +247,8 @@ Nutzbare Kapazität: 3350 mAh × 0,9 (Ladeschluss 4,1 V) × 0,95 (bis 3,3 V) × 
 
 | Szenario | Selbstentladung 2 %/Monat | 5 %/Monat | SF12 + 5 %/Monat |
 |---|---|---|---|
-| A | 282 Tage | 200 Tage | 128 Tage |
-| B | 454 Tage | 273 Tage | 155 Tage |
+| A | 281 Tage | 199 Tage | 128 Tage |
+| B | 452 Tage | 272 Tage | 154 Tage |
 
 **Die Selbstentladung der Zelle ist so groß wie der ganze Logger.** Werte für 2–5 %/Monat sind eine Spanne [A]. Battery University nennt für volle Zellen bei 25 °C deutlich mehr. In der Kälte ist sie kleiner. **[P]** Leerlaufspannung einer Zelle über einige Wochen beobachten.
 
@@ -265,4 +316,4 @@ Offen:
 4. JLCPCB-Bestand und Basic/Extended aller Teile kurz vor der Bestellung
 5. Original-Datenblatt BAK N18650CP: Ladetemperatur, Entladegrenze, Innenwiderstand in der Kälte, Selbstentladung
 6. **Am Steckbrett:** Ruhestrom gesamt, Ladung je Zyklus, Strom des Mikrofonmoduls, Ra-01SH mit oder ohne DC-DC-Spule (RX 4,6 oder 8,8 mA)
-7. Gehäusetemperatur im Sommer (Heißsperre 59,5 °C)
+7. Gehäusetemperatur im Sommer; Ladesperre bei 42 °C (TMP390) und 59,5 °C (NTC) am Muster prüfen

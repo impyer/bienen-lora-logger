@@ -146,6 +146,16 @@ function le_letzter_zeitstempel($csv)
     return (int)$m[1];
 }
 
+// Wurde der Datensatz gespeichert? (CI26-01)
+// Nicht über die Dateigröße entscheiden: beelogger_log.php kürzt week.csv in CSVbuilder_log() auf 7 Tage,
+// und zwar nur vor 08:00 Uhr Serverzeit (date("G") < 8). Die Datei kann also beim Speichern schrumpfen.
+// Maßgeblich ist: Die letzte Zeile trägt danach die erwartete Zeit, vorher nicht (beelogger verwirft gleiche
+// oder ältere Zeiten, eine schon vorhandene Zeit wird also nicht ein zweites Mal geschrieben).
+function le_speicherung_erkannt($ts_vorher, $ts_nachher, $erwartet)
+{
+    return $ts_nachher !== null && $ts_nachher === $erwartet && $ts_vorher !== $erwartet;
+}
+
 // Eindeutige Kennung eines Uplinks für die Duplikat-Erkennung (SRV26-03/04/05).
 // FCnt allein reicht nicht: der Musterlogger setzt den Zähler bei 16384 bewusst auf 0 zurück (ABP).
 // Mit Nutzdaten und received_at ist eine Wiederholung derselben Nachricht eindeutig erkennbar.

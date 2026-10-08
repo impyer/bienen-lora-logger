@@ -96,10 +96,32 @@ jobs:
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.56.1
           npx playwright install --with-deps chromium
-      - name: Ende-zu-Ende mit der eigenen Fassung (UTC), Grafik im Browser verpflichtend
-        run: BROWSER_PFLICHT=1 VARIANTE=eigen bash tests/server/test_lora_eingang.sh
-      - name: Ende-zu-Ende mit dem Original M.40 (Winterzeit-Fehler bleibt nachgewiesen)
-        run: VARIANTE=original bash tests/server/test_lora_eingang.sh
+      - name: libfaketime für feste Serveruhr (CI26-01)
+        run: sudo apt-get update -q && sudo apt-get install -y -q faketime
+      # beelogger kürzt week.csv nur vor 08:00 Uhr Serverzeit. Beide Fälle fest prüfen, unabhängig von der Laufzeit der CI.
+      - name: Ende-zu-Ende, eigene Fassung (UTC), Serveruhr 05:00 (Kürzung aktiv), Grafik im Browser verpflichtend
+        run: SERVER_UHR="2026-10-09 05:00:00" BROWSER_PFLICHT=1 VARIANTE=eigen bash tests/server/test_lora_eingang.sh
+      - name: Ende-zu-Ende, eigene Fassung (UTC), Serveruhr 14:00 (ohne Kürzung)
+        if: ${{ !cancelled() }}
+        run: SERVER_UHR="2026-10-09 14:00:00" BROWSER_PFLICHT=1 VARIANTE=eigen bash tests/server/test_lora_eingang.sh
+      - name: Ende-zu-Ende, Original M.40 (Winterzeit-Fehler bleibt nachgewiesen), Serveruhr 05:00
+        if: ${{ !cancelled() }}
+        run: SERVER_UHR="2026-10-09 05:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
+      - name: Ende-zu-Ende, Original M.40, Serveruhr 14:00
+        if: ${{ !cancelled() }}
+        run: SERVER_UHR="2026-10-09 14:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
+
+  hardware-rechnungen:
+    name: Hardware-Rechenmodelle (Energie, Mikrofonfilter, I²C)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Energiebilanz
+        run: python3 hardware/energiebilanz.py
+      - name: Mikrofonfilter
+        run: python3 hardware/mikrofon_filter.py
+      - name: I²C-Leitung (Fehler, wenn das gewählte Kabel das 340-pF-Ziel verfehlt)
+        run: python3 hardware/i2c_leitung.py
 
   windows-programme:
     name: Windows-Programme für die PC-Tests

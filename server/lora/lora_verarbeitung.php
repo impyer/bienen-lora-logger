@@ -134,7 +134,7 @@ function le_verarbeiten(array $cfg, array $msg)
 
         $week = $pfad . '/week.csv';
         clearstatcache();
-        $groesse_vorher = is_file($week) ? filesize($week) : 0;
+        $ts_vorher = le_letzter_zeitstempel($week);
 
         $ch = curl_init($url);
         curl_setopt_array($ch, array(
@@ -151,9 +151,10 @@ function le_verarbeiten(array $cfg, array $msg)
         $erreicht = !($http < 200 || $http >= 300 || $antwort === '' || strpos($antwort, 'curl:') === 0);
 
         // Gespeichert? Unter der Sperre schreibt nur dieser Aufruf in week.csv; beelogger setzt die Sekunden auf :00.
+        // Keine Prüfung der Dateigröße: beelogger kürzt week.csv vor 08:00 Uhr (CI26-01, le_speicherung_erkannt).
         $erwartet = $utc ? ($unix - $unix % 60) : strtotime(str_replace('_', ' ', substr($zeit_text, 0, 17) . '00'));
         clearstatcache();
-        $gespeichert = (is_file($week) && filesize($week) > $groesse_vorher && le_letzter_zeitstempel($week) === $erwartet);
+        $gespeichert = le_speicherung_erkannt($ts_vorher, le_letzter_zeitstempel($week), $erwartet);
 
         if (!$erreicht && !$gespeichert) {
             le_log($cfg, array('geraet' => $geraet, 'art' => 'ergebnis', 'klasse' => 'fehler_endpunkt', 'id' => $id,

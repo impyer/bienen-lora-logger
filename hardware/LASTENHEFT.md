@@ -28,7 +28,7 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 | K1 [M] | Mikrocontroller **STM32F411CEU6** (UFQFPN-48, LCSC C60420). |
 | K2 [S] | **25-MHz-Quarz (HSE)** wie bei der BlackPill. So bleibt die fertige Arduino-Variante „BlackPill F411CE“ nutzbar, und eine gekaufte BlackPill mit Ra-01SH-Adapter dient als Entwicklungsplattform, bevor die Platine da ist. |
 | K3 [M] | **32,768-kHz-Quarz (LSE)** an PC14/PC15 für die RTC. |
-| K4 [M] | EEPROM **AT24C256** am I²C-Bus (Messwertpuffer und LoRaWAN-Sitzung). |
+| K4 [M] | ~~EEPROM AT24C256~~ entfällt (09.10.2026, HW26-10): LoRaWAN-Sitzung und Messwerte im dauernd versorgten SPI-Flash (F11), Sitzung mit Generationszähler und CRC. `mcu-funk.md` 3.1. |
 | K5 [S] | **USB-C** an PA11/PA12: Aufspielen über den eingebauten USB-DFU-Bootloader des STM32 und Service-Konsole, ohne FTDI-Adapter. Dazu ein BOOT0-Taster. Seriell (PA9/PA10) und SWD bleiben als Stiftleiste. |
 
 ### Pinbelegung
@@ -37,7 +37,7 @@ Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md
 - Ra-01SH TXEN/RXEN über Lötbrücken an PB14/PB15
 - Erweiterung: PA15, PB12, PB13 (PB10 schaltet den 5-V-Wandler der Waage, PB3 ist CS des SPI-Flashs; nur noch ein HX711)
 - PA15 nicht mehr für den Regensensor
-- EEPROM an der geschalteten Schiene
+- (EEPROM entfällt, Sitzung im SPI-Flash)
 
 ## 2. Funktionen
 
@@ -47,11 +47,11 @@ Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md
 | F2 [M] | **Antenne** (Entscheidung 08.10.2026): FPC-Antenne 868 MHz an der **IPEX-Buchse des Moduls**, innen an eine Seitenwand geklebt. Pin ANT ohne Leiterbahn. Einzelheiten `mcu-funk.md` 2.3. |
 | F3 [M] | **Waage** (Entscheidungen 08./09.10.2026): **1 × HX711** mit **VSUP 5 V aus festem Aufwärtswandler TPS61240** (Lasttrennung, nur beim Wiegen an), AVDD 4,3 V, **eine** Bosche H40A 200 kg. Anschluss 5-polig steckbar (E±, S±, Schirm). Einzelheiten [`waage.md`](waage.md). |
 | F4 [M] | **Temperatur**: 1-Wire für mindestens 2 × DS18B20, zwei 3-polige Klemmen J6/J7 am gleichen Bus (GND, DQ, 3V3_SW), 4,7 kΩ an der geschalteten Schiene, ESDS304. [`anschluesse.md`](anschluesse.md). |
-| F5 [M] | **I²C außen**: BME280 im Strahlungsschutz an J8 (6-polig mit Schirm, Pin 6 frei), ESDS304; wegen der Kabelkapazität Pull-ups **1,8 kΩ** und Takt **50 kHz**, Leitung **≤ 1 m** (Festlegung 09.10.2026). [`anschluesse.md`](anschluesse.md) 3.1. |
+| F5 [M] | **I²C außen**: BME280 im Strahlungsschutz an J8 (6-polig mit Schirm, Pin 6 frei), ESDS304; wegen der Kabelkapazität Pull-ups **1,8 kΩ** und Takt **50 kHz**, Leitung **≤ 1 m** (Festlegung 09.10.2026), **Outdoor-Netzwerkkabel mit verdrillten Paaren** (SDA/GND, SCL/GND, 3V3/GND); Buskapazität gesamt **≤ 340 pF** (400 pF minus 15 % Reserve, HW26-09). [`anschluesse.md`](anschluesse.md) 3.1. |
 | F6 [M] | **Mikrofon GY-MAX4466** als Modul, Entstörung und Filter auf der Platine (2.2). Ausgearbeitet in [`mikrofon.md`](mikrofon.md). |
 | F7 [M] | **Bedienung ohne Öffnen** (Entscheidung 09.10.2026): Reedkontakt parallel zum Service-Taster an PA0 (Magnet von außen); **seitlich abstrahlende LED** an PC13 am Platinenrand, **fertiger Wand-Lichtleiter mit Dichtung durch eine Bohrung in der Gehäusewand** (Kandidat Bivar PLTR2, IP67), außen Markierung „Magnet hier“. Lichtsignale: `mcu-funk.md` 3.3. Reset- und BOOT0-Taster innen. |
 | F8 [K] | Regensensor über den Erweiterungsstecker (F9). |
-| F9 [S] | **Reserve**: Erweiterungsstecker 2,54 mm mit 3,3 V (geschaltet und dauernd), GND, I²C, Serial1, PA15, PB12, PB13. |
+| F9 [S] | **Reserve**: Erweiterungsstecker J11 **2 × 6**, 2,54 mm: 3,3 V (geschaltet und dauernd), 3 × GND, I²C, Serial1, PA15, PB12, PB13. Ein dort angeschlossenes I²C-Gerät zählt zur Buskapazität von F5 (HW26-13). |
 | F11 [M] | **SPI-Flash 64 Mbit** für Messwerte (fest, Entscheidung 09.10.2026): SOIC-8 208 mil, Typ nach Bestand bei der Bestellung, SPI1 mit CS an PB3, dauernd versorgt im Deep Power-down. `mcu-funk.md` 3.2. |
 | F10 [M] | **ESD-Schutz** an allen Sensorklemmen mit 4-fach-ESD-Arrays (wie BEEP base v3). An der Wägezelle mit kleinem Leckstrom; für E± Sperrspannung ≥ 5 V. Gewählt (09.10.2026): **TI ESDS304** (3,6 V, ≤ 50 nA) an DS18B20, BME280 und Mikrofon; **TI TPD4E05U06** (5,5 V, ≤ 10 nA, C138714) an der Wägezelle. Siehe [`anschluesse.md`](anschluesse.md) 2 und [`beep-vergleich.md`](beep-vergleich.md) 3.2. |
 
@@ -84,13 +84,13 @@ Ausgearbeitet in **[`versorgung.md`](versorgung.md)**, dort mit Quellen, Rechnun
 
 | Nr. | Anforderung |
 |---|---|
-| V1 [M] | Li-Ion 18650 **auf einer eigenen Akku-Platine** am Halter Keystone 1043, per Kabel mit kodiertem Stecker zur Hauptplatine. Auf der Akku-Platine: Zellschutz, NTC, Messbrücke. |
+| V1 [M] | Li-Ion 18650 **auf einer eigenen Akku-Platine** am Halter Keystone 1043, per Kabel mit kodiertem Stecker zur Hauptplatine. Auf der Akku-Platine: Zellschutz, NTC, **TMP390 mit N-FET für die Ladesperre** (V3), Messbrücke. Stecker J3 JST PH 4-polig. |
 | V2 [M] | **Tiefentladeschutz in Hardware, zweistufig:** BQ25185 trennt SYS bei 3,0 V; HY2111-GB + 8205 trennt die Zelle bei 2,9 V (0,1 µA). Freigabe nur durch Laden. Dazu Firmware-Stufen ab 3,5 V. |
-| V3 [M] | Laderegler **BQ25185**: Eingang bis 18 V (Panels kalt bis ca. 10 V), Eingangsspannungsregelung, **Ladesperre unter ca. +2 °C** über NTC, Ladeschluss **4,1 V**, 300 mA. Je Panel eine Schottky-Diode, TVS am Eingang. |
+| V3 [M] | Laderegler **BQ25185**: Eingang bis 18 V (Panels kalt bis ca. 10 V), Eingangsspannungsregelung, Ladeschluss **4,1 V**, **150 mA** (HW26-11, Wärme `versorgung.md` 3.2a). **Ladesperre zweistufig (HW26-07, 09.10.2026):** 1. Temperaturschalter **TMP390 an der Zelle** sperrt über CE außerhalb **+5 … 42 °C**, ausfallsicher bei Leitungsbruch; 2. NTC am TS-Pin (+1,7 / 59,5 °C). Auslegung auf 45 °C, bis die Zellvariante feststeht. Je Panel eine Schottky-Diode, TVS am Eingang; Messung der Eingangsspannung 3,3 MΩ / 470 kΩ hinter den Dioden (HW26-08). `versorgung.md` 3.1–3.3. |
 | V4 [M] | LDO **RT9080-33**: 600 mA, 2 µA Ruhestrom |
 | V5 [M] | Lastschalter **TPS22917** für die Sensorschiene (Anstiegszeit über CT, aktive Ausgangsentladung, wie BEEP base v3); Rückfall AO3401A mit Gate-RC und Entladewiderstand. **Alle Pull-ups an der geschalteten Schiene** (Rückspeisung, HW26-04). |
 | V6 [S] | RTC über VBAT an 3,3 V, **keine Knopfzelle**. Bei Abschaltung durch den Schutz holt die Firmware die Zeit per DeviceTimeReq neu. |
-| V7 [S] | Ruhestrom **unter 20 µA bei 25 °C** (gerechnet 13 µA); bei 70 °C bis ca. 25 µA. **[P]** nachmessen. |
+| V7 [S] | Ruhestrom **unter 20 µA bei 25 °C** (gerechnet 16,6 µA, `energiebilanz.py`); bei 70 °C bis ca. 25 µA. **[P]** nachmessen. |
 | V8 [S] | Panels steil (60–70° Süd) montieren, Unterkante frei (Schnee) |
 
 ## 4. Gehäuse und Mechanik
@@ -145,7 +145,7 @@ Die PDF liegt wegen des Herstellercopyrights nicht im Repo, sondern lokal unter 
 | Nr. | Punkt |
 |---|---|
 | S1 | **Stack:** RadioLib, Stand 7.8.1 vom 03.10.2026 geprüft. Unterstützt werden SX1262, ABP, EU868 und DeviceTimeReq (`getMacDeviceTimeAns`, rechnet die Zeit seit Sendeende selbst ein). |
-| S2 | **Sitzung speichern:** Sitzungspuffer 302 Byte, Nonce-Puffer 14 Byte. Ablage im AT24C256 nach jedem Senden, Speicherorte möglichst wechseln. |
+| S2 | **Sitzung speichern:** Sitzungspuffer 302 Byte, Nonce-Puffer 14 Byte. Ablage im **SPI-Flash** nach jedem Senden als Ringpuffer mit Generationszähler, CRC-32 und Gültig-Byte; beim Wiederherstellen Frame-Zähler mit Sicherheitsabstand (`mcu-funk.md` 3.1, HW26-10). |
 | S3 | **Übernommen wird** die eigene Zeitlogik aus `beelogger_zeitsync.h`: Weckraster, Plausibilität, Sommerzeit. Ebenso die PC-Tests und die Simulation. |
 | S4 | **Nutzlast und Decoder:** Entschieden (08.10.2026): Die Daten gehen weiter an den **eigenen beelogger-Webserver**. Die neue Firmware bekommt ein eigenes Funkformat auf FPort 2. Der TTN-Formatter übersetzt es in die beelogger-Feldnamen. Einzelheiten in `docs/datenformat.md`. |
 | S5 | **Lizenz:** Ohne beelogger-Code ist die Lizenz der neuen Firmware frei wählbar. Vorschlag: bei GPL-3.0-or-later bleiben, das passt zum restlichen Repo. |

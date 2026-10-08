@@ -25,6 +25,8 @@ RUHE = [
     ("Lastschalter AO3401A gesperrt, Leckstrom", 0.1, "A", "AOS AO3401A IDSS ≤ 1 µA bei 30 V; bei 3,3 V deutlich weniger"),
     ("5-V-Wandler TPS61240 aus (EN low)", 1.5, "V", "TI TPS61240 Datenblatt S. 5, Shutdown typ. 1,5 µA"),
     ("SPI-Flash 64 Mbit im Deep Power-down (dauernd versorgt)", 1.0, "A", "W25Q-Familie: 1 µA laut LCSC-Angabe (V); andere Hersteller bis 3 µA typ. (V, Zetta) – Typ bei Bestellung"),
+    ("Temperaturschalter TMP390 (Ladesperre, HW26-07)", 0.5, "V", "TI TMP390 Produktseite: 0,5 µA typ. bei 25 °C"),
+    ("Pull-up 10 MΩ an CE bei leitendem FET (HW26-07)", 0.4, "A", "U/R bei SYS 3,7–4,5 V"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -41,7 +43,8 @@ GEMEINSAM = [
      "Dauer: Anlauf + 400 ms Einschwingen + 10 Werte bei 10 SPS (V/A)"),
     ("DS18B20 × 2, Wandlung parallel", 2 * 1.0, 0.75, "V", "ADI DS18B20: IDD typ. 1 mA, tCONV 750 ms (12 Bit)"),
     ("Mikrofonmodul GY-MAX4466 (Verstärker + Elektret-Vorstrom)", 0.3, 1.4, "A", "MAX4466 ICC 24 µA (V); Elektret-Vorstrom geschätzt 0,2–0,3 mA"),
-    ("Sensorschiene sonst (Pull-ups, BME280, EEPROM)", 0.2, 8.0, "A", "BME280 < 1 mA für ~10 ms (V); Pull-ups 4,7 kΩ teilweise low"),
+    ("Sensorschiene sonst (Pull-ups, BME280)", 0.2, 8.0, "A", "BME280 < 1 mA für ~10 ms (V); Pull-ups 1,8 kΩ teilweise low"),
+    ("Sitzung in den SPI-Flash schreiben (HW26-10, 2 × 256 Byte)", 15.0, 0.003, "A", "NOR Page Program typ. 0,7 ms bei ca. 15 mA je Seite (W25Q-Familie, A)"),
     ("SX1262 RX1 (SF7) + RX2 (SF9), ohne Downlink, LDO-Modus", 8.8, 0.045, "A",
      "RX 8,8 mA LDO-Modus (V, Tab. 3-5); Fensterlänge ~8 Symbole + Reserve (A)"),
 ]
@@ -125,7 +128,7 @@ def main():
           f"  (Fläche {PANEL_FLAECHE_M2 * 1e4:.0f} cm², angenommen)")
     print("   Verhältnis Ertrag / Bedarf (Szenario A, 5 %/Monat):",
           f"{ertrag_mah / (mas_zu_mah(sum(i * t for _, i, t, _, _ in SZENARIEN['A (Ablauf wie ZS-Firmware heute)'])) * ZYKLEN_PRO_TAG + ruhe_ua * 0.024 + selbst_max):.0f} : 1")
-    print("   Achtung: Unter 0 °C Zelltemperatur sperrt der Laderegler. Dann zählt nur die Reichweite aus Abschnitt 2.")
+    print("   Achtung: Unter +5 °C Zelltemperatur sperrt der TMP390 das Laden (HW26-07). Dann zählt nur die Reichweite aus Abschnitt 2.")
 
 
 if __name__ == "__main__":

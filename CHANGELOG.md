@@ -1,5 +1,16 @@
 # Änderungen
 
+## 2026-10-09 – Behebung Hardware-Review 0.4 (HW26-07 … -13) und CI26-01
+
+- **CI26-01:** `lora_verarbeitung.php` erkennt „gespeichert“ über den letzten Zeitstempel vorher/nachher (`le_speicherung_erkannt`), nicht mehr über die Dateigröße. Ursache: beelogger kürzt `week.csv` vor 08:00 Uhr Serverzeit. E2E-Test mit `SERVER_UHR` (libfaketime), CI prüft 05:00 und 14:00; Protokoll je DST-Ereignis; Unit-Tests 66/66.
+- **HW26-07:** Ladesperre zweistufig: TMP390 an der Zelle sperrt über CE außerhalb +5 … 42 °C (ausfallsicher bei Leitungsbruch), NTC am TS als zweite Stufe; J3 4-polig.
+- **HW26-08:** Solar-Teiler 3,3 MΩ / 470 kΩ + 100 nF hinter den Dioden (25 V → 3,12 V).
+- **HW26-09:** BME280 über Outdoor-Netzwerkkabel (105–135 pF); `i2c_leitung.py` mit Kabelvarianten und Fehlercode.
+- **HW26-10:** EEPROM AT24C256 entfällt; LoRaWAN-Sitzung im SPI-Flash (Ringpuffer, Generation, CRC-32, Gültig-Byte).
+- **HW26-11:** Ladestrom 150 mA; Wärmerechnung BQ25185.
+- **HW26-12/13:** Flash-Aufteilung, FFT-Rohdaten nur als Schnappschüsse; J10 1 × 7, J11 2 × 6.
+- Energiebilanz: Ruhestrom 16,6 µA, 128–452 Tage ohne Laden.
+
 ## 2026-10-08 – Lastenheft Platine 0.4: Versorgung
 
 - `hardware/versorgung.md`: Laderegler BQ25185 (Eingang bis 18 V, Kältesperre per NTC, Ladeschluss 4,1 V), zweistufiger Tiefentladeschutz (BQ25185 3,0 V, HY2111-GB 2,9 V), Akku-Platine am Halter, LDO RT9080, Sensorschalter und Regeln gegen Rückspeisung, Regeln aus den beelogger-Erfahrungen, Montage der Panels

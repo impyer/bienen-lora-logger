@@ -92,7 +92,7 @@ Ein RadioLib-Fall berichtet ein Ra-01SH, auf dessen Chip „LLCC68“ steht [V: 
 - Das Gateway steht 5–8 m entfernt; wir senden mit SF7.
 - Der Zeitabgleich (DeviceTimeReq) läuft über normale Uplinks.
 
-Folge für die Firmware: Chip beim Start abfragen und melden. **Nicht auf SF12 als Rückfall bauen.** **[P]** an den gelieferten Modulen den Chipaufdruck ansehen.
+Folge für die Firmware: Chip beim Start abfragen und melden. **Nicht auf SF12 als Rückfall bauen.** ADR so begrenzen, dass kein SF11/SF12 angefordert wird. Die SF12-Zeile in `energiebilanz.py` ist nur ein ungünstiger Vergleichsfall; mit einem LLCC68 gibt es diese Betriebsart nicht (HW26-14). **[P]** an den gelieferten Modulen den Chipaufdruck ansehen.
 
 Einstellungen für RadioLib [A, aus der RadioLib-API; am Steckbrett bestätigen]:
 - TCXO-Spannung 0 (Quarz statt TCXO)
@@ -102,15 +102,21 @@ Einstellungen für RadioLib [A, aus der RadioLib-API; am Steckbrett bestätigen]
 
 ## 3. Speicher
 
-### 3.1 EEPROM für die LoRaWAN-Sitzung
+### 3.1 LoRaWAN-Sitzung im SPI-Flash (HW26-10, Entscheidung Philipp 09.10.2026)
+
+**Der EEPROM AT24C256 entfällt.** Er hing an der geschalteten Sensorschiene und am äußeren I²C-Bus. Ein Abschalten der Schiene oder ein Spannungseinbruch während des Schreibens hätte einen halben Sitzungsstand hinterlassen können (Review HW26-10). Der SPI-Flash (3.2) ist **dauernd versorgt** und hängt nicht am Außenbus.
 
 | Punkt | Festlegung |
 |---|---|
-| Baustein | AT24C256C-SSHL-T, SOIC-8 (LCSC C6482, 62.566 Stück [V]) |
-| Versorgung | **an der geschalteten Sensorschiene**. Die Daten bleiben ohne Strom erhalten; gelesen und geschrieben wird nur bei eingeschalteter Schiene. Damit gibt es auf dem I²C-Bus keinen Teilnehmer, der dauernd versorgt ist, während andere aus sind (Rückspeisung, versorgung.md 3.7). |
-| Bus | I²C1 (PB6/PB7), Pull-ups **1,8 kΩ** an der geschalteten Schiene, Takt **50 kHz** wegen der BME280-Leitung (≤ 1 m, anschluesse.md 3.1); gemeinsam mit dem BME280 |
-| Schreiblast | 96 Sitzungsstände pro Tag × 316 Byte. Die Firmware wechselt die Speicherplätze (versorgung.md, S2). **[P]** Schreibzyklen im Datenblatt (typ. 1 Mio.) gegen die Lebensdauer rechnen. |
-| Nicht gewählt | FRAM MB85RC256V: 6- bis 12-mal teurer und „Not recommended for new designs“ [V: LCSC/JLCPCB] |
+| Bereich | eigener Bereich von **64 KB (16 Sektoren zu 4 KB)** am Anfang des Flash, getrennt von den Messwerten |
+| Datensatz | 512 Byte (2 Seiten): Kennung, **Generationszähler (32 Bit)**, Länge, Sitzung 302 Byte + Nonces 14 Byte, **CRC-32**, zuletzt ein **Gültig-Byte** |
+| Schreibfolge | 1. Daten beider Seiten schreiben, 2. CRC zurücklesen und prüfen, 3. erst dann das Gültig-Byte von 0xFF auf 0x00 setzen (NOR darf Bits nachträglich von 1 auf 0 schreiben) [A] |
+| Start | alle Datensätze lesen; der mit der **höchsten Generation, gültiger CRC und gesetztem Gültig-Byte** gilt. Ein unterbrochener Schreibvorgang fällt so auf den vorigen Stand zurück. |
+| Ringpuffer | 8 Datensätze je Sektor. Gelöscht wird immer der Sektor **vor** dem Schreibzeiger; er enthält nur alte Stände. Der zuletzt gültige Stand liegt nie im gerade gelöschten Sektor. |
+| Verschleiß | 96 Stände/Tag, 128 Plätze → jeder Sektor wird etwa alle 1,3 Tage gelöscht → 100.000 Zyklen reichen rechnerisch für über 300 Jahre [A, aus 100.000 Zyklen je Sektor] |
+| Frame-Zähler | Fällt der Start auf einen älteren Stand zurück, wäre der Uplink-Zähler einmal doppelt. Deshalb **den Zähler beim Wiederherstellen um einen Sicherheitsabstand erhöhen** (z. B. +16). Bei ABP mit „Resets frame counters“ sind Sprünge nach vorn unkritisch [A]. **[P]** in der neuen Firmware umsetzen und testen. |
+| Spannung | Geschrieben wird nur, wenn der Akku über 3,3 V liegt (Firmware-Stufen, versorgung.md 6). Eine Seite braucht etwa 1 ms; der 3,3-V-Regler hängt am Akku, nicht an der geschalteten Schiene [A]. |
+| Prüfung am Muster **[P]** | Stromunterbrechung gezielt in jedem Schreibschritt (HiL): Danach muss der letzte vollständige Stand geladen werden, ohne Zählerverlust. |
 
 Backup-Register des STM32 (20 × 32 Bit) reichen für die Sitzung nicht. Backup-SRAM hat der F411 nicht [A].
 
@@ -118,9 +124,10 @@ Backup-Register des STM32 (20 × 32 Bit) reichen für die Sitzung nicht. Backup-
 
 | Punkt | Festlegung |
 |---|---|
-| Zweck | alle Messwerte lokal speichern: Lücken bei Funkausfall schließen (später per USB auslesen oder nachsenden), Rohdaten der FFT für Auswertungen |
+| Zweck | 1. **LoRaWAN-Sitzung** (3.1, 64 KB). 2. **Messwerte** als Ringpuffer: Lücken bei Funkausfall schließen, später per USB auslesen oder nachsenden. 3. **FFT-Rohdaten nur als einzelne Schnappschüsse** (auf Befehl oder bei Auffälligkeiten), nicht bei jeder Messung (HW26-12). |
 | Bauart | serieller NOR-Flash, **SOIC-8 208 mil**, Standard-Pinbelegung der 25er-Reihe (CS, DO, WP, GND / DI, CLK, HOLD, VCC), 2,7–3,6 V, JEDEC-Befehlssatz |
-| Größe | **64 Mbit (8 MB)**. Ein Datensatz von 64 Byte alle 15 min sind etwa 6 KB pro Tag; 8 MB reichen für etwa 3,5 Jahre [A]. Ein Ringpuffer überschreibt danach die ältesten Werte. |
+| Größe | **64 Mbit (8 MB)**. Aufteilung [A]: 64 KB Sitzung, ca. 6 MB Messwerte, ca. 2 MB Rohdaten-Schnappschüsse. |
+| Reichweite (HW26-12) | **Messwerte:** 64 Byte alle 15 min = 6 KB/Tag → 6 MB reichen für etwa **2,7 Jahre** [A]. **FFT-Rohdaten:** ein Schnappschuss sind 9.342 Werte × 2 Byte ≈ 18,7 KB. Bei jeder Messung wären das 1,8 MB/Tag, der ganze Flash wäre nach **4,7 Tagen** voll (Rechnung Review HW26-12, nachgeprüft). Deshalb nur Schnappschüsse: 2 MB fassen etwa **110**. Beide Bereiche sind Ringpuffer; die ältesten Daten werden überschrieben. |
 | Teil | **Wird bei der Bestellung nach Bestand gewählt.** Am 09.10.2026 waren bei LCSC **nicht lieferbar**: Winbond W25Q64JVSSIQ (C179171, C83140), W25Q128JVSIQ (C97521), Macronix MX25R6435F (C2802846). Gelistet: XTX XT25F64BSSIGU-S (C2890984, ab 0,52 $; Bestand nicht angezeigt) und Zetta ZD25Q64DSIGT (C55199021, 7.700 Stück) [V: LCSC-Seiten]. Alle haben dasselbe Gehäuse und dieselbe Pinbelegung; die Firmware erkennt den Typ an der JEDEC-ID. |
 | Bus | **SPI1 gemeinsam mit dem Funkmodul**, eigener Chip-Select an **PB3** |
 | Versorgung | **3,3 V dauernd**, im Ruhezustand im Deep Power-down. Grund: Der Bus ist mit dem Funkmodul gemeinsam. Ein unversorgter Flash würde über SCK/MOSI mitgespeist (Rückspeisung). Ruhestrom: Winbond 1 µA laut LCSC, Zetta 3 µA typ. [V]; gerechnet mit 1 µA. |
@@ -128,7 +135,7 @@ Backup-Register des STM32 (20 × 32 Bit) reichen für die Sitzung nicht. Backup-
 | WP, HOLD | über 10 kΩ an 3,3 V (nicht genutzt) |
 | Haltbarkeit | ≥ 100.000 Lösch-/Schreibzyklen je Sektor, 20 Jahre Datenerhalt (Macronix-Datenblatt; übliche Werte der Reihe) [V/A] |
 
-Das EEPROM für die LoRaWAN-Sitzung (3.1) bleibt. Es lässt sich byteweise schreiben, das ist für die Sitzungsdaten einfacher. Später kann die Sitzung auch in den Flash wandern; dann entfällt das EEPROM.
+Seit 09.10.2026 liegt auch die LoRaWAN-Sitzung im Flash (3.1); der EEPROM entfällt.
 
 ### 3.3 Bedienung ohne Öffnen: Magnet und Lichtsignal
 
@@ -173,12 +180,12 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PA13 / PA14 | SWDIO / SWCLK | Debug-Leiste |
 | PA15 | frei (Erweiterung) | nach „nur SWD“ |
 | PB0 | Akkuspannung (ADC1_IN8) | Teiler 2 × 2,2 MΩ + 100 nF |
-| PB1 | Solarspannung (ADC1_IN9) | Teiler 3,3 MΩ / 1 MΩ |
+| PB1 | Eingangsspannung Lader (ADC1_IN9) | Teiler 3,3 MΩ / 470 kΩ + 100 nF hinter den Schottky-Dioden (versorgung.md 3.1, HW26-08) |
 | PB2 | BOOT1 | 10 kΩ nach GND |
 | PB3 | Chip-Select SPI-Flash | Pull-up 100 kΩ; nach „nur SWD“ (3.2) |
 | PB4 | Ra-01SH RESET | |
 | PB5 | Sensorschiene ein (high = ein) | ON des TPS22917, Pull-down 100 kΩ (beim Rückfall AO3401A: low = ein, Pull-up 1 MΩ) |
-| PB6 / PB7 | I²C1 SCL / SDA | EEPROM, BME280 (außen), Pull-ups an geschalteter Schiene |
+| PB6 / PB7 | I²C1 SCL / SDA | BME280 (außen) und Erweiterungsstecker, Pull-ups 1,8 kΩ an geschalteter Schiene, 50 kHz |
 | PB8 / PB9 | HX711 Nr. 1 DOUT / SCK | 1 kΩ in Reihe |
 | PB10 | 5-V-Wandler der Waage ein (high = ein) | Pull-down 100 kΩ; siehe waage.md |
 | PB12 / PB13 | frei (Erweiterung) | nur noch ein HX711 (09.10.2026) |

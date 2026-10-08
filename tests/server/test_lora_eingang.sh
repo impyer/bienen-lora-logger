@@ -60,9 +60,17 @@ cfg_schreiben
 # Zwei Testserver auf demselben Verzeichnis: PORT nimmt die Webhooks an, PORT2 bedient den Aufruf von beelogger_log.php.
 # Der eingebaute PHP-Server verteilt Verbindungen ungleichmäßig auf seine Arbeitsprozesse; landet der interne Aufruf
 # bei einem Prozess, der an der Sperre wartet, hängt er bis zum Zeitlimit. Apache/PHP-FPM haben das Problem nicht.
-PHP_CLI_SERVER_WORKERS=8 php -d opcache.enable=0 -S 127.0.0.1:$PORT -t "$W/www" "$W/router.php" > "$W/server.log" 2>&1 &
+# SERVER_UHR (z. B. "2026-10-09 05:00:00"): Serveruhr per libfaketime festlegen (CI26-01). beelogger kürzt week.csv
+# nur vor 08:00 Uhr (CSVbuilder_log); ohne Vorgabe hinge das Ergebnis von der Uhrzeit des Testlaufs ab.
+UHR=()
+if [ -n "${SERVER_UHR:-}" ]; then
+  command -v faketime >/dev/null 2>&1 || { echo "FEHL - SERVER_UHR gesetzt, aber faketime fehlt (apt install faketime)"; exit 1; }
+  UHR=(faketime -f "@${SERVER_UHR}")
+  echo "info - Serveruhr: ${SERVER_UHR} (läuft ab dort weiter)"
+fi
+PHP_CLI_SERVER_WORKERS=8 "${UHR[@]}" php -d opcache.enable=0 -S 127.0.0.1:$PORT -t "$W/www" "$W/router.php" > "$W/server.log" 2>&1 &
 SPID=$!
-PHP_CLI_SERVER_WORKERS=4 php -d opcache.enable=0 -S 127.0.0.1:$PORT2 -t "$W/www" "$W/router.php" >> "$W/server.log" 2>&1 &
+PHP_CLI_SERVER_WORKERS=4 "${UHR[@]}" php -d opcache.enable=0 -S 127.0.0.1:$PORT2 -t "$W/www" "$W/router.php" >> "$W/server.log" 2>&1 &
 SPID2=$!
 for i in $(seq 1 50); do curl -s -o /dev/null "http://127.0.0.1:$PORT2/" && break; sleep 0.1; done
 for i in $(seq 1 50); do curl -s -o /dev/null "http://127.0.0.1:$PORT/" && break; sleep 0.1; done
@@ -249,6 +257,7 @@ GESP=0
 for T in 1792884600 1792886400 1792888200 1792890000 1792891800 1792893600 1792895400; do
   E=$(date -u -d @$((T+5)) +%Y-%m-%dT%H:%M:%SZ)
   A=$(senden "{\"geraet\":\"beelogger-01\",\"fport\":2,\"f_cnt\":$T,\"empfang\":\"$E\",\"werte\":{\"tOut\":5,\"status\":1,\"zeit\":$T}}")
+  echo "info - Winterzeit $T: $(printf "%s" "$A" | tr -d "\r" | cut -c1-140) | week.csv $(zeilen week.csv) Zeilen"
   case "$A" in "gespeichert"*) GESP=$((GESP+1));; esac
 done
 if [ "$VARIANTE" = "original" ]; then
@@ -256,6 +265,14 @@ if [ "$VARIANTE" = "original" ]; then
   pruefe "Winterzeit, Original: bekannter Fehler (5 von 7)" "$GESP" "5"
 else
   pruefe "Winterzeit, eigene Fassung: alle 7 Messungen gespeichert" "$GESP" "7"
+  if [ -n "${SERVER_UHR:-}" ]; then
+    H=$(TZ=Europe/Berlin date -d "$SERVER_UHR" +%-H 2>/dev/null || echo 99)
+    if [ "$H" -lt 8 ]; then
+      pruefe "Winterzeit vor 08:00: week.csv auf 7 Tage gekürzt (Kürzungspfad durchlaufen)" "$(zeilen week.csv)" "7"
+    else
+      Z=$(zeilen week.csv); [ "$Z" -gt 7 ] && ok "Winterzeit ab 08:00: week.csv ungekürzt ($Z Zeilen)" || nok "Winterzeit ab 08:00: week.csv ungekürzt ($Z Zeilen)"
+    fi
+  fi
   # Zeitstempel der Umstellungsnacht lückenlos und aufsteigend (Abstand 1800 s)
   ZS=$(tail -n 7 "$W/www/beelogger1/week.csv" | tr -d '\r' | awk -F, '{print $NF}' | tr '\n' ' ')
   pruefe "Winterzeit: Zeitstempel in week.csv" "$ZS" "1792884600 1792886400 1792888200 1792890000 1792891800 1792893600 1792895400 "

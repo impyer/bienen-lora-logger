@@ -6,6 +6,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Behebung HW26-07 … -15 und CI26-01](2026-10-09-hw04-ci26-behebung.md)** | **Arbeitsstand nach `6b83d`** (Commit-ID beim Einchecken nachtragen) | **CI26-01: Ursache reproduziert (Kürzung von week.csv vor 08:00), behoben, Gegenprobe; E2E eigen 74/74 bei 05:00 und 14:00, original 56/56, Unit 66/66; CI-Lauf offen. Hardware: Entwurfsänderungen, Rechnungen; kein KiCad/HiL** |
 | **[Hardware 0.4 – unabhängiges Review, Versorgung/Pinout/PCB](2026-10-09-hardware-04-review.md)** | **Hardware-Commit `5c94e1b`, CI bis `6b83d`** | **Konzept- und numerisches SiL-Review; P0 Akku-HOT, P1 PV-ADC/I²C, CI-Regression; noch kein KiCad/HiL** |
 | **[Behebung SRV26-02/03/04/05/07/08](2026-10-08-srv26-behebung.md)** | **Arbeitsstand nach `5c1b847`** (Commit-ID beim Einchecken nachtragen) | **Host-/E2E-Tests lokal (eigen 73/73, original 56/56, Unit 59/59), Gegenprobe ohne Korrektur; CI-Lauf offen; kein TTN/BEEP/HiL** |
 | [main 5c1b847 — Firmware 261010, UTC-Server, Regression](2026-10-08-main-5c1b847-regression.md) | Commit `5c1b847` | 5/5 CI-Jobs erfolgreich; neuer unabhängiger UTC-Teilupdate-Spotcheck; kein HiL |
@@ -14,7 +15,16 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
 
-## Aktuell: Hardware-Definition 0.4 (09.10.2026)
+## Aktuell: Behebung nach Hardware-Review 0.4 (09.10.2026)
+
+**Maßgeblich:** [Behebung HW26-07 … -15 und CI26-01](2026-10-09-hw04-ci26-behebung.md).
+
+- **`CI26-01` behoben (lokal):** beelogger kürzt `week.csv` vor 08:00 Uhr Serverzeit; die Speichererkennung prüft keine Dateigröße mehr. Test mit fester Serveruhr (libfaketime) um 05:00 und 14:00.
+- **`HW26-07` Entwurf geändert:** Ladesperre zweistufig, TMP390 an der Zelle sperrt über CE außerhalb +5 … 42 °C, ausfallsicher bei Leitungsbruch; NTC bleibt zweite Stufe.
+- **`HW26-08` … `-13` Entwurf geändert:** Solar-Teiler 3,3 MΩ/470 kΩ hinter den Dioden; Netzwerkkabel für BME280 (105–135 pF); EEPROM entfällt, Sitzung im SPI-Flash mit CRC/Generation; Ladestrom 150 mA; Flash-Aufteilung; J10 1 × 7, J11 2 × 6.
+- **Offen:** `HW26-14/15`, alle Messungen am Muster, Zellvariante, CI-Lauf, KiCad.
+
+## Hardware-Definition 0.4 (09.10.2026, Review)
 
 Maßgebliche neue Prüfung: **[Hardware-Review 0.4](2026-10-09-hardware-04-review.md)**. Die vorigen Berichte bleiben als historische Quellen erhalten.
 
