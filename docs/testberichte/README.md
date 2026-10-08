@@ -1,0 +1,48 @@
+# Testberichte und offene Prüfpunkte
+
+Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt Bienenlogger. Die Berichte sind Dokumentation, keine automatische Fehlerbehebung. Neue Implementierungen sollen Befund-IDs referenzieren und mit Tests gegen die angegebenen Akzeptanzkriterien abgesichert werden.
+
+## Berichtsverzeichnis
+
+| Bericht | Stand | Verifikation |
+|---|---|---|
+| [Firmware 261009 — Code-Review und isolierte SiL-Spotchecks](2026-10-08-firmware-261009-sil.md) | Commit `d735f0f` | Statisch + isolierter Host-Rechentest; kein MCU-/HiL-Test |
+| [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
+| [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
+| [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
+
+## Offene Prioritäten (Stichtag 2026-10-08)
+
+| Rang | Befund | Maßnahme |
+|---|---|---|
+| **P0** | `SRV26-01` | Winterzeit-Datenverlust (25.10.2026): UTC-Datensätze durchgängig erhalten, Test 7/7 |
+| **P0** | `HW26-01` | Hardware-Unterspannungs-/Ladeschutz vor PCB-Freigabe |
+| **P1** | `FW26-02` | Phantomgewicht bei fehlender Waagenkalibrierung verhindern |
+| **P1** | `FW26-03` | ADC-EOC-Polling zeitlich begrenzen |
+| **P1** | `FW26-04` | FFT-/V2-Codec-Tests und Audio-Build in GitHub Actions aufnehmen |
+| **P1** | `FW26-01` | Mehr als zwei Waagen bei V2 ausschließen oder Format erweitern |
+| **P1** | `SRV26-02`/`SRV26-03`/`SRV26-04` | Status/Retry, parallele Webhooks, Haupt-/Zusatzdaten konsistent behandeln |
+| **P1** | `SRV26-05` | BEEP/ThingSpeak bei Duplikaten prüfen |
+| **P1** | `HW26-02`–`HW26-05` | Energie, Solar/Regler, Rückspeisung, Mikrofon-Kalibrierung und Anti-Aliasing |
+
+Die Prioritäten gelten für die jeweils genannte nächste Stufe. Ein Hardware-P0 ist kein Blocker für einen rein softwarebasierten SiL-Test.
+
+## Arbeitsweise für Claude und weitere Entwickler
+
+1. **Vor Änderung:** Prüfobjekt und neuesten `main`-Commit prüfen. Berichte sind Snapshots; ältere Befunde können zwischenzeitlich behoben worden sein.
+2. **Befund-ID aufnehmen** und in Commit-/PR-Beschreibung referenzieren, z. B. `Fixes FW26-03`; Ursache und geändertes Verhalten erläutern.
+3. **Nachweis unterscheiden:** `statisch bestätigt`, `Host-/SiL reproduziert`, `CI durchgeführt`, `HiL am Gerät gemessen`, `Feldbetrieb bestätigt` oder `noch offen`. „CI grün“ ersetzt keinen speziellen Test.
+4. **Regressionstest ergänzen**, möglichst im bereits existierenden `tests/`-Verzeichnis. Bei Bugfix zuerst den Test rot sehen, anschließend grün. Bestehende historische Simulationsdaten nicht als neue Messwerte ausgeben.
+5. **Akzeptierte Kompromisse erhalten:** ABP mit bewusstem Framecounter-Reset, für das 10-s-Raster ausreichende RTC-Genauigkeit und geplanten RX1/RX2-HiL-Feldtest nicht ohne neue Anforderungen umdesignen; siehe [ZS-Review](2026-10-08-zs-review.md).
+6. **Geheimnisse:** `Config_Geraet.h`, Netzwerkschlüssel, reale `lora_config.php`, Webhook-Token und persönliche Mess-/Standortdaten nie committen. Beispieldateien und synthetische Testvektoren sind zulässig.
+7. **Nach Test:** Im Bericht oder in einem neuen datierten Bericht aktualisieren: Commit, Build-Konfiguration, reproduzierbare Befehle, Erwartung/Ergebnis, Abweichung, offene HiL-Aufgabe. Bereits veröffentlichte historische Ergebniszahlen nicht stillschweigend umschreiben.
+
+## Test-Einstieg
+
+- Zeitlogik/Simulation: `tests/host`, `tests/sim`, `docs/zeitabgleich.md`
+- Funkformat/FFT: `tests/firmware`, `tests/formatter`, `docs/funkformat-v2.md`, `docs/fft-konzept.md`
+- TTN-Server: `tests/server`, `server/lora/README.md`
+- Aktuelle Buildmatrix: `.github/workflows/tests.yml`
+- HiL-Vorbereitung: Abschnitt „HiL-Plan“ im [Firmware-Report](2026-10-08-firmware-261009-sil.md)
+
+**Regel:** Geprüften Commit und Testart stets mitspeichern; „Hardware nicht vorhanden“ ist ein dokumentierter Prüfstatus, kein bestandenes Ergebnis.

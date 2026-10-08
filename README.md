@@ -12,11 +12,11 @@ Dazu kommen eigene Erweiterungen, Tests, Dokumentation und später eine eigene, 
 
 | Teil | Stand |
 |---|---|
-| Firmware `STM32_LORA_261008_ZS` (Zeitabgleich per LoRaWAN, Weckraster je Logger) | Testversion: übersetzt fehlerfrei, PC-Tests bestanden, **noch nicht auf Hardware mit TTN geprüft** |
+| Firmware `STM32_LORA_261008_ZS` (ZS + V2-Payload + optional FFT) | SiL-/CI-Prüfung vorhanden, **noch nicht am Logger/mit TTN validiert** |
 | Tests (Unit-Tests, Simulation, TTN-Auswertung, Selbsttest auf dem STM32) | lauffähig |
 | Eigene SMD-Platine | Lastenheft-Entwurf, siehe [`hardware/`](hardware/) |
 | Waagenrahmen (Alu) | geplant, siehe [`mechanik/`](mechanik/) |
-| Erweiterungen beelogger-Webserver | geplant, siehe [`server/`](server/) |
+| Erweiterungen beelogger-Webserver | Eigener TTN-LoRa-Eingang implementiert und integriert getestet; siehe [`server/lora/`](server/lora/) |
 
 ## Aufbau des Systems
 
@@ -60,6 +60,8 @@ Die Tests laufen bei jedem Push automatisch (GitHub Actions, siehe `.github/work
 - Windows-Programme für die PC-Tests (als Download unter „Actions“)
 
 Lokal: `tests/alle_tests_linux.sh` (Linux, WSL, macOS).
+
+**Prüfberichte und offene Befunde:** [`docs/testberichte/README.md`](docs/testberichte/README.md). Für Coding-Agents gibt es zusätzlich [`CLAUDE.md`](CLAUDE.md). Die Berichte unterscheiden Code-Review, Host-/SiL-Tests, CI und ausstehende HiL-/Feldtests.
 
 ## Dank und Herkunft
 
