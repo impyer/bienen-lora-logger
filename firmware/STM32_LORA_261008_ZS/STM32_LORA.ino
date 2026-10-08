@@ -90,16 +90,16 @@ uint8_t payload[64];
 #define TYPE_VCC (((uint16_t)1) << 2)       //2 bytes | VCC 0-65535mV
 #define TYPE_SOLAR (((uint16_t)1) << 3)     //2 bytes | VCC 0-65535mV
 #define TYPE_LIGHT (((uint16_t)1) << 4)     //2 bytes | Light 0-->65535 Lux
-#define TYPE_WEIGHT_1 (((uint16_t)1) << 5)  //3 bytes | 0->0xFFFFFF (0-->16777215g)
+#define TYPE_WEIGHT_1 (((uint16_t)1) << 5)  //2 bytes | int16 in 1/100 kg (V2: Kommentar korrigiert, vorher "3 bytes")
 #define TYPE_TEMP (((uint16_t)1) << 6)      //2 bytes | Temp -327.68°C -->327.67°C
 #define TYPE_RH (((uint16_t)1) << 7)        //1 byte  | Humidity 0-100%
 
-#define TYPE_WEIGHT_2 (((uint16_t)1) << 8)  //3 bytes | 0->0xFFFFFF (0-->16777215g)
+#define TYPE_WEIGHT_2 (((uint16_t)1) << 8)  //2 bytes | int16 in 1/100 kg (V2: Kommentar korrigiert, vorher "3 bytes")
 #define TYPE_TEMP_2 (((uint16_t)1) << 9)    //2 bytes | Temp -327.68°C -->327.67°C
 #define TYPE_RH_2 (((uint16_t)1) << 10)     //1 byte  | Humidity 0-100%
 
-#define TYPE_WEIGHT_3 (((uint16_t)1) << 11)  //3 bytes | 0->0xFFFFFF (0-->16777215g)
-#define TYPE_WEIGHT_4 (((uint16_t)1) << 12)  //3 bytes | 0->0xFFFFFF (0-->16777215g)
+#define TYPE_WEIGHT_3 (((uint16_t)1) << 11)  //2 bytes | int16 in 1/100 kg (V2: Kommentar korrigiert, vorher "3 bytes")
+#define TYPE_WEIGHT_4 (((uint16_t)1) << 12)  //2 bytes | int16 in 1/100 kg (V2: Kommentar korrigiert, vorher "3 bytes")
 
 #define TYPE_AUX0 (((uint16_t)1) << 13)     //2 bytes | Luftdruck in hPA * 10.0 ( 9900 - 11000)
 #define TYPE_SERVICE (((uint16_t)1) << 14)  //1 byte  | Service   An-Zeit
@@ -314,7 +314,13 @@ void Daten_Senden() {
   setup_LORA();  // Setup RFM Modul
   debugprintlnF(" setup done!");
   debugflush();
+#if (FUNKFORMAT == 2)
+  byte cnt = prep_payload_v2();  // V2: Funkformat v2
+  const uint8_t fport = 2;
+#else
   byte cnt = prep_payload();  // prepare Payload
+  const uint8_t fport = 1;
+#endif
 
   if (cnt < sizeof(payload)) {
     // Prepare upstream data transmission at the next possible time.
@@ -335,7 +341,7 @@ void Daten_Senden() {
 
     LMIC.seqnoUp = LoRaSeqCounter;
     zs_abfrage_vorbereiten();  // ZS: ggf. DeviceTimeReq anhängen
-    if (LMIC_setTxData2(1, payload, cnt, 0) == 0) {
+    if (LMIC_setTxData2(fport, payload, cnt, 0) == 0) {  // V2: FPort je nach Format
       // ZS: Frame-Counter beim Sendeversuch fortschalten und sofort sichern (vorher erst bei
       // EV_TXCOMPLETE: nach einem Timeout wurde derselbe Zähler erneut verwendet)
       inc_LoRaSeq();

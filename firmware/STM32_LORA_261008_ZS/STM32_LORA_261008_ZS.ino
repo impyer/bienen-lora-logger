@@ -94,11 +94,24 @@
 #include <STM32LowPower.h>
 #include <STM32RTC.h>
 #include "beelogger_zeitsync.h"  // ZS: Rechenlogik Zeitabgleich / Weckraster
+#include "funkformat_v2.h"       // V2: Funkformat v2
+#include "bee_fft.h"             // V2: FFT-Auswertung
+
+#ifndef TEMP_IN2_SENSOR          // V2: 2. Innentemperatur
+#if (Anzahl_Sensoren_DS18B20 >= 2)
+#define TEMP_IN2_SENSOR 9
+#else
+#define TEMP_IN2_SENSOR 0
+#endif
+#endif
+#if (FUNKFORMAT != 1) && (FUNKFORMAT != 2)
+#error "FUNKFORMAT muss 1 oder 2 sein"
+#endif
 
 
 
 char ID_ID[16] = "STM32_LORA_";  //nur Grossbuchstaben,Zahlen, keine Blanks
-long l_ID = 261008;  // ZS: Testversion
+long l_ID = 261009;  // V2: Funkformat v2 und FFT (ZS: 261008)
 
 #define CFG_noassert 1  // supress error messages in LMIC-library
 
@@ -150,6 +163,14 @@ uint32_t zs_geplante_weckzeit = 0; // beim Einschlafen geplante Weckzeit (Plausi
 int32_t  zs_vorige_korr_s = 0;     // zuletzt abgelehnte große Korrektur in s
 uint8_t  zs_hinweis = 0;           // Meldung aus get_data_from_ram, ausgegeben in print_info
 
+// V2: Funkformat v2, FFT, Neustart-Grund (STM32_LORA_v2.ino)
+extern uint8_t  v2_neustart;
+extern float    v2_temp_cpu;
+extern uint32_t v2_messzeit;
+void v2_neustart_lesen();
+void Sensor_FFT();
+byte prep_payload_v2();
+
 
 // Interrupt Variable
 static uint32_t wake_up_var = 0;
@@ -188,6 +209,7 @@ void loop() {
   if (Batteriespannung > VMinimum) {
     uint8_t ureq = User_Int_req();
     if (ureq) {  // service switch on? or "time is over"
+      v2_messzeit = zs_rtc_jetzt(NULL);  // V2: Messzeitpunkt
       Sensor_Temp_Zelle(0);
       Sensor_DHT();
       Sensor_DS18B20();
@@ -197,6 +219,7 @@ void loop() {
       Sensor_SHT31();
       Sensor_Gewicht(0);
       Sensor_Temp_Zelle(1);
+      Sensor_FFT();    // V2: nur mit beelogger_Audio 1
       Daten_Senden();  // only when service "off" or "time is over"
     } else {
       Sensor_Gewicht(1);

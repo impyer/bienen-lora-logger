@@ -74,6 +74,7 @@ float Messe_Spannung (uint8_t Pin) {
   @return none
 */
 void System_Init() {
+  v2_neustart_lesen();  // V2: vor LowPower.begin() und vor dem Löschen der Reset-Flags
 
   //----------------------------------------------------------------
   //  a real pull-down-resistor should be used in addition

@@ -64,8 +64,8 @@ Varianten: Mit N = 1024 bei 2048 Hz wird die Teilung 2,0 Hz, die Messung dauert 
 |---|---|---|
 | Spitzenfrequenz | uint16, 0,1 Hz | parabolische Interpolation zwischen den Linien, genauer als 4 Hz |
 | Spitzenpegel | int8, 0,5 dB | in **dBFS**, bezogen auf den ADC-Vollausschlag und auf das Fenster normiert, also unabhängig von N (behebt W3) |
-| Gesamtpegel 60–1000 Hz | int8, 0,5 dBFS | Aktivitätsmaß |
-| **Bandpegel** in 6 Bändern | 6 × uint8, 0,5 dB | Vorschlag: 60–140, 140–260, 260–360, 360–440, 440–560, 560–1000 Hz |
+| Gesamtpegel 60–900 Hz | int8, 0,5 dBFS | Aktivitätsmaß |
+| **Bandpegel** in 6 Bändern | 6 × uint8, 0,5 dB | 60–140, 140–260, 260–360, 360–440, 440–560, 560–900 Hz |
 
 Die Bandgrenzen orientieren sich an den Angaben in der Auswertungsbasis: Summen 150–250 Hz, Königin um 316 Hz,
 Tüten um 475–500 Hz. Diese Angaben sind Erfahrungswerte bzw. stammen aus Studien mit kleinen Datensätzen.
@@ -86,7 +86,37 @@ Funk: zusammen etwa 10 Byte.
   - Es fehlt dort aber der analoge Tiefpass. Bis zur eigenen Platine hilft ein RC-Glied an der Mikrofonklemme.
   - **[P]** Auf der beelogger-Platine nachsehen, ob dafür Platz ist.
 
-## 5. Prüfung
+## 5. Umsetzung (08.10.2026)
+
+In der beelogger-Firmware umgesetzt (`firmware/STM32_LORA_261008_ZS`, Sketch-ID 261009):
+
+| Teil | Datei | Stand |
+|---|---|---|
+| Rechnung | `bee_fft.h` | FIR 127 Koeffizienten (Hamming, Grenze 1025 Hz), Dezimierung 4, Hann, N = 512, 8 Blöcke mit 50 % Überlappung, Spitze 60–900 Hz mit parabolischer Interpolation, Pegel in dBFS (sinusgleiche Leistung) |
+| Abtastung | `STM32_LORA_v2.ino`, `Sensor_FFT()` | ADC1 direkt über Register (ca. 4 µs je Wandlung), Takt 8192 Hz über den DWT-Zyklenzähler, 9342 Werte (1,14 s) plus 100 ms Einschwingzeit; mehr als 1 % verpasste Abtastungen → Ergebnis verworfen |
+| Speicher | | mit Mikrofon 41 KB RAM statt 3,3 KB (von 128 KB) |
+| Schalter | `Config_MULTI.h`: `beelogger_Audio 1`; `Config_LORA.h`: `MIC_PIN`, `MIC_ADC_DIREKT` | übertragen wird nur mit `FUNKFORMAT 2` |
+
+Gegen das Konzept geändert: Das oberste Band und der Auswertebereich enden bei **900 Hz statt 1000 Hz**.
+Grund: Töne zwischen 1024 und 1132 Hz fallen nach der Dezimierung gespiegelt auf 916–1024 Hz. Der FIR dämpft sie dort noch nicht voll.
+
+**PC-Tests** (`tests/firmware/test_bee_fft.cpp`, laufen in der CI):
+
+- Sinus 61–897 Hz: Frequenzfehler höchstens 0,064 Hz, Pegelfehler höchstens 0,33 dB
+- Töne 1140–4000 Hz: mindestens 60 dB unterdrückt (digitaler Teil; über 4096 Hz muss der analoge Tiefpass sorgen)
+- 50-Hz-Brummen wird ignoriert, auch neben einem 42 dB leiseren Ton
+- Rauschen: Gesamtpegel stimmt mit der Rechnung auf ±1 dB; Summe der Bänder = Gesamtpegel
+- Stille, Übersteuerung und zu viele verpasste Abtastungen werden erkannt
+
+**[P] Auf der Hardware noch zu prüfen:**
+
+- Zahl der verpassten Abtastungen (Debug-Ausgabe „Ueberlaeufe“)
+- Rauschpegel des Moduls
+- Ton aus dem Handy: Frequenz und Pegel
+- Aliasing über 4096 Hz auf der beelogger-Platine ohne analogen Tiefpass
+
+## 6. Prüfung (ursprünglicher Plan)
+
 
 - PC-Test der Rechnung mit Testsignalen (Sinus, Gemisch, Rauschen, 700-Hz-Störer für das Aliasing). Er läuft in der CI wie die Zeitlogik-Tests.
 - Am Tisch: Tongenerator oder Handy-App an das Mikrofon. Frequenz, Pegel und die Unterdrückung über 1024 Hz nachmessen.

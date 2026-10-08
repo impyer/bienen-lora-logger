@@ -23,9 +23,12 @@ void Sensor_Temp_Zelle(uint8_t set) {
       DS_Temp = Aux[2];  // force
     }
 #else
+#if (FUNKFORMAT == 1)
     if (SensorTemp[Aussenwerte] == No_Val) {  // single
       SensorTemp[Aussenwerte] = Aux[2];       // force
     }
+#endif
+    // V2: keine CPU-Temperatur als Außentemperatur; ein Ausfall wird als Zustandsbit gemeldet
 #endif
   } else {
 #if Anzahl_Sensoren_Gewicht > 1
@@ -100,6 +103,7 @@ void CPU_Sensors() {
 #endif
 
   Aux[2] = Temp_STM + CPU_TEMP_CORR;
+  v2_temp_cpu = Aux[2];  // V2: eigene Variable, Aux[2] wird ggf. von Sensoren überschrieben
   Aux[1] = vdd * 4096.0;
 }
 

@@ -101,6 +101,20 @@ const float SolarSpannung_Sommertag = 0.1;// < = Nacht
 #define ZEITSYNC_TEST_VERSTELLEN_S 0    // nur mit ZEITSYNC_TEST 1: Uhr nach jedem Abgleich absichtlich um
                                         // x s verstellen (z.B. 5); der nächste Abgleich muss -x s korrigieren
 
+/****************************************************************/
+// V2: Funkformat v2 und FFT (docs/funkformat-v2.md, docs/fft-konzept.md)
+/****************************************************************/
+#define FUNKFORMAT                2     // 2 = Funkformat v2 auf FPort 2 (empfohlen, braucht formatter/ttn_formatter.min.js)
+                                        // 1 = beelogger-Format auf FPort 1 wie im Original
+#define V2_ZEIT_GUELTIG_S    259200UL   // Uhr gilt so lange nach dem letzten Abgleich als genau (3 Tage)
+#define V2_FIRMWARE_JEDES_N       96    // Firmware-ID nach jedem Neustart und in jedem n-ten Paket senden
+// #define TEMP_IN2_SENSOR         9    // Sensor-Nr. der 2. Innentemperatur (Vorgabe: 9 = DS18B20 Nr. 2,
+                                        // wenn Anzahl_Sensoren_DS18B20 >= 2; 0 = keiner)
+#define MIC_PIN                 PA1     // Mikrofon GY-MAX4466 (beelogger_Audio 1 in Config_MULTI.h)
+#define MIC_EINSCHWINGEN_MS      100    // Wartezeit vor der Abtastung
+#define MIC_ADC_DIREKT             1    // 1 = ADC1 direkt über Register (schnell, gleichmäßig); 0 = analogRead()
+#define MIC_ADC_KANAL              1    // ADC1-Kanal von MIC_PIN: PA1 = IN1
+
 #if (LOGGER_SLOT * SLOT_ABSTAND_S) > 240
 #error "LOGGER_SLOT * SLOT_ABSTAND_S muss <= 240 s sein (kleinstes Intervall 5 min)"
 #endif

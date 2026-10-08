@@ -9,14 +9,14 @@ Priorität: **1** = verfälscht oder verliert Daten, **2** = schränkt ein, **3*
 
 | Nr. | Prio | Notbehelf heute | Saubere Lösung |
 |---|---|---|---|
-| F1 | 1 | Der 2. DS18B20 wird bei Single über den Feuchte-Platz `FeuchteIn` gesendet: 1 Byte, ohne Nachkommastelle, Minuswerte laufen über (−5 °C → 251). | Eigener Wert mit Vorzeichen in 1/100 °C im neuen Funkformat |
-| F2 | 1 | **Fällt der Außensensor aus, meldet der Logger stillschweigend die CPU-Temperatur des STM32 als Außentemperatur** (`Sensor_Temp_Zelle`, „force“). Der Server nutzt sie dann auch für die Gewichtskorrektur. | Ausfall als Fehlwert senden und als Zustandsbit melden. Die CPU-Temperatur kommt, falls gewünscht, in ein eigenes Feld. |
-| F3 | 1 | Keine FFT im LoRa-Sketch; der Schalter `beelogger_Audio` wirkt dort nicht. | FFT nach `docs/fft-konzept.md`, eigene Felder im Funkformat |
-| F4 | 2 | `Aux[0..2]` werden mehrfach genutzt: Luftdruck, VDD und CPU-Temperatur als Zwischenwert, FFT, Regen, 5./6. DS18B20. | Jeder Messwert bekommt eine eigene Variable und ein eigenes Feld; kein gemeinsames `Aux`-Feld mehr |
-| F5 | 2 | 16-Bit-Kopf voll. Die Sketch-ID belegt `Aux3`. | Neues Format: Version + 32-Bit-Kopf, FPort 2. Die Sketch-ID als eigenes Feld, nur nach dem Start und einmal täglich |
-| F6 | 2 | Kein Messzeitpunkt im Paket; der Server setzt die Empfangszeit. | Messzeitpunkt als Abstand zur Sendezeit oder als Minutenzähler senden. Die Uhr ist durch den Zeitabgleich genau. |
-| F7 | 2 | Kein Zustand im Paket (Zeitabgleich, Neustart-Grund, Sensorfehler) | Zustandsbyte bzw. Fehlerbits |
-| F8 | 3 | Kommentar „3 bytes“ beim Gewicht, tatsächlich 2 Byte (int16 / 100 → höchstens 327,67 kg) | Kommentar richtigstellen. Für eine Beute reicht der Bereich. |
+| F1 | erledigt (V2) | Der 2. DS18B20 wird bei Single über den Feuchte-Platz `FeuchteIn` gesendet: 1 Byte, ohne Nachkommastelle, Minuswerte laufen über (−5 °C → 251). | Eigener Wert mit Vorzeichen in 1/100 °C im neuen Funkformat |
+| F2 | erledigt (V2, bei FUNKFORMAT 2) | **Fällt der Außensensor aus, meldet der Logger stillschweigend die CPU-Temperatur des STM32 als Außentemperatur** (`Sensor_Temp_Zelle`, „force“). Der Server nutzt sie dann auch für die Gewichtskorrektur. | Ausfall als Fehlwert senden und als Zustandsbit melden. Die CPU-Temperatur kommt, falls gewünscht, in ein eigenes Feld. |
+| F3 | erledigt (V2, ungeprüft auf Hardware) | Keine FFT im LoRa-Sketch; der Schalter `beelogger_Audio` wirkt dort nicht. | FFT nach `docs/fft-konzept.md`, eigene Felder im Funkformat |
+| F4 | teilweise (V2 nutzt eigene Variablen; die Aux-Mehrfachbelegung im beelogger-Teil bleibt) | `Aux[0..2]` werden mehrfach genutzt: Luftdruck, VDD und CPU-Temperatur als Zwischenwert, FFT, Regen, 5./6. DS18B20. | Jeder Messwert bekommt eine eigene Variable und ein eigenes Feld; kein gemeinsames `Aux`-Feld mehr |
+| F5 | erledigt (V2) | 16-Bit-Kopf voll. Die Sketch-ID belegt `Aux3`. | Neues Format: Version + 32-Bit-Kopf, FPort 2. Die Sketch-ID als eigenes Feld, nur nach dem Start und einmal täglich |
+| F6 | erledigt (V2) | Kein Messzeitpunkt im Paket; der Server setzt die Empfangszeit. | Messzeitpunkt als Abstand zur Sendezeit oder als Minutenzähler senden. Die Uhr ist durch den Zeitabgleich genau. |
+| F7 | erledigt (V2) | Kein Zustand im Paket (Zeitabgleich, Neustart-Grund, Sensorfehler) | Zustandsbyte bzw. Fehlerbits |
+| F8 | erledigt | Kommentar „3 bytes“ beim Gewicht, tatsächlich 2 Byte (int16 / 100 → höchstens 327,67 kg) | Kommentar richtigstellen. Für eine Beute reicht der Bereich. |
 | F9 | 3 | Frame-Counter springt bei 16384 auf 0 (ABP, „Resets frame counters“) | bleibt vorerst; bei der neuen Firmware den Zähler im EEPROM durchlaufen lassen |
 
 ## Formatter (TTN)

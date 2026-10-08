@@ -43,3 +43,8 @@ vek_*.json
 # LoRa-Eingang: Zugangsdaten und Protokoll
 server/lora/lora_config.php
 server/lora/lora_log/
+
+# erzeugte Testvektoren
+tests/firmware/ff2_vektoren.h
+tests/firmware/test_funkformat_v2
+tests/firmware/test_bee_fft

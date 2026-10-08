@@ -11,7 +11,10 @@ g++ -std=c++17 -O2 -DZEITSYNC_AKTIV=0 -o sim/sim_orig sim/sim_zeitsync.cpp
 ./sim/sim_sync --tage 30
 ./sim/sim_sync --tage 7 --csv /tmp/zs_sim.csv > /dev/null
 python3 ttn_auswertung/ttn_zeitanalyse.py /tmp/zs_sim.csv
+g++ -std=c++11 -Wall -Wextra -O2 -o firmware/test_bee_fft firmware/test_bee_fft.cpp && ./firmware/test_bee_fft
 if command -v node >/dev/null 2>&1; then
+  node firmware/vektoren_v2.js > firmware/ff2_vektoren.h
+  g++ -std=c++11 -Wall -Wextra -O2 -o firmware/test_funkformat_v2 firmware/test_funkformat_v2.cpp && ./firmware/test_funkformat_v2
   node formatter/test_formatter.js
   node formatter/test_formatter.js ../formatter/ttn_formatter.min.js
 else

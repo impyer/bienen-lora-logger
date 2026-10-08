@@ -60,7 +60,7 @@ Zweites Byte, Neustart-Grund (`Neustart`):
 
 | Wert | Grund |
 |---|---|
-| 0 | unbekannt |
+| 0 | kein Neustart (planmäßiges Aufwachen aus dem Standby) oder unbekannt |
 | 1 | Einschalten |
 | 2 | Reset-Pin |
 | 3 | Watchdog |
@@ -74,7 +74,7 @@ Warnungen des Formatters (TTN `warnings`): „Uhr des Loggers nicht abgeglichen�
 
 - Werte vor dem Kodieren auf den Bereich begrenzen, nicht überlaufen lassen (wie im Referenz-Kodierer).
 - Messzeitpunkt (Bit 16) nur senden, wenn die Uhr abgeglichen ist. Zustand (Bit 15) in jedem Paket.
-- Firmware-ID (Bit 17) nach einem Neustart und dann einmal täglich, nicht in jedem Paket.
+- Firmware-ID (Bit 17) nach einem Neustart und dann in jedem 96. Paket (bei 15 min etwa einmal täglich), nicht in jedem Paket.
 - Neue Werte nur über die reservierten Bits 19–31, und nur zusammen mit einer neuen Version des Formatters.
 
 ## Beispiel (Goldenes Paket der Tests, 51 Byte)
