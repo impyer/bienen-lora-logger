@@ -1,0 +1,13 @@
+* text=auto
+*.ino text
+*.h text
+*.cpp text
+*.py text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+*.yml text eol=lf
+*.exe binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.zip binary

@@ -1,0 +1,136 @@
+Simulationsergebnisse 08.10.2026, Review-Stand 2 - Modell, keine Messung. Erzeugt mit sim_zeitsync.cpp (echter ZS-Code aus dem Sketch).
+Standard: 10 Logger, 30 Tage ab 8.10.2026, Herbst, 8 Kanaele, Wetterstation alle 10 min, Antwortquote 95 %, Seed 1
+Die RTC-Nachbildung enthaelt das Sperrverhalten der Datums-Schattenregister (STM32F4).
+
+############ 1) Original-Weckraster (ZEITSYNC_aktiv 0)
+
+=== beelogger Zeitabgleich-Simulation (Modell, keine Messung) ===
+Firmware: Original | Versatz je Logger: nein (10 s) | 10 Logger | 30 Tage | Szenario herbst
+Annahmen: Antwortquote 95 %, RX1-Anteil 50 %, Netzlatenz 80 +/- 40 ms, Messdauer 10 +/- 2 s,
+          Quarz +/-20 ppm bei 25 °C, Temperaturkoeffizient -0,034 ppm/°C², Vorteiler-Reset beim Stellen: nein (bis 1 s Fehler)
+
+Uplinks gesamt:            34802
+verloren durch Kollision:  6 (0.017 %)
+verloren, Gateway sendet:  0 (0.000 %)
+Downlinks (Zeitantworten): 0  = 0.00 pro Logger und Tag
+Wetterstation (eigener 10-min-Takt): Pakete gestört: 0 von 4320
+Abstand aufeinanderfolgender Uplinks verschiedener Logger: min 0.006 s, 1%-Quantil 0.966 s, unter 1 s: 361
+Streuung der Weckzeiten aller Logger je 10-min-Fenster: Median 531.5 s, max 538.8 s
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 0
+
+je Logger: Nr Slot  Uplinks verloren Abfragen Antworten Syncs  max|RTC-UTC|[ms]  Quarz[ppm@25°C]
+            0    0     3480        1        0         0     0                  0     -14.6
+            1    1     3480        2        0         0     0                  0     +16.5
+            2    2     3480        0        0         0     0                  0     -16.4
+            3    3     3480        2        0         0     0                  0     -10.0
+            4    4     3480        0        0         0     0                  0      -8.6
+            5    5     3480        0        0         0     0                  0     -15.5
+            6    6     3481        0        0         0     0                  0     +11.6
+            7    7     3480        1        0         0     0                  0      +3.9
+            8    8     3480        0        0         0     0                  0     +15.4
+            9    9     3481        0        0         0     0                  0     +20.0
+
+############ 2) Zeitabgleich OHNE Versatz (alle LOGGER_SLOT 0)
+
+=== beelogger Zeitabgleich-Simulation (Modell, keine Messung) ===
+Firmware: ZS (Zeitabgleich) | Versatz je Logger: nein (10 s) | 10 Logger | 30 Tage | Szenario herbst
+Annahmen: Antwortquote 95 %, RX1-Anteil 50 %, Netzlatenz 80 +/- 40 ms, Messdauer 10 +/- 2 s,
+          Quarz +/-20 ppm bei 25 °C, Temperaturkoeffizient -0,034 ppm/°C², Vorteiler-Reset beim Stellen: nein (bis 1 s Fehler)
+
+Uplinks gesamt:            34760
+verloren durch Kollision:  994 (2.860 %)
+verloren, Gateway sendet:  55 (0.158 %)
+Downlinks (Zeitantworten): 300  = 1.00 pro Logger und Tag
+Wetterstation (eigener 10-min-Takt): Pakete gestört: 0 von 4320
+Abstand aufeinanderfolgender Uplinks verschiedener Logger: min 0.000 s, 1%-Quantil 0.006 s, unter 1 s: 26586
+Uhrfehler |RTC-UTC| beim Wecken: Median 701 ms, 99% 1813 ms, max 2062 ms
+Streuung der Weckzeiten aller Logger je 10-min-Fenster: Median 2.4 s, max 27.0 s
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 0
+
+je Logger: Nr Slot  Uplinks verloren Abfragen Antworten Syncs  max|RTC-UTC|[ms]  Quarz[ppm@25°C]
+            0    0     3476      131       32        30    30               2048     -14.6
+            1    0     3476        8       31        30    30               1693     +16.5
+            2    0     3476       56       31        30    30               2050     -16.4
+            3    0     3476       57       35        30    30               1523     -10.0
+            4    0     3476      136       34        30    30               1330      -8.6
+            5    0     3476      106       35        30    30               1994     -15.5
+            6    0     3476      164       32        30    30               1333     +11.6
+            7    0     3476      143       36        30    30               1093      +3.9
+            8    0     3476      133       33        30    30               1654     +15.4
+            9    0     3476      111       34        30    30               2062     +20.0
+
+############ 3) Zeitabgleich MIT Versatz 10 s (Vorschlag)
+
+=== beelogger Zeitabgleich-Simulation (Modell, keine Messung) ===
+Firmware: ZS (Zeitabgleich) | Versatz je Logger: ja (10 s) | 10 Logger | 30 Tage | Szenario herbst
+Annahmen: Antwortquote 95 %, RX1-Anteil 50 %, Netzlatenz 80 +/- 40 ms, Messdauer 10 +/- 2 s,
+          Quarz +/-20 ppm bei 25 °C, Temperaturkoeffizient -0,034 ppm/°C², Vorteiler-Reset beim Stellen: nein (bis 1 s Fehler)
+
+Uplinks gesamt:            34760
+verloren durch Kollision:  0 (0.000 %)
+verloren, Gateway sendet:  0 (0.000 %)
+Downlinks (Zeitantworten): 300  = 1.00 pro Logger und Tag
+Wetterstation (eigener 10-min-Takt): Pakete gestört: 0 von 4320
+Abstand aufeinanderfolgender Uplinks verschiedener Logger: min 3.726 s, 1%-Quantil 5.853 s, unter 1 s: 0
+Uhrfehler |RTC-UTC| beim Wecken: Median 707 ms, 99% 1816 ms, max 2124 ms
+Streuung der Weckzeiten aller Logger je 10-min-Fenster: Median 88.2 s, max 90.6 s
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 0
+
+je Logger: Nr Slot  Uplinks verloren Abfragen Antworten Syncs  max|RTC-UTC|[ms]  Quarz[ppm@25°C]
+            0    0     3476        0       33        30    30               2048     -14.6
+            1    1     3476        0       33        30    30               1739     +16.5
+            2    2     3476        0       30        30    30               2022     -16.4
+            3    3     3476        0       33        30    30               1633     -10.0
+            4    4     3476        0       34        30    30               1226      -8.6
+            5    5     3476        0       32        30    30               2014     -15.5
+            6    6     3476        0       30        30    30               1388     +11.6
+            7    7     3476        0       31        30    30               1075      +3.9
+            8    8     3476        0       31        30    30               1586     +15.4
+            9    9     3476        0       33        30    30               2124     +20.0
+
+############ 4) wie 3, Winter (-2 °C Mittel)
+Uplinks gesamt:            34760
+verloren durch Kollision:  0 (0.000 %)
+verloren, Gateway sendet:  0 (0.000 %)
+Downlinks (Zeitantworten): 300  = 1.00 pro Logger und Tag
+Wetterstation (eigener 10-min-Takt): Pakete gestört: 0 von 4320
+Abstand aufeinanderfolgender Uplinks verschiedener Logger: min 3.725 s, 1%-Quantil 5.554 s, unter 1 s: 0
+Uhrfehler |RTC-UTC| beim Wecken: Median 615 ms, 99% 3152 ms, max 3681 ms
+Streuung der Weckzeiten aller Logger je 10-min-Fenster: Median 88.1 s, max 90.8 s
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 0
+
+############ 5) wie 3, nur 50 % Antworten
+Uplinks gesamt:            34760
+verloren durch Kollision:  0 (0.000 %)
+verloren, Gateway sendet:  0 (0.000 %)
+Downlinks (Zeitantworten): 289  = 0.96 pro Logger und Tag
+Wetterstation (eigener 10-min-Takt): Pakete gestört: 0 von 4320
+Abstand aufeinanderfolgender Uplinks verschiedener Logger: min 3.302 s, 1%-Quantil 5.996 s, unter 1 s: 0
+Uhrfehler |RTC-UTC| beim Wecken: Median 700 ms, 99% 1921 ms, max 2475 ms
+Streuung der Weckzeiten aller Logger je 10-min-Fenster: Median 88.3 s, max 265.7 s
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 0
+
+############ 6) wie 3, Abstand nur 5 s
+Uplinks gesamt:            34760
+verloren durch Kollision:  4 (0.012 %)
+verloren, Gateway sendet:  1 (0.003 %)
+Downlinks (Zeitantworten): 300  = 1.00 pro Logger und Tag
+Wetterstation (eigener 10-min-Takt): Pakete gestört: 0 von 4320
+Abstand aufeinanderfolgender Uplinks verschiedener Logger: min 0.014 s, 1%-Quantil 0.814 s, unter 1 s: 543
+Uhrfehler |RTC-UTC| beim Wecken: Median 715 ms, 99% 1834 ms, max 2155 ms
+Streuung der Weckzeiten aller Logger je 10-min-Fenster: Median 43.2 s, max 45.5 s
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 0
+
+############ 7) wie 3, Messdauer je Logger +/-5 s verschieden
+Uplinks gesamt:            34760
+verloren durch Kollision:  0 (0.000 %)
+verloren, Gateway sendet:  0 (0.000 %)
+Downlinks (Zeitantworten): 300  = 1.00 pro Logger und Tag
+Wetterstation (eigener 10-min-Takt): Pakete gestört: 0 von 4320
+Abstand aufeinanderfolgender Uplinks verschiedener Logger: min 2.253 s, 1%-Quantil 3.710 s, unter 1 s: 0
+Uhrfehler |RTC-UTC| beim Wecken: Median 701 ms, 99% 1850 ms, max 2140 ms
+Streuung der Weckzeiten aller Logger je 10-min-Fenster: Median 88.2 s, max 90.8 s
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 0
+
+############ Vergleich ohne Review-Korrektur (Raster -1 s, getEpoch direkt), Variante 3:
+RTC-Lesungen mit veraltetem Datum (Schattenregister): 30 in 30 Tagen (Slot 0 um 23:59:59), 301 statt 300 Downlinks

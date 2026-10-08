@@ -1,0 +1,106 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pc-tests:
+    name: PC-Tests und Simulation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kopien im Selbsttest-Ordner unverändert
+        run: |
+          cmp firmware/STM32_LORA_261008_ZS/beelogger_zeitsync.h tests/STM32_ZS_Selbsttest/beelogger_zeitsync.h
+          cmp tests/zs_testfaelle.h  tests/STM32_ZS_Selbsttest/zs_testfaelle.h
+          cmp tests/zs_testvektoren.h tests/STM32_ZS_Selbsttest/zs_testvektoren.h
+
+      - name: Unit-Tests
+        run: |
+          g++ -std=c++11 -Wall -Wextra -Werror -O2 -o tests/host/test_zeitsync tests/host/test_zeitsync.cpp
+          ./tests/host/test_zeitsync
+
+      - name: Simulation 10 Logger, 30 Tage
+        run: |
+          g++ -std=c++17 -Wall -Wextra -O2 -DZEITSYNC_AKTIV=1 -o tests/sim/sim_sync tests/sim/sim_zeitsync.cpp
+          g++ -std=c++17 -Wall -Wextra -O2 -DZEITSYNC_AKTIV=0 -o tests/sim/sim_orig tests/sim/sim_zeitsync.cpp
+          ./tests/sim/sim_orig --tage 30
+          ./tests/sim/sim_sync --tage 30 | tee sim.txt
+          grep -q "verloren durch Kollision:  0 " sim.txt
+          grep -q "veraltetem Datum (Schattenregister): 0" sim.txt
+
+      - name: TTN-Auswertung mit simulierten Daten
+        run: |
+          ./tests/sim/sim_sync --tage 3 --csv sim.csv > /dev/null
+          python3 tests/ttn_auswertung/test/testdaten_erzeugen.py sim.csv sim.json sim.ndjson
+          python3 tests/ttn_auswertung/ttn_zeitanalyse.py sim.csv > /dev/null
+          python3 tests/ttn_auswertung/ttn_zeitanalyse.py sim.json
+          python3 tests/ttn_auswertung/ttn_zeitanalyse.py sim.ndjson > /dev/null
+
+  windows-programme:
+    name: Windows-Programme für die PC-Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: MinGW installieren
+        run: sudo apt-get update -q && sudo apt-get install -y -q g++-mingw-w64-x86-64
+      - name: Übersetzen
+        run: |
+          mkdir -p out
+          x86_64-w64-mingw32-g++ -std=c++11 -O2 -static -o out/test_zeitsync.exe tests/host/test_zeitsync.cpp
+          x86_64-w64-mingw32-g++ -std=c++17 -O2 -static -DZEITSYNC_AKTIV=1 -o out/sim_sync.exe tests/sim/sim_zeitsync.cpp
+          x86_64-w64-mingw32-g++ -std=c++17 -O2 -static -DZEITSYNC_AKTIV=0 -o out/sim_orig.exe tests/sim/sim_zeitsync.cpp
+          cp tests/windows/tests_starten.bat out/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-tests
+          path: out/
+
+  firmware:
+    name: Firmware übersetzen (BlackPill F411CE)
+    runs-on: ubuntu-latest
+    env:
+      FQBN: STMicroelectronics:stm32:GenF4:pnum=BLACKPILL_F411CE,xserial=generic,usb=none,opt=osstd,rtlib=nano
+      STM32_INDEX: https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: arduino-cli installieren
+        run: |
+          mkdir -p $HOME/.local/bin
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=$HOME/.local/bin sh -s 1.1.1
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: STM32-Core 2.6.0
+        run: |
+          arduino-cli config init --overwrite
+          arduino-cli config add board_manager.additional_urls "$STM32_INDEX"
+          arduino-cli core update-index
+          arduino-cli core install STMicroelectronics:stm32@2.6.0
+
+      - name: Bibliotheken
+        run: |
+          # --no-deps: sonst zieht "STM32duino Low Power" das neueste "STM32duino RTC" nach (2.0.0, braucht Core > 2.12)
+          arduino-cli lib install --no-deps "MCCI LoRaWAN LMIC library@5.0.1" "STM32duino RTC@1.3.7" \
+            "STM32duino Low Power@1.2.5" "OneWire@2.3.7" "HX711 Arduino Library@0.7.4"
+          # beeloggerEE aus dem beelogger-Bibliothekspaket (wird nicht im Repo mitgeliefert)
+          curl -fsSL -o bl_libs.zip "https://beelogger.de/?ddownload=200581"
+          unzip -q bl_libs.zip -d bl_libs
+          LIBDIR=$(arduino-cli config get directories.user)/libraries
+          cp -r "$(find bl_libs -type d -name beelogger_EE | head -1)" "$LIBDIR/"
+          # MCCI auf EU868 stellen
+          CFG="$LIBDIR/MCCI_LoRaWAN_LMIC_library/project_config/lmic_project_config.h"
+          sed -i 's|^//#define CFG_eu868 1|#define CFG_eu868 1|; s|^#define CFG_us915 1|//#define CFG_us915 1|' "$CFG"
+          grep -n "CFG_eu868\|CFG_us915" "$CFG"
+
+      - name: Logger-Sketch übersetzen
+        run: |
+          S=firmware/STM32_LORA_261008_ZS
+          cp $S/Config_Geraet.beispiel.h $S/Config_Geraet.h
+          arduino-cli compile -b "$FQBN" --warnings all $S
+
+      - name: Selbsttest-Sketch übersetzen
+        run: arduino-cli compile -b "$FQBN" --warnings all tests/STM32_ZS_Selbsttest

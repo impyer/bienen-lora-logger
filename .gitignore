@@ -1,0 +1,36 @@
+# Gerätedaten mit LoRaWAN-Schlüsseln - niemals hochladen
+Config_Geraet.h
+**/Config_Geraet.h
+*.keys
+secrets*
+
+# Server-Zugangsdaten
+server/**/config_local.*
+*.env
+
+# Übersetzte Dateien und Testausgaben
+build/
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.exe
+tests/host/test_zeitsync
+tests/sim/sim_sync
+tests/sim/sim_orig
+tests/**/*.csv
+tests/**/*.ndjson
+__pycache__/
+*.pyc
+
+# KiCad
+*-backups/
+*.kicad_prl
+fp-info-cache
+*.lck
+
+# System
+.DS_Store
+Thumbs.db
+desktop.ini
