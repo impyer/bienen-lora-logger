@@ -6,7 +6,7 @@ mit Funkmodul Ai-Thinker Ra-01SH (SX1262). Dafür entsteht eine neue Firmware mi
 
 - Anforderungen: [`LASTENHEFT.md`](LASTENHEFT.md) und die Blöcke [`versorgung.md`](versorgung.md), [`mcu-funk.md`](mcu-funk.md), [`waage.md`](waage.md), [`mikrofon.md`](mikrofon.md), [`anschluesse.md`](anschluesse.md).
 - **Unabhängige Prüfung Hardware 0.4:** [`docs/testberichte/2026-10-09-hardware-04-review.md`](../docs/testberichte/2026-10-09-hardware-04-review.md). **Vor PCB-Freigabe P0 HW26-07 (Ladesperre bei Übertemperatur) und die P1-Spezifikationsprobleme beheben.**
-- KiCad-Projekt: folgt in `hardware/logger-platine/`
+- KiCad-10-Projekte: [`kicad/`](kicad/README.md) (Akku-Platine fertig, Hauptplatine Blatt Versorgung fertig, weitere Blätter folgen)
 - Fertigungsdaten für JLCPCB (Gerber, BOM, CPL): folgen je Version in `hardware/logger-platine/production/`
 
 Die Platinen von beelogger.de gehören nicht hierher, weil ihre Fertigungsdaten nicht offen lizenziert sind.

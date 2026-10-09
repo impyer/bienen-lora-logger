@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "filename": "logger.kicad_pro",
+    "version": 3
+  },
+  "schematic": {
+    "legacy_lib_dir": "",
+    "legacy_lib_list": []
+  },
+  "sheets": [
+    [
+      "69595bfe-3184-5a98-8dcb-39e42f38dc44",
+      "Root"
+    ],
+    [
+      "97f7af31-0a49-5db9-8eb8-e1b8ea77ca16",
+      "Versorgung"
+    ]
+  ],
+  "text_variables": {}
+}

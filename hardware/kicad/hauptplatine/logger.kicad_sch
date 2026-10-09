@@ -1,0 +1,77 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "69595bfe-3184-5a98-8dcb-39e42f38dc44")
+	(paper "A3")
+	(title_block
+		(title "Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
+		(date "2026-10-09")
+		(rev "0.1 Entwurf")
+		(company "Bienenlogger – Philipp Schnabel")
+		(comment 1 "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+	)
+	(lib_symbols)
+	(text "Blätter: Versorgung (fertig). Folgen: MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse."
+		(exclude_from_sim no)
+		(at 30 25 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left bottom)
+		)
+		(uuid "35b5fcd5-2c33-5597-8dd0-71aa346d2165")
+	)
+	(sheet
+		(at 30 40)
+		(size 45 20)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "97f7af31-0a49-5db9-8eb8-e1b8ea77ca16")
+		(property "Sheetname" "Versorgung"
+			(at 30 39.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "versorgung.kicad_sch"
+			(at 30 60.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "logger"
+				(path "/69595bfe-3184-5a98-8dcb-39e42f38dc44"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-09 – KiCad-10-Schaltplan, Schritt 1: Versorgung und Akku-Platine
+
+- `hardware/kicad/`: Erzeuger für KiCad-10-Schaltpläne aus einer Netzbeschreibung (`werkzeug/kicad_gen.py`), Projektsymbole `bienen.kicad_sym` (BQ25185, TMP390, HY2111-GB, FS8205, RT9080), Prüfskript `pruefen.sh` (Erzeugen, ERC, PDF).
+- Akku-Platine (eigenes Projekt): HY2111 + FS8205 nach Herstellerschaltung, Messbrücke, TMP390 mit 2,49 kΩ (42 °C) / 18,7 kΩ (+5 °C, 5 °C Hysterese) und AO3400A an CE_FREI, NTC 10 k B3435, JST PH 4. ERC 0/0.
+- Hauptplatine, Blatt Versorgung: Solar mit SS34/SMAJ12A, Teiler 3,3 MΩ/470 kΩ, BQ25185 (ISET 2,0 kΩ = 150 mA, ILIM/VSET 130 kΩ = 4,1 V/500 mA), CE-Pull-up 10 MΩ, Akkuteiler, RT9080, TPS22917 (CT 1 nF nach VIN, QOD über 0 Ω an VOUT, ON mit 1 MΩ). ERC 0 Fehler.
+
 ## 2026-10-09 – Behebung Hardware-Review 0.4 (HW26-07 … -13) und CI26-01
 
 - **CI26-01:** `lora_verarbeitung.php` erkennt „gespeichert“ über den letzten Zeitstempel vorher/nachher (`le_speicherung_erkannt`), nicht mehr über die Dateigröße. Ursache: beelogger kürzt `week.csv` vor 08:00 Uhr Serverzeit. E2E-Test mit `SERVER_UHR` (libfaketime), CI prüft 05:00 und 14:00; Protokoll je DST-Ereignis; Unit-Tests 66/66.

@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "filename": "akku.kicad_pro",
+    "version": 3
+  },
+  "schematic": {
+    "legacy_lib_dir": "",
+    "legacy_lib_list": []
+  },
+  "sheets": [
+    [
+      "fe8e308a-0e5f-5da5-80c5-e7eda74c0218",
+      "Root"
+    ]
+  ],
+  "text_variables": {}
+}
