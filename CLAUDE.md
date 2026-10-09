@@ -2,6 +2,15 @@
 
 **Projekt:** Autarker Bienenlogger (STM32F411/BlackPill mit RFM95 als bestehender Musterlogger; eigene SX1262-SMD-Platine erst im Entwurf). TTN → eigener PHP-LoRa-Eingang → beelogger M.40 → CSV/BEEP.
 
+## Entwicklungsregelwerk (Version 0.1 – Diskussionsentwurf)
+
+**Zuerst [`docs/entwicklung/README.md`](docs/entwicklung/README.md) und die fachlich betroffenen Regelabschnitte lesen.** Diese Regeln sind der vorgeschlagene Default für **Menschen und Coding-Agents**; sie wurden noch nicht formal verabschiedet und ersetzen keine dokumentierten Projektentscheidungen.
+
+- **Sicherheit & Risiko:** Änderung D0–D3 einordnen; P0 bei Li-Ion/Lade-/Schutzschaltungen sperrt die jeweilige PCB-/Feldfreigabe. **Nie HiL simuliert als durchgeführt ausgeben**, Safety-Entscheide nicht selbst freigeben.
+- **Quellwahrheit:** `hardware/kicad/*.py` führt für generierte KiCad-V0.1-Schaltpläne; `server/eigen_anpassen.py` führt für den abgeleiteten Server; `formatter/formatter.js` für den TTN-Formatter.
+- **Nachweise:** Tests T0–T6 und Gates G0–G4 unterscheiden; genaue SHA, Konfiguration, Soll/Ist, Grenzen und offene Hardwaretests nennen. Bei Änderungen an Akku-/Power-Path zuvor die Gefahr- und Recovery-Analyse prüfen.
+- **Open Source:** `LICENSE.md` beibehalten, Fremdurheber nennen. **GOV-01** ist offen: Python-Generatoren unter `hardware/kicad/` enthalten teilweise GPL-Header trotz Ordnerzuordnung CERN-OHL-S in `LICENSE.md`. Nicht stillschweigend re-lizenzieren.
+
 ## Bevor du Änderungen vornimmst
 
 1. **Zuerst lesen:** [Testberichte und priorisierte Befunde](docs/testberichte/README.md), insbesondere [Schaltplan-Review V0.1 zu `fcd18fe`](docs/testberichte/2026-10-09-schaltplan-v01-review.md) und [Hardware-Review 0.4 zu `5c94e1b`](docs/testberichte/2026-10-09-hardware-04-review.md) und [früheres Review zu `5c1b847`](docs/testberichte/2026-10-08-main-5c1b847-regression.md). Konkrete Befunde: `FW26-*`, `SRV26-*`, `FMT26-*`, `ZS26-*`, `HW26-*`.

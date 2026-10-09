@@ -49,6 +49,10 @@ Einzelheiten in [`LICENSE.md`](LICENSE.md).
 3. TTN-Einstellungen nach [`docs/ttn-einrichtung.md`](docs/ttn-einrichtung.md) vornehmen.
 4. Übersetzen und auf die BlackPill spielen.
 
+## Entwicklung und Zusammenarbeit
+
+Das [**Entwicklungsregelwerk 0.1 (Diskussionsentwurf)**](docs/entwicklung/README.md) beschreibt Hardwaredesign, Programmierung, Open-Source-Rechte, Prüfklassen und getrennte Freigaben für Entwicklungsstand, Labormuster, Feldtest und Release. Vorschläge und Beiträge: [`CONTRIBUTING.md`](CONTRIBUTING.md). Sicherheitsmeldungen: [`SECURITY.md`](SECURITY.md).
+
 ## Tests
 
 Die Tests laufen bei jedem Push automatisch (GitHub Actions, siehe `.github/workflows/tests.yml`):
