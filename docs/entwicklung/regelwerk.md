@@ -1,10 +1,10 @@
 # Projektregelwerk: Design, Programmierung, Entwicklung, Zusammenarbeit
 
-**Version 0.1 – Diskussionsentwurf, nicht formal verabschiedet.** Gilt als Arbeitsvorschlag für Repository `impyer/bienen-lora-logger`, seine Software, Hardware, Mechanik, Testdaten, Dokumentation und releasespezifische Artefakte.
+**Version 1.0 – ANGENOMMEN am 09.10.2026.** Gilt als verbindlicher Projektstandard für Repository `impyer/bienen-lora-logger`, seine Software, Hardware, Mechanik, Testdaten, Dokumentation und releasespezifische Artefakte.
 
 ## R-01 Sprachregelung
 
-- **MUSS:** verbindliche Bedingung für die betreffende Stufe, sobald das Regelwerk angenommen ist.
+- **MUSS:** verbindliche Bedingung für die betreffende Entwicklungs-/Freigabestufe.
 - **SOLL:** Standardweg; Abweichungen sind mit technischem Grund zu dokumentieren.
 - **KANN:** freiwillig.
 - **BLOCKIERT:** Ohne Korrektur oder explizit definierte, sichere Projektentscheidung wird das angegebene Freigabe-Gate nicht bestanden.
@@ -77,7 +77,7 @@ Eine Ausnahme enthält **ID, betroffene Regel, fachliche Ursache, Risiko, zuläs
 
 ## R-09 Aufgabenverteilung und KI
 
-- Maintainer/Projektverantwortliche **entscheidet** über Architektur, Risiken, Freigaben und Veröffentlichung.
+- Maintainer/Projektverantwortliche **entscheidet** über Architektur, Risiken, Freigaben und Veröffentlichung. Für G0/G1 ist die dokumentierte Maintainer-Prüfung maßgeblich. D3-Sicherheitsfunktionen dürfen G2–G4 **nicht ohne unabhängig fachkundige Prüfung und geeignete reale bzw. gleichwertige Labor-Nachweise** bestehen ([GOV-02](entscheidungen.md)).
 - Beitragende **liefern** Quelländerung, Tests, Dokumentation und ihre expliziten Annahmen.
 - Reviewer/zweiter Prüfweg **prüft** kritisch und dokumentiert Widerspruch; kann auch unabhängiges Testtool sein, aber eine KI ersetzt keine qualifizierte Sicherheitsbewertung.
 - Coding-Agents **lesen zuerst** `CLAUDE.md`, dieses Regelwerk, aktuelle Befunde und den betroffenen Code; keine fiktiven Tool-/Hardwaretests, kein unautorisiertes Umschreiben fremder Lizenzhinweise.
@@ -88,3 +88,9 @@ Eine Ausnahme enthält **ID, betroffene Regel, fachliche Ursache, Risiko, zuläs
 Mindestens vor jeder PCB-Bestellung und jedem Feldrelease offene P0/P1 und Ausnahmen durchgehen; Dokumentversion, Datum und Projektstatus aktualisieren. Nach jeder wesentlichen Fehlerbehebung den betreffenden Test sowie das Risiko-/Nachweisregister pflegen. **Alte Berichte bleiben historische Snapshots.**
 
 Spezialregeln: [Hardware](hardware.md) · [Software](software.md) · [Test-Gates](tests-freigaben.md) · [Open Source/Release](open-source-releases.md).
+
+## R-11 Geltung und technische Durchsetzung
+
+Gültig **ab Annahme-Commit zu Version 1.0** für neue Änderungen, neue Hardwareversuche, PCB-Bestellungen und neue Freigabeentscheidungen. [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) dokumentiert den Beschluss. Alte Prüfergebnisse bleiben unveränderte historische Snapshots; das Regelwerk wertet diese nicht nachträglich auf.
+
+Bis Branch-Protection/Reviewpflicht **tatsächlich** konfiguriert und überprüft sind, erfolgt die Einhaltung organisatorisch mit dokumentierten Commits/PRs und bestehenden CI-Checks. Offen gebliebene ERC-/HiL-Nachweise sind **nicht bestanden**. Siehe [Entscheidungsregister](entscheidungen.md).

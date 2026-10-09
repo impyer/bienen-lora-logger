@@ -3,7 +3,7 @@
 Das Projekt verbindet quelloffene **Firmware, TTN-Formatter, Server und eigene Hardware/Mechanik**. Neue Mitwirkende sind willkommen – besonders unabhängige technische Gegenprüfungen und reproduzierbare Testfälle.
 
 **Vor dem ersten PR bitte lesen:**
-- [Entwicklungsregeln – Einstieg](docs/entwicklung/README.md) (**Version 0.1: derzeit zur Diskussion**, noch nicht formal beschlossen)
+- [Entwicklungsregeln – Einstieg](docs/entwicklung/README.md) (**Version 1.0: seit 09.10.2026 angenommen und für neue Änderungen verbindlich**)
 - [Projektregelwerk](docs/entwicklung/regelwerk.md)
 - [Teststrategie/Freigabestufen](docs/entwicklung/tests-freigaben.md)
 - [Lizenzübersicht](LICENSE.md) und [Testberichte/offene Befunde](docs/testberichte/README.md)

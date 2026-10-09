@@ -1,6 +1,6 @@
 # Teststrategie, Nachweise und Freigabe-Gates
 
-**Version 0.1 – Entwurf.** Gilt für Hardware, Mechanik, Firmware, Formatter, Server und das integrierte LoRaWAN-System. **Teststatus ≠ Freigabestatus.** Jeder Test gilt nur für seinen dokumentierten Prüfling und Stand.
+**Version 1.0 – am 09.10.2026 angenommen.** Gilt für Hardware, Mechanik, Firmware, Formatter, Server und das integrierte LoRaWAN-System. **Teststatus ≠ Freigabestatus.** Jeder Test gilt nur für seinen dokumentierten Prüfling und Stand.
 
 ## T-01 Testpyramide (ohne Schein-HiL)
 
@@ -60,6 +60,8 @@ Ein Screenshot allein oder Aussagen wie „manuell geprüft“ ohne reproduzierb
 | **G4 – Open-Hardware-/Software-Release** | G0–G3 passend zum Release-Typ, Versions-/Kompatibilitätsmatrix, reproduzierbarer Source-/Build-/Fertigungsstand, Lizenzen/Herkunft, bekannte Grenzen, getrennte rechtliche Markt-Konformitätsprüfung soweit nötig | nicht reproduzierbare Artefakte, Lizenzkonflikte, undokumentierte kritische Risiken |
 
 **Separate Releases sind zulässig:** Ein **Software-/Hosttest-Release** darf ohne neue PCB-Hardware erfolgen, ist aber als solcher gekennzeichnet und beweist keine hardwarebezogene G3-Freigabe. Ein unfertiger KiCad-Entwurf kann mit „experimentell – nicht fertigen“ veröffentlicht werden, nicht als fertiges Open-Hardware-Produkt.
+
+**Gate-Verantwortung:** Der Maintainer dokumentiert G0/G1. Für D3-Sicherheitsfunktionen erfordern G2–G4 unabhängig fachkundige Sicherheitsprüfung und geeignete echte oder gleichwertige Labor-/Hardware-Nachweise. Bei fehlendem Nachweis bleibt das Gate OFFEN/BLOCKIERT ([GOV-02](entscheidungen.md)).
 
 ## T-06 Nachweis gegen Anforderungen (Traceability)
 

@@ -51,7 +51,7 @@ Einzelheiten in [`LICENSE.md`](LICENSE.md).
 
 ## Entwicklung und Zusammenarbeit
 
-Das [**Entwicklungsregelwerk 0.1 (Diskussionsentwurf)**](docs/entwicklung/README.md) beschreibt Hardwaredesign, Programmierung, Open-Source-Rechte, Prüfklassen und getrennte Freigaben für Entwicklungsstand, Labormuster, Feldtest und Release. Vorschläge und Beiträge: [`CONTRIBUTING.md`](CONTRIBUTING.md). Sicherheitsmeldungen: [`SECURITY.md`](SECURITY.md).
+Das [**Entwicklungsregelwerk 1.0 (angenommener Projektstandard)**](docs/entwicklung/README.md) beschreibt Hardwaredesign, Programmierung, Open-Source-Rechte, Prüfklassen und getrennte Freigaben für Entwicklungsstand, Labormuster, Feldtest und Release. Vorschläge und Beiträge: [`CONTRIBUTING.md`](CONTRIBUTING.md). Sicherheitsmeldungen: [`SECURITY.md`](SECURITY.md).
 
 ## Tests
 

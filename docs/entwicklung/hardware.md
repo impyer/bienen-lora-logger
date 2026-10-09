@@ -1,6 +1,6 @@
 # Hardware- und Mechanikregeln
 
-**Version 0.1 – Entwurf.** Gilt für `hardware/` und `mechanik/`, insbesondere eigene Akku-Platine, Hauptplatine mit STM32F411/SX1262 und Außen-Sensoren. Ziel: eine andere Person kann den Schaltplan **aus dem Repository** verstehen, prüfen, bestellen, aufbauen und sicher testen.
+**Version 1.0 – am 09.10.2026 angenommen.** Gilt für `hardware/` und `mechanik/`, insbesondere eigene Akku-Platine, Hauptplatine mit STM32F411/SX1262 und Außen-Sensoren. Ziel: eine andere Person kann den Schaltplan **aus dem Repository** verstehen, prüfen, bestellen, aufbauen und sicher testen.
 
 ## H-01 Architektur / Eingänge
 

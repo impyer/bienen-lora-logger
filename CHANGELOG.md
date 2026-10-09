@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-09 – Entwicklungsregelwerk 1.0 angenommen
+
+- Entwurf 0.1 als verbindlichen Standard für Menschen und Coding-Agents beschlossen; ADR-0001 und Governance-Register eingeführt.
+- GOV-02 und GOV-03 angenommen; GOV-01 (Lizenzfrage) und GOV-04 (bauteilabhängige Grenzwerte) bleiben offen.
+- AGENTS.md ergänzt; README, CLAUDE und CONTRIBUTING aktualisiert. **Keine Firmware-/Hardware-/Serverlogik geändert.**
+
 ## 2026-10-09 – KiCad-10-Schaltplan, Schritt 1: Versorgung und Akku-Platine
 
 - `hardware/kicad/`: Erzeuger für KiCad-10-Schaltpläne aus einer Netzbeschreibung (`werkzeug/kicad_gen.py`), Projektsymbole `bienen.kicad_sym` (BQ25185, TMP390, HY2111-GB, FS8205, RT9080), Prüfskript `pruefen.sh` (Erzeugen, ERC, PDF).

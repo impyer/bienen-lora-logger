@@ -2,9 +2,9 @@
 
 **Projekt:** Autarker Bienenlogger (STM32F411/BlackPill mit RFM95 als bestehender Musterlogger; eigene SX1262-SMD-Platine erst im Entwurf). TTN → eigener PHP-LoRa-Eingang → beelogger M.40 → CSV/BEEP.
 
-## Entwicklungsregelwerk (Version 0.1 – Diskussionsentwurf)
+## Entwicklungsregelwerk (Version 1.0 – angenommen am 09.10.2026)
 
-**Zuerst [`docs/entwicklung/README.md`](docs/entwicklung/README.md) und die fachlich betroffenen Regelabschnitte lesen.** Diese Regeln sind der vorgeschlagene Default für **Menschen und Coding-Agents**; sie wurden noch nicht formal verabschiedet und ersetzen keine dokumentierten Projektentscheidungen.
+**Zuerst [`docs/entwicklung/README.md`](docs/entwicklung/README.md) und die fachlich betroffenen Regelabschnitte lesen.** Diese Regeln sind **verbindlicher Projektstandard für Menschen und Coding-Agents** ([ADR-0001](docs/entwicklung/entscheidungen/ADR-0001-projektregelwerk.md)). Sie ersetzen keine dokumentierten bisherigen Entscheidungen. **GOV-01/GOV-04 bleiben offen** ([Register](docs/entwicklung/entscheidungen.md)); keine Sicherheits-/Hardwarefreigabe ohne fachkundige Prüfung und entsprechende HiL-Evidenz.
 
 - **Sicherheit & Risiko:** Änderung D0–D3 einordnen; P0 bei Li-Ion/Lade-/Schutzschaltungen sperrt die jeweilige PCB-/Feldfreigabe. **Nie HiL simuliert als durchgeführt ausgeben**, Safety-Entscheide nicht selbst freigeben.
 - **Quellwahrheit:** `hardware/kicad/*.py` führt für generierte KiCad-V0.1-Schaltpläne; `server/eigen_anpassen.py` führt für den abgeleiteten Server; `formatter/formatter.js` für den TTN-Formatter.

@@ -1,6 +1,6 @@
 # Open Source, Provenienz, Sicherheit und Releases
 
-**Version 0.1 – Entwurf.** Der öffentlich nutzbare Zustand ist nicht nur eine Lizenzdatei: Dritte sollen Herkunft, Quellen, Änderungen, Reproduktionsverfahren und Einschränkungen verstehen können.
+**Version 1.0 – am 09.10.2026 angenommen.** Der öffentlich nutzbare Zustand ist nicht nur eine Lizenzdatei: Dritte sollen Herkunft, Quellen, Änderungen, Reproduktionsverfahren und Einschränkungen verstehen können.
 
 ## O-01 Vorhandene Lizenzstruktur bewahren
 
@@ -14,7 +14,7 @@ Die Repository-Datei [`LICENSE.md`](../../LICENSE.md) unterscheidet:
 
 **Dieses Regelwerk ändert keine Lizenz.** Der jeweilige urheberrechtliche Hinweis, Quellbezug und Rechteinhaber haben Vorrang. Bei neuen Dateien `SPDX-License-Identifier` nur entsprechend der **tatsächlich geklärten** Lizenz setzen.
 
-**Offen GOV-01:** Python-Generatoren in `hardware/kicad/` führen teils explizite GPL-3.0-or-later-Copyright-/Lizenzhinweise, obwohl die Ordnerlizenz pauschal CERN-OHL-S-2.0 sagt. Dies ist zunächst ein **Klärungsbedarf**, keine automatische Doppel-Lizenzierung und keine Aufforderung zum Entfernen alter Header. Vor Veröffentlichung als fertig lizenziertes PCB-Source-Paket Urheber/Umfang prüfen und eine dokumentierte Entscheidung herbeiführen.
+**Weiterhin OFFEN GOV-01 (siehe [Register](entscheidungen.md)):** Python-Generatoren in `hardware/kicad/` führen teils explizite GPL-3.0-or-later-Copyright-/Lizenzhinweise, obwohl die Ordnerlizenz pauschal CERN-OHL-S-2.0 sagt. Dies ist zunächst ein **Klärungsbedarf**, keine automatische Doppel-Lizenzierung und keine Aufforderung zum Entfernen alter Header. Vor Veröffentlichung als fertig lizenziertes PCB-Source-Paket Urheber/Umfang prüfen und eine dokumentierte Entscheidung herbeiführen.
 
 ## O-02 Fremdquellen, Forks, Attribution
 
@@ -47,6 +47,8 @@ Kennzeichnung: `V0.1 – experimenteller Teilentwurf` ist möglich; keine „fer
 5. Tests: Gegenstands-/Commit-SHA, Gate-Status, Blocker/P0/P1/Restrictions und **welche HiL-/Feldprüfungen nicht erfolgt sind**.
 6. Herkunft/Attribution/Lizenz pro Teil plus fremde Lizenztexte nach vorhandener Quelle.
 7. Falls Geräte verkauft/in Verkehr gebracht werden: einschlägige EU-Anforderungen (etwa Funk, EMV, Batteriesicherheit, Stoff-/Entsorgungsvorgaben) im konkreten Vertriebs-/Verwendungsfall prüfen und die Verantwortlichkeit festhalten. Ein Open-Source-Repo oder ein ERC-Report ist **keine Konformitätsbescheinigung**.
+
+**GOV-03 ANGENOMMEN:** Fertigungsreife Open-Hardware-Pakete müssen die O-03-Artefakte einschließlich Originalquellen, Produktions-/Montagedaten und Testnachweisen enthalten. Unfertige Versionen deutlich „experimentell, nicht fertigungsreif“ kennzeichnen. Siehe [Register](entscheidungen.md).
 
 ## O-06 Sicherheits- und Geheimnisregeln
 

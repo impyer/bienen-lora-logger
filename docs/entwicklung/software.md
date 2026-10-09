@@ -1,6 +1,6 @@
 # Software- und Schnittstellenregeln
 
-**Version 0.1 – Entwurf.** Für STM32-Firmware, LoRaWAN-Stack, FFT/Codec, TTN-Formatter, PHP-LoRa-Eingang, beelogger-Integration, Python-Werkzeuge und Buildskripte.
+**Version 1.0 – am 09.10.2026 angenommen.** Für STM32-Firmware, LoRaWAN-Stack, FFT/Codec, TTN-Formatter, PHP-LoRa-Eingang, beelogger-Integration, Python-Werkzeuge und Buildskripte.
 
 ## S-01 Führende Quellen, Toolchain, Architektur
 
