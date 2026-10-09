@@ -5,7 +5,8 @@ Dieses Repository enthält Teile unter verschiedenen Lizenzen. Maßgeblich ist d
 | Ordner | Lizenz | Text |
 |---|---|---|
 | `firmware/`, `formatter/`, `tests/`, `server/` | GNU General Public License v3.0 oder später (GPL-3.0-or-later) | [`LICENSES/GPL-3.0-or-later.txt`](LICENSES/GPL-3.0-or-later.txt) |
-| `hardware/`, `mechanik/` | CERN Open Hardware Licence v2 – Strongly Reciprocal (CERN-OHL-S-2.0) | [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt) |
+| `hardware/`, `mechanik/`: Schaltpläne, Symbole, Footprints, Layouts, KiCad-Projektdateien und deren Exporte (PDF, Netzliste, Fertigungsdaten), Mechanik | CERN Open Hardware Licence v2 – Strongly Reciprocal (CERN-OHL-S-2.0) – auch wenn sie von einem Skript erzeugt werden | [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt) |
+| `hardware/`, `mechanik/`: Python- und Shell-Skripte (`*.py`, `*.sh`, z. B. `hardware/kicad/werkzeug/`) | GPL-3.0-or-later, Kennzeichnung per `SPDX-License-Identifier` (Entscheidung GOV-01, 09.10.2026) | [`LICENSES/GPL-3.0-or-later.txt`](LICENSES/GPL-3.0-or-later.txt) |
 | `docs/` und die README-Dateien | Creative Commons Namensnennung – Weitergabe unter gleichen Bedingungen 4.0 (CC BY-SA 4.0) | [`LICENSES/CC-BY-SA-4.0.txt`](LICENSES/CC-BY-SA-4.0.txt) |
 
 ## Herkunft der Firmware

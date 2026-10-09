@@ -1,6 +1,6 @@
 # Hardware- und Mechanikregeln
 
-**Version 1.0 – am 09.10.2026 angenommen.** Gilt für `hardware/` und `mechanik/`, insbesondere eigene Akku-Platine, Hauptplatine mit STM32F411/SX1262 und Außen-Sensoren. Ziel: eine andere Person kann den Schaltplan **aus dem Repository** verstehen, prüfen, bestellen, aufbauen und sicher testen.
+**Version 1.1 – am 09.10.2026 angenommen** (Änderungen: [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md)). Gilt für `hardware/` und `mechanik/`, insbesondere eigene Akku-Platine, Hauptplatine mit STM32F411/SX1262 und Außen-Sensoren. Ziel: eine andere Person kann den Schaltplan **aus dem Repository** verstehen, prüfen, bestellen, aufbauen und sicher testen.
 
 ## H-01 Architektur / Eingänge
 
@@ -19,7 +19,7 @@
 6. **Keine schädliche Tiefentladung, Kurzschluss- oder Überhitzungsversuche an echten Li-Ion-Zellen** als frühe Diagnose. Zell-Emulator/Strombegrenzung/Fault-Injection und eine sichere Testumgebung verwenden.
 7. PCB-/BOM-Freigabe erst nach ausreichenden Datenblatt-/Schaltungs-/Fault-Nachweisen und einem geeigneten sicheren Prüfkonzept.
 
-Aktueller offener Reviewbezug: [`SCH26-01` (möglicher Recovery-Deadlock)](../testberichte/2026-10-09-schaltplan-v01-review.md). Das ist eine **Hypothese**, nicht automatisch ein bestätigter Hardwarefehler.
+Aktueller Stand der Akku-Befunde (z. B. `SCH26-01`): nur im [Befundregister](../testberichte/befunde.md).
 
 ## H-03 Versorgung und Low Power
 
@@ -46,7 +46,7 @@ Aktueller offener Reviewbezug: [`SCH26-01` (möglicher Recovery-Deadlock)](../te
 ## H-06 KiCad als reproduzierbare Quelle
 
 1. **Führende Quelle** in V0.1: `hardware/kicad/*.py` und `werkzeug/`; generierte `.kicad_sch`/Bibliotheken/`.pdf` gehören nur zum zugehörigen Generatorstand. Änderungen an generierten Schaltungen werden **zuerst** in Python gepflegt. Eine spätere Umstellung auf manuell geführtes KiCad nur via ADR/Freigabe.
-2. Generator deterministisch ausführen, KiCad-Version pinnen und **Diff der generierten Outputs** im sauberen Checkout prüfen. Bei binär geänderten PDFs Herkunft/Datum angeben.
+2. Generator deterministisch ausführen und **Diff der generierten Quelldateien** (`.kicad_sch`, `.kicad_sym`, Projektdateien) im sauberen Checkout prüfen. **KiCad-Hauptversion 10 ist festgelegt**; die Unterversion steht im Prüfbericht. Ändert ein KiCad-Update die erzeugten Dateien, wird neu erzeugt und als eigener Commit eingecheckt („Neuerzeugung mit KiCad 10.0.x“). PDF und Netzliste enthalten ein Datum; sie werden mitgeliefert, sind aber vom Diff ausgenommen.
 3. **ERC aller relevanten Projekte:** 0 ungeklärte elektrische Fehler. Warnungen einzeln begründen, nicht pauschal ignorieren. Kein Ersetzen von Powerquellen durch wahllose `PWR_FLAG`-Symbole, um ERC grün zu färben.
 4. **Netlist-/Symbol-Pin-/Footprint-Abgleich** für alle Custom-Symbole gegen Hersteller-Pinzeichnung; Doppel-Gates, Thermal-Pads, No-Connects und Package-Padzahl prüfen. Unvollständige Blätter explizit als unvollständig markieren.
 5. Vor PCB-Bestellung: **DRC**, reale Stackup-/Kupfer-/Abstandsregeln, thermische Vias, Rückstrom-/HF-Schleifen, ESD direkt am Eintritt, mechanischer Bauraum, Masseschluss und Testpads bestätigen.

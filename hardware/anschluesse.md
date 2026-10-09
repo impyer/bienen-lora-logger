@@ -16,7 +16,7 @@ Bezug:
 |---|---|---|---|---|---|
 | J1 | Solarpanel 1 | steckbare Klemme 3,5 mm, 2-polig | 1 GND, 2 +PV | Schottky je Panel, TVS SMAJ12A gemeinsam (versorgung.md 3.1) | Panelkabel |
 | J2 | Solarpanel 2 | wie J1 | 1 GND, 2 +PV | wie J1 | Panelkabel |
-| J3 | Akku-Platine | **JST PH 4-polig, kodiert** (Platine–Platine-Kabel im Gehäuse) | 1 BAT−, 2 NTC, 3 CE_FREI (Ladesperre, HW26-07), 4 BAT+ | Schutz-IC und TMP390 auf der Akku-Platine (versorgung.md 3.3/3.4); Leitungsbruch an CE_FREI sperrt das Laden | kurz, im Gehäuse |
+| J3 (Platine: J203) | Akku-Platine | **JST PH 5-polig** (B5B-PH-K stehend), Kabel im Gehäuse | 1 P− (GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+ | Zellschutz und Ladesperre auf der Akku-Platine (versorgung.md 3.3/3.4); Leitungsbruch an CE_FREI oder TMP_VCC sperrt das Laden | kurz, im Gehäuse, Kabelplan 1.1 |
 | J4 | Wägezelle H40A | steckbare Klemme 3,5 mm, 5-polig | 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+ | **TPD4E05U06** an E+, S+, S− (E− ist Masse); 100 Ω in S±, 100 nF S+/S−, 10 nF je S nach Masse (waage.md 4) | Originalkabel 1,8 m |
 | J5 | Mikrofon | steckbare Klemme 3,5 mm, 4-polig | 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA) | **ESDS304** an OUT und VCC; 100 Ω in OUT (mikrofon.md 2) | LiYCY 3 × 0,14, ≤ 2 m |
 | J6 | DS18B20 Nr. 1 (TempIn) | steckbare Klemme 3,5 mm, 3-polig | 1 GND, 2 DQ, 3 3V3_SW | **ESDS304** (ein Array für J6 + J7) | Fühlerkabel |
@@ -26,6 +26,21 @@ Bezug:
 | J10 | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen |
 | J11 | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 PA15, 10 PB12, 11 PB13, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1) |
 | – | Antenne | IPEX am Funkmodul | – | – | FPC-Antenne innen (mcu-funk.md 2.3) |
+
+### 1.1 Kabelplan Akku-Platine ↔ Hauptplatine (SCH26-06)
+
+| Ader | Hauptplatine J203 | Akku-Platine J1 | Netz | Farbe (Vorschlag) |
+|---|---|---|---|---|
+| 1 | Pin 1 | Pin 1 | P− / GND | schwarz |
+| 2 | Pin 2 | Pin 2 | NTC | gelb |
+| 3 | Pin 3 | Pin 3 | CE_FREI | weiß |
+| 4 | Pin 4 | Pin 4 | TMP_VCC | blau |
+| 5 | Pin 5 | Pin 5 | P+ | rot |
+
+- **1:1 verdrahtet**: Pin n auf Pin n. Beide Seiten haben dasselbe Crimpgehäuse JST **PHR-5** mit Kontakten **SPH-002T-P0.5S** (28–24 AWG) [A, JST-Katalog; Bestellnummern beim Bestellen prüfen]. Fertig konfektionierte Kabel „PH 2,0 mm 5-polig, beidseitig, gleichsinnig“ gibt es zu kaufen; **beim Kauf auf gleichsinnig (nicht gekreuzt) achten**.
+- Pin 1 ist auf beiden Platinen im Bestückungsdruck markiert; Plus liegt außen an Pin 5, Masse außen an Pin 1. Ein um 180° gedrehter Stecker ist durch das Gehäuse mechanisch ausgeschlossen.
+- Erstinbetriebnahme: Kabel zuerst ohne Zelle mit dem Durchgangsprüfer prüfen (Tabelle oben), dann mit **strombegrenztem Netzteil** (z. B. 4,0 V, 50 mA) statt Zelle an P+/P−.
+- Die Netzprüfung `hardware/kicad/werkzeug/netz_tests.py` vergleicht die Pin-Belegung beider Stecker in den Netzlisten.
 
 Die Klemmen-Pinbelegung folgt drei Regeln:
 - **Masse bzw. Schirm immer an Pin 1**, die Versorgung immer am anderen Ende. Ein um einen Pin versetzter Stecker legt so keine Versorgung auf einen Signaleingang.
@@ -45,7 +60,7 @@ Die Klemmen-Pinbelegung folgt drei Regeln:
 | Gegenstecker | DEGSON 15EDGK-3.5 (Schraubstecker) passend zur Polzahl | – | [A] Bezeichnung prüfen; Stecker werden lose mitbestellt |
 | ESD 3,6 V | **TI ESDS304DBVR**, 4 Kanäle, SOT-23-5. VRWM 3,6 V, ±30 kV, **Leckstrom 3 nA typ., 50 nA max.** bei 3,6 V und 25 °C, 2,3 pF | TI-Datenblatt | [V]; LCSC-Nummer **[P]** |
 | ESD 5,5 V (Wägezelle) | **TI TPD4E05U06DQAR**, 4 Kanäle, USON-10. VRWM 5,5 V, **Leckstrom 0,01 nA typ., 10 nA max.** (bei 2,5 V), 0,5 pF, ±12 kV Kontakt | TI-Datenblatt; LCSC/JLCPCB **C138714** (Extended) | [V] |
-| Akku-Stecker | JST PH **4-polig**, gewinkelt (S4B-PH-K-S) bzw. stehend (B4B-PH-K-S) | – | **[P]** LCSC-Nummern (2-polig gewinkelt ist C265016) |
+| Akku-Stecker | JST PH **5-polig**, Akku-Platine gewinkelt (S5B-PH-K-S), Hauptplatine stehend (B5B-PH-K-S) | – | **[P]** LCSC-Nummern (2-polig gewinkelt ist C265016) |
 
 Warum zwei ESD-Typen:
 - An der Wägezelle liegt E+ bei 4,3 V. Das ist über der Arbeitsspannung des ESDS304 (3,6 V). Der TPD4E05U06 hält 5,5 V.
@@ -103,7 +118,7 @@ Bewertung:
 ## 5. Fertigung
 
 - **Festlegung (Philipp, 09.10.2026): JLCPCB lötet alles ein**, auch die Durchsteckteile (Klemmen, Stiftleisten, JST-Buchse, Befestigungsstifte der USB-Buchse).
-  - Durchsteckstellen auf der Platine: ca. 25 Klemmenpins, 4 JST, 19 Stiftleiste (1 × 7 + 2 × 6), 4 USB-Befestigung, also **rund 50** [A, nach Tabelle 1].
+  - Durchsteckstellen auf der Platine: ca. 25 Klemmenpins, 5 JST, 19 Stiftleiste (1 × 7 + 2 × 6), 4 USB-Befestigung, also **rund 50** [A, nach Tabelle 1].
   - Preis laut einer Übersicht von 04/2024: ca. 0,0135 $ je Durchsteckpin plus Grundgebühr je Auftrag [A, nicht von JLCPCB bestätigt]. Das wären unter 1 $ je Platine. **[P]** Im Angebot prüfen.
   - **[P]** Ob „Economic PCBA“ Durchsteckteile erlaubt oder „Standard PCBA“ nötig ist, habe ich nicht sicher gefunden. Das Funkmodul Ra-01SH könnte ohnehin „Standard only“ sein. Beides im Bestellformular prüfen.
   - Die **Gegenstecker** (DEGSON 15EDGK) werden nicht gelötet. Sie werden bei LCSC mitbestellt.
@@ -112,7 +127,7 @@ Bewertung:
 
 ## 6. Offene Prüfpunkte
 
-1. LCSC-Nummern: ESDS304DBVR, DEGSON 15EDGRHC-3.5 in 2-, 3-, 5- und 6-polig, Gegenstecker, JST PH 4-polig, TMP390A2DRL, AO3400A
+1. LCSC-Nummern: ESDS304DBVR, DEGSON 15EDGRHC-3.5 in 2-, 3-, 5- und 6-polig, Gegenstecker, JST PH 5-polig, TMP390A2DRL, AO3400A, TPS70933DBVR
 2. ~~Kodierung J4/J8~~: J8 6-polig plus Farbe (09.10.2026); Farbvariante bei LCSC suchen
 3. ~~Länge der BME280-Leitung~~: höchstens 1 m (09.10.2026); Anstiegszeit am Muster messen
 4. ~~Debug- und Erweiterungsleiste~~: J10 1 × 7, J11 2 × 6 (09.10.2026, HW26-13)

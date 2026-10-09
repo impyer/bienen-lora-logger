@@ -84,13 +84,13 @@ Ausgearbeitet in **[`versorgung.md`](versorgung.md)**, dort mit Quellen, Rechnun
 
 | Nr. | Anforderung |
 |---|---|
-| V1 [M] | Li-Ion 18650 **auf einer eigenen Akku-Platine** am Halter Keystone 1043, per Kabel mit kodiertem Stecker zur Hauptplatine. Auf der Akku-Platine: Zellschutz, NTC, **TMP390 mit N-FET für die Ladesperre** (V3), Messbrücke. Stecker J3 JST PH 4-polig. |
+| V1 [M] | Li-Ion 18650 **auf einer eigenen Akku-Platine** am Halter Keystone 1043, per Kabel mit kodiertem Stecker zur Hauptplatine. Auf der Akku-Platine: Zellschutz, NTC, **2 × TMP390 mit N-FETs für die Ladesperre** (V3), Messbrücke. Stecker J3 JST PH **5-polig** (P−, NTC, CE_FREI, TMP_VCC, P+), Kabel 1:1 nach Kabelplan `anschluesse.md`. |
 | V2 [M] | **Tiefentladeschutz in Hardware, zweistufig:** BQ25185 trennt SYS bei 3,0 V; HY2111-GB + 8205 trennt die Zelle bei 2,9 V (0,1 µA). Freigabe nur durch Laden. Dazu Firmware-Stufen ab 3,5 V. |
-| V3 [M] | Laderegler **BQ25185**: Eingang bis 18 V (Panels kalt bis ca. 10 V), Eingangsspannungsregelung, Ladeschluss **4,1 V**, **150 mA** (HW26-11, Wärme `versorgung.md` 3.2a). **Ladesperre zweistufig (HW26-07, 09.10.2026):** 1. Temperaturschalter **TMP390 an der Zelle** sperrt über CE außerhalb **+5 … 42 °C**, ausfallsicher bei Leitungsbruch; 2. NTC am TS-Pin (+1,7 / 59,5 °C). Auslegung auf 45 °C, bis die Zellvariante feststeht. Je Panel eine Schottky-Diode, TVS am Eingang; Messung der Eingangsspannung 3,3 MΩ / 470 kΩ hinter den Dioden (HW26-08). `versorgung.md` 3.1–3.3. |
+| V3 [M] | Laderegler **BQ25185**: Eingang bis 18 V (Panels kalt bis ca. 10 V), Eingangsspannungsregelung, Ladeschluss **4,1 V**, **150 mA** (HW26-11, Wärme `versorgung.md` 3.2a). **Ladesperre zweistufig, beide ≤ 45 °C (HW26-07, SCH26-01/03, 09.10.2026):** 1. **TMP390 U2 an der Zelle** sperrt über CE außerhalb **+5 … 42 °C**; 2. **zweiter TMP390 U3** öffnet über 42 °C den NTC-Kreis (TS offen), NTC zusätzlich +1,7 / 59,5 °C. Versorgung beider Stufen aus **TMP_VCC (TPS70933 am Ladereingang)**, damit der Wiederanlauf nach Tiefentladung funktioniert und nachts kein Strom fließt; ausfallsicher bei Leitungsbruch. Auslegung auf 45 °C, bis die Zellvariante feststeht. Je Panel eine Schottky-Diode, TVS am Eingang; Messung der Eingangsspannung 3,3 MΩ / 470 kΩ hinter den Dioden (HW26-08). `versorgung.md` 3.1–3.3. |
 | V4 [M] | LDO **RT9080-33**: 600 mA, 2 µA Ruhestrom |
 | V5 [M] | Lastschalter **TPS22917** für die Sensorschiene (Anstiegszeit über CT, aktive Ausgangsentladung, wie BEEP base v3); Rückfall AO3401A mit Gate-RC und Entladewiderstand. **Alle Pull-ups an der geschalteten Schiene** (Rückspeisung, HW26-04). |
 | V6 [S] | RTC über VBAT an 3,3 V, **keine Knopfzelle**. Bei Abschaltung durch den Schutz holt die Firmware die Zeit per DeviceTimeReq neu. |
-| V7 [S] | Ruhestrom **unter 20 µA bei 25 °C** (gerechnet 16,6 µA, `energiebilanz.py`); bei 70 °C bis ca. 25 µA. **[P]** nachmessen. |
+| V7 [S] | Ruhestrom **unter 20 µA bei 25 °C** (gerechnet 15,7 µA, `energiebilanz.py`); bei 70 °C bis ca. 25 µA. **[P]** nachmessen. |
 | V8 [S] | Panels steil (60–70° Süd) montieren, Unterkante frei (Schnee) |
 
 ## 4. Gehäuse und Mechanik

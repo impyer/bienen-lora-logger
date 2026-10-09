@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
 Stand: Blatt „Versorgung“. Weitere Blätter (MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse)
@@ -46,7 +48,7 @@ def versorgung(p):
         b.teil("Diode:SS34", "D203", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "VBUS", "K": "VIN_LADER"}, info="USB lädt, speist nie ins Panel"),
         b.teil("Diode:SMAJ12A", "D204", "SMAJ12A", fp="Diode_SMD:D_SMA", netze={"1": "VIN_LADER", "2": "GND"},  # Pin 1 = Kathode
                info="TVS 12 V, begrenzt Störungen unter 25 V (BQ25185 abs.)"),
-        b.teil("Device:C", "C201", "4,7µ 25V", fp=C1206, netze={"1": "VIN_LADER", "2": "GND"}, info="≥ 1 µF an IN (Datenblatt)"),
+        b.teil("Device:C", "C201", "4,7µ 50V X7R", fp=C1206, netze={"1": "VIN_LADER", "2": "GND"}, info="≥ 1 µF an IN; 50 V wegen 25 V abs. am Eingang und DC-Bias (SCH26-08)"),
         b.teil("Device:C", "C202", "100n 50V", fp=C0603, netze={"1": "VIN_LADER", "2": "GND"}),
         b.teil("Device:R", "R201", "3,3M", fp=R0603, netze={"1": "VIN_LADER", "2": "ADC_SOLAR"}, info="HW26-08: 25 V → 3,12 V"),
         b.teil("Device:R", "R202", "470k", fp=R0603, netze={"1": "ADC_SOLAR", "2": "GND"}),
@@ -66,20 +68,24 @@ def versorgung(p):
         b.teil("Device:R", "R204", "130k 1%", fp=R0603, netze={"1": "ILIM", "2": "GND"}, info="Tab. 6-1: VBATREG 4,1 V, ILIM 500 mA"),
         b.teil("Device:C", "C204", "10µ", fp=C0805, netze={"1": "SYS", "2": "GND"}, info="≥ 10 µF an SYS"),
         b.teil("Device:C", "C205", "4,7µ", fp=C0805, netze={"1": "VBAT", "2": "GND"}, info="≥ 1 µF an BAT"),
-        b.teil("Device:R", "R205", "10M", fp=R0603, netze={"1": "SYS", "2": "CE_LADEN"},
-               info="CE-Pull-up: Leitungsbruch CE_FREI → Laden gesperrt (HW26-07)"),
-        b.teil("Device:C", "C206", "10n", fp=C0603, netze={"1": "CE_LADEN", "2": "GND"}, info="Störschutz an CE (RC 0,1 s)"),
+        b.teil("Device:R", "R205", "100k", fp=R0603, netze={"1": "SYS", "2": "CE_LADEN"},
+               info="CE-Pull-up: Leitungsbruch CE_FREI → Laden gesperrt. Strom nur bei Sonne (Q2 an TMP_VCC); SCH26-02"),
+        b.teil("Device:C", "C206", "10n", fp=C0603, netze={"1": "CE_LADEN", "2": "GND"}, info="Störschutz an CE (RC 1 ms)"),
+        b.teil("Bienen:TPS70933DBV", "U204", "TPS70933DBV", fp="Package_TO_SOT_SMD:SOT-23-5",
+               netze={"IN": "VIN_LADER", "EN": "NC", "OUT": "TMP_VCC", "GND": "GND"},
+               info="TMP_VCC für die Ladesperre auf der Akku-Platine, nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)"),
+        b.teil("Device:C", "C212", "2,2µ", fp=C0603, netze={"1": "TMP_VCC", "2": "GND"}, info="≥ 2,2 µF am Ausgang (Datenblatt)"),
         b.teil("Connector:TestPoint", "TP201", "STAT1", fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT1"}),
         b.teil("Connector:TestPoint", "TP202", "STAT2", fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT2"}),
-        b.teil("Connector_Generic:Conn_01x04", "J203", "Akku (JST PH 4)", fp="Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical",
-               netze={"1": "GND", "2": "NTC", "3": "CE_LADEN", "4": "VBAT"},
-               info="zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 P+"),
+        b.teil("Connector_Generic:Conn_01x05", "J203", "Akku (JST PH 5)", fp="Connector_JST:JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical",
+               netze={"1": "GND", "2": "NTC", "3": "CE_LADEN", "4": "TMP_VCC", "5": "VBAT"},
+               info="Kabel 1:1 zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+"),
         b.teil("power:PWR_FLAG", "#FLG203", "PWR_FLAG", netze={"1": "VBAT"}),
         b.teil("Device:R", "R206", "2,2M", fp=R0603, netze={"1": "VBAT", "2": "ADC_AKKU"}, info="Akkuteiler 1:2, 0,9 µA"),
         b.teil("Device:R", "R207", "2,2M", fp=R0603, netze={"1": "ADC_AKKU", "2": "GND"}),
         b.teil("Device:C", "C207", "100n", fp=C0603, netze={"1": "ADC_AKKU", "2": "GND"}),
     ]
-    y = b.gruppe("Laderegler BQ25185 (3.2/3.3): 4,1 V, 150 mA, CE von der Ladesperre der Akku-Platine, NTC am TS",
+    y = b.gruppe("Laderegler BQ25185 (3.2/3.3): 4,1 V, 150 mA; CE und NTC von der Ladesperre der Akku-Platine; TMP_VCC nur bei Sonne",
                  lader, 20, y + 25, breite=370)
 
     regler = [
@@ -93,7 +99,7 @@ def versorgung(p):
         b.teil("Device:R", "R209", "0", fp=R0603, netze={"1": "SW_QOD", "2": "3V3_SW"},
                info="QOD-Widerstand (Datenblatt: extern oder direkt); 0 Ω = interner Wert, bei Bedarf erhöhen"),
         b.teil("Device:C", "C210", "1n", fp=C0603, netze={"1": "SW_CT", "2": "+3V3"}, info="CT 1 nF → Anstieg ca. 1,7 ms bei 3,3 V"),
-        b.teil("Device:R", "R208", "1M", fp=R0603, netze={"1": "SENSOR_EIN", "2": "GND"}, info="ON nie offen (Standby: GPIO hochohmig)"),
+        b.teil("Device:R", "R208", "100k", fp=R0603, netze={"1": "SENSOR_EIN", "2": "GND"}, info="ON nie offen (Standby: GPIO hochohmig); 100 kΩ wie versorgung.md 3.7 (SCH26-05)"),
         b.teil("Device:C", "C211", "1µ", fp=C0603, netze={"1": "3V3_SW", "2": "GND"}),
     ]
     b.gruppe("3,3 V (RT9080, 3.6) und geschaltete Sensorschiene 3V3_SW (TPS22917, 3.7)", regler, 20, y + 25, breite=370)

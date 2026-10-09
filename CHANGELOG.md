@@ -1,10 +1,35 @@
 # Änderungen
 
+## 2026-10-09 – Audit gegen Regelwerk 1.1, Wiederherstellung SCH26
+
+- Audit AUD-2026-10-09-01 (`docs/testberichte/2026-10-09-regelwerk-audit.md`), Befunde REG26-01 … -12 im Befundregister.
+- **REG26-01:** Die lokal verworfene Behebung SCH26 (Akku-Platine TMP_VCC, zweite Stufe, J3 5-polig, Prüfskripte, Berichte) wiederhergestellt; zusammen mit Regelwerk 1.1 (ADR-0002) eingecheckt.
+- REG26-05: SHA in den Behebungsberichten SRV26 (`3f2f9d6`) und HW26/CI26 (`cc6ba60`) nachgetragen.
+
+## 2026-10-09 – Entwicklungsregelwerk 1.1 (ADR-0002) nach Review
+
+- Review des Regelwerks 1.0 durch Claude (`docs/testberichte/2026-10-09-regelwerk-review.md`); Entscheidungen des Maintainers in ADR-0002.
+- **Befundregister** `docs/testberichte/befunde.md` als einzige Stelle für Befundstände; **Statusmodell** offen / analysiert / im Entwurf behoben / nachgewiesen / geschlossen (R-05a).
+- **D3-Gates:** G2 mit Gefährdungsanalyse, Netz-/ERC-Prüfung und sicherem Versuchsplan (Zell-Emulator, Strombegrenzung); G3/G4 zusätzlich T4-Messungen und unabhängiges Review durch befreundete Hardware-Entwickler. Maintainer namentlich genannt.
+- **Übergabe** zwischen Beteiligten nur über committete und gepushte Stände (R-06 Nr. 2); Lastenheft-Zeilen als Anforderungs-IDs `LH-…`; Reproduzierbarkeit ohne zeitgestempelte Exporte, KiCad-Hauptversion 10.
+- **GOV-01 entschieden:** Skripte in `hardware/`/`mechanik/` GPL-3.0-or-later (SPDX ergänzt), Schaltpläne/Symbole/Footprints/Exporte CERN-OHL-S-2.0; `LICENSE.md` angepasst.
+- Ausnahme **EX-01** (beelogger-Passwort im GET) eingetragen.
+- Zusammenführung der parallelen Stände (Regelwerk-Commits `72e4f79`/`8fc2aa4` und lokale Behebung SCH26) in `CLAUDE.md` und `CHANGELOG.md`.
+
 ## 2026-10-09 – Entwicklungsregelwerk 1.0 angenommen
 
 - Entwurf 0.1 als verbindlichen Standard für Menschen und Coding-Agents beschlossen; ADR-0001 und Governance-Register eingeführt.
 - GOV-02 und GOV-03 angenommen; GOV-01 (Lizenzfrage) und GOV-04 (bauteilabhängige Grenzwerte) bleiben offen.
 - AGENTS.md ergänzt; README, CLAUDE und CONTRIBUTING aktualisiert. **Keine Firmware-/Hardware-/Serverlogik geändert.**
+
+## 2026-10-09 – Behebung Schaltplan-Review V0.1 (SCH26-01 … -08)
+
+- **SCH26-01:** Ladesperre auf der Akku-Platine (2 × TMP390, Gate-Pull-ups) versorgt aus TMP_VCC = TPS70933 am Ladereingang; dadurch Wiederanlauf nach Tiefentladung (HY2111-GB gibt nur durch Laden frei) und 0 µA Ruhestrom der Sperre. J3/J203/J1 JST PH 5-polig (P−, NTC, CE_FREI, TMP_VCC, P+).
+- **SCH26-02:** R5/R8/R205 100 kΩ statt 10 MΩ; Pegelrechnung in `versorgung.md` 3.3.
+- **SCH26-03:** zweite unabhängige Stufe: TMP390 U3 (42 °C) öffnet mit Q3 den NTC-Kreis (TS offen → BQ25185 sperrt).
+- **SCH26-04:** `pruefen.sh` prüft Reproduzierbarkeit, ERC aller Schweregrade gegen `erc_erwartet.json`, exportiert Netzlisten; `netz_tests.py` (42 Prüfungen an KiCad-Netzlisten); CI-Job `kicad-schaltplan` (KiCad 10, `git diff --exit-code`).
+- **SCH26-05/06/08:** R208 100 kΩ; Kabelplan Akku ↔ Hauptplatine; C201 50 V.
+- Ruhestrom 15,7 µA.
 
 ## 2026-10-09 – KiCad-10-Schaltplan, Schritt 1: Versorgung und Akku-Platine
 

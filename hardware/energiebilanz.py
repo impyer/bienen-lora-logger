@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Philipp Schnabel
 """Energiebilanz der eigenen Logger-Platine (Lastenheft 0.4, Abschnitt 3).
 
 Aufruf:  python3 hardware/energiebilanz.py
@@ -25,8 +27,8 @@ RUHE = [
     ("Lastschalter AO3401A gesperrt, Leckstrom", 0.1, "A", "AOS AO3401A IDSS ≤ 1 µA bei 30 V; bei 3,3 V deutlich weniger"),
     ("5-V-Wandler TPS61240 aus (EN low)", 1.5, "V", "TI TPS61240 Datenblatt S. 5, Shutdown typ. 1,5 µA"),
     ("SPI-Flash 64 Mbit im Deep Power-down (dauernd versorgt)", 1.0, "A", "W25Q-Familie: 1 µA laut LCSC-Angabe (V); andere Hersteller bis 3 µA typ. (V, Zetta) – Typ bei Bestellung"),
-    ("Temperaturschalter TMP390 (Ladesperre, HW26-07)", 0.5, "V", "TI TMP390 Produktseite: 0,5 µA typ. bei 25 °C"),
-    ("Pull-up 10 MΩ an CE bei leitendem FET (HW26-07)", 0.4, "A", "U/R bei SYS 3,7–4,5 V"),
+    # Ladesperre (2 × TMP390, Pull-ups, LDO TPS70933) hängt an TMP_VCC aus dem Ladereingang:
+    # nachts 0 µA aus der Zelle (SCH26-01, versorgung.md 3.3)
 ]
 
 # ---------------------------------------------------------------------------

@@ -94,7 +94,7 @@ Ergebnis in `energiebilanz.py`:
 | Szenario B | 292 | 273 |
 | Ungünstigster Fall (SF12, Szenario A) | 132 | 128 |
 
-Stand 09.10.2026: ein HX711, Flash dauernd versorgt, TMP390-Ladesperre (Ruhestrom 16,6 µA; Szenario A 199 Tage, B 272 Tage, ungünstig 128 Tage).
+Stand 09.10.2026: ein HX711, Flash dauernd versorgt, Ladesperre nur bei Sonne versorgt (Ruhestrom 15,7 µA; Szenario A 200 Tage, B 273 Tage, ungünstig 128 Tage).
 
 Die Reserve bleibt groß. Sparen ließe sich noch mit kürzerem Einschwingen und 80 Werten/s, auf Kosten des Rauschens. Das ist eine Firmware-Frage.
 

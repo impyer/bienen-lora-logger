@@ -1,6 +1,6 @@
 # Teststrategie, Nachweise und Freigabe-Gates
 
-**Version 1.0 – am 09.10.2026 angenommen.** Gilt für Hardware, Mechanik, Firmware, Formatter, Server und das integrierte LoRaWAN-System. **Teststatus ≠ Freigabestatus.** Jeder Test gilt nur für seinen dokumentierten Prüfling und Stand.
+**Version 1.1 – am 09.10.2026 angenommen** (Änderungen: [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md)). Gilt für Hardware, Mechanik, Firmware, Formatter, Server und das integrierte LoRaWAN-System. **Teststatus ≠ Freigabestatus.** Jeder Test gilt nur für seinen dokumentierten Prüfling und Stand.
 
 ## T-01 Testpyramide (ohne Schein-HiL)
 
@@ -21,7 +21,7 @@ Jede behauptete höhere Stufe benötigt eigenständige Evidenz; ein T1-Signal-Si
 - **D0:** Textaussagen, Verweise, Versionen prüfen.
 - **D1:** betroffene automatisierte T1/T2, Syntax/CI.
 - **D2:** D1 + Schnittstellen-Goldenvektoren, Fehler-/Grenzfälle, T3-Build/Design-Check, definierte T4-Nachprüfung für Hardwareabhängigkeiten.
-- **D3:** zusätzlich dokumentierte Gefährdungsanalyse, Fehler- und Wiederanlaufzustände, **unabhängige** Datenblatt-/Schaltungsprüfung und reale bzw. gleichwertige sicherheitsgerichtete Laborprüfung vor dem Hardware-/Feld-Gate.
+- **D3:** zusätzlich dokumentierte Gefährdungsanalyse, Fehler- und Wiederanlaufzustände und ein sicherer Versuchsplan (für G2); bestandene sicherheitsgerichtete T4-Laborprüfung und **unabhängiges fachkundiges Review** (für G3/G4). Siehe T-05.
 
 **Nicht implementierte Tests:** `nicht geprüft`. **Übersprungener verpflichtender Test:** Gate rot, außer schriftlich akzeptierter nicht-sicherheitskritischer Ausnahme. Grün bei 5/5 CI-Jobs sagt ausschließlich, dass diese fünf Jobs bestanden wurden.
 
@@ -55,13 +55,13 @@ Ein Screenshot allein oder Aussagen wie „manuell geprüft“ ohne reproduzierb
 |---|---|---|
 | **G0 – Anforderung/Entwurf** | Ziel, Risiken/Annahmen, Schnittstellen/Versionsplan, Datenblatt-/Lizenzquellen | unklare oder sicherheitskritisch unbelegte Anforderungen als „abgenommen“ |
 | **G1 – Integration in main** | passende Unit-/SiL- und Design-/Buildchecks für Änderungsrisiko; Quellstand, Review und Tests im Commit/PR | kaputte relevante CI, Geheimnisse, fehlende Regression bei nachgewiesenem Fehler |
-| **G2 – Labor-/Musterfreigabe** | tatsächliche Board-/Bauteilrevision, relevante ERC/DRC-/Netzchecks, sichere Versuchsfolge, strombegrenzte Versorgung, Rettungsweg, P0-Schutzpfade ausreichend geklärt | unkontrollierter Akku-/Solarbetrieb, ungeklärte Sicherheits-P0 |
-| **G3 – Begrenzt überwachter Feldtest** | bestandene zielhardwarebezogene HiL-Prüfung, Fehler-/Timeout-/Energie-/Lade-/Batterieprotokoll, Rückholmöglichkeit, Restrisiken bewusst akzeptiert | unbewiesene Schutzfunktionen, nicht gemessene relevante Strom-/Thermikzustände |
+| **G2 – Labor-/Musterfreigabe** | tatsächliche Board-/Bauteilrevision, relevante ERC/DRC-/Netzchecks, sichere Versuchsfolge, strombegrenzte Versorgung, Rettungsweg; P0-Schutzpfade mindestens **im Entwurf behoben** ([Statusmodell](regelwerk.md#r-05a-befundregister-und-statusmodell)). **Bei D3:** Gefährdungs-/Fehleranalyse, Netz-/ERC-Prüfung und sicherer Versuchsplan mit Zell-Emulator und Strombegrenzung, gegengelesen durch einen zweiten Prüfweg | unkontrollierter Akku-/Solarbetrieb, Fehlerversuche an echten Zellen, Sicherheits-P0 im Status „offen“ oder „analysiert – bestätigt“ |
+| **G3 – Begrenzt überwachter Feldtest** | bestandene zielhardwarebezogene HiL-Prüfung, Fehler-/Timeout-/Energie-/Lade-/Batterieprotokoll, Rückholmöglichkeit, Restrisiken bewusst akzeptiert. **Bei D3:** Sicherheits-P0 **nachgewiesen** (T4) und unabhängiges fachkundiges Review liegt vor | unbewiesene Schutzfunktionen, nicht gemessene relevante Strom-/Thermikzustände |
 | **G4 – Open-Hardware-/Software-Release** | G0–G3 passend zum Release-Typ, Versions-/Kompatibilitätsmatrix, reproduzierbarer Source-/Build-/Fertigungsstand, Lizenzen/Herkunft, bekannte Grenzen, getrennte rechtliche Markt-Konformitätsprüfung soweit nötig | nicht reproduzierbare Artefakte, Lizenzkonflikte, undokumentierte kritische Risiken |
 
 **Separate Releases sind zulässig:** Ein **Software-/Hosttest-Release** darf ohne neue PCB-Hardware erfolgen, ist aber als solcher gekennzeichnet und beweist keine hardwarebezogene G3-Freigabe. Ein unfertiger KiCad-Entwurf kann mit „experimentell – nicht fertigen“ veröffentlicht werden, nicht als fertiges Open-Hardware-Produkt.
 
-**Gate-Verantwortung:** Der Maintainer dokumentiert G0/G1. Für D3-Sicherheitsfunktionen erfordern G2–G4 unabhängig fachkundige Sicherheitsprüfung und geeignete echte oder gleichwertige Labor-/Hardware-Nachweise. Bei fehlendem Nachweis bleibt das Gate OFFEN/BLOCKIERT ([GOV-02](entscheidungen.md)).
+**Gate-Verantwortung:** Der Maintainer (Philipp Schnabel) dokumentiert G0/G1 und entscheidet G2. Für D3-Sicherheitsfunktionen erfordern **G3 und G4** zusätzlich T4-Nachweise und ein unabhängiges fachkundiges Review ([R-09](regelwerk.md#r-09-aufgabenverteilung-und-ki), [GOV-02](entscheidungen.md)). Bei fehlendem Nachweis bleibt das Gate OFFEN/BLOCKIERT.
 
 ## T-06 Nachweis gegen Anforderungen (Traceability)
 

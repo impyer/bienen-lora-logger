@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Akku-Platine (eigenes KiCad-Projekt hardware/kicad/akku-platine/).
 
 Inhalt (versorgung.md 3.3/3.4, LASTENHEFT V1/V2/V3):
 - Zelle 18650 im Halter
 - Zellschutz HY2111-GB + Doppel-FET FS8205 (2,90 V aus / 4,28 V)
 - Strommessbrücke in B+ (Lötbrücke geschlossen, Stiftleiste für das Amperemeter)
-- NTC 10 k für den TS-Pin des BQ25185 (Stufe 2 der Ladesperre)
-- TMP390 + N-FET: Ladesperre Stufe 1, +5 … 42 °C, Leitung CE_FREI (Leitungsbruch → gesperrt)
-- Stecker J1 JST PH 4-polig: 1 P−, 2 NTC, 3 CE_FREI, 4 P+
+- Ladesperre Stufe 1: TMP390 (U2) + N-FET Q2 → CE_FREI → CE des BQ25185, außerhalb +5 … 42 °C gesperrt
+- Ladesperre Stufe 2: zweiter TMP390 (U3, 42 °C) trennt mit Q3 den NTC → TS offen → BQ25185 sperrt
+  (unabhängig vom CE-Pfad, SCH26-03); NTC 10 k sperrt zusätzlich unter ca. +1,7 °C und über ca. 59,5 °C
+- Beide TMP390 und alle Pull-ups hängen an TMP_VCC: 3,3 V aus dem Ladereingang (TPS70933 auf der
+  Hauptplatine). Sie arbeiten damit auch, wenn der Zellschutz nach Tiefentladung getrennt hat
+  (SCH26-01), und ziehen nachts keinen Strom aus der Zelle.
+- Stecker J1 JST PH 5-polig: 1 P−(GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+
 
 Aufruf: python3 hardware/kicad/akku_platine.py
 Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
@@ -38,13 +44,14 @@ def baue():
                netze={"A": "B+", "B": "P+"}, info="Zum Strommessen auftrennen, Amperemeter an J2"),
         b.teil("Connector_Generic:Conn_01x02", "J2", "Strommessung", fp="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
                netze={"1": "B+", "2": "P+"}, dnp=True, info="nur bei Bedarf bestücken"),
-        b.teil("Connector_Generic:Conn_01x04", "J1", "JST PH 4-polig", fp="Connector_JST:JST_PH_S4B-PH-K_1x04_P2.00mm_Horizontal",
-               netze={"1": "GND", "2": "NTC", "3": "CE_FREI", "4": "P+"},
-               info="Kabel zur Hauptplatine J3: 1 P−(GND), 2 NTC, 3 CE_FREI, 4 P+"),
+        b.teil("Connector_Generic:Conn_01x05", "J1", "JST PH 5-polig", fp="Connector_JST:JST_PH_S5B-PH-K_1x05_P2.00mm_Horizontal",
+               netze={"1": "GND", "2": "NTC", "3": "CE_FREI", "4": "TMP_VCC", "5": "P+"},
+               info="Kabel 1:1 zur Hauptplatine J203: 1 P−(GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+ (Kabelplan anschluesse.md)"),
         b.teil("power:PWR_FLAG", "#FLG101", "PWR_FLAG", netze={"1": "B+"}),
         b.teil("power:PWR_FLAG", "#FLG102", "PWR_FLAG", netze={"1": "B-"}),
         b.teil("power:PWR_FLAG", "#FLG103", "PWR_FLAG", netze={"1": "P+"}),
         b.teil("power:PWR_FLAG", "#FLG104", "PWR_FLAG", netze={"1": "GND"}),
+        b.teil("power:PWR_FLAG", "#FLG106", "PWR_FLAG", netze={"1": "TMP_VCC"}),
     ]
     b.gruppe("Zelle, Messbrücke, Stecker zur Hauptplatine", zelle, 20, 30, breite=380)
 
@@ -62,24 +69,41 @@ def baue():
     ]
     b.gruppe("Zellschutz: HY2111-GB + FS8205 (2,90 V aus, Freigabe durch Laden)", schutz, 20, 95, breite=380)
 
-    # --- Ladesperre Stufe 1 und NTC ---
-    sperre = [
+    # --- Ladesperre Stufe 1: TMP390 U2 → Q2 → CE ---
+    stufe1 = [
         b.teil("Bienen:TMP390", "U2", "TMP390A2DRL", fp="Package_TO_SOT_SMD:SOT-563",
-               netze={"VDD": "P+", "GND": "GND", "SETA": "SETA", "SETB": "SETB", "~{OUTA}": "GATE_CE", "~{OUTB}": "GATE_CE"},
+               netze={"VDD": "TMP_VCC", "GND": "GND", "SETA": "SETA1", "SETB": "SETB1", "~{OUTA}": "GATE_CE", "~{OUTB}": "GATE_CE"},
                info="OUTA heiß 42 °C, OUTB kalt +5 °C, Hysterese 5 °C; Ausgänge verbunden (wired-OR)"),
-        b.teil("Device:C", "C2", "100n", fp=C0603, netze={"1": "P+", "2": "GND"}),
-        b.teil("Device:R", "R3", "2,49k 1%", fp=R0603, netze={"1": "SETA", "2": "GND"}, info="TMP390 Tab. 7-1: 42 °C"),
-        b.teil("Device:R", "R4", "18,7k 1%", fp=R0603, netze={"1": "SETB", "2": "GND"}, info="TMP390 Tab. 7-2: +5 °C, Hysterese 5 °C"),
-        b.teil("Device:R", "R5", "10M", fp=R0603, netze={"1": "P+", "2": "GATE_CE"}, info="Gate-Pull-up; Strom nur bei gesperrtem Laden"),
+        b.teil("Device:C", "C2", "100n", fp=C0603, netze={"1": "TMP_VCC", "2": "GND"}),
+        b.teil("Device:R", "R3", "2,49k 1%", fp=R0603, netze={"1": "SETA1", "2": "GND"}, info="TMP390 Tab. 7-1: 42 °C"),
+        b.teil("Device:R", "R4", "18,7k 1%", fp=R0603, netze={"1": "SETB1", "2": "GND"}, info="TMP390 Tab. 7-2: +5 °C, Hysterese 5 °C"),
+        b.teil("Device:R", "R5", "100k", fp=R0603, netze={"1": "TMP_VCC", "2": "GATE_CE"},
+               info="Gate-Pull-up an TMP_VCC: Leckstrom TMP390 ±0,1 µA → 10 mV (SCH26-02)"),
         b.teil("Transistor_FET:AO3400A", "Q2", "AO3400A", fp="Package_TO_SOT_SMD:SOT-23",
                netze={"G": "GATE_CE", "S": "GND", "D": "CE_FREI"}, info="leitet → CE low → Laden erlaubt"),
-        b.teil("Device:Thermistor_NTC", "TH1", "10k B3435", fp="Resistor_SMD:R_0603_1608Metric",
-               netze={"1": "NTC", "2": "GND"}, info="unter der Zelle, Wärmeleitpad; B = 3435 K (BQ25185-Schwellen)"),
     ]
-    b.gruppe("Ladesperre: TMP390 (Stufe 1, +5 … 42 °C) und NTC für BQ25185 (Stufe 2)", sperre, 20, 160, breite=380)
+    y = b.gruppe("Ladesperre Stufe 1: TMP390 U2 sperrt über CE außerhalb +5 … 42 °C", stufe1, 20, 160, breite=380)
 
-    b.text("TMP390 und NTC direkt unter der Zelle anordnen (Wärmekopplung). Leitungsbruch an CE_FREI: Pull-up auf der Hauptplatine → CE high → Laden gesperrt.", 20, 255)
-    b.text("Quellen: HYCON HY2111 (LCSC C82747) Abschnitt 7/10; FS8205 (LCSC C32254); TI TMP390 SBOS904A Tab. 7-1/7-2; versorgung.md 3.3/3.4.", 20, 262)
+    # --- Ladesperre Stufe 2: TMP390 U3 trennt den NTC ---
+    stufe2 = [
+        b.teil("Bienen:TMP390", "U3", "TMP390A2DRL", fp="Package_TO_SOT_SMD:SOT-563",
+               netze={"VDD": "TMP_VCC", "GND": "GND", "SETA": "SETA2", "SETB": "SETB2", "~{OUTA}": "GATE_NTC", "~{OUTB}": "NC"},
+               info="nur Kanal A (heiß 42 °C, Hysterese 5 °C); OUTB offen (Datenblatt: erlaubt)"),
+        b.teil("Device:C", "C3", "100n", fp=C0603, netze={"1": "TMP_VCC", "2": "GND"}),
+        b.teil("Device:R", "R6", "2,49k 1%", fp=R0603, netze={"1": "SETA2", "2": "GND"}, info="TMP390 Tab. 7-1: 42 °C"),
+        b.teil("Device:R", "R7", "18,7k 1%", fp=R0603, netze={"1": "SETB2", "2": "GND"}, info="Hysterese 5 °C (Kanal B ungenutzt)"),
+        b.teil("Device:R", "R8", "100k", fp=R0603, netze={"1": "TMP_VCC", "2": "GATE_NTC"}, info="Gate-Pull-up Q3"),
+        b.teil("Transistor_FET:AO3400A", "Q3", "AO3400A", fp="Package_TO_SOT_SMD:SOT-23",
+               netze={"G": "GATE_NTC", "S": "GND", "D": "NTC_FUSS"},
+               info="leitet → NTC wirkt; sperrt (zu heiß oder TMP_VCC fehlt) → TS offen → BQ25185 sperrt"),
+        b.teil("Device:Thermistor_NTC", "TH1", "10k B3435", fp="Resistor_SMD:R_0603_1608Metric",
+               netze={"1": "NTC", "2": "NTC_FUSS"}, info="unter der Zelle, Wärmeleitpad; B = 3435 K (BQ25185-Schwellen)"),
+    ]
+    b.gruppe("Ladesperre Stufe 2 (SCH26-03): TMP390 U3 öffnet mit Q3 den NTC-Kreis über 42 °C → BQ25185 sperrt (TS offen)",
+             stufe2, 20, y + 25, breite=380)
+
+    b.text("U2, U3 und TH1 direkt unter der Zelle (Wärmeleitpad). Leitungsbruch CE_FREI oder TMP_VCC → Laden gesperrt. Keine Verbindung von TMP_VCC/GATE_* zu B+/B− (kein Pfad am Zellschutz vorbei, SCH26-01).", 20, 265)
+    b.text("Quellen: HYCON HY2111 (LCSC C82747) Abschnitt 7/10; FS8205 (LCSC C32254); TI TMP390 SBOS904A Tab. 7-1/7-2; versorgung.md 3.3/3.4.", 20, 272)
     return p
 
 

@@ -1,6 +1,6 @@
 # ADR-0001 – Entwicklungsregelwerk 1.0 verbindlich einführen
 
-**Status:** ANGENOMMEN  
+**Status:** ANGENOMMEN, ergänzt durch [ADR-0002](ADR-0002-regelwerk-1-1.md) (Fassung 1.1)  
 **Datum:** 09.10.2026  
 **Entscheidend:** Projektverantwortliche/Projektleitung, ausdrückliche Zustimmung in der Projektunterhaltung  
 **Geltungsbereich:** `impyer/bienen-lora-logger`, Hardware, Mechanik, Firmware, LoRaWAN, Server, Formatter, Dokumentation und Tests  

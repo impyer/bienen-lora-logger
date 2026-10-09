@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Philipp Schnabel
 """Kleiner Erzeuger für KiCad-10-Schaltpläne aus einer Netzbeschreibung.
 
 Idee: Jedes Blatt wird in Python beschrieben (Bauteil, Wert, Footprint, Pin → Netz).

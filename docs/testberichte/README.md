@@ -2,21 +2,35 @@
 
 Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt Bienenlogger. Die Berichte sind Dokumentation, keine automatische Fehlerbehebung. Neue Implementierungen sollen Befund-IDs referenzieren und mit Tests gegen die angegebenen Akzeptanzkriterien abgesichert werden.
 
+**Aktueller Stand aller Befunde: [Befundregister](befunde.md)** (einzige Stelle, Regelwerk 1.1 R-05a). Die Berichte unten und die Abschnitte darunter sind historische Snapshots.
+
 ## Berichtsverzeichnis
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Audit Arbeitsergebnisse gegen Regelwerk 1.1](2026-10-09-regelwerk-audit.md)** | **`428d101`** + Arbeitskopie Claude | **T0/T3; REG26-01 (P0): SCH26-Behebung lokal verworfen, wiederhergestellt; 12 Befunde** |
+| **[Review Entwicklungsregelwerk 1.0 (Claude)](2026-10-09-regelwerk-review.md)** | **`8fc2aa4`** | **Dokumenten-Review (T0); Entscheidungen in ADR-0002 (Regelwerk 1.1)** |
+| **[Behebung SCH26-01 … -08](2026-10-09-sch26-behebung.md)** | **Arbeitsstand nach `fcd18fe`** (Commit-ID beim Einchecken nachtragen) | **SCH26-01 bestätigt und behoben (Ladesperre aus TMP_VCC am Ladereingang); SCH26-02/03/05/06/08 behoben; KiCad 10: reproduzierbar, ERC alle Schweregrade OK, 42/42 Netzprüfungen an KiCad-Netzlisten, Gegenprobe; CI-Job neu, Lauf offen; kein Muster** |
 | **[Schaltplan V0.1 – Akku + Versorgung, unabhängige Netz-/Sicherheitsprüfung](2026-10-09-schaltplan-v01-review.md)** | **Commit `fcd18fe`** | **48 Komponenten und 95 Netlabels aus eingecheckten KiCad-Dateien geprüft; Herstellerabgleich/Recovery-Fallanalyse; KiCad-ERC nicht unabhängig ausgeführt, kein HiL** |
-| **[Behebung HW26-07 … -15 und CI26-01](2026-10-09-hw04-ci26-behebung.md)** | **Arbeitsstand nach `6b83d`** (Commit-ID beim Einchecken nachtragen) | **CI26-01: Ursache reproduziert (Kürzung von week.csv vor 08:00), behoben, Gegenprobe; E2E eigen 74/74 bei 05:00 und 14:00, original 56/56, Unit 66/66; CI-Lauf offen. Hardware: Entwurfsänderungen, Rechnungen; kein KiCad/HiL** |
+| **[Behebung HW26-07 … -15 und CI26-01](2026-10-09-hw04-ci26-behebung.md)** | **Commit `cc6ba60`** | **CI26-01: Ursache reproduziert (Kürzung von week.csv vor 08:00), behoben, Gegenprobe; E2E eigen 74/74 bei 05:00 und 14:00, original 56/56, Unit 66/66; CI-Lauf offen. Hardware: Entwurfsänderungen, Rechnungen; kein KiCad/HiL** |
 | **[Hardware 0.4 – unabhängiges Review, Versorgung/Pinout/PCB](2026-10-09-hardware-04-review.md)** | **Hardware-Commit `5c94e1b`, CI bis `6b83d`** | **Konzept- und numerisches SiL-Review; P0 Akku-HOT, P1 PV-ADC/I²C, CI-Regression; noch kein KiCad/HiL** |
-| **[Behebung SRV26-02/03/04/05/07/08](2026-10-08-srv26-behebung.md)** | **Arbeitsstand nach `5c1b847`** (Commit-ID beim Einchecken nachtragen) | **Host-/E2E-Tests lokal (eigen 73/73, original 56/56, Unit 59/59), Gegenprobe ohne Korrektur; CI-Lauf offen; kein TTN/BEEP/HiL** |
+| **[Behebung SRV26-02/03/04/05/07/08](2026-10-08-srv26-behebung.md)** | **Commit `3f2f9d6`** | **Host-/E2E-Tests lokal (eigen 73/73, original 56/56, Unit 59/59), Gegenprobe ohne Korrektur; CI-Lauf offen; kein TTN/BEEP/HiL** |
 | [main 5c1b847 — Firmware 261010, UTC-Server, Regression](2026-10-08-main-5c1b847-regression.md) | Commit `5c1b847` | 5/5 CI-Jobs erfolgreich; neuer unabhängiger UTC-Teilupdate-Spotcheck; kein HiL |
 | [Firmware 261009 — Code-Review und isolierte SiL-Spotchecks](2026-10-08-firmware-261009-sil.md) | Commit `d735f0f` | Statisch + isolierter Host-Rechentest; kein MCU-/HiL-Test |
 | [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
 
-## Neuester geprüfter Schaltplan: KiCad V0.1 (09.10.2026)
+## Aktuell: Behebung Schaltplan-Review V0.1 (09.10.2026)
+
+**Maßgeblich:** [Behebung SCH26-01 … -08](2026-10-09-sch26-behebung.md).
+
+- **`SCH26-01` (P0) bestätigt und im Schaltplan behoben:** Ladesperre (2 × TMP390, Pull-ups) hängt an TMP_VCC aus einem LDO TPS70933 am Ladereingang; Wiederanlauf nach Tiefentladung möglich; keine Verbindung zu B+/B−. Nachweis am Muster (SCH-T04) offen.
+- **`SCH26-02/03` behoben:** Pull-ups 100 kΩ (Pegel gerechnet), zweite unabhängige 42-°C-Stufe öffnet den NTC-Kreis.
+- **`SCH26-04` behoben bis auf Footprints:** `pruefen.sh` mit Reproduzierbarkeit, ERC aller Schweregrade gegen `erc_erwartet.json`, `netz_tests.py`; CI-Job `kicad-schaltplan`.
+- **`SCH26-05/06/08` behoben**, `SCH26-07` = nächste Blätter.
+
+## Schaltplan V0.1 (09.10.2026, Review)
 
 **Maßgeblich:** [Schaltplan-Review V0.1](2026-10-09-schaltplan-v01-review.md), geprüfter Commit `fcd18fe`.
 
@@ -26,7 +40,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 - **P2 `SCH26-05`–`SCH26-08`:** R208 1 MΩ statt dokumentierter 100 kΩ, Kabelbaum, fehlende Funktionsblätter, PV-Transientenschutz.
 - **CI auf `fcd18fe`:** 6/6 Jobs erfolgreich. Das ist **keine KiCad-/Sicherheitstestfreigabe**. Insgesamt bisher nur Akku- und Versorgungsteil: kein MCU-/Funk-/Waage-/Mikrofonschaltplan.
 
-## Aktuell: Behebung nach Hardware-Review 0.4 (09.10.2026)
+## Behebung nach Hardware-Review 0.4 (09.10.2026)
 
 **Maßgeblich:** [Behebung HW26-07 … -15 und CI26-01](2026-10-09-hw04-ci26-behebung.md).
 

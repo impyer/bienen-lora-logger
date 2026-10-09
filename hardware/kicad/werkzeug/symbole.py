@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Philipp Schnabel
 """Projektsymbole (bienen.kicad_sym) für Bauteile, die in den KiCad-9-Bibliotheken fehlen.
 
 Jede Pinbelegung ist mit der Datenblattquelle vermerkt. Aufruf:
@@ -98,6 +100,14 @@ SYMBOLE = [
        fp="Package_TO_SOT_SMD:SOT-23-6",
        ds="https://www.lcsc.com/datasheet/C32254.pdf",
        info="Doppel-N-MOSFET mit gemeinsamem Drain, 20 V, ca. 30 mΩ"),
+    # TI TPS70933DBV, SOT-23-5 (DBV, nicht A/B): 1 IN, 2 GND, 3 EN, 4 NC, 5 OUT. Quelle: TI SBVS186H Tab. 5-1 [V]
+    ic("TPS70933DBV", "U",
+       links=[("1", "IN", "power_in"), ("3", "EN", "input")],
+       rechts=[("5", "OUT", "power_out"), ("4", "NC", "no_connect")],
+       unten=[("2", "GND", "power_in")],
+       fp="Package_TO_SOT_SMD:SOT-23-5",
+       ds="https://www.ti.com/lit/ds/symlink/tps709.pdf",
+       info="LDO 3,3 V, Eingang 2,7–30 V, 1 µA; EN darf offen bleiben (max. 6,5 V); ≥ 2,2 µF am Ausgang"),
     # Richtek RT9080-33GJ5, TSOT-23-5: 1 VIN, 2 GND, 3 EN, 4 NC, 5 VOUT. Quelle: Richtek DS9080 (LCSC C841192) [V]
     ic("RT9080-33GJ5", "U",
        links=[("1", "VIN", "power_in"), ("3", "EN", "input")],
