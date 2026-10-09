@@ -1,6 +1,6 @@
 # Projektregelwerk: Design, Programmierung, Entwicklung, Zusammenarbeit
 
-**Version 1.0 – ANGENOMMEN am 09.10.2026.** Gilt als verbindlicher Projektstandard für Repository `impyer/bienen-lora-logger`, seine Software, Hardware, Mechanik, Testdaten, Dokumentation und releasespezifische Artefakte.
+**Version 1.1 – PR-Entwurf nach Claude-Review E1–E12.** Version 1.0 wurde am 09.10.2026 angenommen und bleibt bis zum Merge maßgeblich. Dieser Text soll nach Annahme als verbindlicher Projektstandard für Repository `impyer/bienen-lora-logger`, seine Software, Hardware, Mechanik, Testdaten, Dokumentation und releasespezifische Artefakte.
 
 ## R-01 Sprachregelung
 
@@ -24,9 +24,9 @@
 
 ## R-03 Anforderungen und Rückverfolgbarkeit
 
-Vor neuen Funktionen und relevanten Fehlerbehebungen MUSS eine knappe Anforderung vorliegen, vorzugsweise im betroffenen Modul-/Hardwaredokument oder Issue:
+**Für D2 und D3 MUSS** eine knappe, eindeutig identifizierbare Anforderung mit Abnahmekriterium vorliegen, vorzugsweise im betroffenen Modul-/Hardwaredokument oder Issue. **Für D1 SOLL** dies geschehen, für D0 genügt die Commit-/PR-Beschreibung. Bestehende Lastenheft-Kennungen (F…, V…, M…, A…) und vorhandene Befund-IDs gelten als Kennung; neue `REQ-*`-Nummern sind nicht allein um der Formalität willen erforderlich:
 
-- stabile Kennung (z. B. `REQ-HW-042`, `REQ-FW-017`, `REQ-DATA-006`);
+- stabile Kennung (bestehende Lastenheft-/Befund-ID oder z. B. `REQ-HW-042`, `REQ-FW-017`, `REQ-DATA-006`);
 - Zweck, erwartetes Sollverhalten und nachvollziehbare Grenz-/Fehlerfälle;
 - betroffene Revisionen/Schnittstellen und Abnahmetest;
 - verantwortliche Person, Status `geplant / umgesetzt / testbar / abgenommen / verworfen`.
@@ -53,16 +53,16 @@ Eine Änderung darf nicht niedriger eingestuft werden, nur weil wenige Quelltext
 | **P2** | begrenzter Mangel oder offene Robustheitsprüfung | mit Test-/Maßnahmenplan und Termin/Owner weiterführen |
 | **P3** | Verbesserung ohne aktuelle Freigabewirkung | Backlog |
 
-Die Priorität muss zusammen mit der **gesperrten Stufe** stehen: Ein Akku-P0 sperrt Platinenfertigung, aber nicht das Beheben eines README-Tippfehlers. Eine KI-Bewertung ist **kein** alleiniger Sicherheitsfreigabeakt.
+Die Priorität muss zusammen mit der **gesperrten Stufe** stehen: Ein Akku-P0 sperrt Platinenfertigung, aber nicht das Beheben eines README-Tippfehlers. Der technische Status wird getrennt geführt: **OFFEN → ANALYSIERT (bestätigt/Hypothese/verworfen) → IM ENTWURF BEHOBEN (T0–T3) → NACHGEWIESEN (T4/T5) → GESCHLOSSEN**. Die gültige Quelle für den Projektstand ist das [Befundregister](../testberichte/befunde.md), nicht ein historischer Bericht. Eine KI-Bewertung ist **kein** alleiniger Sicherheitsfreigabeakt.
 
 ## R-06 Git-/Entwicklungsablauf
 
-1. Vor Arbeit aktuellen `main`-SHA, betroffene Dokumente, offene Befunde und tatsächlich akzeptierte ADRs prüfen.
+1. **Vor Agentwechsel und neuer Arbeit synchronisieren:** Ein übergebbarer lokaler Stand wird zuerst committet und gepusht; noch nicht übergebene Änderungen werden ausdrücklich so gekennzeichnet. Zielbranch, tatsächlichen Ausgangs-SHA, offene Fremdänderungen, [aktuelles Befundregister](../testberichte/befunde.md), relevante Dokumente und angenommene ADRs prüfen. Ein lokaler, nicht gepushter Fix ist **kein** Teil von `main`.
 2. Änderung in kleinen, thematisch getrennten Schritten entwickeln; D2/D3 bevorzugt mit separatem Branch und Pull Request, auch wenn nur eine Person beiträgt.
 3. Für Risiko-/Protokoll-/Schutzänderungen zunächst Sollverhalten und reproduzierbaren roten Regressionstest bzw. dokumentierte Vorher-Messung festhalten; dann Fix und grünen Nachtest.
-4. Generatoren **und** notwendige eingecheckte Artefakte aktualisieren. Byte-Reproduzierbarkeit prüfen; unbeabsichtigte Binär- oder Testausgaben nicht committen.
+4. Generatoren **und** notwendige eingecheckte Artefakte aktualisieren. **Deterministische Quelldateien** byteidentisch vergleichen; PDFs/Netzlisten mit Erzeugungsdatum bzw. Metadaten stattdessen inhaltlich prüfen und Exportversion dokumentieren. Unbeabsichtigte Binär- oder Testausgaben nicht committen.
 5. CI vollständig ausführen. Rot/übersprungen heißt: den betroffenen Gate-Status nicht freigeben. Ausnahmen nur schriftlich mit Reichweite und Gegenprüfung.
-6. Commit/PR-Text enthält **warum, was, betroffene IDs, Tests, Einschränkungen**. Sicherheitskritische Entscheidungen als ADR dokumentieren.
+6. Commit/PR-Text enthält **warum, was, Ausgangs-/Ergebnis-SHA, betroffene IDs, Tests, Einschränkungen und Übergabestatus**. Bei mehreren Agents bevorzugt eigene Branches und PRs statt direkter paralleler Commits auf `main`; `CHANGELOG.md` nur ergänzen und `CLAUDE.md`/`AGENTS.md` gezielt ändern, Git-Konflikte mit beiden Inhalten auflösen. Sicherheitskritische Entscheidungen als ADR dokumentieren.
 7. Kein Agent und kein Maintainer veröffentlicht Schlüssel oder verschiebt unbeaufsichtigte Releases auf Basis eines bloßen Kompilierlaufs.
 
 ## R-07 Architekturentscheidungen
@@ -77,7 +77,7 @@ Eine Ausnahme enthält **ID, betroffene Regel, fachliche Ursache, Risiko, zuläs
 
 ## R-09 Aufgabenverteilung und KI
 
-- Maintainer/Projektverantwortliche **entscheidet** über Architektur, Risiken, Freigaben und Veröffentlichung. Für G0/G1 ist die dokumentierte Maintainer-Prüfung maßgeblich. D3-Sicherheitsfunktionen dürfen G2–G4 **nicht ohne unabhängig fachkundige Prüfung und geeignete reale bzw. gleichwertige Labor-Nachweise** bestehen ([GOV-02](entscheidungen.md)).
+- Maintainer/Projektverantwortliche **@impyer** entscheidet über Architektur, Risiken, Freigaben und Veröffentlichung. Für G0/G1 gilt dokumentierter Maintainer-Review. **G2 bei D3** heißt Genehmigung eines **sicheren Laborversuchs**: T0-Gefährdungsanalyse, T3-Designprüfung, strombegrenzter Zell-Emulator, sicherer Versuchsplan und unabhängige Prüfung dieses Plans; **T4-Messwerte werden nicht als G2-Voraussetzung verlangt**. **G3/G4 bei D3** erfordern bestandene einschlägige T4-Nachweise und eine **schriftliche Prüfung durch eine nachweislich fachkundige Person, die nicht Entwerfer der Änderung ist** (z. B. mit Erfahrung in Li-Ion-Lade-/Schutztechnik). Ein zweiter Coding-Agent ersetzt diese Qualifikation nicht ([GOV-02](entscheidungen.md), [ADR-0002](entscheidungen/ADR-0002-regelwerk-review.md)).
 - Beitragende **liefern** Quelländerung, Tests, Dokumentation und ihre expliziten Annahmen.
 - Reviewer/zweiter Prüfweg **prüft** kritisch und dokumentiert Widerspruch; kann auch unabhängiges Testtool sein, aber eine KI ersetzt keine qualifizierte Sicherheitsbewertung.
 - Coding-Agents **lesen zuerst** `CLAUDE.md`, dieses Regelwerk, aktuelle Befunde und den betroffenen Code; keine fiktiven Tool-/Hardwaretests, kein unautorisiertes Umschreiben fremder Lizenzhinweise.
@@ -93,4 +93,4 @@ Spezialregeln: [Hardware](hardware.md) · [Software](software.md) · [Test-Gates
 
 Gültig **ab Annahme-Commit zu Version 1.0** für neue Änderungen, neue Hardwareversuche, PCB-Bestellungen und neue Freigabeentscheidungen. [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) dokumentiert den Beschluss. Alte Prüfergebnisse bleiben unveränderte historische Snapshots; das Regelwerk wertet diese nicht nachträglich auf.
 
-Bis Branch-Protection/Reviewpflicht **tatsächlich** konfiguriert und überprüft sind, erfolgt die Einhaltung organisatorisch mit dokumentierten Commits/PRs und bestehenden CI-Checks. Offen gebliebene ERC-/HiL-Nachweise sind **nicht bestanden**. Siehe [Entscheidungsregister](entscheidungen.md).
+Bis Branch-Protection/Reviewpflicht **tatsächlich** konfiguriert und überprüft sind, erfolgt die Einhaltung organisatorisch mit dokumentierten Commits/PRs und bestehenden CI-Checks. Offen gebliebene ERC-/HiL-Nachweise sind **nicht bestanden**. Siehe [Entscheidungsregister](entscheidungen.md), [Befundregister](../testberichte/befunde.md) und [Ausnahmenregister](ausnahmen.md).

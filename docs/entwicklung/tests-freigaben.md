@@ -1,6 +1,6 @@
 # Teststrategie, Nachweise und Freigabe-Gates
 
-**Version 1.0 – am 09.10.2026 angenommen.** Gilt für Hardware, Mechanik, Firmware, Formatter, Server und das integrierte LoRaWAN-System. **Teststatus ≠ Freigabestatus.** Jeder Test gilt nur für seinen dokumentierten Prüfling und Stand.
+**Version 1.1 – Review-Ergänzung als PR-Entwurf; bis zur Annahme bleibt 1.0 maßgeblich.** Gilt für Hardware, Mechanik, Firmware, Formatter, Server und das integrierte LoRaWAN-System. **Teststatus ≠ Freigabestatus.** Jeder Test gilt nur für seinen dokumentierten Prüfling und Stand.
 
 ## T-01 Testpyramide (ohne Schein-HiL)
 
@@ -21,21 +21,20 @@ Jede behauptete höhere Stufe benötigt eigenständige Evidenz; ein T1-Signal-Si
 - **D0:** Textaussagen, Verweise, Versionen prüfen.
 - **D1:** betroffene automatisierte T1/T2, Syntax/CI.
 - **D2:** D1 + Schnittstellen-Goldenvektoren, Fehler-/Grenzfälle, T3-Build/Design-Check, definierte T4-Nachprüfung für Hardwareabhängigkeiten.
-- **D3:** zusätzlich dokumentierte Gefährdungsanalyse, Fehler- und Wiederanlaufzustände, **unabhängige** Datenblatt-/Schaltungsprüfung und reale bzw. gleichwertige sicherheitsgerichtete Laborprüfung vor dem Hardware-/Feld-Gate.
+- **D3:** vor **G2** T0-Gefährdungsanalyse samt Fehler-/Wiederanlaufzuständen, T3-Netz-/Schaltplanchecks, strombegrenzter Zell-Emulator, sicherer Versuchsplan und unabhängige Plan-Gegenprüfung. **Erst danach** reale T4-Sicherheitsmessungen; für **G3/G4** zusätzliche bestandene einschlägige T4-Messungen und unabhängige fachkundige Sicherheitsprüfung.
 
 **Nicht implementierte Tests:** `nicht geprüft`. **Übersprungener verpflichtender Test:** Gate rot, außer schriftlich akzeptierter nicht-sicherheitskritischer Ausnahme. Grün bei 5/5 CI-Jobs sagt ausschließlich, dass diese fünf Jobs bestanden wurden.
 
 ## T-03 Standardfelder eines Prüfberichts
 
-Jeder eigenständige Testbericht enthält mindestens:
+**Für T0–T3 (Review, Unit, SiL, Build/ERC) sind Pflicht:**
 
-- Test-ID, Zweck, Requirement-/Befund-ID, erwartetes Verhalten / Abnahmegrenze;
-- **exakten Git-SHA**, Build-/Artefaktkennung und Zielkonfiguration;
-- bei HiL: **Platine und Revision** (Akku-/Hauptplatine getrennt), Seriennummer/Prüfling, tatsächlich bestückte Bauteile, Firmware-/Bootloaderstand;
-- Prüfumgebung, UTC-Zeitpunkt, Messgerät-/Softwareversion, Spannungen, Temperatur, Aufbau/Schaltplanrevision, Sicherheitsbedingungen;
-- Testschritte mit konkreten Befehlen/Stimuli, Ergebnis, tatsächliche Werte, Fehler-/Log-/Rohdatenablage;
-- **Bestanden / fehlgeschlagen / übersprungen / blockiert / nicht ausgeführt** plus Grenzen und Restrisiken;
-- verantwortliche prüfende Person, ggf. zweite Prüfung, Gate-Entscheid und Folgemaßnahme.
+- Gegenstand, Soll-/Abnahmekriterium, relevante Anforderungs-/Befund-ID;
+- **exakter geprüfter Git-SHA**, Zielkonfiguration und Tool-/Modellversion;
+- tatsächlich angewendetes Verfahren, Befehle oder Quellen/Fundstellen, Ist-/Soll-Ergebnis;
+- PASS/FAIL/SKIP/NICHT AUSGEFÜHRT, Reproduktionshinweise, Grenzen, Prüfer, Gate-Entscheid soweit beantragt.
+
+**Für T4/T5 zusätzlich Pflicht:** Board-/Batterie-PCB-Revision, Seriennummer, bestückte Varianten, Firmwarestand, Versuchsumgebung und Mess-/UTC-Zeitpunkt, Spannungen/Temperaturen, reale Messgeräte/Kalibrierung, sichere Versuchsfolge, Rohdaten, Messwerte gegen Grenzwerte. **Bei T0–T3 niemals fiktive Geräte, Instrumente oder Messwerte eintragen.**
 
 Ein Screenshot allein oder Aussagen wie „manuell geprüft“ ohne reproduzierbares Verfahren reichen bei D2/D3 nicht. Testberichte als neue Snapshots in [`docs/testberichte/`](../testberichte/README.md) ablegen, Historie nicht rückwirkend schönen. [Berichtsvorlage](vorlagen/pruefbericht.md).
 
@@ -55,13 +54,13 @@ Ein Screenshot allein oder Aussagen wie „manuell geprüft“ ohne reproduzierb
 |---|---|---|
 | **G0 – Anforderung/Entwurf** | Ziel, Risiken/Annahmen, Schnittstellen/Versionsplan, Datenblatt-/Lizenzquellen | unklare oder sicherheitskritisch unbelegte Anforderungen als „abgenommen“ |
 | **G1 – Integration in main** | passende Unit-/SiL- und Design-/Buildchecks für Änderungsrisiko; Quellstand, Review und Tests im Commit/PR | kaputte relevante CI, Geheimnisse, fehlende Regression bei nachgewiesenem Fehler |
-| **G2 – Labor-/Musterfreigabe** | tatsächliche Board-/Bauteilrevision, relevante ERC/DRC-/Netzchecks, sichere Versuchsfolge, strombegrenzte Versorgung, Rettungsweg, P0-Schutzpfade ausreichend geklärt | unkontrollierter Akku-/Solarbetrieb, ungeklärte Sicherheits-P0 |
-| **G3 – Begrenzt überwachter Feldtest** | bestandene zielhardwarebezogene HiL-Prüfung, Fehler-/Timeout-/Energie-/Lade-/Batterieprotokoll, Rückholmöglichkeit, Restrisiken bewusst akzeptiert | unbewiesene Schutzfunktionen, nicht gemessene relevante Strom-/Thermikzustände |
+| **G2 – sicherer Labor-/Musterstart** | definierter Board-/Quellstand, T0-Gefährdungs- und Fehleranalyse, passende T3/ERC-/Netz-/Footprintchecks, strombegrenzte Versorgung/Zell-Emulator, sicherer Test- und Rettungsplan, bei D3 unabhängige Plan-Gegenprüfung; **T4-Messergebnisse sind nicht G2-Voraussetzung** | unkontrollierter Akkubetrieb; ungesicherter Laboraufbau; ungeprüfter Fehler-/Recovery-Versuchsplan |
+| **G3 – begrenzt überwachter Feldtest** | bestandene einschlägige T4-Prüfungen am Zielboard, Fehler-/Timeout-/Energie-/Lade-/Batterieprotokoll, Rückholmöglichkeit; **bei D3 zusätzlich unabhängiger fachkundiger Sicherheitsprüfbericht** | unbewiesene Schutzfunktionen, nicht gemessene relevante Strom-/Thermikzustände |
 | **G4 – Open-Hardware-/Software-Release** | G0–G3 passend zum Release-Typ, Versions-/Kompatibilitätsmatrix, reproduzierbarer Source-/Build-/Fertigungsstand, Lizenzen/Herkunft, bekannte Grenzen, getrennte rechtliche Markt-Konformitätsprüfung soweit nötig | nicht reproduzierbare Artefakte, Lizenzkonflikte, undokumentierte kritische Risiken |
 
 **Separate Releases sind zulässig:** Ein **Software-/Hosttest-Release** darf ohne neue PCB-Hardware erfolgen, ist aber als solcher gekennzeichnet und beweist keine hardwarebezogene G3-Freigabe. Ein unfertiger KiCad-Entwurf kann mit „experimentell – nicht fertigen“ veröffentlicht werden, nicht als fertiges Open-Hardware-Produkt.
 
-**Gate-Verantwortung:** Der Maintainer dokumentiert G0/G1. Für D3-Sicherheitsfunktionen erfordern G2–G4 unabhängig fachkundige Sicherheitsprüfung und geeignete echte oder gleichwertige Labor-/Hardware-Nachweise. Bei fehlendem Nachweis bleibt das Gate OFFEN/BLOCKIERT ([GOV-02](entscheidungen.md)).
+**Gate-Verantwortung:** Maintainer @impyer dokumentiert G0/G1. **G2 D3** braucht die unabhängige Prüfung des **sicheren Versuchsplans**, aber keinen schon absolvierten T4-Test. **G3/G4 D3** brauchen tatsächlich bestandene relevante T4-Tests und eine schriftliche Bewertung durch eine vom Entwerfer unterschiedliche fachkundige Person mit belegter Erfahrung z. B. in Li-Ion-Lade-/Schutztechnik. KI-/CI-Review allein genügt nicht. Wenn die Nachweise fehlen, bleibt das entsprechende Gate OFFEN/BLOCKIERT ([GOV-02](entscheidungen.md)).
 
 ## T-06 Nachweis gegen Anforderungen (Traceability)
 
