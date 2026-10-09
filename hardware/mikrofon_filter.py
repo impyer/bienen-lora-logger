@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Philipp Schnabel
 """Frequenzgang des Mikrofon-Eingangsfilters (hardware/mikrofon.md).
 Hochpass (Koppel-C an Vorspannung) → Sallen-Key-Tiefpass 2. Ordnung (Verstärkung 1) → RC-Tiefpass am ADC.
 Aufruf: python3 hardware/mikrofon_filter.py

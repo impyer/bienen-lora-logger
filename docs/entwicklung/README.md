@@ -1,6 +1,6 @@
 # Entwicklungsregeln – Einstieg
 
-**Regelwerk 1.0:** ANGENOMMEN (09.10.2026) und derzeit auf `main` verbindlich. **Ergänzung 1.1:** Vorschlag [ADR-0002](entscheidungen/ADR-0002-regelwerk-review.md) nach [Claude E1–E12](../testberichte/2026-10-09-regelwerk-review.md), erst nach Merge verbindlich.
+**Version:** 1.1 · **Status:** ANGENOMMEN; für neue Änderungen verbindlich · **Beschlussdatum:** 09.10.2026 · **Wirksam ab:** dem Annahme-Commit · **Maintainer:** Philipp Schnabel (`impyer`)
 
 Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Coding-Agents: Änderungen müssen **nachvollziehbar**, **reproduzierbar**, **risikogerecht geprüft** und **lizenzrechtlich sauber** sein. Die folgenden Texte sind der **verabschiedete Projektstandard für Menschen und Coding-Agents**. Er gilt für neue Änderungen und neu beanspruchte Freigaben. Bestehende Entscheidungen und historische Prüfergebnisse werden **nicht** rückwirkend überschrieben. [Beschluss ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md).
 
@@ -8,7 +8,6 @@ Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Co
 
 | Dokument | Zweck |
 |---|---|
-| **[Pflichtteil auf einer Seite](PFLICHTTEIL.md)** | Zehn handhabbare Regeln für Menschen und Agents |
 | [Regelwerk und Zusammenarbeit](regelwerk.md) | Begriffe, Verbindlichkeit, Änderungsprozess, Rollen, Ausnahmen und Entscheidungskompetenz |
 | [Hardware und Mechanik](hardware.md) | Schaltplan, Akku/Solar, PCB/PCBA, Sensor-/RF-Schnittstellen, Stückliste und sichere Muster |
 | [Firmware, Formatter und Server](software.md) | Architektur, Codequalität, Zeit/Daten, Energie, Funk, Sicherheit, Konfiguration, APIs |
@@ -19,10 +18,9 @@ Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Co
 | [Entscheidungsvorlage](vorlagen/entscheidung.md) | Architecture Decision Record (ADR), auch für Sicherheitsanforderungen |
 | [Prüfberichtsvorlage](vorlagen/pruefbericht.md) | Gleichförmige, commitbezogene Testergebnisse |
 | [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) | Beschluss, Geltungsbereich, Einschränkungen |
-| [Governance-Register](entscheidungen.md) | GOV-01 bis GOV-04: erledigte und offene Entscheidungen |
-| [Aktuelles Befundregister](../testberichte/befunde.md) | Git-SHA, Evidenzstatus, Gate-Sperren und nächste Prüfungen |
-| [Ausnahmenregister](ausnahmen.md) | Legacy-API EX-01 mit Sicherheitsauflagen |
-| [ADR-0002](entscheidungen/ADR-0002-regelwerk-review.md) | Übernahme von E1–E12 als eigener Änderungsvorschlag |
+| [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md) | Fassung 1.1 nach Review: Befundregister, Statusmodell, D3-Gates, Übergabe, Lizenz |
+| [Governance- und Ausnahmeregister](entscheidungen.md) | GOV-01 bis GOV-04, Ausnahmen EX-… |
+| [Befundregister](../testberichte/befunde.md) | **einzige Stelle** für den aktuellen Stand aller Befunde (Statusmodell R-05a) |
 
 ## Projektstufen und Freigaben
 
@@ -35,14 +33,14 @@ Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Co
 
 Freigaben und deren Mindestkriterien sind mit der Annahme in [tests-freigaben.md](tests-freigaben.md) verbindlich geregelt. **Ein „bestanden“ aus einer Stufe gilt niemals stillschweigend auch für die nächste.**
 
-## Veränderlicher Projektstand
+## Aktuelle Ausgangslage
 
-**Aktuelle** P0/P1-Punkte, tatsächlich eingecheckte Schaltungen und deren Teststatus stehen im [Befundregister](../testberichte/befunde.md), stets bezogen auf einen Git-SHA. Die hier geltenden Regeln sollen keine veralteten Befundstände für neue Agents festschreiben.
+Der Stand aller Befunde steht im [Befundregister](../testberichte/befunde.md), die Prüfberichte in [`docs/testberichte/`](../testberichte/README.md). Dieses Dokument nennt bewusst keine einzelnen Befundstände (R-05a).
 
 ## Beschluss und verbliebene Entscheidungen
 
-**Beschlossen:** [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md). Die Projektleitung verantwortet G0/G1. **G2 D3:** sicherer Laborzugang mit Risiko-/Versuchsplan, T3-Checks, Zell-Emulator/Strombegrenzung und unabhängiger Gegenprüfung des Plans. **T4 entsteht erst im Labor**; **G3/G4 D3** verlangen bestandene T4-Messungen und unabhängige fachkundige Safety-Bewertung. Kein Ki-/CI-Alleinentscheid.
+**Beschlossen:** [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) (1.0) und [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md) (1.1). Der Maintainer verantwortet G0–G2. Für D3-Gefahren darf G3/G4 **nicht** allein aus Selbstreview, KI-Review oder CI freigegeben werden; T4-Messungen und ein unabhängiges fachkundiges Review sind nachzuweisen.
 
-[**Governance-Register**](entscheidungen.md): **GOV-01 OFFEN** (Lizenzierung der KiCad-Generatoren), **GOV-02 ANGENOMMEN** (vorläufige Gate-Zuständigkeit und D3-Sicherheit), **GOV-03 ANGENOMMEN** (vollständiges Open-Hardware-Fertigungspaket), **GOV-04 OFFEN** (konkrete Mess-/Sicherheitsgrenzen für beschaffte Komponenten).
+[**Governance-Register**](entscheidungen.md): **GOV-01 ENTSCHIEDEN** (Skripte GPL, Hardwaredaten CERN-OHL-S), **GOV-02 ANGENOMMEN** (Gate-Zuständigkeit, D3-Gates), **GOV-03 ANGENOMMEN** (Open-Hardware-Fertigungspaket), **GOV-04 OFFEN** (Grenzwerte der beschafften Bauteile). Ausnahme **EX-01** (beelogger-Passwort im GET).
 
-**Praktische Durchsetzung:** im PR/Commit mit Test- und Reviewnachweis. GitHub-Branch-Protection ist durch den Beschluss **nicht** automatisch aktiviert. Änderungen an Sicherheits-/Freigabegrundsätzen werden via neue ADR beschlossen; historische Testberichte bleiben unverändert.
+**Praktische Durchsetzung:** im PR/Commit mit Test- und Reviewnachweis; Übergabe zwischen Beteiligten nur über gepushte Stände (R-06 Nr. 2). GitHub-Branch-Protection ist durch den Beschluss **nicht** automatisch aktiviert. Änderungen an Sicherheits-/Freigabegrundsätzen werden via neue ADR beschlossen; historische Testberichte bleiben unverändert.

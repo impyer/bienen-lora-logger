@@ -1,6 +1,6 @@
 # Open Source, Provenienz, Sicherheit und Releases
 
-**Version 1.1 – Entwurf nach Claude-Review; bis zur Annahme gilt 1.0.** Der öffentlich nutzbare Zustand ist nicht nur eine Lizenzdatei: Dritte sollen Herkunft, Quellen, Änderungen, Reproduktionsverfahren und Einschränkungen verstehen können.
+**Version 1.1 – am 09.10.2026 angenommen** (Änderungen: [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md)). Der öffentlich nutzbare Zustand ist nicht nur eine Lizenzdatei: Dritte sollen Herkunft, Quellen, Änderungen, Reproduktionsverfahren und Einschränkungen verstehen können.
 
 ## O-01 Vorhandene Lizenzstruktur bewahren
 
@@ -9,12 +9,16 @@ Die Repository-Datei [`LICENSE.md`](../../LICENSE.md) unterscheidet:
 | Inhalt | Bisher in `LICENSE.md` zugeordnet |
 |---|---|
 | `firmware/`, `formatter/`, `tests/`, `server/` | GPL-3.0-or-later |
-| `hardware/`, `mechanik/` | CERN-OHL-S-2.0 |
+| `hardware/`, `mechanik/` (ohne Skripte) | CERN-OHL-S-2.0 |
+| `*.py`, `*.sh` in `hardware/`, `mechanik/` | GPL-3.0-or-later (GOV-01) |
 | `docs/` und README-Dateien | CC BY-SA 4.0 |
 
 **Dieses Regelwerk ändert keine Lizenz.** Der jeweilige urheberrechtliche Hinweis, Quellbezug und Rechteinhaber haben Vorrang. Bei neuen Dateien `SPDX-License-Identifier` nur entsprechend der **tatsächlich geklärten** Lizenz setzen.
 
-**Weiterhin OFFEN GOV-01 (siehe [Register](entscheidungen.md)):** Python-Generatoren in `hardware/kicad/` führen teils explizite GPL-3.0-or-later-Copyright-/Lizenzhinweise, obwohl die Ordnerlizenz pauschal CERN-OHL-S-2.0 sagt. Dies bleibt ein **Klärungsbedarf**, keine automatische Doppel-Lizenzierung und keine Aufforderung zum Entfernen alter Header. [Claude E8](../testberichte/2026-10-09-regelwerk-review.md) schlägt GPL für Generatorsoftware und CERN-OHL für Schaltpläne, Symbole und Footprints vor; diese Zuordnung ist ohne dokumentierte Entscheidung der Rechteinhaber **nicht angenommen**. Vor Veröffentlichung als fertig lizenziertes PCB-Source-Paket Urheber/Umfang prüfen und eine dokumentierte Entscheidung herbeiführen.
+**GOV-01 ENTSCHIEDEN (09.10.2026, Maintainer, siehe [Register](entscheidungen.md)):** Innerhalb von `hardware/` und `mechanik/` gilt:
+- **Python-Skripte und Shell-Skripte** (`*.py`, `*.sh`, z. B. `hardware/kicad/werkzeug/`, `hardware/kicad/*.py`, `hardware/energiebilanz.py`) sind Software: **GPL-3.0-or-later**, mit `SPDX-License-Identifier`.
+- **Schaltpläne, Symbole, Footprints, Layouts, KiCad-Projektdateien und deren Exporte** (`*.kicad_*`, `*.pretty`, PDF, Netzliste, Fertigungsdaten) sind Hardware: **CERN-OHL-S-2.0** – auch wenn sie von einem GPL-Skript erzeugt werden.
+- `LICENSE.md` nennt diese Aufteilung.
 
 ## O-02 Fremdquellen, Forks, Attribution
 

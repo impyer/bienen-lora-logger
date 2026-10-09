@@ -3,7 +3,7 @@
 - **Datum:** 2026-10-08
 - **Grundlage:** Review [main 5c1b847](2026-10-08-main-5c1b847-regression.md), Abschnitt 5 „Priorisierte Übergabe“, Punkte 1–4
 - **Bearbeitet von:** Claude (Cowork), Prüfung lokal im Linux-Arbeitsbereich
-- **Geprüfter Stand:** Arbeitsstand vor dem Commit; die Commit-ID trägt Philipp beim Einchecken nach: `________`
+- **Geprüfter Stand:** Arbeitsstand vor dem Commit; eingecheckt als `3f2f9d6` (aus Reflog und Dateizeiten zugeordnet; nachgetragen 09.10.2026, Audit REG26-05)
 - **Prüfarten:** Host-Unit-Tests (PHP), Ende-zu-Ende mit zwei PHP-Testservern und den echten beelogger-Skripten, Browser (Chromium 1194 über Playwright 1.56.1), Gegenprobe ohne Korrektur.
 - **Nicht geprüft:** produktives TTN/LoRaWAN, echter BEEP-Server (api.beep.nl), Apache/PHP-FPM, GitHub-Actions-Lauf. Den CI-Lauf belegt erst der nächste Push.
 
