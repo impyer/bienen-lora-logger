@@ -29,7 +29,7 @@ Das Regelwerk 1.0 wurde bereits mit ausdrücklicher Zustimmung des Projektverant
 
 ## Bedingungen vor Merge
 
-1. Lokal noch nicht gepushter SCH26-Fix von Claude muss zuerst sichtbar als Git-Commit vorliegen; aktuelle Registereinträge dann auf den neuesten Stand bringen.
+1. Der SCH26-Fix wurde in [Commit `6dbba8d`](https://github.com/impyer/bienen-lora-logger/commit/6dbba8d6bd5d255b94fc4c396584508698f3100d) **nur teilweise** übernommen: generierte KiCad-Schaltungen und neue Prüfwerkzeuge ja, **führende Python-Generatoren und `pruefen.sh` nein**. [Issue #2](https://github.com/impyer/bienen-lora-logger/issues/2) dokumentiert die nachgewiesene CI-Regression. **Vor G1-Freigabe der Akku-Schaltplanänderung Generatoren und CI wieder konsistent machen**; aktueller Status im [Befundregister](../../testberichte/befunde.md).
 2. Eventuelle Konflikte in `CLAUDE.md` und `CHANGELOG.md` **unter Erhalt beider Änderungslinien** lösen.
 3. E8/GOV-01 und tatsächliche Zell-/Boardgrenzwerte GOV-04 separat verbindlich entscheiden. **Kein** Safety-Sign-off allein durch diese ADR.
 4. KiCad/ERC-CI bei Warnungen und Footprints weiterentwickeln; gegenwärtig bestandener KiCad-Job ist nicht mit PCB-Fertigungsfreigabe gleichzusetzen.

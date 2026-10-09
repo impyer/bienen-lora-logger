@@ -1,0 +1,2232 @@
+(export
+	(version "E")
+	(design
+		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/akku-platine/akku.kicad_sch")
+		(date "2026-10-09T05:50:04")
+		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
+		(sheet
+			(number "1")
+			(name "/")
+			(tstamps "/")
+			(title_block
+				(title "Akku-Platine: Zellschutz, Ladesperre")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "akku.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+	)
+	(components
+		(comp
+			(ref "BT1")
+			(value "18650 3,6 V")
+			(footprint "Battery:BatteryHolder_Keystone_1042_1x18650")
+			(description "Halter Keystone 1043 (SMD) vorgesehen; Footprint 1042 nur Platzhalter [P]")
+			(fields
+				(field
+					(name "Footprint") "Battery:BatteryHolder_Keystone_1042_1x18650")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Halter Keystone 1043 (SMD) vorgesehen; Footprint 1042 nur Platzhalter [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "Battery_Cell")
+				(description "Single-cell battery")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "battery cell")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "2c17f6f6-d543-5b1f-af82-223ecd96a02d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C1")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "HYCON C1")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "HYCON C1")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "59b05687-8dca-5c94-9436-ab7acd8614f5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C2")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "61d2deab-0b14-5f90-8c50-0a04af9783cd")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C3")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "5375ec7e-c32f-5e4d-824e-cda6fbc5a470")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J1")
+			(value "JST PH 5-polig")
+			(footprint "Connector_JST:JST_PH_S5B-PH-K_1x05_P2.00mm_Horizontal")
+			(description "Kabel 1:1 zur Hauptplatine J203: 1 P−(GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+ (Kabelplan anschluesse.md)")
+			(fields
+				(field
+					(name "Footprint") "Connector_JST:JST_PH_S5B-PH-K_1x05_P2.00mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Kabel 1:1 zur Hauptplatine J203: 1 P−(GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+ (Kabelplan anschluesse.md)")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x05")
+				(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "22fc7049-43a3-5d55-8fb7-62675822900c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J2")
+			(value "Strommessung")
+			(footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
+			(description "nur bei Bedarf bestücken")
+			(fields
+				(field
+					(name "Footprint") "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "nur bei Bedarf bestücken")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x02")
+				(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "dnp")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "524fdabf-a0bf-546f-8d27-9370cbf962d6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "JP1")
+			(value "Messbrücke B+")
+			(footprint "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm")
+			(description "Zum Strommessen auftrennen, Amperemeter an J2")
+			(fields
+				(field
+					(name "Footprint") "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Zum Strommessen auftrennen, Amperemeter an J2")
+			)
+			(libsource
+				(lib "Jumper")
+				(part "SolderJumper_2_Bridged")
+				(description "Solder Jumper, 2-pole, closed/bridged")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "solder jumper SPST")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SolderJumper*Bridged*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "5f192659-034a-5f80-b4c8-a9142fa4ac7a")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "Q1")
+			(value "FS8205")
+			(footprint "Package_TO_SOT_SMD:SOT-23-6")
+			(description "M1 Entladen (G1, S1 an B−), M2 Laden (G2, S2 an P−)")
+			(fields
+				(field
+					(name "LCSC") "C32254")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "M1 Entladen (G1, S1 an B−), M2 Laden (G2, S2 an P−)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "FS8205")
+				(description "Doppel-N-MOSFET mit gemeinsamem Drain, 20 V, ca. 30 mΩ")
+			)
+			(property
+				(name "LCSC")
+				(value "C32254")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "aa124bcc-ee91-5580-b4d3-acf2c965b1fc")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "Q2")
+			(value "AO3400A")
+			(footprint "Package_TO_SOT_SMD:SOT-23")
+			(description "leitet → CE low → Laden erlaubt")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "leitet → CE low → Laden erlaubt")
+			)
+			(libsource
+				(lib "Transistor_FET")
+				(part "AO3400A")
+				(description "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "N-Channel MOSFET")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "6844910e-f08b-547a-b318-d9840a952292")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "Q3")
+			(value "AO3400A")
+			(footprint "Package_TO_SOT_SMD:SOT-23")
+			(description "leitet → NTC wirkt; sperrt (zu heiß oder TMP_VCC fehlt) → TS offen → BQ25185 sperrt")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "leitet → NTC wirkt; sperrt (zu heiß oder TMP_VCC fehlt) → TS offen → BQ25185 sperrt")
+			)
+			(libsource
+				(lib "Transistor_FET")
+				(part "AO3400A")
+				(description "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "N-Channel MOSFET")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "4d07e18b-4dfb-58f4-9d3e-2f53fd91400e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R1")
+			(value "100")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "HYCON-Anwendungsschaltung R1")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "HYCON-Anwendungsschaltung R1")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "349a8107-bf7f-51ba-8876-506807f1da80")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R2")
+			(value "2k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "HYCON R2 (CS an P−)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "HYCON R2 (CS an P−)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "36feee09-5d84-5f4d-a499-d9c44549d14d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R3")
+			(value "2,49k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "TMP390 Tab. 7-1: 42 °C")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TMP390 Tab. 7-1: 42 °C")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "0a4c13be-3e65-5245-83a9-e343039b0d74")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R4")
+			(value "18,7k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "TMP390 Tab. 7-2: +5 °C, Hysterese 5 °C")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TMP390 Tab. 7-2: +5 °C, Hysterese 5 °C")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "6dab35fb-c43a-50a5-9708-0415bd6f1b4a")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R5")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Gate-Pull-up an TMP_VCC: Leckstrom TMP390 ±0,1 µA → 10 mV (SCH26-02)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Gate-Pull-up an TMP_VCC: Leckstrom TMP390 ±0,1 µA → 10 mV (SCH26-02)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "138392d3-0fb2-548d-ab91-ddb42cf37cae")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R6")
+			(value "2,49k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "TMP390 Tab. 7-1: 42 °C")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TMP390 Tab. 7-1: 42 °C")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "9fcaa98d-2ce6-57ea-b232-5a322e5548cb")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R7")
+			(value "18,7k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Hysterese 5 °C (Kanal B ungenutzt)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Hysterese 5 °C (Kanal B ungenutzt)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "158376f1-b180-5421-af7a-2858e9172fcd")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R8")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Gate-Pull-up Q3")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Gate-Pull-up Q3")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "8aa7f6b3-5a57-52c0-a549-adf6b20e400e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "TH1")
+			(value "10k B3435")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "unter der Zelle, Wärmeleitpad; B = 3435 K (BQ25185-Schwellen)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "unter der Zelle, Wärmeleitpad; B = 3435 K (BQ25185-Schwellen)")
+			)
+			(libsource
+				(lib "Device")
+				(part "Thermistor_NTC")
+				(description "Temperature dependent resistor, negative temperature coefficient")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "thermistor NTC resistor sensor RTD")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_* RV_*")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "529b36e4-225b-5bfe-9f08-ba9cda743af4")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U1")
+			(value "HY2111-GB")
+			(footprint "Package_TO_SOT_SMD:SOT-23-6")
+			(fields
+				(field
+					(name "LCSC") "C82747")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Bienen")
+				(part "HY2111-GB")
+				(description "Li-Ion-Schutz 1 Zelle: 4,28 V / 2,90 V, Freigabe nach Tiefentladung nur durch Laden")
+			)
+			(property
+				(name "LCSC")
+				(value "C82747")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "313324cb-02e4-5341-a69e-b1e489b8ca9f")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U2")
+			(value "TMP390A2DRL")
+			(footprint "Package_TO_SOT_SMD:SOT-563")
+			(description "OUTA heiß 42 °C, OUTB kalt +5 °C, Hysterese 5 °C; Ausgänge verbunden (wired-OR)")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-563")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "OUTA heiß 42 °C, OUTB kalt +5 °C, Hysterese 5 °C; Ausgänge verbunden (wired-OR)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "TMP390")
+				(description "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "e22f9caa-1c1a-5897-808d-b81293f7615b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U3")
+			(value "TMP390A2DRL")
+			(footprint "Package_TO_SOT_SMD:SOT-563")
+			(description "nur Kanal A (heiß 42 °C, Hysterese 5 °C); OUTB offen (Datenblatt: erlaubt)")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-563")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "nur Kanal A (heiß 42 °C, Hysterese 5 °C); OUTB offen (Datenblatt: erlaubt)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "TMP390")
+				(description "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			)
+			(property
+				(name "Sheetname")
+				(value "akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "7c5f4076-3afa-5a23-99c6-fe1ab381f671")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+	)
+	(groups)
+	(variants)
+	(libparts
+		(libpart
+			(lib "Bienen")
+			(part "FS8205")
+			(description "Doppel-N-MOSFET mit gemeinsamem Drain, 20 V, ca. 30 mΩ")
+			(docs "https://www.lcsc.com/datasheet/C32254.pdf")
+			(fields
+				(field
+					(name "Reference") "Q")
+				(field
+					(name "Value") "FS8205")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet") "https://www.lcsc.com/datasheet/C32254.pdf")
+				(field
+					(name "Description") "Doppel-N-MOSFET mit gemeinsamem Drain, 20 V, ca. 30 mΩ")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "S1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "D12")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "S2")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "G2")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "D12")
+					(type "passive")
+				)
+				(pin
+					(num "6")
+					(name "G1")
+					(type "input")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "HY2111-GB")
+			(description "Li-Ion-Schutz 1 Zelle: 4,28 V / 2,90 V, Freigabe nach Tiefentladung nur durch Laden")
+			(docs "https://www.lcsc.com/datasheet/C82747.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "HY2111-GB")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet") "https://www.lcsc.com/datasheet/C82747.pdf")
+				(field
+					(name "Description") "Li-Ion-Schutz 1 Zelle: 4,28 V / 2,90 V, Freigabe nach Tiefentladung nur durch Laden")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "OD")
+					(type "output")
+				)
+				(pin
+					(num "2")
+					(name "CS")
+					(type "input")
+				)
+				(pin
+					(num "3")
+					(name "OC")
+					(type "output")
+				)
+				(pin
+					(num "4")
+					(name "NC")
+					(type "no_connect")
+				)
+				(pin
+					(num "5")
+					(name "VDD")
+					(type "power_in")
+				)
+				(pin
+					(num "6")
+					(name "VSS")
+					(type "power_in")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "TMP390")
+			(description "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			(docs "https://www.ti.com/lit/ds/symlink/tmp390.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TMP390")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-563")
+				(field
+					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/tmp390.pdf")
+				(field
+					(name "Description") "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "SETA")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "SETB")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "4")
+					(name "~{OUTB}")
+					(type "open_collector")
+				)
+				(pin
+					(num "5")
+					(name "VDD")
+					(type "power_in")
+				)
+				(pin
+					(num "6")
+					(name "~{OUTA}")
+					(type "open_collector")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
+			(part "Conn_01x02")
+			(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_1x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x02")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
+			(part "Conn_01x05")
+			(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_1x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x05")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "Pin_3")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "Pin_4")
+					(type "passive")
+				)
+				(pin
+					(num "5")
+					(name "Pin_5")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
+			(part "Battery_Cell")
+			(description "Single-cell battery")
+			(fields
+				(field
+					(name "Reference") "BT")
+				(field
+					(name "Value") "Battery_Cell")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Single-cell battery")
+				(field
+					(name "Sim.Device") "V")
+				(field
+					(name "Sim.Type") "DC")
+				(field
+					(name "Sim.Pins") "1=+ 2=-")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "+")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "-")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
+			(part "C")
+			(description "Unpolarized capacitor")
+			(footprints
+				(fp "C_*")
+			)
+			(fields
+				(field
+					(name "Reference") "C")
+				(field
+					(name "Value") "C")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Unpolarized capacitor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
+			(part "R")
+			(description "Resistor")
+			(footprints
+				(fp "R_*")
+			)
+			(fields
+				(field
+					(name "Reference") "R")
+				(field
+					(name "Value") "R")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Resistor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
+			(part "Thermistor_NTC")
+			(description "Temperature dependent resistor, negative temperature coefficient")
+			(footprints
+				(fp "R_*")
+				(fp "RV_*")
+			)
+			(fields
+				(field
+					(name "Reference") "TH")
+				(field
+					(name "Value") "Thermistor_NTC")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Temperature dependent resistor, negative temperature coefficient")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Jumper")
+			(part "SolderJumper_2_Bridged")
+			(description "Solder Jumper, 2-pole, closed/bridged")
+			(footprints
+				(fp "SolderJumper*Bridged*")
+			)
+			(fields
+				(field
+					(name "Reference") "JP")
+				(field
+					(name "Value") "SolderJumper_2_Bridged")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Solder Jumper, 2-pole, closed/bridged")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "A")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "B")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Transistor_FET")
+			(part "AO3400A")
+			(description "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			(docs "http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf")
+			(footprints
+				(fp "SOT?23*")
+			)
+			(fields
+				(field
+					(name "Reference") "Q")
+				(field
+					(name "Value") "AO3400A")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
+				(field
+					(name "Datasheet") "http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf")
+				(field
+					(name "Description") "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "G")
+					(type "input")
+				)
+				(pin
+					(num "2")
+					(name "S")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "D")
+					(type "passive")
+				)
+			)
+		)
+	)
+	(libraries
+		(library
+			(logical "Bienen")
+			(uri "${KIPRJMOD}/../bienen.kicad_sym")
+		)
+		(library
+			(logical "Connector_Generic")
+			(uri "${KICAD10_SYMBOL_DIR}/Connector_Generic.kicad_sym")
+		)
+		(library
+			(logical "Device")
+			(uri "${KICAD10_SYMBOL_DIR}/Device.kicad_sym")
+		)
+		(library
+			(logical "Jumper")
+			(uri "${KICAD10_SYMBOL_DIR}/Jumper.kicad_sym")
+		)
+		(library
+			(logical "Transistor_FET")
+			(uri "${KICAD10_SYMBOL_DIR}/Transistor_FET.kicad_sym")
+		)
+	)
+	(nets
+		(net
+			(code "1")
+			(name "/B+")
+			(class "Default")
+			(node
+				(ref "BT1")
+				(pin "1")
+				(pinfunction "+_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J2")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "JP1")
+				(pin "1")
+				(pinfunction "A_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R1")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "2")
+			(name "/B-")
+			(class "Default")
+			(node
+				(ref "BT1")
+				(pin "2")
+				(pinfunction "-_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C1")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q1")
+				(pin "1")
+				(pinfunction "S1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U1")
+				(pin "6")
+				(pinfunction "VSS_6")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "3")
+			(name "/CE_FREI")
+			(class "Default")
+			(node
+				(ref "J1")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q2")
+				(pin "3")
+				(pinfunction "D_3")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "4")
+			(name "/D12")
+			(class "Default")
+			(node
+				(ref "Q1")
+				(pin "2")
+				(pinfunction "D12_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q1")
+				(pin "5")
+				(pinfunction "D12_5")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "5")
+			(name "/GATE_CE")
+			(class "Default")
+			(node
+				(ref "Q2")
+				(pin "1")
+				(pinfunction "G_1")
+				(pintype "input")
+			)
+			(node
+				(ref "R5")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U2")
+				(pin "4")
+				(pinfunction "~{OUTB}_4")
+				(pintype "open_collector")
+			)
+			(node
+				(ref "U2")
+				(pin "6")
+				(pinfunction "~{OUTA}_6")
+				(pintype "open_collector")
+			)
+		)
+		(net
+			(code "6")
+			(name "/GATE_ENTL")
+			(class "Default")
+			(node
+				(ref "Q1")
+				(pin "6")
+				(pinfunction "G1_6")
+				(pintype "input")
+			)
+			(node
+				(ref "U1")
+				(pin "1")
+				(pinfunction "OD_1")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "7")
+			(name "/GATE_LADE")
+			(class "Default")
+			(node
+				(ref "Q1")
+				(pin "4")
+				(pinfunction "G2_4")
+				(pintype "input")
+			)
+			(node
+				(ref "U1")
+				(pin "3")
+				(pinfunction "OC_3")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "8")
+			(name "/GATE_NTC")
+			(class "Default")
+			(node
+				(ref "Q3")
+				(pin "1")
+				(pinfunction "G_1")
+				(pintype "input")
+			)
+			(node
+				(ref "R8")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U3")
+				(pin "6")
+				(pinfunction "~{OUTA}_6")
+				(pintype "open_collector")
+			)
+		)
+		(net
+			(code "9")
+			(name "/HY_CS")
+			(class "Default")
+			(node
+				(ref "R2")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U1")
+				(pin "2")
+				(pinfunction "CS_2")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "10")
+			(name "/HY_VDD")
+			(class "Default")
+			(node
+				(ref "C1")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R1")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U1")
+				(pin "5")
+				(pinfunction "VDD_5")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "11")
+			(name "/NTC")
+			(class "Default")
+			(node
+				(ref "J1")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "TH1")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "12")
+			(name "/NTC_FUSS")
+			(class "Default")
+			(node
+				(ref "Q3")
+				(pin "3")
+				(pinfunction "D_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "TH1")
+				(pin "2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "13")
+			(name "/P+")
+			(class "Default")
+			(node
+				(ref "J1")
+				(pin "5")
+				(pinfunction "Pin_5_5")
+				(pintype "passive")
+			)
+			(node
+				(ref "J2")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "JP1")
+				(pin "2")
+				(pinfunction "B_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "14")
+			(name "/SETA1")
+			(class "Default")
+			(node
+				(ref "R3")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U2")
+				(pin "1")
+				(pinfunction "SETA_1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "15")
+			(name "/SETA2")
+			(class "Default")
+			(node
+				(ref "R6")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U3")
+				(pin "1")
+				(pinfunction "SETA_1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "16")
+			(name "/SETB1")
+			(class "Default")
+			(node
+				(ref "R4")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U2")
+				(pin "2")
+				(pinfunction "SETB_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "17")
+			(name "/SETB2")
+			(class "Default")
+			(node
+				(ref "R7")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U3")
+				(pin "2")
+				(pinfunction "SETB_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "18")
+			(name "/TMP_VCC")
+			(class "Default")
+			(node
+				(ref "C2")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C3")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J1")
+				(pin "4")
+				(pinfunction "Pin_4_4")
+				(pintype "passive")
+			)
+			(node
+				(ref "R5")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R8")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U2")
+				(pin "5")
+				(pinfunction "VDD_5")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U3")
+				(pin "5")
+				(pinfunction "VDD_5")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "19")
+			(name "GND")
+			(class "Default")
+			(node
+				(ref "C2")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C3")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J1")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q1")
+				(pin "3")
+				(pinfunction "S2_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q2")
+				(pin "2")
+				(pinfunction "S_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q3")
+				(pin "2")
+				(pinfunction "S_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R2")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R3")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R4")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R6")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R7")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U2")
+				(pin "3")
+				(pinfunction "GND_3")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U3")
+				(pin "3")
+				(pinfunction "GND_3")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "20")
+			(name "unconnected-(U1-NC-Pad4)")
+			(class "Default")
+			(node
+				(ref "U1")
+				(pin "4")
+				(pinfunction "NC_4")
+				(pintype "no_connect")
+			)
+		)
+		(net
+			(code "21")
+			(name "unconnected-(U3-~{OUTB}-Pad4)")
+			(class "Default")
+			(node
+				(ref "U3")
+				(pin "4")
+				(pinfunction "~{OUTB}_4")
+				(pintype "open_collector+no_connect")
+			)
+		)
+	)
+)

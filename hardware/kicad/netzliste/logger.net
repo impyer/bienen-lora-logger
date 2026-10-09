@@ -1,0 +1,3093 @@
+(export
+	(version "E")
+	(design
+		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/hauptplatine/logger.kicad_sch")
+		(date "2026-10-09T05:50:05")
+		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
+		(sheet
+			(number "1")
+			(name "/")
+			(tstamps "/")
+			(title_block
+				(title "Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "logger.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "2")
+			(name "/Versorgung/")
+			(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			(title_block
+				(title "Versorgung: Solar, Lader, 3,3 V, Sensorschiene")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "versorgung.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+	)
+	(components
+		(comp
+			(ref "C201")
+			(value "4,7µ 50V X7R")
+			(footprint "Capacitor_SMD:C_1206_3216Metric")
+			(description "≥ 1 µF an IN; 50 V wegen 25 V abs. am Eingang und DC-Bias (SCH26-08)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_1206_3216Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "≥ 1 µF an IN; 50 V wegen 25 V abs. am Eingang und DC-Bias (SCH26-08)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "2162df4b-3297-5ca8-8eb1-1235db3e5109")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C202")
+			(value "100n 50V")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "2871f322-26de-5f2a-a7c0-fe2cc1a346a8")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C203")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Ladung für die ADC-Abtastung")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Ladung für die ADC-Abtastung")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "2290a7f2-25b5-54db-a405-7743a4bf0796")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C204")
+			(value "10µ")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(description "≥ 10 µF an SYS")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "≥ 10 µF an SYS")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "163c4870-7532-56ba-8b17-31ded23eadb5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C205")
+			(value "4,7µ")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(description "≥ 1 µF an BAT")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "≥ 1 µF an BAT")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "ea77373a-2842-5336-87d4-52a32e4e88c2")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C206")
+			(value "10n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Störschutz an CE (RC 1 ms)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Störschutz an CE (RC 1 ms)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "f076b8dd-e5e3-5326-b3cb-46d9bb6e1331")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C207")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "d09c36e8-f241-58c2-bed1-41b257a61851")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C208")
+			(value "1µ")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "7c71eb70-dcce-5a57-8792-7886dd34f9c5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C209")
+			(value "1µ")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "100 µF + 10 µF am Funkmodul (Blatt Funk)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "100 µF + 10 µF am Funkmodul (Blatt Funk)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "276f935e-87c9-5ec1-99a1-86817111ce5c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C210")
+			(value "1n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "CT 1 nF → Anstieg ca. 1,7 ms bei 3,3 V")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "CT 1 nF → Anstieg ca. 1,7 ms bei 3,3 V")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "f9a63223-e14e-5550-85ce-a237ea0e04ac")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C211")
+			(value "1µ")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "6b3b54ae-7abe-5c08-88bb-28cac6c22980")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C212")
+			(value "2,2µ")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "≥ 2,2 µF am Ausgang (Datenblatt)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "≥ 2,2 µF am Ausgang (Datenblatt)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "b3187917-dedf-5f3f-b8a7-744f4e70e4a2")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D201")
+			(value "SS34")
+			(footprint "Diode_SMD:D_SMA")
+			(description "je Panel eine Schottky")
+			(fields
+				(field
+					(name "Footprint") "Diode_SMD:D_SMA")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "je Panel eine Schottky")
+			)
+			(libsource
+				(lib "Diode")
+				(part "SS34")
+				(description "40V 3A Schottky Diode, SMA")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "diode Schottky")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "D*SMA*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "caf1f61c-f326-53aa-a98d-a471bc6013eb")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D202")
+			(value "SS34")
+			(footprint "Diode_SMD:D_SMA")
+			(fields
+				(field
+					(name "Footprint") "Diode_SMD:D_SMA")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Diode")
+				(part "SS34")
+				(description "40V 3A Schottky Diode, SMA")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "diode Schottky")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "D*SMA*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "bcffcafa-214e-5ab1-a5c4-d2c792b37a0f")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D203")
+			(value "SS34")
+			(footprint "Diode_SMD:D_SMA")
+			(description "USB lädt, speist nie ins Panel")
+			(fields
+				(field
+					(name "Footprint") "Diode_SMD:D_SMA")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "USB lädt, speist nie ins Panel")
+			)
+			(libsource
+				(lib "Diode")
+				(part "SS34")
+				(description "40V 3A Schottky Diode, SMA")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "diode Schottky")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "D*SMA*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "5e3df7d6-9d5e-5654-acda-6bb27f648a99")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D204")
+			(value "SMAJ12A")
+			(footprint "Diode_SMD:D_SMA")
+			(description "TVS 12 V, begrenzt Störungen unter 25 V (BQ25185 abs.)")
+			(fields
+				(field
+					(name "Footprint") "Diode_SMD:D_SMA")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TVS 12 V, begrenzt Störungen unter 25 V (BQ25185 abs.)")
+			)
+			(libsource
+				(lib "Diode")
+				(part "SMAJ12A")
+				(description "400W unidirectional Transient Voltage Suppressor, 12.0Vr, SMA(DO-214AC)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "unidirectional diode TVS voltage suppressor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "D*SMA*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "15ab52ab-9735-52de-a1fc-6b3cd9d01591")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J201")
+			(value "Solar 1")
+			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
+			(description "DEGSON 15EDGRHC-3.5 (Platzhalter-Footprint Phoenix MC 3,5 mm) [P]")
+			(fields
+				(field
+					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "DEGSON 15EDGRHC-3.5 (Platzhalter-Footprint Phoenix MC 3,5 mm) [P]")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x02")
+				(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "dfbc6eae-d7cc-5e0a-b153-2c038aad081b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J202")
+			(value "Solar 2")
+			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
+			(description "wie J201")
+			(fields
+				(field
+					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "wie J201")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x02")
+				(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "3b8dc68c-4bbf-5533-bd91-f3042f5a6cfd")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J203")
+			(value "Akku (JST PH 5)")
+			(footprint "Connector_JST:JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical")
+			(description "Kabel 1:1 zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+")
+			(fields
+				(field
+					(name "Footprint") "Connector_JST:JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Kabel 1:1 zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x05")
+				(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "ab411f2d-a1a3-5a9f-8b4c-8c29b68eecf7")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R201")
+			(value "3,3M")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "HW26-08: 25 V → 3,12 V")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "HW26-08: 25 V → 3,12 V")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "f60b3719-def7-587c-8334-b254e0d54f3e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R202")
+			(value "470k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "74175088-bb14-5eca-b82a-05cd6f29787c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R203")
+			(value "2,0k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "ICHG = 300 AΩ / 2 kΩ = 150 mA (HW26-11)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "ICHG = 300 AΩ / 2 kΩ = 150 mA (HW26-11)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "1f0dde51-028c-5c1d-a10f-fdf95b676534")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R204")
+			(value "130k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Tab. 6-1: VBATREG 4,1 V, ILIM 500 mA")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Tab. 6-1: VBATREG 4,1 V, ILIM 500 mA")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "b241f7ec-0f25-5ddb-be24-11469a77870b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R205")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "CE-Pull-up: Leitungsbruch CE_FREI → Laden gesperrt. Strom nur bei Sonne (Q2 an TMP_VCC); SCH26-02")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "CE-Pull-up: Leitungsbruch CE_FREI → Laden gesperrt. Strom nur bei Sonne (Q2 an TMP_VCC); SCH26-02")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "d85eec9f-b2ab-5ded-a2ee-d90d1762a1b6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R206")
+			(value "2,2M")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Akkuteiler 1:2, 0,9 µA")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Akkuteiler 1:2, 0,9 µA")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "6503127d-1609-5ae8-922a-b14f33f8f763")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R207")
+			(value "2,2M")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "cd95e2b2-26d4-5656-a8ba-ba456f86f043")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R208")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "ON nie offen (Standby: GPIO hochohmig); 100 kΩ wie versorgung.md 3.7 (SCH26-05)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "ON nie offen (Standby: GPIO hochohmig); 100 kΩ wie versorgung.md 3.7 (SCH26-05)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "7355300a-e44c-5b2d-879d-48e541d8db4e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R209")
+			(value "0")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "QOD-Widerstand (Datenblatt: extern oder direkt); 0 Ω = interner Wert, bei Bedarf erhöhen")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "QOD-Widerstand (Datenblatt: extern oder direkt); 0 Ω = interner Wert, bei Bedarf erhöhen")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "5c4c226c-9a00-50db-b70c-2d54bf4883f9")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "TP201")
+			(value "STAT1")
+			(footprint "TestPoint:TestPoint_Pad_D1.0mm")
+			(fields
+				(field
+					(name "Footprint") "TestPoint:TestPoint_Pad_D1.0mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Connector")
+				(part "TestPoint")
+				(description "test point")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "test point tp")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Pin* Test*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "d31743ce-fe64-5cc5-b48d-b71319f4478e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "TP202")
+			(value "STAT2")
+			(footprint "TestPoint:TestPoint_Pad_D1.0mm")
+			(fields
+				(field
+					(name "Footprint") "TestPoint:TestPoint_Pad_D1.0mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Connector")
+				(part "TestPoint")
+				(description "test point")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "test point tp")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Pin* Test*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "bdc816db-71ad-5193-9bea-b185d43edb7d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U201")
+			(value "BQ25185DLHR")
+			(footprint "Bienen:WSON-10-1EP_2.2x2mm_DLH0010A")
+			(description "Footprint DLH 2,2 × 2 mm selbst anlegen [P]; Thermal-Pad mit 6–9 Vias auf L2")
+			(fields
+				(field
+					(name "Footprint") "Bienen:WSON-10-1EP_2.2x2mm_DLH0010A")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Footprint DLH 2,2 × 2 mm selbst anlegen [P]; Thermal-Pad mit 6–9 Vias auf L2")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "BQ25185")
+				(description "1-Zellen-Linearlader 1 A, Power-Path, Eingang 3–18 V (25 V abs.), CE aktiv low, TS/MR: NTC + Reset (lang low = Werksmodus)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "aee4ce39-9005-5273-8d77-18409fb0faca")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "11")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U202")
+			(value "RT9080-33GJ5")
+			(footprint "Package_TO_SOT_SMD:TSOT-23-5")
+			(description "EN an VIN (nicht offen lassen)")
+			(fields
+				(field
+					(name "LCSC") "C841192")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:TSOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "EN an VIN (nicht offen lassen)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "RT9080-33GJ5")
+				(description "LDO 3,3 V 600 mA, 2 µA Ruhestrom, EN nicht offen lassen")
+			)
+			(property
+				(name "LCSC")
+				(value "C841192")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "d34ca77c-c4f9-5df2-9e6a-9041b23a7e0b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U203")
+			(value "TPS22917DBV")
+			(footprint "Package_TO_SOT_SMD:SOT-23-6")
+			(description "QOD über R209 an VOUT: aktive Entladung; CT nach VIN (Datenblatt Tab. 6-1)")
+			(fields
+				(field
+					(name "LCSC") "C2681320")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "QOD über R209 an VOUT: aktive Entladung; CT nach VIN (Datenblatt Tab. 6-1)")
+			)
+			(libsource
+				(lib "Power_Management")
+				(part "TPS22917DBV")
+				(description "1V to 5.5V, 2A, 80mΩ Ultra-Low Leakage Load Switch, SOT23-6")
+			)
+			(property
+				(name "LCSC")
+				(value "C2681320")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "high-side power distribution switch")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "22a3a195-8d5e-573c-bec4-9138bf4e9a4e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "5")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U204")
+			(value "TPS70933DBV")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(description "TMP_VCC für die Ladesperre auf der Akku-Platine, nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TMP_VCC für die Ladesperre auf der Akku-Platine, nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "TPS70933DBV")
+				(description "LDO 3,3 V, Eingang 2,7–30 V, 1 µA; EN darf offen bleiben (max. 6,5 V); ≥ 2,2 µF am Ausgang")
+			)
+			(property
+				(name "Sheetname")
+				(value "Versorgung")
+			)
+			(property
+				(name "Sheetfile")
+				(value "versorgung.kicad_sch")
+			)
+			(sheetpath
+				(names "/Versorgung/")
+				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
+			)
+			(tstamps "75ea0c6a-2d2f-587c-9f3a-d4f19113b04e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+	)
+	(groups)
+	(variants)
+	(libparts
+		(libpart
+			(lib "Bienen")
+			(part "BQ25185")
+			(description "1-Zellen-Linearlader 1 A, Power-Path, Eingang 3–18 V (25 V abs.), CE aktiv low, TS/MR: NTC + Reset (lang low = Werksmodus)")
+			(docs "https://www.ti.com/lit/ds/symlink/bq25185.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "BQ25185")
+				(field
+					(name "Footprint") "Package_SON:WSON-10-1EP_2x2mm_P0.4mm_EP0.84x1.6mm")
+				(field
+					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/bq25185.pdf")
+				(field
+					(name "Description") "1-Zellen-Linearlader 1 A, Power-Path, Eingang 3–18 V (25 V abs.), CE aktiv low, TS/MR: NTC + Reset (lang low = Werksmodus)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "SYS")
+					(type "power_out")
+				)
+				(pin
+					(num "2")
+					(name "BAT")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "STAT2")
+					(type "open_collector")
+				)
+				(pin
+					(num "4")
+					(name "~{CE}")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "6")
+					(name "TS/~{MR}")
+					(type "bidirectional")
+				)
+				(pin
+					(num "7")
+					(name "ILIM/VSET")
+					(type "passive")
+				)
+				(pin
+					(num "8")
+					(name "ISET")
+					(type "passive")
+				)
+				(pin
+					(num "9")
+					(name "STAT1")
+					(type "open_collector")
+				)
+				(pin
+					(num "10")
+					(name "IN")
+					(type "power_in")
+				)
+				(pin
+					(num "11")
+					(name "EP")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "RT9080-33GJ5")
+			(description "LDO 3,3 V 600 mA, 2 µA Ruhestrom, EN nicht offen lassen")
+			(docs "https://www.richtek.com/assets/product_file/RT9080/DS9080-03.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "RT9080-33GJ5")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:TSOT-23-5")
+				(field
+					(name "Datasheet") "https://www.richtek.com/assets/product_file/RT9080/DS9080-03.pdf")
+				(field
+					(name "Description") "LDO 3,3 V 600 mA, 2 µA Ruhestrom, EN nicht offen lassen")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "VIN")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "EN")
+					(type "input")
+				)
+				(pin
+					(num "4")
+					(name "NC")
+					(type "no_connect")
+				)
+				(pin
+					(num "5")
+					(name "VOUT")
+					(type "power_out")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "TPS70933DBV")
+			(description "LDO 3,3 V, Eingang 2,7–30 V, 1 µA; EN darf offen bleiben (max. 6,5 V); ≥ 2,2 µF am Ausgang")
+			(docs "https://www.ti.com/lit/ds/symlink/tps709.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TPS70933DBV")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/tps709.pdf")
+				(field
+					(name "Description") "LDO 3,3 V, Eingang 2,7–30 V, 1 µA; EN darf offen bleiben (max. 6,5 V); ≥ 2,2 µF am Ausgang")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "IN")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "EN")
+					(type "input")
+				)
+				(pin
+					(num "4")
+					(name "NC")
+					(type "no_connect")
+				)
+				(pin
+					(num "5")
+					(name "OUT")
+					(type "power_out")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector")
+			(part "TestPoint")
+			(description "test point")
+			(footprints
+				(fp "Pin*")
+				(fp "Test*")
+			)
+			(fields
+				(field
+					(name "Reference") "TP")
+				(field
+					(name "Value") "TestPoint")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "test point")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
+			(part "Conn_01x02")
+			(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_1x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x02")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
+			(part "Conn_01x05")
+			(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_1x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x05")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "Pin_3")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "Pin_4")
+					(type "passive")
+				)
+				(pin
+					(num "5")
+					(name "Pin_5")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
+			(part "C")
+			(description "Unpolarized capacitor")
+			(footprints
+				(fp "C_*")
+			)
+			(fields
+				(field
+					(name "Reference") "C")
+				(field
+					(name "Value") "C")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Unpolarized capacitor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
+			(part "R")
+			(description "Resistor")
+			(footprints
+				(fp "R_*")
+			)
+			(fields
+				(field
+					(name "Reference") "R")
+				(field
+					(name "Value") "R")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Resistor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Diode")
+			(part "SMAJ12A")
+			(description "400W unidirectional Transient Voltage Suppressor, 12.0Vr, SMA(DO-214AC)")
+			(docs "https://www.littelfuse.com/media?resourcetype=datasheets&itemid=75e32973-b177-4ee3-a0ff-cedaf1abdb93&filename=smaj-datasheet")
+			(footprints
+				(fp "D*SMA*")
+			)
+			(fields
+				(field
+					(name "Reference") "D")
+				(field
+					(name "Value") "SMAJ12A")
+				(field
+					(name "Footprint") "Diode_SMD:D_SMA")
+				(field
+					(name "Datasheet") "https://www.littelfuse.com/media?resourcetype=datasheets&itemid=75e32973-b177-4ee3-a0ff-cedaf1abdb93&filename=smaj-datasheet")
+				(field
+					(name "Description") "400W unidirectional Transient Voltage Suppressor, 12.0Vr, SMA(DO-214AC)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "A1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "A2")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Diode")
+			(part "SS34")
+			(description "40V 3A Schottky Diode, SMA")
+			(docs "https://www.vishay.com/docs/88751/ss32.pdf")
+			(footprints
+				(fp "D*SMA*")
+			)
+			(fields
+				(field
+					(name "Reference") "D")
+				(field
+					(name "Value") "SS34")
+				(field
+					(name "Footprint") "Diode_SMD:D_SMA")
+				(field
+					(name "Datasheet") "https://www.vishay.com/docs/88751/ss32.pdf")
+				(field
+					(name "Description") "40V 3A Schottky Diode, SMA")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "K")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "A")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Power_Management")
+			(part "TPS22917DBV")
+			(description "1V to 5.5V, 2A, 80mΩ Ultra-Low Leakage Load Switch, SOT23-6")
+			(docs "http://www.ti.com/lit/ds/symlink/tps22917.pdf")
+			(footprints
+				(fp "SOT?23*")
+			)
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TPS22917DBV")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet") "http://www.ti.com/lit/ds/symlink/tps22917.pdf")
+				(field
+					(name "Description") "1V to 5.5V, 2A, 80mΩ Ultra-Low Leakage Load Switch, SOT23-6")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "VIN")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "ON")
+					(type "input")
+				)
+				(pin
+					(num "4")
+					(name "CT")
+					(type "output")
+				)
+				(pin
+					(num "5")
+					(name "QOD")
+					(type "open_collector")
+				)
+				(pin
+					(num "6")
+					(name "VOUT")
+					(type "power_out")
+				)
+			)
+		)
+	)
+	(libraries
+		(library
+			(logical "Bienen")
+			(uri "${KIPRJMOD}/../bienen.kicad_sym")
+		)
+		(library
+			(logical "Connector")
+			(uri "${KICAD10_SYMBOL_DIR}/Connector.kicad_sym")
+		)
+		(library
+			(logical "Connector_Generic")
+			(uri "${KICAD10_SYMBOL_DIR}/Connector_Generic.kicad_sym")
+		)
+		(library
+			(logical "Device")
+			(uri "${KICAD10_SYMBOL_DIR}/Device.kicad_sym")
+		)
+		(library
+			(logical "Diode")
+			(uri "${KICAD10_SYMBOL_DIR}/Diode.kicad_sym")
+		)
+		(library
+			(logical "Power_Management")
+			(uri "${KICAD10_SYMBOL_DIR}/Power_Management.kicad_sym")
+		)
+	)
+	(nets
+		(net
+			(code "1")
+			(name "+3V3")
+			(class "Default")
+			(node
+				(ref "C209")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C210")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U202")
+				(pin "5")
+				(pinfunction "VOUT_5")
+				(pintype "power_out")
+			)
+			(node
+				(ref "U203")
+				(pin "1")
+				(pinfunction "VIN_1")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "2")
+			(name "/Versorgung/CE_LADEN")
+			(class "Default")
+			(node
+				(ref "C206")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J203")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "R205")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "4")
+				(pinfunction "~{CE}_4")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "3")
+			(name "/Versorgung/ILIM")
+			(class "Default")
+			(node
+				(ref "R204")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "7")
+				(pinfunction "ILIM/VSET_7")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "4")
+			(name "/Versorgung/ISET")
+			(class "Default")
+			(node
+				(ref "R203")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "8")
+				(pinfunction "ISET_8")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "5")
+			(name "/Versorgung/LADE_STAT1")
+			(class "Default")
+			(node
+				(ref "TP201")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "9")
+				(pinfunction "STAT1_9")
+				(pintype "open_collector")
+			)
+		)
+		(net
+			(code "6")
+			(name "/Versorgung/LADE_STAT2")
+			(class "Default")
+			(node
+				(ref "TP202")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "3")
+				(pinfunction "STAT2_3")
+				(pintype "open_collector")
+			)
+		)
+		(net
+			(code "7")
+			(name "/Versorgung/NTC")
+			(class "Default")
+			(node
+				(ref "J203")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "6")
+				(pinfunction "TS/~{MR}_6")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "8")
+			(name "/Versorgung/PV1")
+			(class "Default")
+			(node
+				(ref "D201")
+				(pin "2")
+				(pinfunction "A_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J201")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "9")
+			(name "/Versorgung/PV2")
+			(class "Default")
+			(node
+				(ref "D202")
+				(pin "2")
+				(pinfunction "A_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J202")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "10")
+			(name "/Versorgung/SW_CT")
+			(class "Default")
+			(node
+				(ref "C210")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U203")
+				(pin "4")
+				(pinfunction "CT_4")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "11")
+			(name "/Versorgung/SW_QOD")
+			(class "Default")
+			(node
+				(ref "R209")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U203")
+				(pin "5")
+				(pinfunction "QOD_5")
+				(pintype "open_collector")
+			)
+		)
+		(net
+			(code "12")
+			(name "/Versorgung/TMP_VCC")
+			(class "Default")
+			(node
+				(ref "C212")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J203")
+				(pin "4")
+				(pinfunction "Pin_4_4")
+				(pintype "passive")
+			)
+			(node
+				(ref "U204")
+				(pin "5")
+				(pinfunction "OUT_5")
+				(pintype "power_out")
+			)
+		)
+		(net
+			(code "13")
+			(name "/Versorgung/VBAT")
+			(class "Default")
+			(node
+				(ref "C205")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J203")
+				(pin "5")
+				(pinfunction "Pin_5_5")
+				(pintype "passive")
+			)
+			(node
+				(ref "R206")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "2")
+				(pinfunction "BAT_2")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "14")
+			(name "/Versorgung/VIN_LADER")
+			(class "Default")
+			(node
+				(ref "C201")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C202")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "D201")
+				(pin "1")
+				(pinfunction "K_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "D202")
+				(pin "1")
+				(pinfunction "K_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "D203")
+				(pin "1")
+				(pinfunction "K_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "D204")
+				(pin "1")
+				(pinfunction "A1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R201")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "10")
+				(pinfunction "IN_10")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U204")
+				(pin "1")
+				(pinfunction "IN_1")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "15")
+			(name "3V3_SW")
+			(class "Default")
+			(node
+				(ref "C211")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R209")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U203")
+				(pin "6")
+				(pinfunction "VOUT_6")
+				(pintype "power_out")
+			)
+		)
+		(net
+			(code "16")
+			(name "ADC_AKKU")
+			(class "Default")
+			(node
+				(ref "C207")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R206")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R207")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "17")
+			(name "ADC_SOLAR")
+			(class "Default")
+			(node
+				(ref "C203")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R201")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R202")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "18")
+			(name "GND")
+			(class "Default")
+			(node
+				(ref "C201")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C202")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C203")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C204")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C205")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C206")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C207")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C208")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C209")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C211")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C212")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "D204")
+				(pin "2")
+				(pinfunction "A2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J201")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J202")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J203")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R202")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R203")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R204")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R207")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R208")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "11")
+				(pinfunction "EP_11")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "5")
+				(pinfunction "GND_5")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U202")
+				(pin "2")
+				(pinfunction "GND_2")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U203")
+				(pin "2")
+				(pinfunction "GND_2")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U204")
+				(pin "2")
+				(pinfunction "GND_2")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "19")
+			(name "SENSOR_EIN")
+			(class "Default")
+			(node
+				(ref "R208")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U203")
+				(pin "3")
+				(pinfunction "ON_3")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "20")
+			(name "SYS")
+			(class "Default")
+			(node
+				(ref "C204")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C208")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R205")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "1")
+				(pinfunction "SYS_1")
+				(pintype "power_out")
+			)
+			(node
+				(ref "U202")
+				(pin "1")
+				(pinfunction "VIN_1")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U202")
+				(pin "3")
+				(pinfunction "EN_3")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "21")
+			(name "VBUS")
+			(class "Default")
+			(node
+				(ref "D203")
+				(pin "2")
+				(pinfunction "A_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "22")
+			(name "unconnected-(U202-NC-Pad4)")
+			(class "Default")
+			(node
+				(ref "U202")
+				(pin "4")
+				(pinfunction "NC_4")
+				(pintype "no_connect")
+			)
+		)
+		(net
+			(code "23")
+			(name "unconnected-(U204-EN-Pad3)")
+			(class "Default")
+			(node
+				(ref "U204")
+				(pin "3")
+				(pinfunction "EN_3")
+				(pintype "input+no_connect")
+			)
+		)
+		(net
+			(code "24")
+			(name "unconnected-(U204-NC-Pad4)")
+			(class "Default")
+			(node
+				(ref "U204")
+				(pin "4")
+				(pinfunction "NC_4")
+				(pintype "no_connect")
+			)
+		)
+	)
+)
