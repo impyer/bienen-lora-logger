@@ -6,6 +6,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Schaltplan V0.1 – Akku + Versorgung, unabhängige Netz-/Sicherheitsprüfung](2026-10-09-schaltplan-v01-review.md)** | **Commit `fcd18fe`** | **48 Komponenten und 95 Netlabels aus eingecheckten KiCad-Dateien geprüft; Herstellerabgleich/Recovery-Fallanalyse; KiCad-ERC nicht unabhängig ausgeführt, kein HiL** |
 | **[Behebung HW26-07 … -15 und CI26-01](2026-10-09-hw04-ci26-behebung.md)** | **Arbeitsstand nach `6b83d`** (Commit-ID beim Einchecken nachtragen) | **CI26-01: Ursache reproduziert (Kürzung von week.csv vor 08:00), behoben, Gegenprobe; E2E eigen 74/74 bei 05:00 und 14:00, original 56/56, Unit 66/66; CI-Lauf offen. Hardware: Entwurfsänderungen, Rechnungen; kein KiCad/HiL** |
 | **[Hardware 0.4 – unabhängiges Review, Versorgung/Pinout/PCB](2026-10-09-hardware-04-review.md)** | **Hardware-Commit `5c94e1b`, CI bis `6b83d`** | **Konzept- und numerisches SiL-Review; P0 Akku-HOT, P1 PV-ADC/I²C, CI-Regression; noch kein KiCad/HiL** |
 | **[Behebung SRV26-02/03/04/05/07/08](2026-10-08-srv26-behebung.md)** | **Arbeitsstand nach `5c1b847`** (Commit-ID beim Einchecken nachtragen) | **Host-/E2E-Tests lokal (eigen 73/73, original 56/56, Unit 59/59), Gegenprobe ohne Korrektur; CI-Lauf offen; kein TTN/BEEP/HiL** |
@@ -14,6 +15,16 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 | [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
+
+## Neuester geprüfter Schaltplan: KiCad V0.1 (09.10.2026)
+
+**Maßgeblich:** [Schaltplan-Review V0.1](2026-10-09-schaltplan-v01-review.md), geprüfter Commit `fcd18fe`.
+
+- **P0 `SCH26-01`:** möglicher Lade-Recovery-Deadlock nach HY2111-Tiefentladeschutz, da TMP390 an geschütztem Akku-Minus versorgt und der BQ25185 /CE ohne TMP390 über R205 HIGH ist. Zuerst mit Schutz-FET/Body-Dioden und strombegrenztem Zell-Emulator nachweisen; *Hypothese, noch kein HiL*.
+- **P1 `SCH26-02`/`SCH26-03`:** extrem hochohmige Ladefreigabe (R5/R205 jeweils 10 MΩ) und fehlende 45-°C-Einzelfehlertoleranz (Backup-NTC HOT erst ~59,5 °C).
+- **P1 `SCH26-04`:** KiCad/ERC/Footprint- und Generator-Check fehlt in der CI; kritischer BQ25185-Footprint noch nicht vorhanden.
+- **P2 `SCH26-05`–`SCH26-08`:** R208 1 MΩ statt dokumentierter 100 kΩ, Kabelbaum, fehlende Funktionsblätter, PV-Transientenschutz.
+- **CI auf `fcd18fe`:** 6/6 Jobs erfolgreich. Das ist **keine KiCad-/Sicherheitstestfreigabe**. Insgesamt bisher nur Akku- und Versorgungsteil: kein MCU-/Funk-/Waage-/Mikrofonschaltplan.
 
 ## Aktuell: Behebung nach Hardware-Review 0.4 (09.10.2026)
 

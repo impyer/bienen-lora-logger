@@ -1,5 +1,7 @@
 # KiCad-Projekte (KiCad 10)
 
+**Unabhängige sicherheitstechnische Prüfung von V0.1:** [Schaltplan-Review](../../docs/testberichte/2026-10-09-schaltplan-v01-review.md). **P0 SCH26-01**: möglichen Lade-Wiederanlauf-Deadlock nach HY2111-Tiefentladung klären. **P1 SCH26-02/03**: 10-MΩ-Freigabekette und fehlende Einzelfehlertoleranz des Temperaturfensters verifizieren. **Die unten genannten ERC-Werte stammen aus dem Projekt; sie wurden nicht unabhängig reproduziert und werden bislang nicht von CI geprüft.**
+
 Stand 09.10.2026: **Akku-Platine** und Blatt **Versorgung** der Hauptplatine. Die Blätter MCU, Funk + Flash, Waage, Mikrofon und Anschlüsse folgen.
 
 | Ordner | Inhalt |
