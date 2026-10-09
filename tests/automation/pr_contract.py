@@ -21,7 +21,7 @@ def check_pr_text(body: str) -> Tuple[List[str], str]:
         problems.append("Issue-/Anforderungs-/Befundreferenz fehlt (z. B. Fixes #123).")
 
     change_class = re.search(
-        r"(?im)^\s*\*{0,2}(?:Änderungsklasse|Change Class)\*{0,2}:?\s*(D[0-3])\b",
+        r"(?im)^\s*\*{0,2}(?:Änderungsklasse|Change Class)\s*:\s*\*{0,2}\s*(D[0-3])\b",
         body,
     )
     kind = change_class.group(1) if change_class else "unbekannt"
