@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-09 – Sicherheitsanalyse Akku (REG26-06/07)
+
+- Neu: `hardware/sicherheit-akku.md` (SAF-AKKU 0.1): Sicherheitsziele, Gefährdungsliste, Einzelfehleranalyse der Ladesperre, Schutz- und Wiederanlaufzustände, sicherer Versuchsplan (Zell-Emulator mit Stromaufnahme, Strombegrenzung, Abbruchkriterien, SCH-T01 … T11), Rückverfolgbarkeit LH-V1/V2/V3/V7. Stufe T0, Gegenlesen offen.
+- Neue Befunde HW26-16 … -19 (gemeinsamer Fehlerpunkt BQ25185, 0-V-Laden HY2111, Überspannung TMP_VCC, Kältereserve).
+- SHA `2076c20` im SCH26-Bericht und im Befundregister nachgetragen (REG26-05, REG26-13).
+
 ## 2026-10-09 – Audit gegen Regelwerk 1.1, Wiederherstellung SCH26
 
 - Audit AUD-2026-10-09-01 (`docs/testberichte/2026-10-09-regelwerk-audit.md`), Befunde REG26-01 … -12 im Befundregister.

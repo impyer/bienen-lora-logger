@@ -1,7 +1,7 @@
 # Behebung Schaltplan-Review V0.1 (SCH26-01 … SCH26-08), 09.10.2026
 
 **Bezug:** [Schaltplan-Review V0.1](2026-10-09-schaltplan-v01-review.md) zu `fcd18fe`.
-**Stand:** Arbeitsstand nach `fcd18fe` (Commit-ID beim Einchecken nachtragen).
+**Stand:** Arbeitsstand nach `fcd18fe`; vollständig eingecheckt als `2076c20` (nachgetragen 09.10.2026, REG26-05/REG26-13; der Zwischenstand `6dbba8d` enthielt nur einen Teil).
 
 **Art des Nachweises:**
 - Schaltungsanalyse mit Datenblattwerten.

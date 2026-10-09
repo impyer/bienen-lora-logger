@@ -5,6 +5,7 @@ mit Funkmodul Ai-Thinker Ra-01SH (SX1262). Dafür entsteht eine neue Firmware mi
 (siehe Lastenheft, Abschnitt 6); Musterlogger mit beelogger-Platine und RFM95 laufen weiter mit `firmware/STM32_LORA_261008_ZS`.
 
 - Anforderungen: [`LASTENHEFT.md`](LASTENHEFT.md) und die Blöcke [`versorgung.md`](versorgung.md), [`mcu-funk.md`](mcu-funk.md), [`waage.md`](waage.md), [`mikrofon.md`](mikrofon.md), [`anschluesse.md`](anschluesse.md).
+- Sicherheitsanalyse Akku und Laden (D3, Voraussetzung für G2): [`sicherheit-akku.md`](sicherheit-akku.md).
 - Prüfberichte: [`docs/testberichte/`](../docs/testberichte/README.md); Freigaberegeln für Hardware: [`docs/entwicklung/hardware.md`](../docs/entwicklung/hardware.md).
 - KiCad-10-Projekte: [`kicad/`](kicad/README.md) (V0.1 Akku-Platine und Blatt Versorgung; **Entwurf, noch keine Fertigungsfreigabe**). Stand der Befunde: [Befundregister](../docs/testberichte/befunde.md).
 - Fertigungsdaten für JLCPCB (Gerber, BOM, CPL): folgen je Version in `hardware/logger-platine/production/`

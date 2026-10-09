@@ -162,7 +162,7 @@ Versorgung der Sperre (geändert nach Schaltplan-Review SCH26-01):
 
 **Wärmekopplung:** U2, U3 und NTC sitzen auf der Akku-Platine **direkt unter der Zelle**, mit Wärmeleitpad, nicht neben dem Laderegler. **[P]** Verzug der Erwärmung 42 → 45 °C am Muster messen.
 
-**Prüfung am Muster [P]** (Testmatrix SCH-T01 … T04 im Review): Temperaturen 0/4/5/7/36/37/42/44/45/55/60 °C; jeden Fehlerfall der Tabelle einzeln; Wiederanlauf nach Tiefentladung **nur mit strombegrenztem Zell-Emulator, nicht mit einer absichtlich tiefentladenen 18650**.
+**Prüfung am Muster [P]** (Versuchsplan, Einzelfehleranalyse und Grenzen der Unabhängigkeit: [`sicherheit-akku.md`](sicherheit-akku.md)): Temperaturen 0/4/5/7/36/37/42/44/45/55/60 °C; jeden Fehlerfall der Tabelle einzeln; Wiederanlauf nach Tiefentladung **nur mit strombegrenztem Zell-Emulator, nicht mit einer absichtlich tiefentladenen 18650**.
 
 Die Kältesperre steigt damit von +1,7 °C auf +5 °C. Im Winter lädt der Logger seltener. Bei 128 Tagen Reichweite ohne Laden ist das unkritisch [A].
 

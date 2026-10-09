@@ -2,7 +2,7 @@
 
 **Einzige Stelle für den aktuellen Stand aller Befunde** (Regelwerk 1.1, R-05a). Prüfberichte in diesem Ordner sind historische Snapshots; der Stand hier wird bei jeder Behebung und jedem Nachweis nachgeführt.
 
-**Stand:** 09.10.2026 (ergänzt um Audit AUD-2026-10-09-01), Zusammenführung aus den Prüf- und Behebungsberichten bis `8fc2aa4` und der Behebung SCH26 (Commit beim Einchecken nachtragen).
+**Stand:** 09.10.2026 (ergänzt um Audit AUD-2026-10-09-01), Zusammenführung aus den Prüf- und Behebungsberichten bis `8fc2aa4` und der Behebung SCH26 (eingecheckt vollständig als `2076c20`); Sicherheitsanalyse Akku SAF-AKKU 0.1.
 **Pflege:** wer einen Befund behebt oder nachweist, ändert hier Status, Nachweis und gesperrtes Gate im selben Commit.
 
 ## Statusmodell
@@ -44,6 +44,10 @@ Teststufen T0–T6 und Gates G0–G4: [tests-freigaben.md](../entwicklung/tests-
 | HW26-13 | P2 | J10/J11-Pinzahl | im Entwurf behoben | T0 | – | dto. |
 | HW26-14 | P2 | SX1262 oder LLCC68, HF-Schalter | offen | – | G2 bis Modulmuster geprüft | dto. |
 | HW26-15 | P2 | Mechanik, USB, PCBA-Konfiguration | offen | – | Fertigung bis STEP/Angebot | dto. |
+| HW26-16 | P1 | Gemeinsamer Fehlerpunkt: beide Temperaturstufen wirken über den BQ25185; fällt der Laderegler aus, gibt es keine Temperatursperre mehr (Überladung begrenzt nur noch HY2111) | offen | T0 | G2: Entscheidung E-2 (Restrisiko oder Eingangstrennung) | [`sicherheit-akku.md`](../../hardware/sicherheit-akku.md) 4/5 |
+| HW26-17 | P1 | HY2111-GB erlaubt Laden ab 0 V; eine nach der Abschaltung weiter entladene Zelle würde ungeprüft wieder geladen | offen | T0 | G2: Entscheidung E-3 | dto. |
+| HW26-18 | P2 | Durchschlag des TPS70933 legt Panelspannung auf TMP_VCC; Ausfallart der TMP390 unbekannt | offen | T0 | G2: Entscheidung E-4 (Klemmung) | dto. |
+| HW26-19 | P2 | Kältereserve bei Ausfall der Kaltsperre Stufe 1: NTC sperrt erst bei ca. +1,7 °C (Toleranz ca. ±1 K) | offen | T0 | G3: Toleranzrechnung, SCH-T03 | dto. |
 
 ## Firmware Musterlogger (BlackPill + RFM95)
 
@@ -87,12 +91,12 @@ Teststufen T0–T6 und Gates G0–G4: [tests-freigaben.md](../entwicklung/tests-
 | REG26-02 | P1 | Regelwerk 1.1 nicht eingecheckt | im Entwurf behoben (mit Wiederherstellung) | T0 | G1 bis Commit/Push | dto. |
 | REG26-03 | P1 | CI-Job prüft alten Entwurf mit altem `pruefen.sh` | im Entwurf behoben (mit Wiederherstellung) | T3 lokal | G1 bis grüner CI-Lauf nach Push | dto. |
 | REG26-04 | P2 | Commit-Nachrichten ohne Warum/Was/IDs/Tests | analysiert – bestätigt; ab sofort Muster | T0 | – | dto. |
-| REG26-05 | P2 | Berichte ohne exakten SHA | im Entwurf behoben (SRV26, HW26/CI26 nachgetragen); SCH26 offen | T0 | – | dto. |
-| REG26-06 | P1 | Gefährdungsanalyse und sicherer Versuchsplan Akku fehlen | offen | – | **G2 Akku** | dto. |
-| REG26-07 | P1 | Rückverfolgbarkeit D3 fehlt | offen | – | **G2 Akku** | dto. |
+| REG26-05 | P2 | Berichte ohne exakten SHA | im Entwurf behoben (SRV26 `3f2f9d6`, HW26/CI26 `cc6ba60`, SCH26 `2076c20` nachgetragen) | T0 | – | dto. |
+| REG26-06 | P1 | Gefährdungsanalyse und sicherer Versuchsplan Akku fehlen | im Entwurf behoben ([`hardware/sicherheit-akku.md`](../../hardware/sicherheit-akku.md) 0.1); Gegenlesen durch zweiten Prüfweg offen | T0 | **G2 Akku** bis Gegenlesen und Entscheidungen E-1 … E-4 | dto. |
+| REG26-07 | P1 | Rückverfolgbarkeit D3 fehlt | im Entwurf behoben (`sicherheit-akku.md` Abschnitt 8) | T0 | **G2 Akku** wie REG26-06 | dto. |
 | REG26-08 | P2 | Pin-/Footprint-Abgleichbericht fehlt | offen | – | Layout | dto. |
 | REG26-09 | P2 | PWR_FLAG-Begründungen fehlen | offen | – | – | dto. |
 | REG26-10 | P2 | Board-ID/Revision, Umgebungsbedingungen | offen | – | G2 | dto. |
 | REG26-11 | P2 | Kondensator-Derating, Schienentabelle | offen | – | G2 | dto. |
 | REG26-12 | P1 | Zellmodell/Datenblatt unbekannt (GOV-04) | offen | – | Fertigung | dto. |
-| REG26-13 | P0 | Commit `6dbba8d` übernahm die SCH26-Behebung nur teilweise (erzeugte Schaltpläne und Prüfwerkzeuge ja, Generatoren `akku_platine.py`/`hauptplatine.py`/`symbole.py`/`kicad_gen.py` und `pruefen.sh` nein) → KiCad-CI rot (Lauf 37881512633). Gemeldet von ChatGPT, GitHub Issue #2; gleiche Ursache wie REG26-01/03 | im Entwurf behoben mit dem Folge-Commit (vollständiger Generatorstand) | T3 lokal (`pruefen.sh`: reproduzierbar, ERC OK, 42/42) | G1 bis KiCad-CI auf dem Folge-Commit grün | [Integrationsprüfung](2026-10-09-sch26-generator-regression.md) (Branch `review/claude-regelwerk-e1-e12`), Issue #2 |
+| REG26-13 | P0 | Commit `6dbba8d` übernahm die SCH26-Behebung nur teilweise (erzeugte Schaltpläne und Prüfwerkzeuge ja, Generatoren `akku_platine.py`/`hauptplatine.py`/`symbole.py`/`kicad_gen.py` und `pruefen.sh` nein) → KiCad-CI rot (Lauf 37881512633). Gemeldet von ChatGPT, GitHub Issue #2; gleiche Ursache wie REG26-01/03 | im Entwurf behoben mit `2076c20` (vollständiger Generatorstand) | T3 lokal (`pruefen.sh`: reproduzierbar, ERC OK, 42/42) | G1 bis KiCad-CI auf `2076c20` grün (Ergebnis noch nicht gesehen) | Integrationsprüfung `2026-10-09-sch26-generator-regression.md` (nur auf Branch `review/claude-regelwerk-e1-e12`), Issue #2 |
