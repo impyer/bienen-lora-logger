@@ -1,0 +1,67 @@
+name: "Feature / Anforderung"
+description: "Neue Funktion mit nachvollziehbaren Abnahmekriterien (Bienen-logger)"
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Beschreibe **was** das System tun soll, nicht nur **wie** Claude es umsetzen soll.
+        Für D2/D3 sind reproduzierbare Abnahmetests und eine Anforderungs-ID Pflicht.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Ausgangslage und Nutzen
+      description: Welches Problem soll gelöst werden und warum?
+      placeholder: "Der Logger soll ..."
+    validations:
+      required: true
+  - type: textarea
+    id: requirement
+    attributes:
+      label: Sollverhalten / Anforderungen
+      description: Vorhandene Lastenheft-IDs oder eindeutige neue IDs verwenden.
+      placeholder: |
+        REQ-FW-...: Bei ...
+        Fehlerfall: ...
+    validations:
+      required: true
+  - type: dropdown
+    id: class
+    attributes:
+      label: Änderungsklasse
+      options:
+        - "D0 - reine Dokumentation"
+        - "D1 - normale Softwarefunktion"
+        - "D2 - Funk, Zeit, Daten, Pinbelegung oder Strom"
+        - "D3 - Akku, Ladung oder anderer sicherheitskritischer Pfad"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Abnahmekriterien und automatische Tests
+      placeholder: |
+        - [ ] Positivfall ...
+        - [ ] Randfall ...
+        - [ ] Regressionstest ...
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Hardware- / Firmwareversion und Schnittstellen
+      description: Bei Funkformaten, Server- oder KiCad-Änderungen betroffene Zielversion nennen.
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Risiken, negative Tests und HiL-Aufgaben
+      description: Bei D3 Gefährdung, sicherer Laboraufbau und unabhängige Gegenprüfung; kein realer Akkustresstest auf Verdacht.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Quellen, verwandte Issues und bisherige Befunde
+      description: Datenblätter, PRs, IDs und reproduzierbare Ausgangsbelege.

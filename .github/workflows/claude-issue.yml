@@ -1,0 +1,37 @@
+# Optional: Aktivierung via Repository Variable ENABLE_CLAUDE_ACTION=true
+# und Secret ANTHROPIC_API_KEY. Nur ein vertrauenswürdiger Kommentar mit @claude triggert.
+name: Claude Code – Issue und PR-Auftrag
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  claude:
+    if: >-
+      ${{ vars.ENABLE_CLAUDE_ACTION == 'true' &&
+          contains(github.event.comment.body, '@claude') &&
+          (github.event.comment.author_association == 'OWNER' ||
+           github.event.comment.author_association == 'MEMBER' ||
+           github.event.comment.author_association == 'COLLABORATOR') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      actions: read
+    steps:
+      - name: Quellstand
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Keine KI-Freigabe von Akku, Ladeschutz, PCB-Fertigung oder Feldbetrieb.
+          # Claude folgt AGENTS.md, CLAUDE.md und dem geltenden Regelwerk.

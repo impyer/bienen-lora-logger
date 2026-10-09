@@ -1,0 +1,54 @@
+name: "Fehler / Regression"
+description: "Reproduzierbarer Fehler mit betroffenem Commit, Test und Risikoklasse"
+title: "[Bug] "
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Beobachteter Fehler
+      description: Istverhalten, erwartetes Verhalten und mögliche Auswirkung.
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Vollständiger Git-SHA / Boardrevision
+      placeholder: "6dbba8d6... / PCB-AKKU-0.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: class
+    attributes:
+      label: Risikoklasse
+      options:
+        - "D0 - Dokumentation"
+        - "D1 - normale Software"
+        - "D2 - Protokoll / Zeit / Energie / Hardware-Netz"
+        - "D3 - sicherheitskritischer Schutzpfad"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduktion / Testschritte
+      placeholder: |
+        1. ...
+        2. ...
+        Erwartet: ...
+        Tatsächlich: ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidences
+    attributes:
+      label: Belege, Logs, Teststufe T0–T6
+      description: Keine echten Geheimnisse, personenbezogenen Daten oder Schlüssel einfügen.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Betroffenes Freigabe-Gate G0–G4 und sichere Abhilfe
+      description: Bei D3 kein HiL erfinden; sicheren Versuchsplan getrennt aufnehmen.
+    validations:
+      required: true

@@ -1,0 +1,28 @@
+# Prüft neue PRs auf nachvollziehbare Issue-Referenz, Tests und Gate-Risiko.
+# Anfangs nur Hinweise. Nach Pilot: Variable ENFORCE_PR_CONTRACT=true
+# plus diesen Check in die main-Branch-Ruleset aufnehmen.
+name: PR-Vertrag – Anforderung und Nachweis
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: PR-Formular (Anforderung, Tests, Risiken)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python-Tests des PR-Prüfers
+        run: python3 -m unittest discover -s tests/automation -p 'test_*.py' -v
+      - name: PR-Anforderungen auswerten
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ENFORCE: ${{ vars.ENFORCE_PR_CONTRACT }}
+        run: python3 tests/automation/pr_contract.py

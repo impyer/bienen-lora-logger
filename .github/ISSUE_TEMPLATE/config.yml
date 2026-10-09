@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "Sicherheitslücke vertraulich melden"
+    url: "https://github.com/impyer/bienen-lora-logger/security"
+    about: "Keine Zugangsdaten, Gerätepositionen oder ausnutzbaren Details öffentlich melden."
