@@ -1,4 +1,4 @@
-**Gültiger Standard:** [Regelwerk 1.0](../docs/entwicklung/README.md). D3-Sicherheitsprüfungen nicht durch grüne CI oder KI-Review ersetzen.
+**Gültiger Standard:** [Regelwerk 1.1](../docs/entwicklung/README.md). D3-Sicherheitsprüfungen nicht durch grüne CI oder KI-Review ersetzen.
 
 ## Ziel / Änderung
 

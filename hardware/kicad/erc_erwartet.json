@@ -1,0 +1,10 @@
+{
+  "_hinweis": "Bekannte, begründete ERC-Warnungen. Jede neue Warnung oder jeder Fehler lässt pruefen.sh scheitern (SCH26-04).",
+  "hauptplatine/logger.kicad_sch": [
+    {"type": "footprint_link_issues", "item": "Symbol U201 [BQ25185]",
+     "grund": "Footprint BQ25185 DLH0010A (2,2 x 2 mm) wird vor dem Layout in der Bibliothek 'Bienen' angelegt"},
+    {"type": "isolated_pin_label", "item": "Global Label 'VBUS'",
+     "grund": "zweites Ende VBUS kommt mit dem Blatt MCU (USB-C)"}
+  ],
+  "akku-platine/akku.kicad_sch": []
+}
