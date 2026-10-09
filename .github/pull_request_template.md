@@ -1,4 +1,4 @@
-**Gültig auf `main`: Regelwerk 1.0.** Regelwerk 1.1 ist als PR-Entwurf vorgeschlagen. D3-G2 benötigt einen sicheren Laborplan mit unabhängiger Planprüfung; D3-G3/G4 zusätzlich relevante bestandene T4-Messungen und fachkundige unabhängige Bewertung.
+**Gültiger Stand auf `main`: Regelwerk 1.0 (Claude hat in `6dbba8d` die PR-Vorlage bereits mit Version 1.1 beschriftet; die Regeltexte sind aber bis zum Merge unverändert 1.0).** Regelwerk 1.1 ist als PR-Entwurf vorgeschlagen. D3-G2 benötigt einen sicheren Laborplan mit unabhängiger Planprüfung; D3-G3/G4 zusätzlich relevante bestandene T4-Messungen und fachkundige unabhängige Bewertung.
 
 ## Ziel / Änderung
 

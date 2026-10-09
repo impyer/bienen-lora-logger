@@ -6,6 +6,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[SCH26 Generator-/KiCad-Regression nach Claude-Commit](2026-10-09-sch26-generator-regression.md)** | **Commit `6dbba8d`** | **6/7 CI, KiCad FAIL; Python-Generatoren nicht aktualisiert; Issue #2, kein HiL/G2/G4** |
 | **[Schaltplan V0.1 – Akku + Versorgung, unabhängige Netz-/Sicherheitsprüfung](2026-10-09-schaltplan-v01-review.md)** | **Commit `fcd18fe`** | **48 Komponenten und 95 Netlabels aus eingecheckten KiCad-Dateien geprüft; Herstellerabgleich/Recovery-Fallanalyse; KiCad-ERC nicht unabhängig ausgeführt, kein HiL** |
 | **[Behebung HW26-07 … -15 und CI26-01](2026-10-09-hw04-ci26-behebung.md)** | **Arbeitsstand nach `6b83d`** (Commit-ID beim Einchecken nachtragen) | **CI26-01: Ursache reproduziert (Kürzung von week.csv vor 08:00), behoben, Gegenprobe; E2E eigen 74/74 bei 05:00 und 14:00, original 56/56, Unit 66/66; CI-Lauf offen. Hardware: Entwurfsänderungen, Rechnungen; kein KiCad/HiL** |
 | **[Hardware 0.4 – unabhängiges Review, Versorgung/Pinout/PCB](2026-10-09-hardware-04-review.md)** | **Hardware-Commit `5c94e1b`, CI bis `6b83d`** | **Konzept- und numerisches SiL-Review; P0 Akku-HOT, P1 PV-ADC/I²C, CI-Regression; noch kein KiCad/HiL** |
@@ -15,6 +16,10 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 | [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
+
+## Aktuellster Integrationsstatus: Generator-Regression 6dbba8d
+
+**[T0/T3-Review zu `6dbba8d`](2026-10-09-sch26-generator-regression.md):** Der Sicherheitsfix aus der Arbeitskopie ist nur unvollständig ins Repository gekommen. KiCad-Generatoren und Prüfskript sind im alten Stand; die neue 7-Job-CI ist **6/7** und der KiCad-Job FAIL. **G1/G2 für die Akku-Schaltung bleiben blockiert**; [Issue #2](https://github.com/impyer/bienen-lora-logger/issues/2). Das aktuelle [Befundregister](befunde.md) ist die maßgebliche laufende Statusübersicht; die nachfolgenden Abschnitte sind historische Stände.
 
 ## Neuester geprüfter Schaltplan: KiCad V0.1 (09.10.2026)
 
