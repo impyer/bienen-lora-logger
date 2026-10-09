@@ -1,6 +1,6 @@
 # Open Source, Provenienz, Sicherheit und Releases
 
-**Version 1.0 – am 09.10.2026 angenommen.** Der öffentlich nutzbare Zustand ist nicht nur eine Lizenzdatei: Dritte sollen Herkunft, Quellen, Änderungen, Reproduktionsverfahren und Einschränkungen verstehen können.
+**Version 1.1 – Entwurf nach Claude-Review; bis zur Annahme gilt 1.0.** Der öffentlich nutzbare Zustand ist nicht nur eine Lizenzdatei: Dritte sollen Herkunft, Quellen, Änderungen, Reproduktionsverfahren und Einschränkungen verstehen können.
 
 ## O-01 Vorhandene Lizenzstruktur bewahren
 
@@ -14,7 +14,7 @@ Die Repository-Datei [`LICENSE.md`](../../LICENSE.md) unterscheidet:
 
 **Dieses Regelwerk ändert keine Lizenz.** Der jeweilige urheberrechtliche Hinweis, Quellbezug und Rechteinhaber haben Vorrang. Bei neuen Dateien `SPDX-License-Identifier` nur entsprechend der **tatsächlich geklärten** Lizenz setzen.
 
-**Weiterhin OFFEN GOV-01 (siehe [Register](entscheidungen.md)):** Python-Generatoren in `hardware/kicad/` führen teils explizite GPL-3.0-or-later-Copyright-/Lizenzhinweise, obwohl die Ordnerlizenz pauschal CERN-OHL-S-2.0 sagt. Dies ist zunächst ein **Klärungsbedarf**, keine automatische Doppel-Lizenzierung und keine Aufforderung zum Entfernen alter Header. Vor Veröffentlichung als fertig lizenziertes PCB-Source-Paket Urheber/Umfang prüfen und eine dokumentierte Entscheidung herbeiführen.
+**Weiterhin OFFEN GOV-01 (siehe [Register](entscheidungen.md)):** Python-Generatoren in `hardware/kicad/` führen teils explizite GPL-3.0-or-later-Copyright-/Lizenzhinweise, obwohl die Ordnerlizenz pauschal CERN-OHL-S-2.0 sagt. Dies bleibt ein **Klärungsbedarf**, keine automatische Doppel-Lizenzierung und keine Aufforderung zum Entfernen alter Header. [Claude E8](../testberichte/2026-10-09-regelwerk-review.md) schlägt GPL für Generatorsoftware und CERN-OHL für Schaltpläne, Symbole und Footprints vor; diese Zuordnung ist ohne dokumentierte Entscheidung der Rechteinhaber **nicht angenommen**. Vor Veröffentlichung als fertig lizenziertes PCB-Source-Paket Urheber/Umfang prüfen und eine dokumentierte Entscheidung herbeiführen.
 
 ## O-02 Fremdquellen, Forks, Attribution
 

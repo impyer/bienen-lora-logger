@@ -1,6 +1,6 @@
 # Software- und Schnittstellenregeln
 
-**Version 1.0 – am 09.10.2026 angenommen.** Für STM32-Firmware, LoRaWAN-Stack, FFT/Codec, TTN-Formatter, PHP-LoRa-Eingang, beelogger-Integration, Python-Werkzeuge und Buildskripte.
+**Version 1.1 – Entwurf nach Claude-Review; bis zur Annahme gilt 1.0.** Für STM32-Firmware, LoRaWAN-Stack, FFT/Codec, TTN-Formatter, PHP-LoRa-Eingang, beelogger-Integration, Python-Werkzeuge und Buildskripte.
 
 ## S-01 Führende Quellen, Toolchain, Architektur
 
@@ -39,7 +39,7 @@
 2. **Idempotenz:** Eventkennung und Zeitstempelstrategie müssen Duplikate, parallele Verarbeitung und Retries unterscheiden. Test für Crash vor/nach Hauptspeicherung, Zusatzzeile, Acknowledge, BEEP/ThingSpeak.
 3. Hauptdaten und Zusatz-/Rohdaten besitzen ein dokumentiertes Konsistenzmodell. Keine Erfolgsbehauptung allein aufgrund einer Dateigrößenänderung; alte/unvollständige Installation gesondert behandeln.
 4. LoRa-Uplink-Retry/`nachholen` darf Ereignisse nicht ungesehen verlieren; auch „HTTP 202“ braucht lokales **dauerhaftes** Queueing und eine beobachtbare Wiederherstellung bei Dateisystemausfall.
-5. Keine Passwörter in URLs, Protokollen oder HTTP-GETs, soweit Schnittstelle kontrolliert wird; wo eine Alt-Schnittstelle das erfordert, Risiko sichtbar machen und Zugriffslogs/HTTPS/Deployment absichern.
+5. Neue kontrollierbare Schnittstellen dürfen keine Passwörter in URLs/HTTP-GETs/Logs transportieren. Die bestehende beelogger-M.40-GET-Schnittstelle wird als eingeschränkte Legacy-Ausnahme [EX-01](ausnahmen.md) behandelt. **Kein Freibrief:** TLS/Zugriffsbegrenzung, Query-Log-Redaktion, Secretdateien und sichere Weiterleitung sind vor produktiver Nutzung konkret nachzuweisen.
 6. Abhängigkeiten (PHP-Erweiterungen, Browser-/goja-Version, TTN-Formatter) in CI pinnen oder bewusst aktualisieren; die vorhandene Anwendungslogik gegen neue Laufzeiten prüfen.
 7. Externe Weitergabe (BEEP/ThingSpeak) nur für **wirklich akzeptierte** Daten und mit eindeutiger Duplikat-/Fehlerpolitik; kein Doppelsenden bei Timeouts ohne messbaren Nachtest.
 

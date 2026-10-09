@@ -1,6 +1,6 @@
 # Entwicklungsregeln – Einstieg
 
-**Version:** 1.0 · **Status:** ANGENOMMEN; für neue Änderungen verbindlich · **Beschlussdatum:** 09.10.2026 · **Wirksam ab:** dem Annahme-Commit
+**Regelwerk 1.0:** ANGENOMMEN (09.10.2026) und derzeit auf `main` verbindlich. **Ergänzung 1.1:** Vorschlag [ADR-0002](entscheidungen/ADR-0002-regelwerk-review.md) nach [Claude E1–E12](../testberichte/2026-10-09-regelwerk-review.md), erst nach Merge verbindlich.
 
 Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Coding-Agents: Änderungen müssen **nachvollziehbar**, **reproduzierbar**, **risikogerecht geprüft** und **lizenzrechtlich sauber** sein. Die folgenden Texte sind der **verabschiedete Projektstandard für Menschen und Coding-Agents**. Er gilt für neue Änderungen und neu beanspruchte Freigaben. Bestehende Entscheidungen und historische Prüfergebnisse werden **nicht** rückwirkend überschrieben. [Beschluss ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md).
 
@@ -8,6 +8,7 @@ Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Co
 
 | Dokument | Zweck |
 |---|---|
+| **[Pflichtteil auf einer Seite](PFLICHTTEIL.md)** | Zehn handhabbare Regeln für Menschen und Agents |
 | [Regelwerk und Zusammenarbeit](regelwerk.md) | Begriffe, Verbindlichkeit, Änderungsprozess, Rollen, Ausnahmen und Entscheidungskompetenz |
 | [Hardware und Mechanik](hardware.md) | Schaltplan, Akku/Solar, PCB/PCBA, Sensor-/RF-Schnittstellen, Stückliste und sichere Muster |
 | [Firmware, Formatter und Server](software.md) | Architektur, Codequalität, Zeit/Daten, Energie, Funk, Sicherheit, Konfiguration, APIs |
@@ -19,6 +20,9 @@ Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Co
 | [Prüfberichtsvorlage](vorlagen/pruefbericht.md) | Gleichförmige, commitbezogene Testergebnisse |
 | [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) | Beschluss, Geltungsbereich, Einschränkungen |
 | [Governance-Register](entscheidungen.md) | GOV-01 bis GOV-04: erledigte und offene Entscheidungen |
+| [Aktuelles Befundregister](../testberichte/befunde.md) | Git-SHA, Evidenzstatus, Gate-Sperren und nächste Prüfungen |
+| [Ausnahmenregister](ausnahmen.md) | Legacy-API EX-01 mit Sicherheitsauflagen |
+| [ADR-0002](entscheidungen/ADR-0002-regelwerk-review.md) | Übernahme von E1–E12 als eigener Änderungsvorschlag |
 
 ## Projektstufen und Freigaben
 
@@ -31,13 +35,13 @@ Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Co
 
 Freigaben und deren Mindestkriterien sind mit der Annahme in [tests-freigaben.md](tests-freigaben.md) verbindlich geregelt. **Ein „bestanden“ aus einer Stufe gilt niemals stillschweigend auch für die nächste.**
 
-## Aktuelle Ausgangslage (nur Kontext, kein neue Abnahme)
+## Veränderlicher Projektstand
 
-Die letzte Schaltplanprüfung betrifft [KiCad V0.1 bei `fcd18fe`](../testberichte/2026-10-09-schaltplan-v01-review.md). Es existieren bisher eine Akku-Platine und das Versorgungsblatt der Hauptplatine, keine vollständige MCU-/SX1262-/Sensor-Schaltung. Das **mögliche** Lade-Recovery-Problem `SCH26-01` ist als P0 für einen späteren Hardwareaufbau dokumentiert, nicht am Muster bestätigt. Das Regelwerk definiert den Umgang mit solchen Befunden; es erklärt sie nicht für erledigt.
+**Aktuelle** P0/P1-Punkte, tatsächlich eingecheckte Schaltungen und deren Teststatus stehen im [Befundregister](../testberichte/befunde.md), stets bezogen auf einen Git-SHA. Die hier geltenden Regeln sollen keine veralteten Befundstände für neue Agents festschreiben.
 
 ## Beschluss und verbliebene Entscheidungen
 
-**Beschlossen:** [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md). Die Projektleitung verantwortet G0/G1. Für D3-Gefahren darf G2–G4 **nicht** allein aus Selbstreview, KI-Review oder CI freigegeben werden; die erforderliche fachkundige Gegenprüfung und Labor-Evidenz sind nachzuweisen.
+**Beschlossen:** [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md). Die Projektleitung verantwortet G0/G1. **G2 D3:** sicherer Laborzugang mit Risiko-/Versuchsplan, T3-Checks, Zell-Emulator/Strombegrenzung und unabhängiger Gegenprüfung des Plans. **T4 entsteht erst im Labor**; **G3/G4 D3** verlangen bestandene T4-Messungen und unabhängige fachkundige Safety-Bewertung. Kein Ki-/CI-Alleinentscheid.
 
 [**Governance-Register**](entscheidungen.md): **GOV-01 OFFEN** (Lizenzierung der KiCad-Generatoren), **GOV-02 ANGENOMMEN** (vorläufige Gate-Zuständigkeit und D3-Sicherheit), **GOV-03 ANGENOMMEN** (vollständiges Open-Hardware-Fertigungspaket), **GOV-04 OFFEN** (konkrete Mess-/Sicherheitsgrenzen für beschaffte Komponenten).
 
