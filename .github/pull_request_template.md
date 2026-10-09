@@ -1,4 +1,4 @@
-**Gültiger Standard:** [Regelwerk 1.0](../docs/entwicklung/README.md). D3-Sicherheitsprüfungen nicht durch grüne CI oder KI-Review ersetzen.
+**Gültig auf `main`: Regelwerk 1.0.** Regelwerk 1.1 ist als PR-Entwurf vorgeschlagen. D3-G2 benötigt einen sicheren Laborplan mit unabhängiger Planprüfung; D3-G3/G4 zusätzlich relevante bestandene T4-Messungen und fachkundige unabhängige Bewertung.
 
 ## Ziel / Änderung
 
@@ -11,6 +11,8 @@
 **Änderungsklasse:** D0 / D1 / D2 / D3  
 **Betroffene Komponenten / Boardrevision / Protokollversion:** …  
 **Anforderung / Befund / ADR:** …
+**Basis-SHA / Zielbranch:** …
+**Lokaler Übergabestand / ungepushte Fremdänderungen:** …
 
 ## Nachweis
 
@@ -29,7 +31,8 @@
 
 ## Checkliste
 
-- [ ] Änderung und Tests gehören zum angegebenen Git-SHA; kein fremdes/erfundenes Testergebnis.
+- [ ] Änderung und Tests gehören zum angegebenen Git-SHA; kein fremdes/erfundenes Testergebnis; Übergabe- und Branchstand synchronisiert.
+- [ ] [Befundregister](../docs/testberichte/befunde.md) auf relevante IDs, echten Teststatus und gesperrte Gates geprüft/aktualisiert.
 - [ ] Passende Regression/Negativfälle vorhanden oder Ausnahme begründet.
 - [ ] Protokoll-, Zeit-, Firmware-/Server- und Hardware-Kompatibilität geprüft oder ausdrücklich nicht betroffen.
 - [ ] Bei Boardänderungen: Pin-Netz-/Footprint-Abgleich, ERC-Warnungen, Generator-/Artefaktdiff; offene HiL-Punkte dokumentiert.
