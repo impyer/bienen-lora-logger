@@ -102,7 +102,8 @@ def eins(liste, kopf):
 
 
 def neue_uuid(saat=None):
-    if saat is None:
+    # BIENEN_GEGENPROBE_ZUFALL=1 macht die Erzeugung absichtlich nicht reproduzierbar (Gegenprobe in pruefen.sh, SCH26-12)
+    if saat is None or os.environ.get("BIENEN_GEGENPROBE_ZUFALL") == "1":
         return str(_uuid.uuid4())
     return str(_uuid.uuid5(_uuid.NAMESPACE_URL, "bienen-logger/" + saat))
 

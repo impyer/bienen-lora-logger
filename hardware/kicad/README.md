@@ -23,14 +23,14 @@ Stand 10.10.2026: **Akku-Platine** und die Blätter **Versorgung**, **MCU** und 
 ## Prüfen
 
 `bash hardware/kicad/pruefen.sh` (braucht KiCad 10 mit `kicad-cli`):
-1. zweimal erzeugen, Prüfsummen vergleichen (reproduzierbar)
+1. zweimal erzeugen, Prüfsummen **aller** erzeugten Blätter und der Symbolbibliothek vergleichen (reproduzierbar). Die Liste entsteht aus den Ordnern; jedes von einem Wurzelblatt verwiesene Blatt muss darin stehen, verwaiste `.kicad_sch` lassen die Prüfung scheitern (SCH26-12). `bash pruefen.sh --gegenprobe` erzeugt absichtlich mit Zufalls-UUIDs und zeigt, dass jede Blattdatei als abweichend erkannt wird.
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
-4. `werkzeug/netz_tests.py`: 48 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt) und gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte)
+4. `werkzeug/netz_tests.py`: 74 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09)
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
 
-## ERC-Stand (KiCad 10.0.6, alle Schweregrade)
+## ERC-Stand (KiCad 10.0.6 in der CI, 10.0.7 lokal am 10.10.2026; alle Schweregrade)
 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|

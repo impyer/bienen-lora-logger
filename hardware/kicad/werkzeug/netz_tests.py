@@ -3,16 +3,30 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Prüft sicherheitsrelevante Netze in den von KiCad exportierten Netzlisten (nicht in den
 Generator-Daten): Ladesperre, Zellschutz, Kabel Akku-Platine ↔ Hauptplatine, Widerstandswerte.
+Seit SCH26-09 zusätzlich: Pinbelegung der Stecker laut hardware/anschluesse.md (Spalte „Pins“)
+gegen die Netzliste, mit Gegenprobe (vertauschter Pin muss auffallen).
 Aufruf (nach pruefen.sh): python3 werkzeug/netz_tests.py
 """
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from kicad_gen import parse, finde, eins  # noqa: E402
 
 HIER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ANSCHLUESSE = os.path.join(os.path.dirname(HIER), "anschluesse.md")
 ANZ = FEHL = 0
+
+# Stecker, deren Pinbelegung in anschluesse.md steht und schon auf einem Schaltplanblatt liegt:
+# Nr. im Dokument → (Referenz auf der Hauptplatine, Bezeichnung im Dokument → Netzname im Schaltplan)
+STECKER_DOKU = {
+    "J1": ("J201", {"GND": "GND", "+PV": "PV1"}),
+    "J2": ("J202", {"GND": "GND", "+PV": "PV2"}),
+    "J3": ("J203", {"P−": "GND", "NTC": "NTC", "CE_FREI": "CE_LADEN", "TMP_VCC": "TMP_VCC", "P+": "VBAT"}),
+    "J10": ("J302", {"3V3": "+3V3", "SWDIO": "SWDIO", "SWCLK": "SWCLK", "NRST": "NRST", "GND": "GND",
+                     "TX1": "DBG_TX", "RX1": "DBG_RX"}),
+}
 
 
 def lade(name):
@@ -46,6 +60,50 @@ def genau(netze, netz, soll):
 def enthaelt(netze, netz, soll):
     ist = netze.get(netz, set())
     pruefe("Netz %s enthält %s" % (netz, sorted(soll)), set(soll) <= ist, sorted(ist))
+
+
+def doku_pins(nr):
+    """Pinbelegung eines Steckers aus der Übersichtstabelle in anschluesse.md: {Pin: Bezeichnung}.
+    Erwartet in Spalte 1 „Jn (Platine: Jxxx)“ und in Spalte 4 „1 Name, 2 Name, …“; Klammerzusätze entfallen."""
+    with open(ANSCHLUESSE, encoding="utf-8") as f:
+        for zeile in f:
+            spalten = [t.strip() for t in zeile.strip().strip("|").split("|")]
+            if len(spalten) >= 4 and re.fullmatch(r"%s \(Platine: J\d+\)" % nr, spalten[0]):
+                pins = {}
+                for eintrag in spalten[3].split(","):
+                    m = re.fullmatch(r"(\d+)\s+(\S+)(?:\s*\(.*\))?", re.sub(r"\*", "", eintrag).strip())
+                    if m:
+                        pins[m.group(1)] = m.group(2)
+                return spalten[0], pins
+    return None, {}
+
+
+def stecker_abweichungen(pin_netz, ref, soll):
+    """Liste der Pins, deren Netz in der Netzliste nicht dem Soll entspricht (leer = in Ordnung)."""
+    return sorted((pin, netz, pin_netz.get((ref, pin))) for pin, netz in soll.items() if pin_netz.get((ref, pin)) != netz)
+
+
+def stecker_gegen_doku(pin_netz):
+    """SCH26-09: Dokument (Kabelplan) und Schaltplan müssen dieselbe Pinbelegung haben."""
+    for nr, (ref, namen) in STECKER_DOKU.items():
+        kopf, pins = doku_pins(nr)
+        pruefe("anschluesse.md: Zeile %s (Platine: %s) gefunden" % (nr, ref), bool(pins), kopf)
+        if not pins:
+            continue
+        unbekannt = sorted(set(pins.values()) - set(namen))
+        pruefe("%s: alle Pinbezeichnungen zuordenbar" % nr, not unbekannt, unbekannt)
+        soll = {pin: namen.get(name) for pin, name in pins.items()}
+        anzahl = len({p for (r, p) in pin_netz if r == ref})
+        pruefe("%s/%s: Pinzahl Doku %d = Schaltplan %d" % (nr, ref, len(soll), anzahl), len(soll) == anzahl)
+        pruefe("%s/%s: Pinbelegung Doku = Netzliste %s" % (nr, ref, ", ".join("%s %s" % kv for kv in sorted(soll.items()))),
+               not stecker_abweichungen(pin_netz, ref, soll), stecker_abweichungen(pin_netz, ref, soll))
+    # Gegenprobe: Ein vertauschter Pin (Fall SCH26-09: Pin 5 = TX statt GND) muss als Abweichung erkannt werden.
+    ref, namen = STECKER_DOKU["J10"]
+    _k, pins = doku_pins("J10")
+    soll = {pin: namen.get(name) for pin, name in pins.items()}
+    falsch = {(ref, pin): netz for pin, netz in soll.items()}   # unabhängig vom gezeichneten Stand
+    falsch[(ref, "5")], falsch[(ref, "7")] = "DBG_TX", "GND"
+    pruefe("Gegenprobe: J302 mit TX an Pin 5 und GND an Pin 7 wird erkannt", len(stecker_abweichungen(falsch, ref, soll)) == 2)
 
 
 def modell_netze(modul):
@@ -116,6 +174,14 @@ def main():
         pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
     genau(h, "SENSOR_EIN", {("U203", "3"), ("R208", "1"), ("U301", "41")})  # PB5
     pruefe("TPS22917 CT-Kondensator nach VIN (+3V3)", h_pin.get(("C210", "2")) == "+3V3" and h_pin.get(("C210", "1")) == "SW_CT")
+
+    # --- Debug-Stecker J302 (SCH26-09): je Pin ---
+    for pin, netz in (("1", "+3V3"), ("2", "SWDIO"), ("3", "SWCLK"), ("4", "NRST"), ("5", "GND"), ("6", "DBG_TX"), ("7", "DBG_RX")):
+        pruefe("J302 Pin %s = %s" % (pin, netz), h_pin.get(("J302", pin)) == netz, h_pin.get(("J302", pin)))
+    genau(h, "DBG_TX", {("J302", "6"), ("U301", "30")})   # PA9
+    genau(h, "DBG_RX", {("J302", "7"), ("U301", "31")})   # PA10
+    # --- Stecker: anschluesse.md ↔ Netzliste ---
+    stecker_gegen_doku(h_pin)
 
     # --- Kabel J1 (Akku) ↔ J203 (Haupt), 1:1 ---
     zuordnung = {"GND": "GND", "NTC": "NTC", "CE_FREI": "CE_LADEN", "TMP_VCC": "TMP_VCC", "P+": "VBAT"}

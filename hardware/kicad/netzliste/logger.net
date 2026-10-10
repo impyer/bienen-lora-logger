@@ -1,9 +1,9 @@
 (export
 	(version "E")
 	(design
-		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-10T05:53:23")
-		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
+		(source "/tmp/claude-0/-home-claude/a624e0f4-7383-5bcd-bcf1-0ca93634bae0/scratchpad/repo/hardware/kicad/hauptplatine/logger.kicad_sch")
+		(date "2026-10-10T18:51:00")
+		(tool "Eeschema 10.0.7-10.0.7~ubuntu24.04.1")
 		(sheet
 			(number "1")
 			(name "/")
@@ -3001,6 +3001,7 @@
 			(ref "J302")
 			(value "Debug (SWD + Serial1)")
 			(footprint "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical")
+			(description "= J10 in anschluesse.md: 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1 (PA9, Ausgang), 7 RX1 (PA10)")
 			(fields
 				(field
 					(name "Footprint") "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical")
@@ -3008,8 +3009,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "= J10 in anschluesse.md: 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1 (PA9, Ausgang), 7 RX1 (PA10)")
 			)
 			(libsource
 				(lib "Connector_Generic")
@@ -6759,8 +6759,8 @@
 			(class "Default")
 			(node
 				(ref "J302")
-				(pin "6")
-				(pinfunction "Pin_6_6")
+				(pin "7")
+				(pinfunction "Pin_7_7")
 				(pintype "passive")
 			)
 			(node
@@ -6776,8 +6776,8 @@
 			(class "Default")
 			(node
 				(ref "J302")
-				(pin "5")
-				(pinfunction "Pin_5_5")
+				(pin "6")
+				(pinfunction "Pin_6_6")
 				(pintype "passive")
 			)
 			(node
@@ -7757,8 +7757,8 @@
 			)
 			(node
 				(ref "J302")
-				(pin "7")
-				(pinfunction "Pin_7_7")
+				(pin "5")
+				(pinfunction "Pin_5_5")
 				(pintype "passive")
 			)
 			(node

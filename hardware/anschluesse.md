@@ -14,18 +14,20 @@ Bezug:
 
 | Nr. | Anschluss | Bauform | Pins (Reihenfolge 1 → n) | Schutz | Leitung |
 |---|---|---|---|---|---|
-| J1 | Solarpanel 1 | steckbare Klemme 3,5 mm, 2-polig | 1 GND, 2 +PV | Schottky je Panel, TVS SMAJ12A gemeinsam (versorgung.md 3.1) | Panelkabel |
-| J2 | Solarpanel 2 | wie J1 | 1 GND, 2 +PV | wie J1 | Panelkabel |
+| J1 (Platine: J201) | Solarpanel 1 | steckbare Klemme 3,5 mm, 2-polig | 1 GND, 2 +PV | Schottky je Panel, TVS SMAJ12A gemeinsam (versorgung.md 3.1) | Panelkabel |
+| J2 (Platine: J202) | Solarpanel 2 | wie J1 | 1 GND, 2 +PV | wie J1 | Panelkabel |
 | J3 (Platine: J203) | Akku-Platine | **JST PH 5-polig** (B5B-PH-K stehend), Kabel im Gehäuse | 1 P− (GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+ | Zellschutz und Ladesperre auf der Akku-Platine (versorgung.md 3.3/3.4); Leitungsbruch an CE_FREI oder TMP_VCC sperrt das Laden | kurz, im Gehäuse, Kabelplan 1.1 |
 | J4 | Wägezelle H40A | steckbare Klemme 3,5 mm, 5-polig | 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+ | **TPD4E05U06** an E+, S+, S− (E− ist Masse); 100 Ω in S±, 100 nF S+/S−, 10 nF je S nach Masse (waage.md 4) | Originalkabel 1,8 m |
 | J5 | Mikrofon | steckbare Klemme 3,5 mm, 4-polig | 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA) | **ESDS304** an OUT und VCC; 100 Ω in OUT (mikrofon.md 2) | LiYCY 3 × 0,14, ≤ 2 m |
 | J6 | DS18B20 Nr. 1 (TempIn) | steckbare Klemme 3,5 mm, 3-polig | 1 GND, 2 DQ, 3 3V3_SW | **ESDS304** (ein Array für J6 + J7) | Fühlerkabel |
 | J7 | DS18B20 Nr. 2 (TempIn2) | wie J6, am selben 1-Wire-Bus | 1 GND, 2 DQ, 3 3V3_SW | wie J6 | Fühlerkabel |
 | J8 | BME280 (Strahlungsschutz) | steckbare Klemme 3,5 mm, **6-polig** | 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (nur Verwechslungsschutz) | **ESDS304** an SDA, SCL, 3V3_SW | **Outdoor-Netzwerkkabel** (Cat 5e/6, PE-Mantel), Paare SDA+GND, SCL+GND, 3V3+GND, Schirm falls vorhanden an Pin 1; **≤ 1 m** (siehe 3.1, HW26-09) |
-| J9 | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – | USBLC6-2SC6 | nur am Tisch |
-| J10 | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen |
+| J9 (Platine: J301) | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – | USBLC6-2SC6 | nur am Tisch |
+| J10 (Platine: J302) | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen; Pinfolge siehe 1.2 (SCH26-09) |
 | J11 | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 PA15, 10 PB12, 11 PB13, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1) |
 | – | Antenne | IPEX am Funkmodul | – | – | FPC-Antenne innen (mcu-funk.md 2.3) |
+
+Die Nummern J1–J11 sind die Anschlussnummern dieses Dokuments; in Klammern steht die Referenz im KiCad-Schaltplan. Steht ein Stecker schon auf einem Schaltplanblatt, vergleicht `hardware/kicad/werkzeug/netz_tests.py` die Spalte „Pins“ mit der KiCad-Netzliste (SCH26-09). Eine Änderung der Pinfolge gehört deshalb immer in diese Tabelle **und** in den Generator.
 
 ### 1.1 Kabelplan Akku-Platine ↔ Hauptplatine (SCH26-06)
 
@@ -51,6 +53,22 @@ Die Klemmen-Pinbelegung folgt drei Regeln:
     - Mikrofon in J4, versetzt: Das Modul bekommt bis 4,3 V (MAX4466 arbeitet bis 5,5 V [A, nicht erneut nachgelesen]); seine Leitungen landen über 100 Ω an den HX711-Eingängen. Die Messung ist gestört, ein Schaden ist unwahrscheinlich [A].
     Die Farbe bleibt deshalb als Hinweis.
 - Die Belegung steht im **Bestückungsdruck an jeder Klemme**: Klemmenname und Pin-Bezeichnungen.
+
+### 1.2 Debug-Leiste J10 / J302 (SCH26-09)
+
+| Pin | Signal | MCU | Gegenstelle |
+|---|---|---|---|
+| 1 | 3V3 | – | SWD-Adapter VTref (nur Referenz, **nicht** aus dem Adapter speisen) |
+| 2 | SWDIO | PA13 | SWD-Adapter SWDIO |
+| 3 | SWCLK | PA14 | SWD-Adapter SWCLK |
+| 4 | NRST | NRST | SWD-Adapter NRST/RST |
+| 5 | GND | – | SWD-Adapter GND **und** USB-Seriell-Adapter GND |
+| 6 | TX1 | PA9 (Ausgang) | RX des USB-Seriell-Adapters |
+| 7 | RX1 | PA10 (Eingang) | TX des USB-Seriell-Adapters |
+
+- Begründung der Reihenfolge [A]: Mit GND an Pin 5 liegen SWD (Pin 1–5) und Serial1 (Pin 5–7) jeweils am Stück. Ein dreipoliger Seriell-Stecker (GND, RX, TX) passt direkt auf Pin 5–7.
+- Ein Kabel nach dieser Tabelle zuerst **stromlos mit dem Durchgangsprüfer** gegen den Bestückungsdruck prüfen. Pin 1 ist im Bestückungsdruck markiert.
+- Seriell-Adapter nur mit **3,3-V-Pegel** verwenden.
 
 ## 2. Bauteile
 

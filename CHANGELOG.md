@@ -1,5 +1,12 @@
 # Änderungen
 
+## 2026-10-10 – Behebung Schaltplan-Review 4c12b6d (SCH26-09 bis -12)
+
+- **SCH26-09:** Debug-Leiste J302 im Generator an den Kabelplan `anschluesse.md` J10 angeglichen (1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, **5 GND, 6 TX1, 7 RX1**). `anschluesse.md`: Platinenreferenzen J1/J201, J2/J202, J9/J301, J10/J302, neuer Abschnitt 1.2 Debug-Leiste. `netz_tests.py` prüft J302 je Pin und vergleicht die Stecker-Pinbelegung aus `anschluesse.md` mit der KiCad-Netzliste, mit Gegenprobe (48 → 74 Prüfungen).
+- **SCH26-12:** `pruefen.sh` vergleicht alle erzeugten Blätter (Liste aus den Ordnern), prüft die Abdeckung gegen die Blattverweise der Wurzelblätter und hat den Modus `--gegenprobe` (Zufalls-UUIDs über `BIENEN_GEGENPROBE_ZUFALL` in `kicad_gen.py`).
+- **SCH26-10/11:** Entscheidungsvorlage USB-Rolle/VBUS-Erkennung (`mcu-funk.md` 1.3) und Prüfplan Funkmodul F-1…F-6 (`mcu-funk.md` 6.1); Schaltplan dafür unverändert.
+- Prüfung (lokal, KiCad 10.0.7): reproduzierbar, ERC Akku 0 / Hauptplatine 11 erwartete Meldungen, 74/74 Netzprüfungen; Gegenproben bestanden. Bericht: `docs/testberichte/2026-10-10-sch26-09-12-behebung.md`.
+
 ## 2026-10-10 – Blatt Funk + Flash
 
 - Neues Blatt `hauptplatine/funk.kicad_sch` nach `mcu-funk.md` 2, 3.1, 3.2: Ra-01SH (eigenes Symbol, Pinbelegung Datenblatt V1.1 S. 11) an SPI1 mit 33-Ω-Reihenwiderständen, NSS-Pull-up 100 kΩ, Puffer 100 µF + 10 µF + 100 nF und TVS am 3,3-V-Eingang, TXEN/RXEN über offene Lötbrücken, ANT/DIO2/DIO3 offen; SPI-NOR-Flash 64 Mbit (SOIC-8 208 mil) am selben Bus mit CS-Pull-up 100 kΩ, WP/HOLD über 10 kΩ, 100 nF.

@@ -3,7 +3,7 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
-Stand 10.10.2026: Blätter „Versorgung“ und „MCU“. Weitere Blätter (Funk + Flash, Waage, Mikrofon,
+Stand 10.10.2026: Blätter „Versorgung“, „MCU“ und „Funk + Flash“. Weitere Blätter (Waage, Mikrofon,
 Anschlüsse) folgen; Netze zu diesen Blättern sind als Schnittstellen (globale Labels) angelegt.
 
 Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7.
@@ -231,8 +231,11 @@ def mcu(p):
     b.teil("Power_Protection:USBLC6-2SC6", "U302", "USBLC6-2SC6", fp="Package_TO_SOT_SMD:SOT-23-6", lcsc="C7519",
            netze={"1": "USB_DM", "6": "USB_DM", "3": "USB_DP", "4": "USB_DP", "5": "VBUS", "2": "GND"})
     # Debug
+    # SCH26-09: Pinfolge wie anschluesse.md J10 (führend für den Kabelplan); netz_tests.py vergleicht beide.
+    # GND an Pin 5: SWD-Adapter an Pin 1–5 und USB-Seriell-Adapter (GND, RX, TX) an Pin 5–7 je am Stück.
     b.teil("Connector_Generic:Conn_01x07", "J302", "Debug (SWD + Serial1)", fp="Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical",
-           netze={"1": "+3V3", "2": "SWDIO", "3": "SWCLK", "4": "NRST", "5": "DBG_TX", "6": "DBG_RX", "7": "GND"})
+           netze={"1": "+3V3", "2": "SWDIO", "3": "SWCLK", "4": "NRST", "5": "GND", "6": "DBG_TX", "7": "DBG_RX"},
+           info="= J10 in anschluesse.md: 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1 (PA9, Ausgang), 7 RX1 (PA10)")
     b.teil("power:PWR_FLAG", "#FLG301", "PWR_FLAG", netze={"1": "VDDA"}, info="VDDA aus +3V3 über FB301 (Ferrit ist für den ERC kein Treiber)")
     zeichne_mcu(b, {t.ref: t for t in b.teile})
     return b
@@ -337,7 +340,7 @@ def zeichne_mcu(b, T):
 
     # --- 5 Debug-Leiste -----------------------------------------------------
     J = S(T["J302"], 304.8, 119.38)
-    for pin in ("2", "3", "4", "5", "6"):
+    for pin in ("2", "3", "4", "6", "7"):      # Pin 1 +3V3 und Pin 5 GND als Versorgungssymbol (SCH26-09)
         stub(b, J, pin, 10.16)
 
     # --- 4 USB-C ------------------------------------------------------------

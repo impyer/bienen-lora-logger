@@ -41,10 +41,19 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 - **VBUS → Schottky → Eingang des BQ25185**, parallel zu den Panels. So lädt der Logger am Tisch über USB, und USB speist nie zurück ins Panel [A].
 - Bootloader: BOOT0-Taster gedrückt halten, Reset → DFU über USB. Ob der Bootloader des F411 mit 25-MHz-Quarz zuverlässig startet, ist in AN2606 für F411 nicht gelesen. Ein ST-Forumsbeitrag berichtet Probleme [V, Forum]. Die BlackPill macht es aber serienmäßig. **[P]** am Muster prüfen. **SWD bleibt der sichere Weg.**
 
+**USB-Rolle und VBUS-Erkennung (SCH26-10, Entscheidung Philipp offen):**
+- Der Logger ist ein **selbstversorgtes** USB-Gerät (Akku/Solar). ST AN4879 verlangt dafür eine VBUS-Erkennung; die eingebaute Erkennung des F411 liegt an **PA9**, hier aber Serial1-TX [V: AN4879, Abschnitt „VBUS sensing detection“]. Ein anderer Pin geht über einen Spannungsteiler, wenn er 5-V-tolerant ist; die eingebaute Erkennung bleibt dann aus (VBDEN = 0). Teiler laut AN4879 für VDD 3,0–3,6 V: **33 kΩ von VBUS, 82 kΩ nach GND** (±1 %) [V].
+- Für den **ROM-Bootloader (DFU)** allein ist keine Erkennung nötig: Er wird mit gestecktem Kabel über BOOT0 + Reset gestartet [A; die BlackPill nutzt PA9 ebenfalls nicht für VBUS]. Am Muster prüfen (oben).
+- Für eine **eigene USB-Funktion** der Firmware (z. B. Konsole oder Auslesen des Flashs, 3.2) braucht die Firmware das Signal: USB-Takt und USB-Peripherie nur bei gestecktem Kabel einschalten, D+-Pull-up (Soft-Connect) nur dann freigeben.
+- Vorschlag zur Entscheidung:
+  - **A – nur Laden + ROM-DFU:** keine Änderung am Schaltplan; die Firmware nutzt USB nicht; Auslesen nur über SWD/Serial1 oder per Funk. 3.2 wird entsprechend angepasst.
+  - **B – eigene USB-Funktion (Empfehlung):** `VBUS_SENSE` = VBUS vor D203 → 33 kΩ / 82 kΩ → **PB13** (fällt aus der Erweiterungsleiste J11). Kosten: 2 Widerstände, ein Pin; kein Ruhestrom aus dem Akku, weil der Teiler an VBUS hängt (bei USB ca. 45 µA). Wecken aus Standby nur über PA0: nach dem Einstecken Taster/Magnet betätigen, sonst erkennt die Firmware USB beim nächsten Messzyklus. PB13 als 5-V-tolerant im F411-Datenblatt **[P]** bestätigen (Teiler hält den Pin ohnehin unter 4 V).
+  - **C – PA9 als native VBUS-Erkennung**, Serial1-TX auf einen anderen Pin legen: nur sinnvoll, wenn die eingebaute Erkennung gewünscht ist; die Alternativfunktion USART1_TX auf PA15 ist **[P]** im Datenblatt zu prüfen.
+- Testfälle nach der Entscheidung: nur USB, nur Solar, nur Akku, USB gesteckt bei schlafendem Logger, Host ausgeschaltet bei gestecktem Kabel.
+
 ### 1.4 Debug
 
-- SWD-Stiftleiste 1,27 mm oder 2,54 mm: 3,3 V, SWDIO (PA13), SWCLK (PA14), NRST, GND
-- Serial1 (PA9/PA10) auf derselben Leiste
+- Stiftleiste 2,54 mm 1 × 7 (J10, im Schaltplan J302): 1 3V3, 2 SWDIO (PA13), 3 SWCLK (PA14), 4 NRST, 5 GND, 6 TX1 (PA9), 7 RX1 (PA10). Führend ist die Tabelle in `anschluesse.md` 1.2; die Netzprüfung vergleicht sie mit dem Schaltplan (SCH26-09).
 - Firmware stellt auf „nur SWD“: Dann sind PA15, PB3, PB4 als normale Pins frei [A].
 
 ## 2. Funk Ai-Thinker Ra-01SH
@@ -66,6 +75,8 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 | 12–15 | SCK / MISO / MOSI / NSS | PA5 / PA6 / PA7 / PA4 (SPI1), je **33 Ω** in Reihe (Datenblatt: 10–100 Ω) |
 
 **TXEN/RXEN:** Ai-Thinker nennt sie nur „RF control port“. Nach einer Drittquelle (Bibliothek nopnop2002) schaltet beim Ra-01SH **DIO2** den HF-Schalter; TXEN/RXEN bleiben dort unbeschaltet [V, Drittquelle]. Weil das nicht vom Hersteller belegt ist, gehen beide über offene Lötbrücken an freie Pins. Funktioniert das Senden ohne sie nicht, werden die Brücken geschlossen und die Firmware steuert die Pins. Kein Umbau der Platine nötig.
+
+Stand 10.10.2026 (SCH26-11): Die README der Bibliothek nopnop2002/esp-idf-sx126x schreibt ausdrücklich, Ra-01S/Ra-01SH schalten über **DIO2** einen integrierten Lastschalter (SC70-6) zwischen RFO und RFI; in ihrer Verdrahtungstabelle sind TXEN/RXEN „N/C“, und die Grundeinstellung der Bibliothek ist für diese Module gemacht [V, Drittquelle]. Ai-Thinker selbst nennt TXEN/RXEN „RF control port“ [V]. Die Annahme bleibt damit plausibel, ist aber **nicht am gelieferten Modul nachgewiesen**. Freigabe für Funk erst nach dem Prüfplan in 6.1.
 
 ### 2.2 Versorgung des Moduls
 
@@ -216,3 +227,19 @@ Frei für den Erweiterungsstecker (F9): PA15, PB12, PB13. PB11 gibt es beim UFQF
 6. Lastkondensatoren HSE/LSE am Muster prüfen (Frequenz, Anschwingen in der Kälte)
 7. TVS für den 3,3-V-Eingang des Moduls auswählen
 8. FPC-Antenne: passende Größe für die Gehäusewand wählen (CBHUB-02: Innenhöhe 58,9 mm)
+
+### 6.1 Prüfplan Funkmodul am Steckbrett (SCH26-11, T4, durch Philipp)
+
+Aufbau: BlackPill + Ra-01SH aus der Lieferung für die Platine, FPC-Antenne an IPEX, 3,3 V aus Labornetzteil mit Strombegrenzung 300 mA, Gateway RAK7268V2 in 5–8 m. Ergebnisse als Prüfbericht mit Fotos und Messwerten eintragen; nichts als gemessen eintragen, was nicht gemessen wurde.
+
+| Test | Durchführung | Erwartung / Entscheidung |
+|---|---|---|
+| F-1 Chip | Aufdruck unter der Abschirmung bzw. Händlerangabe, Foto; Firmware liest das Chip-Register (RadioLib meldet SX1262/LLCC68) | Chip festgehalten; bei LLCC68 kein SF11/12 (2.4) |
+| F-2 stromlos | Widerstand messen: TXEN↔DIO2, RXEN↔DIO2, TXEN↔GND, RXEN↔GND, TXEN↔RXEN, ANT-Pad↔IPEX-Innenleiter | zeigt, ob TXEN/RXEN intern mit DIO2 verbunden sind und ob ANT parallel zu IPEX liegt (Prüfpunkt 2) |
+| F-3 Pegel | RadioLib mit `setDio2AsRfSwitch(true)`, TXEN/RXEN **offen**: Spannung an DIO2, TXEN, RXEN messen bei Dauerträger (`transmitDirect`) und bei Empfang (`startReceive`) | DIO2 wechselt TX/RX; folgt TXEN/RXEN dem DIO2, sind sie intern verbunden |
+| F-4 Senden | Uplinks bei 14 dBm, TXEN/RXEN offen; RSSI/SNR in TTN mit dem RFM95-Musterlogger am gleichen Platz vergleichen; Sendestrom am Netzteil ablesen | RSSI im Bereich des Musterloggers; deutlich schlechter (> 15 dB [A]) = HF-Schalter falsch |
+| F-5 Empfangen | Downlink bzw. DeviceTimeAns empfangen (RX1/RX2) | Antwort kommt an |
+| F-6 Gegenprobe | nur wenn F-4/F-5 scheitern: TXEN/RXEN an PB14/PB15, `setRfSwitchPins(PB15, PB14)`, F-4/F-5 wiederholen | geht es nur so: JP401/JP402 im Schaltplan schließen bzw. durch 0 Ω ersetzen, Pull-downs für einen definierten Zustand im Standby ergänzen |
+
+Entscheidung danach im Befundregister (SCH26-11) und in 2.1: Lötbrücken offen lassen (DIO2 bestätigt) oder schließen.
+

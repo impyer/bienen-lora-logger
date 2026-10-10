@@ -4807,7 +4807,7 @@
 	)
 	(wire
 		(pts
-			(xy 289.56 124.46) (xy 299.72 124.46)
+			(xy 289.56 127) (xy 299.72 127)
 		)
 		(stroke
 			(width 0)
@@ -5227,7 +5227,7 @@
 	)
 	(wire
 		(pts
-			(xy 289.56 121.92) (xy 299.72 121.92)
+			(xy 289.56 124.46) (xy 299.72 124.46)
 		)
 		(stroke
 			(width 0)
@@ -5786,7 +5786,7 @@
 		(uuid "06f02e04-438f-5864-88cd-8792936cf813")
 	)
 	(label "DBG_TX"
-		(at 289.56 121.92 180)
+		(at 289.56 124.46 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6076,7 +6076,7 @@
 		(uuid "cfd14056-aa93-5917-97cd-8e331f1a07b0")
 	)
 	(label "DBG_RX"
-		(at 289.56 124.46 180)
+		(at 289.56 127 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10996,7 +10996,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 299.72 127 270)
+		(at 299.72 121.92 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -11006,7 +11006,7 @@
 		(dnp no)
 		(uuid "af3b66b8-1ced-5801-8876-67dddb009d62")
 		(property "Reference" "#PWR3031"
-			(at 299.72 127 0)
+			(at 299.72 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11017,7 +11017,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 299.72 130.2 0)
+			(at 299.72 125.12 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11027,7 +11027,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 299.72 127 0)
+			(at 299.72 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11038,7 +11038,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 299.72 127 0)
+			(at 299.72 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11049,7 +11049,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 299.72 127 0)
+			(at 299.72 121.92 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11672,7 +11672,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "= J10 in anschluesse.md: 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1 (PA9, Ausgang), 7 RX1 (PA10)"
 			(at 304.8 119.38 0)
 			(hide yes)
 			(show_name no)
