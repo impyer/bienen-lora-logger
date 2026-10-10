@@ -14,7 +14,7 @@
 		(comment 3 "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
 	)
 	(lib_symbols)
-	(text "Blätter: Versorgung (fertig). Folgen: MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse."
+	(text "Blätter: Versorgung, MCU (fertig). Folgen: Funk + Flash, Waage, Mikrofon, Anschlüsse."
 		(exclude_from_sim no)
 		(at 30 25 0)
 		(effects
@@ -23,7 +23,53 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "35b5fcd5-2c33-5597-8dd0-71aa346d2165")
+		(uuid "e3f12067-5fde-5c33-a2db-4a5779e899a5")
+	)
+	(sheet
+		(at 85 40)
+		(size 45 20)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "946b3ffb-4c44-5887-a68a-7af9186c1b58")
+		(property "Sheetname" "MCU"
+			(at 85 39.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "mcu.kicad_sch"
+			(at 85 60.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "logger"
+				(path "/69595bfe-3184-5a98-8dcb-39e42f38dc44"
+					(page "3")
+				)
+			)
+		)
 	)
 	(sheet
 		(at 30 40)

@@ -17,12 +17,14 @@ if command -v node >/dev/null 2>&1; then
   g++ -std=c++11 -Wall -Wextra -O2 -o firmware/test_funkformat_v2 firmware/test_funkformat_v2.cpp && ./firmware/test_funkformat_v2
   node formatter/test_formatter.js
   node formatter/test_formatter.js ../formatter/ttn_formatter.min.js
+  node formatter/test_s2120_formatter.js
 else
   echo "Node.js fehlt: Formatter-Tests übersprungen"
 fi
 if command -v php >/dev/null 2>&1; then
   php server/test_lora_funktionen.php
-  if command -v node >/dev/null 2>&1; then bash server/test_lora_eingang.sh; fi
+  php server/test_wetter_funktionen.php
+  if command -v node >/dev/null 2>&1; then bash server/test_lora_eingang.sh; bash server/test_wetter_eingang.sh; fi
 else
   echo "PHP fehlt: Server-Tests übersprungen"
 fi

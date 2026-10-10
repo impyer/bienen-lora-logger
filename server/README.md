@@ -33,9 +33,12 @@ Die CI erzeugt die Fassung bei jedem Lauf neu und vergleicht sie mit dem Ordner.
 
 Eigener LoRa-Eingang (Webhook-Ziel für TTN) mit richtiger Messzeit und Zusatzdatei; die beelogger-Skripte bleiben unverändert. Siehe [`lora/README.md`](lora/README.md).
 
+## `wetter/`
+
+Eigener Wetter-Eingang (Webhook-Ziel für TTN) für die Wetterstation SenseCAP S2120: speichert alle Werte je Bienenstand als CSV, auch Wind, Regen und UV. Siehe [`wetter/README.md`](wetter/README.md).
+
 ## Geplant
 
-- Werte der Wetterstation SenseCAP S2120 als Standreferenz
 - Übertragung an BEEP mit Messzeitpunkt
 
 Zugangsdaten gehören in nicht versionierte Dateien (siehe `.gitignore`).

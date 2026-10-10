@@ -114,7 +114,7 @@ def main():
     pruefe("R205 (CE-Pull-up) an SYS", h_pin.get(("R205", "1")) == "SYS", h_pin.get(("R205", "1")))
     for ref, soll in (("R203", "2,0k 1%"), ("R204", "130k 1%"), ("R205", "100k"), ("R208", "100k"), ("R201", "3,3M"), ("R202", "470k")):
         pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
-    genau(h, "SENSOR_EIN", {("U203", "3"), ("R208", "1")})
+    genau(h, "SENSOR_EIN", {("U203", "3"), ("R208", "1"), ("U301", "41")})  # PB5
     pruefe("TPS22917 CT-Kondensator nach VIN (+3V3)", h_pin.get(("C210", "2")) == "+3V3" and h_pin.get(("C210", "1")) == "SW_CT")
 
     # --- Kabel J1 (Akku) ↔ J203 (Haupt), 1:1 ---

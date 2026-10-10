@@ -5,6 +5,7 @@
 | `formatter.js` | lesbarer Quelltext, hier wird bearbeitet |
 | `ttn_formatter.min.js` | verkleinerte Fassung zum Einfügen in TTN, erzeugt mit `bauen.sh` |
 | `bauen.sh` | erzeugt `ttn_formatter.min.js` (Node.js nötig, terser 5.36.0) und prüft die Größe |
+| `s2120_beep_formatter.js` | eigener Formatter für die Wetterstation SenseCAP S2120 (Gerät `wetterstation-01`), nur ASCII, direkt einfügen |
 
 ## Was er dekodiert
 
@@ -14,6 +15,10 @@
 - **FPort 2:** Funkformat v2, siehe [`../docs/funkformat-v2.md`](../docs/funkformat-v2.md).
 
 Die Feldnamen entsprechen dem beelogger-Webserver (`beelogger_log.php`, `LORA=1`). Namen für neue Werte stehen oben im Objekt `NAME` und lassen sich dort ändern, z. B. für die zweite Innentemperatur.
+
+## Wetterstation SenseCAP S2120
+
+`s2120_beep_formatter.js` dekodiert die Blöcke 4A/4B/4C (Messwerte) und 03/04 (Batterie, Intervall) nach dem Seeed-Decoder und gibt flache Felder aus: `t`, `h`, `p` (hPa), `l` für BEEP, dazu `uv`, `wind_ms`, `wind_dir_deg`, `gust_ms`, `rain_mmh`, `rain_mm`, `battery_pct`, `interval_min`. BEEP speichert davon nur `t`, `h`, `p`, `l`; alles geht an den Wetter-Eingang (`server/wetter/`). Eintragen beim **Gerät** (Payload formatters → Uplink → Custom Javascript formatter). Tests: `node tests/formatter/test_s2120_formatter.js`, dazu goja mit `VEKTOREN=…`.
 
 ## In TTN eintragen
 

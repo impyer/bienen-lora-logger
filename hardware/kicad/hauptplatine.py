@@ -3,8 +3,8 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
-Stand: Blatt „Versorgung“. Weitere Blätter (MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse)
-folgen; Netze zu diesen Blättern sind als Schnittstellen (globale Labels) angelegt.
+Stand 10.10.2026: Blätter „Versorgung“ und „MCU“. Weitere Blätter (Funk + Flash, Waage, Mikrofon,
+Anschlüsse) folgen; Netze zu diesen Blättern sind als Schnittstellen (globale Labels) angelegt.
 
 Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7.
 Aufruf: python3 hardware/kicad/hauptplatine.py
@@ -32,6 +32,11 @@ SCHNITTSTELLEN = {
     "SENSOR_EIN",  # PB5 → ON des TPS22917
     "3V3_SW",      # geschaltete Sensorschiene
     "SYS",         # 5-V-Wandler der Waage hängt an SYS
+    # Blatt MCU → Funk + Flash
+    "SPI_SCK", "SPI_MISO", "SPI_MOSI", "LORA_NSS", "LORA_DIO1", "LORA_BUSY", "LORA_RST", "LORA_TXEN", "LORA_RXEN",
+    "FLASH_CS",
+    # Blatt MCU → Mikrofon, Waage, Anschlüsse
+    "MIC_ADC", "HX_DOUT", "HX_SCK", "WAAGE_EIN", "ONEWIRE", "I2C_SCL", "I2C_SDA", "EXT_PA15", "EXT_PB12", "EXT_PB13",
 }
 
 
@@ -162,6 +167,213 @@ def zeichne_versorgung(b, T):
         D(T[r].p("1"), (T[r].p("1")[0], {"C205": 78.74, "R206": 78.74, "C212": 147.32}.get(r, y3)))
 
 
+STM32_FP = "Package_DFN_QFN:QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm"
+
+
+def mcu(p):
+    """Blatt MCU (mcu-funk.md 1, 3.3, 4): STM32F411CEU6, Takt, Reset/BOOT, USB-C, Debug, Magnet/Taster, LED."""
+    b = p.blatt("MCU", "mcu.kicad_sch", titel="MCU: STM32F411CEU6, Takt, USB-C, Debug, Magnet und LED")
+    pins = {"VDD": "+3V3", "VBAT": "+3V3", "VDDA": "VDDA", "VSS": "GND", "VSSA": "GND", "VCAP1": "VCAP",
+            "NRST": "NRST", "BOOT0": "BOOT0", "PH0": "HSE_IN", "PH1": "HSE_OUT", "PC14": "LSE_IN", "PC15": "LSE_OUT",
+            "PC13": "LED", "PA0": "WAKE", "PA1": "MIC_ADC", "PA2": "LORA_DIO1", "PA3": "LORA_BUSY", "PA4": "LORA_NSS",
+            "PA5": "SPI_SCK", "PA6": "SPI_MISO", "PA7": "SPI_MOSI", "PA8": "ONEWIRE", "PA9": "DBG_TX", "PA10": "DBG_RX",
+            "PA11": "USB_DM", "PA12": "USB_DP", "PA13": "SWDIO", "PA14": "SWCLK", "PA15": "EXT_PA15",
+            "PB0": "ADC_AKKU", "PB1": "ADC_SOLAR", "PB2": "BOOT1", "PB3": "FLASH_CS", "PB4": "LORA_RST",
+            "PB5": "SENSOR_EIN", "PB6": "I2C_SCL", "PB7": "I2C_SDA", "PB8": "HX_DOUT", "PB9": "HX_SCK", "PB10": "WAAGE_EIN",
+            "PB12": "EXT_PB12", "PB13": "EXT_PB13", "PB14": "LORA_TXEN", "PB15": "LORA_RXEN"}
+    netze = {}
+    for nr, name, *_r in pins_von_lib("MCU_ST_STM32F4:STM32F411CEUx"):
+        netze[nr] = pins[name]
+    b.teil("MCU_ST_STM32F4:STM32F411CEUx", "U301", "STM32F411CEU6", fp=STM32_FP, netze=netze,
+           info="UFQFPN-48; Pinbelegung mcu-funk.md 4; Thermal-Pad (49) an GND")
+    # Versorgung
+    for ref in ("C301", "C302", "C303"):
+        b.teil("Device:C", ref, "100n", fp=C0603, netze={"1": "+3V3", "2": "GND"}, info="je VDD-Pin direkt am Pin (AN4488)")
+    b.teil("Device:C", "C304", "10µ 10V X5R", fp=C0805, netze={"1": "+3V3", "2": "GND"}, info="Sammelkondensator VDD (ST: ≥ 4,7 µF)")
+    b.teil("Device:C", "C308", "100n", fp=C0603, netze={"1": "+3V3", "2": "GND"}, info="VBAT an 3,3 V, keine Knopfzelle (V6)")
+    b.teil("Device:FerriteBead_Small", "FB301", "600R@100MHz", fp="Inductor_SMD:L_0603_1608Metric",
+           netze={"1": "+3V3", "2": "VDDA"}, info="VDDA für die Mikrofonmessung beruhigt [A]")
+    b.teil("Device:C", "C305", "100n", fp=C0603, netze={"1": "VDDA", "2": "GND"})
+    b.teil("Device:C", "C306", "1µ", fp=C0603, netze={"1": "VDDA", "2": "GND"})
+    b.teil("Device:C", "C307", "4,7µ X7R", fp=C0805, netze={"1": "VCAP", "2": "GND"}, info="VCAP_1: keramisch, ESR < 1 Ω, sehr nah")
+    # Reset, BOOT
+    b.teil("Device:C", "C309", "100n", fp=C0603, netze={"1": "NRST", "2": "GND"})
+    b.teil("Switch:SW_Push", "SW301", "Reset", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "GND", "2": "NRST"})
+    b.teil("Device:R", "R301", "10k", fp=R0603, netze={"1": "BOOT0", "2": "GND"})
+    b.teil("Switch:SW_Push", "SW302", "BOOT", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "+3V3", "2": "BOOT0"},
+           info="gedrückt halten + Reset → USB-DFU")
+    b.teil("Device:R", "R302", "10k", fp=R0603, netze={"1": "GND", "2": "BOOT1"}, info="PB2/BOOT1 nach GND")
+    # Takt
+    b.teil("Device:Crystal_GND24", "Y301", "25MHz 12pF", fp="Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm", lcsc="C9006",
+           netze={"1": "HSE_IN", "3": "HSE_OUT", "2": "GND", "4": "GND"}, info="YXC X322525MOB4SI")
+    b.teil("Device:C", "C310", "18p C0G", fp=C0603, netze={"1": "GND", "2": "HSE_IN"}, info="2·(CL − Cstray) [A], am Muster prüfen")
+    b.teil("Device:C", "C311", "18p C0G", fp=C0603, netze={"1": "GND", "2": "HSE_OUT"})
+    b.teil("Device:Crystal", "Y302", "32,768k 7pF", fp="Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm", lcsc="C97604",
+           netze={"1": "LSE_IN", "2": "LSE_OUT"}, info="Seiko SC-32S; AN4488: CL ≤ 7 pF")
+    b.teil("Device:C", "C312", "8,2p C0G", fp=C0603, netze={"1": "GND", "2": "LSE_IN"})
+    b.teil("Device:C", "C313", "8,2p C0G", fp=C0603, netze={"1": "GND", "2": "LSE_OUT"})
+    # Magnet/Taster, LED
+    b.teil("Switch:SW_Push", "SW303", "Service", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "WAKE", "2": "+3V3"})
+    b.teil("Switch:SW_Reed", "SW304", "Reedkontakt", fp="", netze={"1": "WAKE", "2": "+3V3"},
+           info="an der Platinenkante neben der LED; Teil und Footprint [P]")
+    b.teil("Device:R", "R305", "100k", fp=R0603, netze={"1": "WAKE", "2": "GND"}, info="Pull-down WKUP1")
+    b.teil("Device:R", "R306", "1k", fp=R0603, netze={"1": "+3V3", "2": "LED_A"}, info="≥ 1 kΩ (mcu-funk.md 4)")
+    b.teil("Device:LED", "D301", "Side-View", fp="LED_SMD:LED_0603_1608Metric", netze={"A": "LED_A", "K": "LED"},
+           info="seitlich abstrahlend am Rand unter dem Lichtleiter; Teil/Footprint [P]")
+    # USB-C
+    b.teil("Connector:USB_C_Receptacle_USB2.0_16P", "J301", "USB-C", fp="Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
+           lcsc="C165948", netze={"A1": "GND", "A12": "GND", "B1": "GND", "B12": "GND", "A4": "VBUS", "A9": "VBUS", "B4": "VBUS",
+                                  "B9": "VBUS", "A5": "USB_CC1", "B5": "USB_CC2", "A6": "USB_DP", "B6": "USB_DP",
+                                  "A7": "USB_DM", "B7": "USB_DM", "A8": "NC", "B8": "NC", "SH": "GND"},
+           info="Schirm direkt an GND [A]")
+    b.teil("Device:R", "R303", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC1"}, info="USB-2.0-Gerät")
+    b.teil("Device:R", "R304", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC2"})
+    b.teil("Power_Protection:USBLC6-2SC6", "U302", "USBLC6-2SC6", fp="Package_TO_SOT_SMD:SOT-23-6", lcsc="C7519",
+           netze={"1": "USB_DM", "6": "USB_DM", "3": "USB_DP", "4": "USB_DP", "5": "VBUS", "2": "GND"})
+    # Debug
+    b.teil("Connector_Generic:Conn_01x07", "J302", "Debug (SWD + Serial1)", fp="Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical",
+           netze={"1": "+3V3", "2": "SWDIO", "3": "SWCLK", "4": "NRST", "5": "DBG_TX", "6": "DBG_RX", "7": "GND"})
+    b.teil("power:PWR_FLAG", "#FLG301", "PWR_FLAG", netze={"1": "VDDA"}, info="VDDA aus +3V3 über FB301 (Ferrit ist für den ERC kein Treiber)")
+    zeichne_mcu(b, {t.ref: t for t in b.teile})
+    return b
+
+
+def zeichne_mcu(b, T):
+    """Platzierung und Leitungen (A3 quer, mm). Mitte der STM32; oben die 3,3-V-Versorgung mit den
+    Abblockkondensatoren, links Reset/BOOT und Quarze, rechts Magnet/Taster. Leitungen zu anderen
+    Blättern und zu den Gruppen USB-C und Debug enden an Netznamen."""
+    S, D, L = b.setze, b.draht, b.label
+    U = S(T["U301"], 200.66, 139.7, text="unten")
+
+    b.text("1  Versorgung: VDD je 100 nF am Pin, VDDA über Ferrit, VBAT an 3,3 V, VCAP 4,7 µF", 144.78, 48.26, 2.0)
+    b.text("2  Reset, BOOT, Quarze 25 MHz und 32,768 kHz (CL ≤ 7 pF)", 30.48, 81.28, 2.0)
+    b.text("3  Magnet/Taster weckt (WKUP1), LED unter dem Lichtleiter", 236.22, 60.96, 2.0)
+    b.text("4  USB-C (Aufspielen, Laden am Tisch) mit ESD-Schutz", 279.4, 157.48, 2.0)
+    b.text("5  Debug-Leiste: SWD und Serial1", 279.4, 101.6, 2.0)
+    b.text("Netznamen ohne Gegenstück auf diesem Blatt führen zu den Blättern Versorgung, Funk + Flash, Waage, "
+           "Mikrofon und Anschlüsse (mcu-funk.md 4).", 30.48, 233.68, 1.5)
+
+    # --- 1 Versorgung oben ---------------------------------------------------
+    y_r = 66.04                      # +3V3-Schiene
+    D((129.54, y_r), (205.74, y_r))
+    b.versorgung("+3V3", 129.54, y_r, "oben")
+    for pin in ("VBAT", "24", "36", "48"):
+        D(U.p(pin), (U.p(pin)[0], y_r))
+    for ref, x in (("C303", 134.62), ("C302", 147.32), ("C301", 160.02), ("C304", 172.72), ("C308", 185.42)):
+        S(T[ref], x, 69.85)
+        D(T[ref].p("1"), (x, y_r))
+    S(T["FB301"], 205.74, 71.12)
+    D(T["FB301"].p("1"), (205.74, y_r))
+    D(T["FB301"].p("2"), (205.74, 81.28), U.p("VDDA"))
+    D((205.74, 81.28), (228.6, 81.28))
+    S(T["C305"], 218.44, 85.09)
+    S(T["C306"], 228.6, 85.09)
+    S(T["#FLG301"], 210.82, 81.28)
+    L("VDDA", 207.01, 81.28)
+    S(T["C307"], 175.26, 180.34, text="links")
+    D(U.p("VCAP1"), (175.26, 172.72), T["C307"].p("1"))
+    L("VCAP", 177.8, 172.72)
+
+    # --- 2 Reset, BOOT, Quarze links ----------------------------------------
+    y_rst = 88.9
+    D(U.p("NRST"), (172.72, 104.14), (172.72, y_rst), (101.6, y_rst))
+    S(T["C309"], 152.4, 92.71)
+    D(T["C309"].p("1"), (152.4, y_rst))
+    S(T["SW301"], 96.52, y_rst, text="oben")
+    L("NRST", 157.48, y_rst)
+    y_boot = 101.6
+    D(U.p("BOOT0"), (170.18, 109.22), (170.18, y_boot), (101.6, y_boot))
+    S(T["R301"], 116.84, 105.41, text="links")
+    D(T["R301"].p("1"), (116.84, y_boot))
+    S(T["SW302"], 96.52, y_boot, text="oben")
+    L("BOOT0", 152.4, y_boot)
+    # HSE
+    S(T["Y301"], 144.78, 115.57, rot=270, text="oben")
+    D(U.p("PH0"), (167.64, 114.3), (167.64, 111.76), T["Y301"].p("1"))
+    D(U.p("PH1"), (170.18, 116.84), (170.18, 119.38), T["Y301"].p("3"))
+    S(T["C310"], 132.08, 111.76, rot=90, text="links")
+    S(T["C311"], 132.08, 119.38, rot=90, text="links")
+    D(T["C310"].p("2"), T["Y301"].p("1"))
+    D(T["C311"].p("2"), T["Y301"].p("3"))
+    L("HSE_IN", 172.72, 114.3)
+    L("HSE_OUT", 172.72, 116.84)
+    # LSE
+    S(T["Y302"], 144.78, 128.27, rot=270, text="unten")
+    D(U.p("PC14"), T["Y302"].p("1"))
+    D(U.p("PC15"), (154.94, 127.0), (154.94, 132.08), T["Y302"].p("2"))
+    S(T["C312"], 132.08, 124.46, rot=90, text="links")
+    S(T["C313"], 132.08, 132.08, rot=90, text="links")
+    D(T["C312"].p("2"), T["Y302"].p("1"))
+    D(T["C313"].p("2"), T["Y302"].p("2"))
+    L("LSE_IN", 165.1, 124.46)
+    L("LSE_OUT", 165.1, 127.0)
+    # PB2/BOOT1 und LED: über Netznamen zu kleinen Gruppen links unten
+    stub(b, U, "PB2")
+    stub(b, U, "PC13")
+    R2 = S(T["R302"], 86.36, 160.02, rot=180, text="rechts")
+    stub(b, R2, "2", 5.08)
+    S(T["R306"], 106.68, 152.4)
+    S(T["D301"], 106.68, 165.1, rot=90)
+    D(T["R306"].p("2"), T["D301"].p("A"))
+    D(T["D301"].p("K"), (106.68, 173.99))
+    L("LED", 106.68, 173.99, 270)
+    L("LED_A", 106.68, 158.75)
+
+    # --- Pins zu anderen Blättern: kurze Leitung mit Netzname ---------------
+    for pin in ("PB0", "PB1", "PB3", "PB4", "PB5", "PB6", "PB7", "PB8", "PB9", "PB10", "PB12", "PB13", "PB14", "PB15",
+                "PA1", "PA2", "PA3", "PA4", "PA5", "PA6", "PA7", "PA8", "PA9", "PA10", "PA11", "PA12", "PA13", "PA14",
+                "PA15"):
+        stub(b, U, pin)
+
+    # --- 3 Magnet/Taster, PA0 -----------------------------------------------
+    D(U.p("PA0"), (246.38, 104.14), (246.38, 78.74))
+    S(T["SW304"], 256.54, 78.74, text="oben")
+    S(T["SW303"], 256.54, 86.36, text="unten")
+    D((246.38, 78.74), T["SW304"].p("1"))
+    D((246.38, 86.36), T["SW303"].p("1"))
+    S(T["R305"], 254.0, 96.52, rot=90, text="unten")
+    D((246.38, 96.52), T["R305"].p("1"))
+    L("WAKE", 228.6, 104.14)
+
+    # --- 5 Debug-Leiste -----------------------------------------------------
+    J = S(T["J302"], 304.8, 119.38)
+    for pin in ("2", "3", "4", "5", "6"):
+        stub(b, J, pin, 10.16)
+
+    # --- 4 USB-C ------------------------------------------------------------
+    K = S(T["J301"], 345.44, 193.04, rot=180, text="oben")
+    D(K.p("A6"), (327.66, K.p("A6")[1]), (327.66, K.p("B6")[1]), K.p("B6"))   # D+ A/B
+    D(K.p("A7"), (325.12, K.p("A7")[1]), (325.12, K.p("B7")[1]), K.p("B7"))   # D− A/B
+    D((327.66, K.p("A6")[1]), (314.96, K.p("A6")[1]))
+    D((325.12, K.p("A7")[1]), (314.96, K.p("A7")[1]))
+    L("USB_DP", 314.96, K.p("A6")[1], 180)
+    L("USB_DM", 314.96, K.p("A7")[1], 180)
+    stub(b, K, "A5", 10.16)
+    stub(b, K, "B5", 10.16)
+    for ref, x in (("R303", 292.1), ("R304", 304.8)):
+        R = S(T[ref], x, 223.52, rot=180, text="rechts")
+        stub(b, R, "2", 5.08)
+    D(K.p("A4"), (314.96, K.p("A4")[1]))
+    L("VBUS", 314.96, K.p("A4")[1], 180)
+    E = S(T["U302"], 289.56, 182.88, text="unten")
+    for pin in ("1", "3", "4", "6", "5"):
+        stub(b, E, pin, 5.08)
+
+def pins_von_lib(lib_id):
+    from kicad_gen import lib_symbol, pins_von
+    return pins_von(lib_symbol(lib_id))
+
+
+def stub(b, t, pin, laenge=7.62, netz=None):
+    """Kurzer Draht vom Pin nach außen, am Ende das Netzlabel (Verbindung zu einem anderen Teil oder Blatt)."""
+    nr, _n, _ty, _px, _py, w, _e = t.pin_daten(pin)
+    x, y = t.p(pin)
+    dx, dy, winkel = {0: (-1, 0, 180), 180: (1, 0, 0), 90: (0, 1, 270), 270: (0, -1, 90)}[t.pin_winkel(w)]
+    ende = (round(x + dx * laenge, 4), round(y + dy * laenge, 4))
+    b.draht((x, y), ende)
+    b.label(netz or t.pin_netz[nr], ende[0], ende[1], winkel)
+
+
 def versorgung(p):
     b = p.blatt("Versorgung", "versorgung.kicad_sch", titel="Versorgung: Solar, Lader, 3,3 V, Sensorschiene")
 
@@ -241,8 +453,9 @@ def baue():
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)
     w = p.blatt("Bienenlogger Hauptplatine", "logger.kicad_sch", titel="Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
-    w.text("Blätter: Versorgung (fertig). Folgen: MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse.", 30, 25, 2.0)
+    w.text("Blätter: Versorgung, MCU (fertig). Folgen: Funk + Flash, Waage, Mikrofon, Anschlüsse.", 30, 25, 2.0)
     versorgung(p)
+    mcu(p)
     return p
 
 

@@ -44,6 +44,11 @@ vek_*.json
 server/lora/lora_config.php
 server/lora/lora_log/
 
+# Wetter-Eingang: Zugangsdaten, Messwerte und Protokoll
+server/wetter/wetter_config.php
+server/wetter/wetter_daten/
+server/wetter/wetter_log/
+
 # erzeugte Testvektoren
 tests/firmware/ff2_vektoren.h
 tests/firmware/test_funkformat_v2

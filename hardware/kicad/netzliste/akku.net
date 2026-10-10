@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/akku-platine/akku.kicad_sch")
-		(date "2026-10-09T11:51:02")
+		(date "2026-10-10T04:53:53")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")

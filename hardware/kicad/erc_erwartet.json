@@ -1,10 +1,111 @@
 {
   "_hinweis": "Bekannte, begründete ERC-Warnungen. Jede neue Warnung oder jeder Fehler lässt pruefen.sh scheitern (SCH26-04).",
   "hauptplatine/logger.kicad_sch": [
-    {"type": "footprint_link_issues", "item": "Symbol U201 [BQ25185]",
-     "grund": "Footprint BQ25185 DLH0010A (2,2 x 2 mm) wird vor dem Layout in der Bibliothek 'Bienen' angelegt"},
-    {"type": "isolated_pin_label", "item": "Global Label 'VBUS'",
-     "grund": "zweites Ende VBUS kommt mit dem Blatt MCU (USB-C)"}
+    {
+      "type": "footprint_link_issues",
+      "item": "Symbol U201 [BQ25185]",
+      "grund": "Footprint BQ25185 DLH0010A (2,2 x 2 mm) wird vor dem Layout in der Bibliothek 'Bienen' angelegt"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'FLASH_CS'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'LORA_RST'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'LORA_TXEN'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'LORA_RXEN'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'LORA_DIO1'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'LORA_BUSY'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'LORA_NSS'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'SPI_SCK'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'SPI_MISO'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'SPI_MOSI'",
+      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'I2C_SCL'",
+      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'I2C_SDA'",
+      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'ONEWIRE'",
+      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'EXT_PA15'",
+      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (Erweiterung) (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'EXT_PB12'",
+      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (Erweiterung) (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'EXT_PB13'",
+      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (Erweiterung) (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'HX_DOUT'",
+      "grund": "Gegenstelle kommt mit dem Blatt Waage (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'HX_SCK'",
+      "grund": "Gegenstelle kommt mit dem Blatt Waage (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'WAAGE_EIN'",
+      "grund": "Gegenstelle kommt mit dem Blatt Waage (SCH26-07)"
+    },
+    {
+      "type": "isolated_pin_label",
+      "item": "Global Label 'MIC_ADC'",
+      "grund": "Gegenstelle kommt mit dem Blatt Mikrofon (SCH26-07)"
+    }
   ],
   "akku-platine/akku.kicad_sch": []
 }

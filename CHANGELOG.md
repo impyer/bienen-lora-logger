@@ -1,5 +1,21 @@
 # Änderungen
 
+## 2026-10-10 – Wetter-Eingang für die Wetterstation SenseCAP S2120
+
+- Neu: `server/wetter/` (Webhook-Ziel für TTN). Speichert alle Werte der S2120 je **Bienenstand** in `<stand>/<station>_<JJJJ-MM>.csv`: Temperatur, Feuchte, Druck, Licht, UV, Wind, Windrichtung, Böe, Regenintensität, Regensumme, Batterie, Intervall, Funkdaten und Rohdaten. Zuordnung Station → Stand und Stand → beelogger-Verzeichnisse in `wetter_config.php`; `staende.json` (ohne Token) für die Auswertung.
+- Uplinks ohne Nutzdaten (nach Join) werden mit 200 „ignoriert“ beantwortet, damit TTN den Webhook nicht abschaltet (beim BEEP-Webhook so beobachtet). Doppelte Zustellung wird erkannt, Sperre je Station.
+- Neu: `formatter/s2120_beep_formatter.js` (Gerät `wetterstation-01`): Blöcke 4A/4B/4C nach dem Seeed-Decoder, dazu 03/04 (Batterie, Intervall); Ausgabe mit BEEP-Kürzeln `t`, `h`, `p`, `l`. Nur ASCII.
+- Tests: `test_s2120_formatter.js` (11 Prüfungen, zwei echte Uplinks vom 10.10.; goja 9/9 Vektoren), `test_wetter_funktionen.php` (40), `test_wetter_eingang.sh` (24, PHP-Testserver mit 4 Workern; Gegenprobe ohne Sperre → rot). Eingebunden in `alle_tests_linux.sh` und CI.
+- Änderungsklasse D2 (Persistenz, Zeitstempel). Nachweise T1/T2 im Container; Feldtest (TTN → Produktivserver) offen.
+
+## 2026-10-10 – Blatt MCU der Hauptplatine
+
+- Neues Blatt `hauptplatine/mcu.kicad_sch` nach `hardware/mcu-funk.md` 1, 3.3 und 4: STM32F411CEU6 (UFQFPN-48) mit Abblockung (3 × 100 nF, 10 µF, VBAT 100 nF), VDDA über Ferrit, VCAP 4,7 µF; Reset- und BOOT-Taster, BOOT1-Pull-down; HSE 25 MHz (C9006, 2 × 18 pF) und LSE 32,768 kHz SC-32S (C97604, 2 × 8,2 pF); USB-C (C165948) mit CC-Widerständen und USBLC6-2SC6; Debug-Leiste SWD + Serial1; Magnet/Taster an PA0 (WKUP1) mit Pull-down; LED an PC13.
+- 20 Schnittstellen-Netze zu den folgenden Blättern (Funk + Flash, Waage, Mikrofon, Anschlüsse) als globale Labels; in `erc_erwartet.json` begründet. VBUS hat jetzt beide Enden.
+- `kicad_gen.py`: `*.kicad_pro` wird nur noch angelegt, wenn sie fehlt (REG26-14); Ausrichtung der Beschriftung bei gedrehten Teilen; Netz „NC“ nie global.
+- Stückliste im KiCad-README aus den Generatoren erzeugt (87 Teile).
+- Prüfung: `pruefen.sh` reproduzierbar, ERC OK (Akku 0, Hauptplatine 21 erwartete Meldungen), Netzvergleich 48/48.
+
 ## 2026-10-09 – Schaltpläne lesbar gezeichnet (Verdrahtungsmodus)
 
 - Akku-Platine und Blatt Versorgung werden jetzt mit **echten Leitungen nach dem Stromfluss** gezeichnet statt mit Netzlabels an jedem Pin (Wunsch Philipp). Akku: Leistungspfad oben, Zellschutz im Minuspfad, darunter Ladesperre Stufe 2 und Stufe 1 mit TMP_VCC vom Stecker. Versorgung: Panels/USB → VIN_LADER → BQ25185 → SYS, Akku-Stecker mit VBAT/CE/NTC/TMP_VCC, unten SYS → 3,3 V → 3V3_SW.

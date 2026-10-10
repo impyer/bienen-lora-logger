@@ -567,6 +567,8 @@ class Blatt:
         else:
             a, b, j = (cx, by1 + 1.8), (cx, by1 + 4.2), None
         w = t.rot % 180            # KiCad dreht Felder mit dem Symbol; so bleiben sie waagerecht lesbar
+        if j and t.rot % 360 in (90, 180):   # KiCad spiegelt die Ausrichtung bei diesen Drehungen
+            j = ["right"] if j == ["left"] else ["left"]
         return ([S("at", round(a[0], 3), round(a[1], 3), w), _txt(None, justify=j)],
                 [S("at", round(b[0], 3), round(b[1], 3), w), _txt(None, justify=j)])
 
@@ -641,7 +643,7 @@ class Projekt:
         for b in alle:
             for netz in b.netze():
                 zaehl[netz] = zaehl.get(netz, 0) + 1
-        globale = {n for n, c in zaehl.items() if c > 1} | (self.schnittstellen & set(zaehl))
+        globale = ({n for n, c in zaehl.items() if c > 1} | (self.schnittstellen & set(zaehl))) - {"NC"}
         root_uuid = self.wurzel.uuid
         for b in alle:
             with open(os.path.join(self.ordner, b.datei), "w", encoding="utf-8") as f:
@@ -668,12 +670,17 @@ class Projekt:
     def _projektdatei(self):
         pro = os.path.join(self.ordner, self.name + ".kicad_pro")
         import json
+        if os.path.exists(pro):
+            # KiCad schreibt die Projektdatei beim Öffnen selbst um (Einstellungen). Nicht überschreiben,
+            # sonst meldet der CI-Vergleich nach jedem Öffnen in KiCad einen Unterschied.
+            pro = None
         daten = {"meta": {"filename": self.name + ".kicad_pro", "version": 3},
                  "schematic": {"legacy_lib_dir": "", "legacy_lib_list": []},
                  "sheets": [[self.wurzel.uuid, "Root"]] + [[b.sheet_uuid, b.name] for b in self.blaetter],
                  "text_variables": {}}
-        with open(pro, "w", encoding="utf-8") as f:
-            json.dump(daten, f, indent=2)
+        if pro:
+            with open(pro, "w", encoding="utf-8") as f:
+                json.dump(daten, f, indent=2)
         if self.eigene_bibs:
             with open(os.path.join(self.ordner, "sym-lib-table"), "w", encoding="utf-8") as f:
                 f.write("(sym_lib_table\n  (version 7)\n")
