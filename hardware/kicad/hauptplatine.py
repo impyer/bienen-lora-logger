@@ -369,7 +369,7 @@ def funk(p):
            netze={"3.3V": "+3V3", "RESET": "LORA_RST", "NSS": "RF_NSS", "SCK": "RF_SCK", "MOSI": "RF_MOSI", "MISO": "RF_MISO",
                   "BUSY": "LORA_BUSY", "DIO1": "LORA_DIO1", "ANT": "NC", "TXEN": "TXEN_MOD", "RXEN": "RXEN_MOD",
                   "DIO2": "NC", "DIO3": "NC", "GND": "GND"},
-           info="Antenne über IPEX; Pin ANT ohne Leiterbahn (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
+           info="Antenne über IPEX; Pin ANT ohne Leiterbahn, liegt im Modul parallel zur IPEX (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
     b.teil("Device:C", "C401", "100µ 6,3V X5R", fp="Capacitor_SMD:C_1210_3225Metric", netze={"1": "+3V3", "2": "GND"},
            info="Puffer für Sendestromspitzen > 200 mA (mcu-funk.md 2.2) [A]")
     b.teil("Device:C", "C402", "10µ 10V X5R", fp=C0805, netze={"1": "+3V3", "2": "GND"})
@@ -381,9 +381,9 @@ def funk(p):
         b.teil("Device:R", ref, "33", fp=R0603, netze={"1": mcu_, "2": mod}, info="Reihenwiderstand 10–100 Ω laut Datenblatt")
     b.teil("Device:R", "R405", "100k", fp=R0603, netze={"1": "+3V3", "2": "LORA_NSS"}, info="NSS nicht ausgewählt, solange PA4 im Standby hochohmig ist")
     b.teil("Jumper:SolderJumper_2_Open", "JP401", "TXEN", fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
-           netze={"A": "TXEN_MOD", "B": "LORA_TXEN"}, info="offen; nur schließen, falls Senden ohne TXEN nicht geht (mcu-funk.md 2.1)")
+           netze={"A": "TXEN_MOD", "B": "LORA_TXEN"}, info="offen lassen: TXEN ist im Modul DIO2 (R8 0 Ω); geschlossen PB14 nur als Eingang (SCH26-11, mcu-funk.md 2.1)")
     b.teil("Jumper:SolderJumper_2_Open", "JP402", "RXEN", fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
-           netze={"A": "RXEN_MOD", "B": "LORA_RXEN"})
+           netze={"A": "RXEN_MOD", "B": "LORA_RXEN"}, info="offen lassen: RXEN im Modul über R1 (NC) nicht verbunden; PB15 nur Eingang (SCH26-11)")
     b.teil("Memory_Flash:W25Q32JVSS", "U402", "64 Mbit SOIC-8 208 mil", fp="Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
            netze={"1": "FLASH_CS", "6": "SPI_SCK", "5": "SPI_MOSI", "2": "SPI_MISO", "3": "FLASH_WP", "7": "FLASH_HOLD",
                   "8": "+3V3", "4": "GND"},

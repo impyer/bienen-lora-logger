@@ -78,7 +78,7 @@ pruefe "leerer Uplink legt keine Datei an" "$( [ -e "$CSV" ] && echo ja || echo 
 R=$(senden "$(nachricht wetterstation-01 $HEX1 2026-10-10T03:21:48.476207824Z 7)")
 enthaelt "gültiger Uplink gespeichert" "$R" "gespeichert: hauptstand/wetterstation-01_2026-10.csv 200"
 pruefe "Datei: Kopf + 1 Zeile" "$(wc -l < "$CSV" | tr -d ' ')" "2"
-pruefe "Kopfzeile" "$(head -1 "$CSV")" "zeit_utc;unix;ortszeit;stand;station;t;h;p;l;uv;wind_ms;wind_dir_deg;gust_ms;rain_mmh;rain_mm;battery_pct;interval_min;f_cnt;f_port;rssi;snr;gateways;sf;payload_hex;warnungen"
+pruefe "Kopfzeile" "$(head -1 "$CSV")" "zeit_utc;unix;ortszeit;stand;station;t;h;p_hpa;l;uv;wind_ms;wind_dir_deg;gust_ms;rain_mmh;rain_mm;battery_pct;interval_min;f_cnt;f_port;rssi;snr;gateways;sf;payload_hex;warnungen"
 pruefe "Datenzeile" "$(sed -n 2p "$CSV")" "2026-10-10T03:21:48Z;1791602508;2026/10/10_05:21:48;hauptstand;wetterstation-01;11;88;981.7;0;0;0;72;1;0;4.064;;;7;3;-66;14.75;1;7;$HEX1;"
 
 enthaelt "dieselbe Nachricht nochmal → doppelt" "$(senden "$(nachricht wetterstation-01 $HEX1 2026-10-10T03:21:48.476207824Z 7)")" "doppelt"

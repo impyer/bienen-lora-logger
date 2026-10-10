@@ -18,7 +18,7 @@ Die Feldnamen entsprechen dem beelogger-Webserver (`beelogger_log.php`, `LORA=1`
 
 ## Wetterstation SenseCAP S2120
 
-`s2120_beep_formatter.js` dekodiert die Blöcke 4A/4B/4C (Messwerte) und 03/04 (Batterie, Intervall) nach dem Seeed-Decoder und gibt flache Felder aus: `t`, `h`, `p` (hPa), `l` für BEEP, dazu `uv`, `wind_ms`, `wind_dir_deg`, `gust_ms`, `rain_mmh`, `rain_mm`, `battery_pct`, `interval_min`. BEEP speichert davon nur `t`, `h`, `p`, `l`; alles geht an den Wetter-Eingang (`server/wetter/`). Eintragen beim **Gerät** (Payload formatters → Uplink → Custom Javascript formatter). Tests: `node tests/formatter/test_s2120_formatter.js`, dazu goja mit `VEKTOREN=…`.
+`s2120_beep_formatter.js` dekodiert die Blöcke 4A/4B/4C (Messwerte) und 03/04 (Batterie, Intervall) nach dem Seeed-Decoder und gibt flache Felder aus: `t`, `h`, `p` (in **Pa**: BEEP zeigt p/100 als hPa), `l` für BEEP, dazu `p_hpa`, `uv`, `wind_ms`, `wind_dir_deg`, `gust_ms`, `rain_mmh`, `rain_mm`, `battery_pct`, `interval_min`. BEEP speichert davon nur `t`, `h`, `p`, `l`; alles geht an den Wetter-Eingang (`server/wetter/`). Eintragen beim **Gerät** (Payload formatters → Uplink → Custom Javascript formatter). Tests: `node tests/formatter/test_s2120_formatter.js`, dazu goja mit `VEKTOREN=…`.
 
 ## In TTN eintragen
 

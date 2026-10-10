@@ -29,7 +29,7 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 | K2 [S] | **25-MHz-Quarz (HSE)** wie bei der BlackPill. So bleibt die fertige Arduino-Variante „BlackPill F411CE“ nutzbar, und eine gekaufte BlackPill mit Ra-01SH-Adapter dient als Entwicklungsplattform, bevor die Platine da ist. |
 | K3 [M] | **32,768-kHz-Quarz (LSE)** an PC14/PC15 für die RTC. |
 | K4 [M] | ~~EEPROM AT24C256~~ entfällt (09.10.2026, HW26-10): LoRaWAN-Sitzung und Messwerte im dauernd versorgten SPI-Flash (F11), Sitzung mit Generationszähler und CRC. `mcu-funk.md` 3.1. |
-| K5 [S] | **USB-C** an PA11/PA12: Aufspielen über den eingebauten USB-DFU-Bootloader des STM32 und Service-Konsole, ohne FTDI-Adapter. Dazu ein BOOT0-Taster. Seriell (PA9/PA10) und SWD bleiben als Stiftleiste. |
+| K5 [S] | **USB-C** an PA11/PA12: **nur Laden und Aufspielen** über den eingebauten USB-DFU-Bootloader des STM32 (BOOT0-Taster). Die Anwendungsfirmware nutzt USB nicht; Service-Konsole über Seriell (PA9/PA10) mit USB-Seriell-Adapter, dazu SWD, beide an der Stiftleiste J10 (Entscheidung Philipp 10.10.2026, SCH26-10; `mcu-funk.md` 1.3). |
 
 ### Pinbelegung
 

@@ -26,7 +26,7 @@ Zeitstempel ist die Empfangszeit `received_at` von TTN; die S2120 sendet keine e
 |---|---|
 | `zeit_utc`, `unix`, `ortszeit` | Empfangszeit (UTC, Unix-Sekunden, Europe/Berlin) |
 | `stand`, `station` | Zuordnung zum Zeitpunkt des Empfangs |
-| `t`, `h`, `p`, `l` | Lufttemperatur °C, Luftfeuchte %, Luftdruck hPa, Licht lx |
+| `t`, `h`, `p_hpa`, `l` | Lufttemperatur °C, Luftfeuchte %, Luftdruck hPa, Licht lx |
 | `uv`, `wind_ms`, `wind_dir_deg`, `gust_ms` | UV-Index, Wind m/s, Windrichtung °, Spitzenböe m/s |
 | `rain_mmh`, `rain_mm` | höchste Regenintensität im Intervall mm/h, Regensumme mm (Rücksetzzeitpunkt noch unbekannt) |
 | `battery_pct`, `interval_min` | nur nach Join bzw. selten: Batterie % (laut Seeed-Handbuch nur 0 oder 100), Sendeintervall min |

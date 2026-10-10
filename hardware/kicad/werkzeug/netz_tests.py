@@ -35,6 +35,8 @@ def lade(name):
     netze, pin_netz, werte = {}, {}, {}
     for comp in finde(eins(baum, "components"), "comp"):
         werte[eins(comp, "ref")[1]] = eins(comp, "value")[1]
+        fp = eins(comp, "footprint")
+        werte[eins(comp, "ref")[1] + ":footprint"] = fp[1] if fp else ""
     for n in finde(eins(baum, "nets"), "net"):
         name = eins(n, "name")[1].split("/")[-1]
         knoten = {(eins(k, "ref")[1], eins(k, "pin")[1]) for k in finde(n, "node")}
@@ -180,6 +182,11 @@ def main():
         pruefe("J302 Pin %s = %s" % (pin, netz), h_pin.get(("J302", pin)) == netz, h_pin.get(("J302", pin)))
     genau(h, "DBG_TX", {("J302", "6"), ("U301", "30")})   # PA9
     genau(h, "DBG_RX", {("J302", "7"), ("U301", "31")})   # PA10
+    # --- Ra-01SH TXEN/RXEN (SCH26-11): TXEN ist im Modul DIO2 → Lötbrücken offen, nur über Brücke an PB14/PB15 ---
+    for jp, mod, mcu_netz, pin in (("JP401", "TXEN_MOD", "LORA_TXEN", "5"), ("JP402", "RXEN_MOD", "LORA_RXEN", "11")):
+        pruefe("%s ist offene Lötbrücke" % jp, "_Open_" in h_wert.get(jp + ":footprint", ""), h_wert.get(jp + ":footprint"))
+        genau(h, mod, {("U401", pin), (jp, "1")})
+    pruefe("Ra-01SH DIO2 ohne Verbindung", h_pin.get(("U401", "7"), "unconnected").startswith("unconnected"), h_pin.get(("U401", "7")))
     # --- Stecker: anschluesse.md ↔ Netzliste ---
     stecker_gegen_doku(h_pin)
 

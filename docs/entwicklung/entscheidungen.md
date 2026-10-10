@@ -1,6 +1,6 @@
 # Projektentscheidungen, Governance- und Ausnahmeregister
 
-**Stand:** 09.10.2026 · **Entwicklungsregelwerk:** Version 1.1, ANGENOMMEN.
+**Stand:** 10.10.2026 · **Entwicklungsregelwerk:** Version 1.1, ANGENOMMEN.
 **Beschlüsse:** [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) (Regelwerk 1.0), [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md) (Fassung 1.1).
 **Maintainer:** Philipp Schnabel (GitHub `impyer`).
 
@@ -14,6 +14,12 @@ Das Register trennt angenommene Verfahrensregeln von noch offenen Sachentscheidu
 | **GOV-02** | **ANGENOMMEN, präzisiert in 1.1** | G0/G1 dokumentiert der Maintainer; er entscheidet G2. **D3-Sicherheitsfunktionen:** G2 (Labormuster) erfordert Gefährdungs-/Fehleranalyse, Netz-/ERC-Prüfung und einen sicheren Versuchsplan (Zell-Emulator, Strombegrenzung, keine Fehlerversuche an echten Zellen), gegengelesen durch einen zweiten Prüfweg. G3/G4 erfordern zusätzlich bestandene T4-Messungen **und** ein **unabhängiges fachkundiges Review**: ein bis zwei befreundete Hardware-Entwickler des Maintainers, die die Änderung nicht selbst entworfen haben, mit schriftlichem Prüfbericht. CI, Selbstreview oder KI-Review allein genügen dafür nicht. |
 | **GOV-03** | **ANGENOMMEN – Lieferumfang Hardware** | Ein als **fertigungsreif** bezeichnetes Open-Hardware-Release umfasst die bearbeitbaren Quellen inkl. Generatoren und eigener Bibliotheken, Netzliste/Schaltplan/ERC, PCB/DRC, Gerber/Bohrdaten, BOM/CPL, Montage-/Kabelpläne, Testpunkte und Prüfanweisungen. Unfertige Prototypen sind nur mit deutlicher Kennzeichnung „**experimentell, nicht fertigungsreif**“ zu veröffentlichen. |
 | **GOV-04** | **OFFEN** | Konkrete elektrische, thermische, Energie-, Funk- und Messgrenzwerte für die real beschaffte Zell-, Board- und Bauteilrevision im Anforderungs-/Prüfplan aus Herstellerquellen festlegen. Ohne diese dürfen abhängige PCB-/Labor-/Feld-Gates nicht als bestanden gelten. Erster Schritt: Typ und Datenblatt der gekauften 18650-Zelle. |
+
+## Technische Festlegungen
+
+| ID | Stand | Festlegung |
+|---|---|---|
+| **HW-01** | **ENTSCHIEDEN 10.10.2026** (Philipp) | **USB-C nur zum Laden und Aufspielen** (ROM-DFU über BOOT0 + Reset). Die Anwendungsfirmware schaltet die USB-Peripherie nie ein; Service-Konsole über Serial1 (J10/J302) und SWD. Damit ist keine VBUS-Erkennung nötig (Befund SCH26-10). Eine eigene USB-Funktion wäre eine neue Entscheidung mit VBUS-Teiler nach ST AN4879. Details: `hardware/mcu-funk.md` 1.3, Lastenheft K5. |
 
 ## Ausnahmen
 

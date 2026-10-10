@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lora/lora_funktionen.php';
 // Messwerte aus dem Formatter (formatter/s2120_beep_formatter.js) in fester Spaltenreihenfolge
 function we_messfelder()
 {
-    return array('t', 'h', 'p', 'l', 'uv', 'wind_ms', 'wind_dir_deg', 'gust_ms', 'rain_mmh', 'rain_mm');
+    return array('t', 'h', 'p_hpa', 'l', 'uv', 'wind_ms', 'wind_dir_deg', 'gust_ms', 'rain_mmh', 'rain_mm');
 }
 
 // Gerätewerte (nur nach Join bzw. einmal täglich): Batterie in % (laut Seeed-Handbuch nur 0 oder 100), Intervall in min

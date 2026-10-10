@@ -2627,7 +2627,7 @@
 				)
 			)
 		)
-		(property "Description" "Antenne über IPEX; Pin ANT ohne Leiterbahn (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)"
+		(property "Description" "Antenne über IPEX; Pin ANT ohne Leiterbahn, liegt im Modul parallel zur IPEX (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)"
 			(at 190.5 127 0)
 			(hide yes)
 			(show_name no)
@@ -3522,7 +3522,7 @@
 				)
 			)
 		)
-		(property "Description" "offen; nur schließen, falls Senden ohne TXEN nicht geht (mcu-funk.md 2.1)"
+		(property "Description" "offen lassen: TXEN ist im Modul DIO2 (R8 0 Ω); geschlossen PB14 nur als Eingang (SCH26-11, mcu-funk.md 2.1)"
 			(at 218.44 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -4806,7 +4806,7 @@
 				)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "offen lassen: RXEN im Modul über R1 (NC) nicht verbunden; PB15 nur Eingang (SCH26-11)"
 			(at 218.44 119.38 0)
 			(hide yes)
 			(show_name no)

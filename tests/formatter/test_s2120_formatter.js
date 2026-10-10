@@ -29,10 +29,10 @@ const dek = (hex, fPort) => ctx.decodeUplink({ fPort: fPort || 3, bytes: Array.f
 const faelle = [
   { name: "echter Uplink 10.10. 04:51 (4A+4B+4C)",
     hex: "4A008045000004E60000004B013200000AA126794C0000000002FA",
-    data: { t: 12.8, h: 69, l: 1254, uv: 0, wind_ms: 0, wind_dir_deg: 306, rain_mmh: 2.721, p: 984.9, gust_ms: 0, rain_mm: 0.762 }, warnings: [] },
+    data: { t: 12.8, h: 69, l: 1254, uv: 0, wind_ms: 0, wind_dir_deg: 306, rain_mmh: 2.721, p: 98490, p_hpa: 984.9, gust_ms: 0, rain_mm: 0.762 }, warnings: [] },
   { name: "echter Uplink nach Join mit Block 04 davor",
     hex: "046401010201000505A04A006E59000000000000004B01030000000026594C000000000FE0",
-    data: { battery_pct: 100, interval_min: 5, t: 11, h: 89, l: 0, uv: 0, wind_ms: 0, wind_dir_deg: 259, rain_mmh: 0, p: 981.7, gust_ms: 0, rain_mm: 4.064 }, warnings: [] },
+    data: { battery_pct: 100, interval_min: 5, t: 11, h: 89, l: 0, uv: 0, wind_ms: 0, wind_dir_deg: 259, rain_mmh: 0, p: 98170, p_hpa: 981.7, gust_ms: 0, rain_mm: 4.064 }, warnings: [] },
   { name: "negative Temperatur −10,0 °C",
     hex: "4AFF9C45000004E6000000",
     data: { t: -10, h: 69, l: 1254, uv: 0, wind_ms: 0 }, warnings: [] },
@@ -41,7 +41,7 @@ const faelle = [
     data: { t: -0.1, h: 100, l: 200000, uv: 1.5, wind_ms: 12.3 }, warnings: [] },
   { name: "ältere Firmware ohne 4C",
     hex: "4A008045000004E60000004B013200000AA12679",
-    data: { t: 12.8, h: 69, l: 1254, uv: 0, wind_ms: 0, wind_dir_deg: 306, rain_mmh: 2.721, p: 984.9 }, warnings: [] },
+    data: { t: 12.8, h: 69, l: 1254, uv: 0, wind_ms: 0, wind_dir_deg: 306, rain_mmh: 2.721, p: 98490, p_hpa: 984.9 }, warnings: [] },
   { name: "Batterieblock 03 allein (keine Messwerte)",
     hex: "0364", data: { battery_pct: 100 }, warnings: [] },
   { name: "leer", hex: "", data: {}, warnings: [] },
@@ -68,6 +68,8 @@ for (const f of faelle) {
 // BEEP speichert nur t, h, p, l: diese Schlüssel müssen bei vollständigen Uplinks da sein
 const voll = dek(faelle[0].hex).data;
 pruefe("BEEP-Schlüssel t, h, p, l vorhanden", ["t", "h", "p", "l"].every((k) => typeof voll[k] === "number"));
+// BEEP teilt p durch 100 und zeigt hPa (beobachtet 10.10.2026: 982.6 hPa gesendet -> 9.826 hPa angezeigt); p also in Pa
+pruefe("p in Pa für BEEP, p_hpa in hPa", voll.p === 98490 && voll.p_hpa === 984.9, "p=" + voll.p + " p_hpa=" + voll.p_hpa);
 
 if (process.env.VEKTOREN) fs.writeFileSync(process.env.VEKTOREN, JSON.stringify(vektoren));
 console.log((fehler ? "FEHLER" : "OK") + ": S2120-Formatter " + (anz - fehler) + " von " + anz + " Prüfungen bestanden (" + path.basename(datei) + ")");

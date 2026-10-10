@@ -43,7 +43,7 @@ gleich('Übersicht', we_staende_uebersicht($cfg + array('token' => 'geheim')), a
 ));
 
 // Messwerte vorhanden?
-$voll = array('t' => 11, 'h' => 88, 'p' => 981.7, 'l' => 0, 'uv' => 0, 'wind_ms' => 0, 'wind_dir_deg' => 72,
+$voll = array('t' => 11, 'h' => 88, 'p' => 98170, 'p_hpa' => 981.7, 'l' => 0, 'uv' => 0, 'wind_ms' => 0, 'wind_dir_deg' => 72,
               'gust_ms' => 1, 'rain_mmh' => 0, 'rain_mm' => 4.064);
 gleich('Uplink mit Messwerten', we_hat_messwerte(array('frm_payload' => 'SgBu', 'decoded_payload' => $voll)), true);
 gleich('Uplink ohne Nutzdaten (nach Join)', we_hat_messwerte(array('f_cnt' => 1)), false);
@@ -68,7 +68,8 @@ $k = array_combine(we_kopf(), $z);
 gleich('Zeile Zeit UTC', $k['zeit_utc'], '2026-10-10T03:21:48Z');
 gleich('Zeile Ortszeit', $k['ortszeit'], '2026/10/10_05:21:48');
 gleich('Zeile t', $k['t'], '11');
-gleich('Zeile p', $k['p'], '981.7');
+gleich('Zeile Luftdruck hPa', $k['p_hpa'], '981.7');
+gleich('keine Spalte p (Pa nur für BEEP)', array_key_exists('p', $k), false);
 gleich('Zeile Regensumme', $k['rain_mm'], '4.064');
 gleich('Zeile Böe', $k['gust_ms'], '1');
 gleich('Zeile Batterie leer', $k['battery_pct'], '');

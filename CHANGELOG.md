@@ -1,5 +1,12 @@
 # Änderungen
 
+## 2026-10-10 – USB-Rolle festgelegt, Ra-01SH nach Herstellerschaltbild (SCH26-10/-11)
+
+- **SCH26-10 / HW-01:** USB-C nur zum Laden und Aufspielen (ROM-DFU); die Anwendungsfirmware nutzt USB nicht, Konsole über Serial1/SWD. Keine VBUS-Erkennung nötig. Lastenheft K5, `mcu-funk.md` 1.3, Entscheidungsregister HW-01.
+- **SCH26-11:** Herstellerschaltbild des Ra-01SH (Datenblatt V1.1, S. 12) ausgewertet: DIO2 schaltet den HF-Schalter, **TXEN ist im Modul DIO2 (0 Ω)**, RXEN offen, ANT-Pad parallel zur IPEX, DC-DC-Spule vorgesehen. Regel: JP401/JP402 offen, PB14/PB15 nur Eingänge, `setDio2AsRfSwitch(true)`. Prüfplan F-1…F-7 überarbeitet (Pegelmessung an TXEN, RSSI-Vergleich bei −9 dBm, Reglerprüfung).
+- Neu: `hardware/funk_modell.py` (Schaltlogik in 6 Konfigurationen, Funkstrecke 5–8 m). `netz_tests.py` prüft die offenen Lötbrücken und DIO2 (79 Prüfungen). Beschreibungen an JP401/JP402/U401 im Generator.
+- Prüfung (lokal, KiCad 10.0.7): reproduzierbar, ERC unverändert, 79/79; Modell Exit 0. Bericht: `docs/testberichte/2026-10-10-sch26-10-11-analyse.md`.
+
 ## 2026-10-10 – Behebung Schaltplan-Review 4c12b6d (SCH26-09 bis -12)
 
 - **SCH26-09:** Debug-Leiste J302 im Generator an den Kabelplan `anschluesse.md` J10 angeglichen (1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, **5 GND, 6 TX1, 7 RX1**). `anschluesse.md`: Platinenreferenzen J1/J201, J2/J202, J9/J301, J10/J302, neuer Abschnitt 1.2 Debug-Leiste. `netz_tests.py` prüft J302 je Pin und vergleicht die Stecker-Pinbelegung aus `anschluesse.md` mit der KiCad-Netzliste, mit Gegenprobe (48 → 74 Prüfungen).

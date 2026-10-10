@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/tmp/claude-0/-home-claude/a624e0f4-7383-5bcd-bcf1-0ca93634bae0/scratchpad/repo/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-10T18:51:00")
+		(date "2026-10-10T20:08:19")
 		(tool "Eeschema 10.0.7-10.0.7~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -4257,7 +4257,7 @@
 			(ref "JP401")
 			(value "TXEN")
 			(footprint "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
-			(description "offen; nur schließen, falls Senden ohne TXEN nicht geht (mcu-funk.md 2.1)")
+			(description "offen lassen: TXEN ist im Modul DIO2 (R8 0 Ω); geschlossen PB14 nur als Eingang (SCH26-11, mcu-funk.md 2.1)")
 			(fields
 				(field
 					(name "Footprint") "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
@@ -4265,7 +4265,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "offen; nur schließen, falls Senden ohne TXEN nicht geht (mcu-funk.md 2.1)")
+					(name "Description") "offen lassen: TXEN ist im Modul DIO2 (R8 0 Ω); geschlossen PB14 nur als Eingang (SCH26-11, mcu-funk.md 2.1)")
 			)
 			(libsource
 				(lib "Jumper")
@@ -4311,6 +4311,7 @@
 			(ref "JP402")
 			(value "RXEN")
 			(footprint "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
+			(description "offen lassen: RXEN im Modul über R1 (NC) nicht verbunden; PB15 nur Eingang (SCH26-11)")
 			(fields
 				(field
 					(name "Footprint") "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
@@ -4318,8 +4319,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "offen lassen: RXEN im Modul über R1 (NC) nicht verbunden; PB15 nur Eingang (SCH26-11)")
 			)
 			(libsource
 				(lib "Jumper")
@@ -4796,7 +4796,7 @@
 		(comp
 			(ref "U401")
 			(value "Ra-01SH")
-			(description "Antenne über IPEX; Pin ANT ohne Leiterbahn (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
+			(description "Antenne über IPEX; Pin ANT ohne Leiterbahn, liegt im Modul parallel zur IPEX (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
 			(fields
 				(field
 					(name "LCSC") "C2764087")
@@ -4807,7 +4807,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "Antenne über IPEX; Pin ANT ohne Leiterbahn (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
+					(name "Description") "Antenne über IPEX; Pin ANT ohne Leiterbahn, liegt im Modul parallel zur IPEX (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
 			)
 			(libsource
 				(lib "Bienen")

@@ -33,7 +33,7 @@ Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung
 
 Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz und Pin. PC14/PC15 nicht anderweitig nutzen [V: AN2867, AN4488].
 
-### 1.3 USB-C (Aufspielen und Konsole)
+### 1.3 USB-C (Aufspielen und Laden)
 
 - Buchse 16-polig, z. B. TYPE-C-31-M-12 (LCSC C165948, Extended [V]); eine Basic-Buchse ist nicht bekannt.
 - CC1 und CC2 je 5,1 kΩ nach GND (USB-2.0-Gerät) [A, Type-C-Spezifikation].
@@ -41,15 +41,12 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 - **VBUS → Schottky → Eingang des BQ25185**, parallel zu den Panels. So lädt der Logger am Tisch über USB, und USB speist nie zurück ins Panel [A].
 - Bootloader: BOOT0-Taster gedrückt halten, Reset → DFU über USB. Ob der Bootloader des F411 mit 25-MHz-Quarz zuverlässig startet, ist in AN2606 für F411 nicht gelesen. Ein ST-Forumsbeitrag berichtet Probleme [V, Forum]. Die BlackPill macht es aber serienmäßig. **[P]** am Muster prüfen. **SWD bleibt der sichere Weg.**
 
-**USB-Rolle und VBUS-Erkennung (SCH26-10, Entscheidung Philipp offen):**
-- Der Logger ist ein **selbstversorgtes** USB-Gerät (Akku/Solar). ST AN4879 verlangt dafür eine VBUS-Erkennung; die eingebaute Erkennung des F411 liegt an **PA9**, hier aber Serial1-TX [V: AN4879, Abschnitt „VBUS sensing detection“]. Ein anderer Pin geht über einen Spannungsteiler, wenn er 5-V-tolerant ist; die eingebaute Erkennung bleibt dann aus (VBDEN = 0). Teiler laut AN4879 für VDD 3,0–3,6 V: **33 kΩ von VBUS, 82 kΩ nach GND** (±1 %) [V].
-- Für den **ROM-Bootloader (DFU)** allein ist keine Erkennung nötig: Er wird mit gestecktem Kabel über BOOT0 + Reset gestartet [A; die BlackPill nutzt PA9 ebenfalls nicht für VBUS]. Am Muster prüfen (oben).
-- Für eine **eigene USB-Funktion** der Firmware (z. B. Konsole oder Auslesen des Flashs, 3.2) braucht die Firmware das Signal: USB-Takt und USB-Peripherie nur bei gestecktem Kabel einschalten, D+-Pull-up (Soft-Connect) nur dann freigeben.
-- Vorschlag zur Entscheidung:
-  - **A – nur Laden + ROM-DFU:** keine Änderung am Schaltplan; die Firmware nutzt USB nicht; Auslesen nur über SWD/Serial1 oder per Funk. 3.2 wird entsprechend angepasst.
-  - **B – eigene USB-Funktion (Empfehlung):** `VBUS_SENSE` = VBUS vor D203 → 33 kΩ / 82 kΩ → **PB13** (fällt aus der Erweiterungsleiste J11). Kosten: 2 Widerstände, ein Pin; kein Ruhestrom aus dem Akku, weil der Teiler an VBUS hängt (bei USB ca. 45 µA). Wecken aus Standby nur über PA0: nach dem Einstecken Taster/Magnet betätigen, sonst erkennt die Firmware USB beim nächsten Messzyklus. PB13 als 5-V-tolerant im F411-Datenblatt **[P]** bestätigen (Teiler hält den Pin ohnehin unter 4 V).
-  - **C – PA9 als native VBUS-Erkennung**, Serial1-TX auf einen anderen Pin legen: nur sinnvoll, wenn die eingebaute Erkennung gewünscht ist; die Alternativfunktion USART1_TX auf PA15 ist **[P]** im Datenblatt zu prüfen.
-- Testfälle nach der Entscheidung: nur USB, nur Solar, nur Akku, USB gesteckt bei schlafendem Logger, Host ausgeschaltet bei gestecktem Kabel.
+**USB-Rolle (SCH26-10) – entschieden: nur Laden und Aufspielen (Philipp, 10.10.2026, Variante A):**
+- USB dient nur zum **Laden** (VBUS → D203 → BQ25185) und zum **Aufspielen über den ROM-Bootloader** (BOOT0 + Reset bei gestecktem Kabel). Die Anwendungsfirmware schaltet die USB-Peripherie **nie** ein: kein USB-Takt, kein D+-Pull-up, kein USB-Gerät während des Betriebs.
+- Deshalb ist keine VBUS-Erkennung nötig. ST AN4879 fordert sie für selbstversorgte Geräte, die sich am Bus anmelden [V: AN4879, „VBUS sensing detection“]; der Logger meldet sich nur im ROM-Bootloader an, und der läuft nur bei gestecktem Kabel [A]. Die BlackPill arbeitet genauso (PA9 nicht an VBUS) [A].
+- Service-Konsole und Auslesen des Flashs gehen über **Serial1 an J10/J302 Pin 5–7** mit einem 3,3-V-USB-Seriell-Adapter oder über SWD; Messwerte aus dem Flash werden per Funk nachgesendet (3.2).
+- Schaltplan unverändert. Falls später doch eine eigene USB-Funktion gewünscht ist: VBUS über 33 kΩ / 82 kΩ (AN4879) an einen freien 5-V-toleranten Pin, z. B. PB13 – das ist dann eine neue Entscheidung.
+- Prüfung am Muster (T4): ROM-DFU mit 25-MHz-Quarz (oben), Laden über USB, gesteckter USB bei schlafendem Logger ohne Einfluss auf den Ruhestrom.
 
 ### 1.4 Debug
 
@@ -66,29 +63,40 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 | 2, 9, 16 | GND | Massefläche |
 | 3 | 3.3V | 3,3 V dauernd, mit Pufferung (2.2) |
 | 4 | RESET | PB4 |
-| 5 | TXEN | über Lötbrücke an PB14 (offen bestückt) |
+| 5 | TXEN | im Modul **dasselbe Netz wie DIO2** (R8 0 Ω, Herstellerschaltbild); über offene Lötbrücke JP401 an PB14. PB14 **nie als Ausgang** (SCH26-11) |
 | 6 | DIO1 | PA2 (Interrupt) |
-| 7 | DIO2 | offen (steuert intern den HF-Schalter) |
+| 7 | DIO2 | offen; steuert im Modul den HF-Schalter (Herstellerschaltbild), Firmware `setDio2AsRfSwitch(true)` |
 | 8 | DIO3 | offen (kein TCXO) |
 | 10 | BUSY | PA3 |
-| 11 | RXEN | über Lötbrücke an PB15 (offen bestückt) |
+| 11 | RXEN | im Modul über R1 „NC/10K“ an /CTRL, in der Grundbestückung **nicht verbunden**; über offene Lötbrücke JP402 an PB15. PB15 nie als Ausgang |
 | 12–15 | SCK / MISO / MOSI / NSS | PA5 / PA6 / PA7 / PA4 (SPI1), je **33 Ω** in Reihe (Datenblatt: 10–100 Ω) |
 
-**TXEN/RXEN:** Ai-Thinker nennt sie nur „RF control port“. Nach einer Drittquelle (Bibliothek nopnop2002) schaltet beim Ra-01SH **DIO2** den HF-Schalter; TXEN/RXEN bleiben dort unbeschaltet [V, Drittquelle]. Weil das nicht vom Hersteller belegt ist, gehen beide über offene Lötbrücken an freie Pins. Funktioniert das Senden ohne sie nicht, werden die Brücken geschlossen und die Firmware steuert die Pins. Kein Umbau der Platine nötig.
+**HF-Schalter laut Herstellerschaltbild (SCH26-11, Stand 10.10.2026):** Das Datenblatt V1.1 enthält auf S. 12 das Schaltbild des Moduls als eingebettetes Bild. In voller Auflösung ist es lesbar [V: Ai-Thinker Ra-01SH Specification V1.1, Kap. 5]:
+- **DIO2 → R8 0 Ω → TX_EN = Modulpin 5 (TXEN).** TXEN ist also kein Eingang, sondern derselbe Knoten wie DIO2.
+- TX_EN → R6 10 kΩ → CTRL des Schalters U2 (SC70-6); TX_EN → R5 1 kΩ → NPN Q1, dessen Kollektor /CTRL treibt (R7 1 MΩ nach 3,3 V). Ein DIO2-Signal erzeugt beide Steuerpegel.
+- Vermerk im Schaltbild: „DIO2 = 1 → RFC an RF1 (Senden); DIO2 = 0 → RFC an RF2 (Empfangen)“.
+- **RXEN (Pin 11) → R1 „NC/10K“ → /CTRL**: in der Grundbestückung offen.
+- Das Schwestermodul Ra-01SCH (LLCC68) beschreibt dasselbe im Text: Der HF-Schalter wird **standardmäßig von der Modulschaltung gesteuert**; für Steuerung durch einen externen Mikrocontroller ist eine **andere Bestückung** beim Hersteller anzufragen [V: Ai-Thinker Ra-01SCH 规格书 V1.1.0, 6.6].
+- Drittquelle passt dazu: nopnop2002/esp-idf-sx126x (TXEN/RXEN „N/C“, DIO2 schaltet einen SC70-6-Schalter) [V, Drittquelle].
+- Einschränkung: Das Schaltbild trägt beim Funkchip die Aufschrift „SX1268/X“; es ist offenbar dasselbe Blatt wie beim Ra-01S (433 MHz). Bauteilwerte der HF-Filter gelten daher nicht 1:1; die Schalterlogik ist für die Familie dieselbe [A]. Am gelieferten Modul mit Prüfplan 6.1 bestätigen.
 
-Stand 10.10.2026 (SCH26-11): Die README der Bibliothek nopnop2002/esp-idf-sx126x schreibt ausdrücklich, Ra-01S/Ra-01SH schalten über **DIO2** einen integrierten Lastschalter (SC70-6) zwischen RFO und RFI; in ihrer Verdrahtungstabelle sind TXEN/RXEN „N/C“, und die Grundeinstellung der Bibliothek ist für diese Module gemacht [V, Drittquelle]. Ai-Thinker selbst nennt TXEN/RXEN „RF control port“ [V]. Die Annahme bleibt damit plausibel, ist aber **nicht am gelieferten Modul nachgewiesen**. Freigabe für Funk erst nach dem Prüfplan in 6.1.
+**Folgen für unseren Schaltplan und die Firmware** (Modell `funk_modell.py`):
+- JP401/JP402 **offen lassen** (Grundbestückung). RadioLib: `setDio2AsRfSwitch(true)`, **kein** `setRfSwitchPins`.
+- Wird JP401 geschlossen, darf PB14 nur **Eingang** sein (zeigt dann „Senden aktiv“ an). Als Ausgang treibt PB14 gegen DIO2 (Modell: ca. 20 mA Querstrom [A]) – Gefahr für beide Pins.
+- JP402/PB15 hat bei der Grundbestückung keine Wirkung. Bei einem Modul mit R1 = 10 kΩ würde ein PB15 low den Empfangsweg in einen undefinierten Zustand ziehen.
+- Wird DIO2 in der Firmware nicht als HF-Schalter konfiguriert, bleibt der Schalter auf Empfang; gesendet wird dann nur über die Isolation des Schalters. Das Modell zeigt: Bei 5–8 m reicht das wahrscheinlich trotzdem für eine Verbindung – ein Fehler würde im Betrieb leicht übersehen.
 
 ### 2.2 Versorgung des Moduls
 
 - 3,3 V dauernd (das Modul schläft mit 0,6 µA; ein Abschalten bringt fast nichts und kostet die Sitzungsdaten im Funkchip).
 - **100 µF + 10 µF + 100 nF** direkt am Pin 3 [A]; Datenblatt: Spitzenstrom > 200 mA, Platz für Stützkondensator [V].
 - ESD-Schutzdiode am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung [V]), z. B. eine 3,3-V-TVS in SOD-523 **[P] Teil wählen**.
-- Das Modul arbeitet laut Drittquelle nur mit dem internen LDO, eine DC-DC-Spule ist nicht bestückt [V, Drittquelle; Herstellerschaltbild nicht lesbar]. Folge für die Energiebilanz: RX 8,8 mA, so bereits gerechnet.
+- **Regler:** Das Herstellerschaltbild zeigt **L6 15 µH zwischen DCC_SW und VREG** und 470 nF an VREG – die Beschaltung für den DC-DC-Regler des SX126x; L7 (Brücke VDD_IN → VREG) ist „NC“ [V: Schaltbild V1.1]. Das Datenblatt nennt „minimum receiving current 4.2 mA“, was zum DC-DC-Betrieb passt [V]. Die frühere Drittquellen-Aussage „nur LDO“ ist damit widersprochen. Ob die Spule auf dem gelieferten Modul sitzt, prüft F-7 (6.1). Bis dahin rechnet die Energiebilanz weiter mit LDO (RX 8,8 mA, ungünstiger Fall); RadioLib zuerst mit LDO, nach F-7 auf DC-DC umstellen.
 
 ### 2.3 Antenne (Entscheidung: IPEX im Gehäuse)
 
 - Modul mit IPEX-Buchse, Stecker IPEX-1 (U.FL-kompatibel) [A, üblich; Datenblatt nennt nur „IPEX“].
-- Ob ANT-Pad und IPEX parallel liegen, ist im Datenblatt-Text nicht beschrieben. Deshalb **Pin 1 ohne Leiterbahn** lassen: Ein offenes Leitungsstück an Pin 1 würde sonst die Antenne verstimmen [A].
+- **ANT-Pad und IPEX liegen parallel** am selben Netz RF_OUT hinter dem Ausgangsfilter [V: Herstellerschaltbild V1.1]. Deshalb **Pin 1 ohne Leiterbahn** lassen: Ein offenes Leitungsstück an Pin 1 wäre eine Stichleitung parallel zur Antenne und würde sie verstimmen [A]. Am Modul mit F-2 bestätigen.
 - Antenne: **FPC-Klebeantenne 868 MHz mit 100 mm Kabel**. Beispiel Taoglas FXP280.07.0100A: 75 × 45 mm, 1,8 dBi, 52 % Wirkungsgrad, IPEX MHF1 [V, Taoglas-Datenblatt]. Kleinere generische FPC-Antennen sind möglich, haben aber meist weniger Gewinn [A].
 - **Einbau** [V: Taoglas APN-14-8-001, Antenova]:
   - innen an eine **Seitenwand** des Gehäuses kleben, nicht über die Platine
@@ -107,7 +115,7 @@ Folge für die Firmware: Chip beim Start abfragen und melden. **Nicht auf SF12 a
 
 Einstellungen für RadioLib [A, aus der RadioLib-API; am Steckbrett bestätigen]:
 - TCXO-Spannung 0 (Quarz statt TCXO)
-- Regler LDO
+- Regler zunächst LDO; nach F-7 DC-DC (2.2)
 - `setDio2AsRfSwitch(true)`
 - Sendeleistung zunächst +14 dBm, später so niedrig wie möglich (ADR aus, fest einstellen)
 
@@ -135,7 +143,7 @@ Backup-Register des STM32 (20 × 32 Bit) reichen für die Sitzung nicht. Backup-
 
 | Punkt | Festlegung |
 |---|---|
-| Zweck | 1. **LoRaWAN-Sitzung** (3.1, 64 KB). 2. **Messwerte** als Ringpuffer: Lücken bei Funkausfall schließen, später per USB auslesen oder nachsenden. 3. **FFT-Rohdaten nur als einzelne Schnappschüsse** (auf Befehl oder bei Auffälligkeiten), nicht bei jeder Messung (HW26-12). |
+| Zweck | 1. **LoRaWAN-Sitzung** (3.1, 64 KB). 2. **Messwerte** als Ringpuffer: Lücken bei Funkausfall schließen, später über Serial1/SWD auslesen oder per Funk nachsenden (USB nur Laden/Aufspielen, 1.3). 3. **FFT-Rohdaten nur als einzelne Schnappschüsse** (auf Befehl oder bei Auffälligkeiten), nicht bei jeder Messung (HW26-12). |
 | Bauart | serieller NOR-Flash, **SOIC-8 208 mil**, Standard-Pinbelegung der 25er-Reihe (CS, DO, WP, GND / DI, CLK, HOLD, VCC), 2,7–3,6 V, JEDEC-Befehlssatz |
 | Größe | **64 Mbit (8 MB)**. Aufteilung [A]: 64 KB Sitzung, ca. 6 MB Messwerte, ca. 2 MB Rohdaten-Schnappschüsse. |
 | Reichweite (HW26-12) | **Messwerte:** 64 Byte alle 15 min = 6 KB/Tag → 6 MB reichen für etwa **2,7 Jahre** [A]. **FFT-Rohdaten:** ein Schnappschuss sind 9.342 Werte × 2 Byte ≈ 18,7 KB. Bei jeder Messung wären das 1,8 MB/Tag, der ganze Flash wäre nach **4,7 Tagen** voll (Rechnung Review HW26-12, nachgeprüft). Deshalb nur Schnappschüsse: 2 MB fassen etwa **110**. Beide Bereiche sind Ringpuffer; die ältesten Daten werden überschrieben. |
@@ -213,14 +221,14 @@ Frei für den Erweiterungsstecker (F9): PA15, PB12, PB13. PB11 gibt es beim UFQF
 2. LSE-Quarz mit **höchstens 7 pF** Lastkapazität.
 3. Funkmodul an den Platinenrand, IPEX-Buchse zur Gehäusewand hin, **keine Leiterbahn an ANT**. Unter dem Modul durchgehende Masse; laut Datenblatt dürfen die Pads größer sein als die Modulpads [V].
 4. Mikrofoneingang PA1 und VDDA weit weg von Funkmodul und SPI (Lastenheft A3).
-5. Ungewisse Modulpins (TXEN/RXEN) über Lötbrücken an freie Pins führen, statt sich festzulegen.
+5. Ungewisse Modulpins (TXEN/RXEN) über Lötbrücken an freie Pins führen, statt sich festzulegen. Die zugehörigen MCU-Pins (PB14/PB15) bleiben in der Firmware **Eingänge** (2.1).
 6. Alles, was am I²C-Bus hängt, an derselben (geschalteten) Schiene.
 7. SWD immer zugänglich, auch wenn USB-DFU vorgesehen ist.
 
 ## 6. Offene Prüfpunkte
 
 1. Ra-01SH: Maßzeichnung (S. 10) und Pad-Layout (S. 13) liegen im Datenblatt nur als Bild vor. Footprint aus der LCSC/EasyEDA-Bibliothek (C2764087) nehmen und dagegen prüfen. Rastermaß vermutlich 2,0 mm.
-2. Ra-01SH: Liegen IPEX und ANT-Pad parallel? (Foto oder Schaltbild am gelieferten Modul)
+2. ~~Ra-01SH: Liegen IPEX und ANT-Pad parallel?~~ Laut Herstellerschaltbild ja (2.3); am Modul mit F-2 bestätigen
 3. Ra-01SH: Chipaufdruck SX1262 oder LLCC68
 4. RM0383: Tab. 42 (ADC-Auslöser) und Tab. 28 (DMA2) für den F411 bestätigen
 5. AN2606: USB-Bootloader des F411 mit 25-MHz-Quarz
@@ -230,16 +238,16 @@ Frei für den Erweiterungsstecker (F9): PA15, PB12, PB13. PB11 gibt es beim UFQF
 
 ### 6.1 Prüfplan Funkmodul am Steckbrett (SCH26-11, T4, durch Philipp)
 
-Aufbau: BlackPill + Ra-01SH aus der Lieferung für die Platine, FPC-Antenne an IPEX, 3,3 V aus Labornetzteil mit Strombegrenzung 300 mA, Gateway RAK7268V2 in 5–8 m. Ergebnisse als Prüfbericht mit Fotos und Messwerten eintragen; nichts als gemessen eintragen, was nicht gemessen wurde.
+Aufbau: BlackPill + Ra-01SH aus der Lieferung für die Platine, FPC-Antenne an IPEX, 3,3 V aus Labornetzteil mit Strombegrenzung 300 mA, Gateway RAK7268V2 in 5–8 m. Ergebnisse als Prüfbericht mit Fotos und Messwerten eintragen; nichts als gemessen eintragen, was nicht gemessen wurde. Erwartungswerte aus dem Herstellerschaltbild (2.1) und dem Modell `funk_modell.py`.
 
-| Test | Durchführung | Erwartung / Entscheidung |
-|---|---|---|
-| F-1 Chip | Aufdruck unter der Abschirmung bzw. Händlerangabe, Foto; Firmware liest das Chip-Register (RadioLib meldet SX1262/LLCC68) | Chip festgehalten; bei LLCC68 kein SF11/12 (2.4) |
-| F-2 stromlos | Widerstand messen: TXEN↔DIO2, RXEN↔DIO2, TXEN↔GND, RXEN↔GND, TXEN↔RXEN, ANT-Pad↔IPEX-Innenleiter | zeigt, ob TXEN/RXEN intern mit DIO2 verbunden sind und ob ANT parallel zu IPEX liegt (Prüfpunkt 2) |
-| F-3 Pegel | RadioLib mit `setDio2AsRfSwitch(true)`, TXEN/RXEN **offen**: Spannung an DIO2, TXEN, RXEN messen bei Dauerträger (`transmitDirect`) und bei Empfang (`startReceive`) | DIO2 wechselt TX/RX; folgt TXEN/RXEN dem DIO2, sind sie intern verbunden |
-| F-4 Senden | Uplinks bei 14 dBm, TXEN/RXEN offen; RSSI/SNR in TTN mit dem RFM95-Musterlogger am gleichen Platz vergleichen; Sendestrom am Netzteil ablesen | RSSI im Bereich des Musterloggers; deutlich schlechter (> 15 dB [A]) = HF-Schalter falsch |
-| F-5 Empfangen | Downlink bzw. DeviceTimeAns empfangen (RX1/RX2) | Antwort kommt an |
-| F-6 Gegenprobe | nur wenn F-4/F-5 scheitern: TXEN/RXEN an PB14/PB15, `setRfSwitchPins(PB15, PB14)`, F-4/F-5 wiederholen | geht es nur so: JP401/JP402 im Schaltplan schließen bzw. durch 0 Ω ersetzen, Pull-downs für einen definierten Zustand im Standby ergänzen |
+| Test | Durchführung | Erwartung nach Schaltbild | Entscheidung |
+|---|---|---|---|
+| F-1 Chip | Aufdruck/Händlerangabe, Foto; Firmware liest das Chip-Register (RadioLib meldet SX1262 oder LLCC68) | SX1262 (Ra-01SH) | bei LLCC68: kein SF11/12 (2.4) |
+| F-2 stromlos | Widerstand messen: TXEN↔DIO2, RXEN↔DIO2, RXEN↔GND, ANT-Pad↔IPEX-Innenleiter | TXEN↔DIO2 ≈ 0 Ω; RXEN ohne Verbindung (oder ca. 10 kΩ-Variante); ANT↔IPEX ≈ 0 Ω | Abweichung = andere Modulvariante → Schaltplan prüfen |
+| F-3 Pegel | RadioLib `setDio2AsRfSwitch(true)`, JP offen: Spannung an TXEN messen bei Dauerträger (`transmitDirect`) und bei Empfang (`startReceive`) | Senden ≈ 3,3 V, Empfang ≈ 0 V | Hauptnachweis der Schalterlogik |
+| F-4 Senden | Uplinks bei **−9 dBm** (kleinste Leistung, damit der Unterschied sichtbar wird), RSSI/SNR in TTN gegen den RFM95-Musterlogger am selben Platz mit gleicher Leistung (RFM95: kleinste einstellbare Leistung, Unterschied notieren); einmal mit `setDio2AsRfSwitch(false)` als Gegenprobe, **nur wenige kurze Pakete** | richtig: RSSI im Bereich des Musterloggers; Gegenprobe deutlich schwächer (Modell: 20–35 dB [A]) | „Verbindung geht“ allein reicht nicht (Modell Teil 2) |
+| F-5 Empfangen | Downlink bzw. DeviceTimeAns (RX1/RX2) | Antwort kommt an | – |
+| F-6 nur bei Fehlschlag | Ursache mit F-2/F-3 eingrenzen. **PB14/PB15 nicht als Ausgang** schalten, solange TXEN = DIO2 (Querstrom, `funk_modell.py` K4) | – | Hersteller fragen / andere Modulbestückung |
+| F-7 Regler | Empfangsstrom am Netzteil: RadioLib mit LDO, dann mit DC-DC (`setRegulatorDCDC`), je `startReceive` | DC-DC deutlich unter LDO (Datenblatt: RX min 4,2 mA) | DC-DC in der Firmware nutzen; Energiebilanz anpassen |
 
-Entscheidung danach im Befundregister (SCH26-11) und in 2.1: Lötbrücken offen lassen (DIO2 bestätigt) oder schließen.
-
+Hinweise: Senden mit falsch stehendem Schalter gibt die Leistung auf einen nicht angeschlossenen Schalterzweig; die Gegenprobe in F-4 deshalb nur kurz und mit kleiner Leistung [A]. Entscheidung danach im Befundregister (SCH26-11).

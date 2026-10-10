@@ -1,4 +1,5 @@
 // TTN uplink formatter SenseCAP S2120 (blocks 4A/4B/4C, battery 03/04) -> BEEP keys t, h, p, l
+// p in Pa (BEEP shows p/100 as hPa), p_hpa in hPa for the own weather input
 function s16(b, i) { var v = (b[i] << 8) | b[i + 1]; return v > 32767 ? v - 65536 : v; }
 function u16(b, i) { return (b[i] << 8) | b[i + 1]; }
 function u32(b, i) { return b[i] * 16777216 + b[i + 1] * 65536 + b[i + 2] * 256 + b[i + 3]; }
@@ -25,7 +26,8 @@ function decodeUplink(input) {
     } else if (id === 0x4B) {
       d.wind_dir_deg = u16(b, o);
       d.rain_mmh = u32(b, o + 2) / 1000;
-      d.p = u16(b, o + 6) / 10;
+      d.p = u16(b, o + 6) * 10;
+      d.p_hpa = u16(b, o + 6) / 10;
     } else if (id === 0x4C) {
       d.gust_ms = u16(b, o) / 10;
       d.rain_mm = u32(b, o + 2) / 1000;
