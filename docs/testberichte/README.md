@@ -8,6 +8,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Neuestes unabhängiges Schaltplan-Review: main 4c12b6d](2026-10-10-main-4c12b6d-schaltplan-review.md)** | **10.10.2026, SHA `4c12b6d`** | **7/7 CI PASS, KiCad 48/48 Netztests, ERC 0 unerwartete; P1 Debug-Pinout, USB-VBUS, Ra-01SH-RF, P2 Doppelhash; kein HiL** |
 | **[Audit Arbeitsergebnisse gegen Regelwerk 1.1](2026-10-09-regelwerk-audit.md)** | **`428d101`** + Arbeitskopie Claude | **T0/T3; REG26-01 (P0): SCH26-Behebung lokal verworfen, wiederhergestellt; 12 Befunde** |
 | **[Review Entwicklungsregelwerk 1.0 (Claude)](2026-10-09-regelwerk-review.md)** | **`8fc2aa4`** | **Dokumenten-Review (T0); Entscheidungen in ADR-0002 (Regelwerk 1.1)** |
 | **[Behebung SCH26-01 … -08](2026-10-09-sch26-behebung.md)** | **Arbeitsstand nach `fcd18fe`** (Commit-ID beim Einchecken nachtragen) | **SCH26-01 bestätigt und behoben (Ladesperre aus TMP_VCC am Ladereingang); SCH26-02/03/05/06/08 behoben; KiCad 10: reproduzierbar, ERC alle Schweregrade OK, 42/42 Netzprüfungen an KiCad-Netzlisten, Gegenprobe; CI-Job neu, Lauf offen; kein Muster** |
@@ -20,6 +21,12 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 | [TTN-Formatter und LoRa-Server-Eingang](2026-10-08-ttn-formatter-server-review.md) | Commit `f252677`, nachverifiziert `d735f0f` | Code/CI/Integration; kein produktiver TTN-/BEEP-Test |
 | [LoRaWAN-Zeitabgleich ZS](2026-10-08-zs-review.md) | ZS `de72645`, ZS-Logik in `d735f0f` | Host-Tests/Modellsimulation; kein HiL |
 | [Hardware-Entwurf: Prüfliste](2026-10-08-hardware-architektur-review.md) | Lastenheft 0.3 in `d735f0f` | Konzeptreview; kein KiCad-/HiL-Nachweis |
+
+## Aktuell: GitHub-main `4c12b6d` (10.10.2026)
+
+**[Unabhängiges Hardware-Review 10.10.2026](2026-10-10-main-4c12b6d-schaltplan-review.md):** Der frühere KiCad-Generatorbruch `REG26-13` ist behoben: [CI 38023150749](https://github.com/impyer/bienen-lora-logger/actions/runs/38023150749) **7/7 Jobs PASS**, 19 Akku- und 69 Hauptplatinen-Netze, 48/48 Netzprüfungen, ERC Akku 0 und Hauptplatine 11 begründete Warnungen. Neue Blätter MCU und Funk/Flash vorhanden; Waage, Mikrofon, Anschlüsse weiterhin ausstehend.
+
+**Neu:** `SCH26-09` P1 widersprüchliche Debug-J302/J10-Stecker-Pinfolge ([#4](https://github.com/impyer/bienen-lora-logger/issues/4)), `SCH26-10` P1 USB ohne unabhängige VBUS-Erkennung ([#5](https://github.com/impyer/bienen-lora-logger/issues/5)), `SCH26-11` P1 Ra-01SH-DIO2/TXEN/RXEN/IPEX nicht verifiziert ([#6](https://github.com/impyer/bienen-lora-logger/issues/6)), `SCH26-12` P2 doppelte Reproduzierbarkeitsprüfung ohne neue zwei Blätter ([#7](https://github.com/impyer/bienen-lora-logger/issues/7)). **D3-Akkuschutz nur im Entwurf, kein G2/G3/G4-Sign-off.** Der untenstehende Schaltplan-V0.1-Abschnitt ist historisch.
 
 ## Aktuell: Behebung Schaltplan-Review V0.1 (09.10.2026)
 
