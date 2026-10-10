@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-10T04:53:54")
+		(date "2026-10-10T05:53:23")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -110,6 +110,54 @@
 				(rev "0.1 Entwurf")
 				(date "2026-10-09")
 				(source "mcu.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
+				)
+				(comment
+					(number "3")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "4")
+			(name "/Funk + Flash/")
+			(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			(title_block
+				(title "Funk + Flash: Ra-01SH (SX1262/LLCC68), SPI-NOR-Flash 64 Mbit")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "funk.kicad_sch")
 				(comment
 					(number "1")
 					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
@@ -3935,6 +3983,982 @@
 				)
 			)
 		)
+		(comp
+			(ref "C401")
+			(value "100µ 6,3V X5R")
+			(footprint "Capacitor_SMD:C_1210_3225Metric")
+			(description "Puffer für Sendestromspitzen > 200 mA (mcu-funk.md 2.2) [A]")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_1210_3225Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Puffer für Sendestromspitzen > 200 mA (mcu-funk.md 2.2) [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "bc2ab734-65eb-51ae-b26d-4bae87f96db3")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C402")
+			(value "10µ 10V X5R")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "987503cb-de50-5af5-af1c-35f42f942149")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C403")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "direkt an Pin 3")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "direkt an Pin 3")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "d4402c2b-4c18-5be5-b606-0dc802814176")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C404")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "03a52ef3-abe0-5664-872b-2ef6b9b840d6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D401")
+			(value "TVS 3,3V")
+			(footprint "Diode_SMD:D_SOD-523")
+			(description "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Teil wählen [P]")
+			(fields
+				(field
+					(name "Footprint") "Diode_SMD:D_SOD-523")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Teil wählen [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "D_TVS")
+				(description "Bidirectional transient-voltage-suppression diode")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "diode TVS thyrector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "TO-???* *_Diode_* *SingleDiode* D_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "f2d634a5-0b8a-5cab-bff5-74ff77cd4c0f")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "JP401")
+			(value "TXEN")
+			(footprint "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
+			(description "offen; nur schließen, falls Senden ohne TXEN nicht geht (mcu-funk.md 2.1)")
+			(fields
+				(field
+					(name "Footprint") "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "offen; nur schließen, falls Senden ohne TXEN nicht geht (mcu-funk.md 2.1)")
+			)
+			(libsource
+				(lib "Jumper")
+				(part "SolderJumper_2_Open")
+				(description "Solder Jumper, 2-pole, open")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "solder jumper SPST")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SolderJumper*Open*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "75a0ba3a-326d-59fb-87c0-c2f7783c6465")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "JP402")
+			(value "RXEN")
+			(footprint "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
+			(fields
+				(field
+					(name "Footprint") "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Jumper")
+				(part "SolderJumper_2_Open")
+				(description "Solder Jumper, 2-pole, open")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "solder jumper SPST")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SolderJumper*Open*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "f6d36111-0ee1-5a33-9190-c582bec8603d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R401")
+			(value "33")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "0cf759e5-7da4-5cb0-9de3-9aff4be40a19")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R402")
+			(value "33")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "f587d05a-b4a6-5a74-b17c-78b9dfc6497d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R403")
+			(value "33")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "97059873-7804-59ea-a5b2-b4e4cd619c09")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R404")
+			(value "33")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Reihenwiderstand 10–100 Ω laut Datenblatt")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "aaf21b45-60c5-5dd0-8ae2-7c23ee77f420")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R405")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "NSS nicht ausgewählt, solange PA4 im Standby hochohmig ist")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "NSS nicht ausgewählt, solange PA4 im Standby hochohmig ist")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "e53a1f79-c752-583e-b633-82df0d891211")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R406")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "CS nicht ausgewählt im Standby (PB3 hochohmig)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "CS nicht ausgewählt im Standby (PB3 hochohmig)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "ea3498d9-da3d-5e30-a13a-57da4ba44473")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R407")
+			(value "10k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "5d79b344-9df0-5ec8-be01-33b99d0182b5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R408")
+			(value "10k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "9cb7f9ab-8915-5ab3-8d63-213392fa89eb")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U401")
+			(value "Ra-01SH")
+			(description "Antenne über IPEX; Pin ANT ohne Leiterbahn (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
+			(fields
+				(field
+					(name "LCSC") "C2764087")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Antenne über IPEX; Pin ANT ohne Leiterbahn (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "Ra-01SH")
+				(description "LoRa-Modul 868 MHz, SPI; DIO2 schaltet laut Drittquelle den HF-Schalter; Antenne über IPEX, Pin ANT ohne Leiterbahn")
+			)
+			(property
+				(name "LCSC")
+				(value "C2764087")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "15db6378-7a37-5a91-b007-c9ac709ddb97")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "15")
+						)
+						(pin
+							(num "12")
+						)
+						(pin
+							(num "14")
+						)
+						(pin
+							(num "13")
+						)
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "16")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "11")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "8")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U402")
+			(value "64 Mbit SOIC-8 208 mil")
+			(footprint "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm")
+			(description "Teil nach Bestand: XT25F64BSSIGU-S (C2890984) oder ZD25Q64DSIGT (C55199021); Standard-Pinbelegung 25er-Reihe")
+			(fields
+				(field
+					(name "Footprint") "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Teil nach Bestand: XT25F64BSSIGU-S (C2890984) oder ZD25Q64DSIGT (C55199021); Standard-Pinbelegung 25er-Reihe")
+			)
+			(libsource
+				(lib "Memory_Flash")
+				(part "W25Q32JVSS")
+				(description "32Mbit / 4MiB Serial Flash Memory, Standard/Dual/Quad SPI, 2.7-3.6V, SOIC-8 (208 mil)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Funk + Flash")
+			)
+			(property
+				(name "Sheetfile")
+				(value "funk.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "flash memory SPI")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "*SOIC*5.3x5.3mm*P1.27mm*")
+			)
+			(sheetpath
+				(names "/Funk + Flash/")
+				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
+			)
+			(tstamps "d4c7d619-743c-56ab-af57-fe98dc5d643b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
 	)
 	(groups)
 	(variants)
@@ -4056,6 +5080,106 @@
 					(num "5")
 					(name "VOUT")
 					(type "power_out")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "Ra-01SH")
+			(description "LoRa-Modul 868 MHz, SPI; DIO2 schaltet laut Drittquelle den HF-Schalter; Antenne über IPEX, Pin ANT ohne Leiterbahn")
+			(docs "https://docs.ai-thinker.com/en/lora")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "Ra-01SH")
+				(field
+					(name "Footprint") "Bienen:Ai-Thinker_Ra-01SH")
+				(field
+					(name "Datasheet") "https://docs.ai-thinker.com/en/lora")
+				(field
+					(name "Description") "LoRa-Modul 868 MHz, SPI; DIO2 schaltet laut Drittquelle den HF-Schalter; Antenne über IPEX, Pin ANT ohne Leiterbahn")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "ANT")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "3.3V")
+					(type "power_in")
+				)
+				(pin
+					(num "4")
+					(name "RESET")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "TXEN")
+					(type "input")
+				)
+				(pin
+					(num "6")
+					(name "DIO1")
+					(type "output")
+				)
+				(pin
+					(num "7")
+					(name "DIO2")
+					(type "bidirectional")
+				)
+				(pin
+					(num "8")
+					(name "DIO3")
+					(type "bidirectional")
+				)
+				(pin
+					(num "9")
+					(name "GND")
+					(type "passive")
+				)
+				(pin
+					(num "10")
+					(name "BUSY")
+					(type "output")
+				)
+				(pin
+					(num "11")
+					(name "RXEN")
+					(type "input")
+				)
+				(pin
+					(num "12")
+					(name "SCK")
+					(type "input")
+				)
+				(pin
+					(num "13")
+					(name "MISO")
+					(type "output")
+				)
+				(pin
+					(num "14")
+					(name "MOSI")
+					(type "input")
+				)
+				(pin
+					(num "15")
+					(name "NSS")
+					(type "input")
+				)
+				(pin
+					(num "16")
+					(name "GND")
+					(type "passive")
 				)
 			)
 		)
@@ -4503,6 +5627,43 @@
 		)
 		(libpart
 			(lib "Device")
+			(part "D_TVS")
+			(description "Bidirectional transient-voltage-suppression diode")
+			(footprints
+				(fp "TO-???*")
+				(fp "*_Diode_*")
+				(fp "*SingleDiode*")
+				(fp "D_*")
+			)
+			(fields
+				(field
+					(name "Reference") "D")
+				(field
+					(name "Value") "D_TVS")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Bidirectional transient-voltage-suppression diode")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "A1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "A2")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
 			(part "FerriteBead_Small")
 			(description "Ferrite bead, small symbol")
 			(footprints
@@ -4671,6 +5832,40 @@
 				(pin
 					(num "2")
 					(name "A")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Jumper")
+			(part "SolderJumper_2_Open")
+			(description "Solder Jumper, 2-pole, open")
+			(footprints
+				(fp "SolderJumper*Open*")
+			)
+			(fields
+				(field
+					(name "Reference") "JP")
+				(field
+					(name "Value") "SolderJumper_2_Open")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Solder Jumper, 2-pole, open")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "A")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "B")
 					(type "passive")
 				)
 			)
@@ -4944,6 +6139,69 @@
 			)
 		)
 		(libpart
+			(lib "Memory_Flash")
+			(part "W25Q32JVSS")
+			(description "32Mbit / 4MiB Serial Flash Memory, Standard/Dual/Quad SPI, 2.7-3.6V, SOIC-8 (208 mil)")
+			(docs "http://www.winbond.com/resource-files/w25q32jv%20revg%2003272018%20plus.pdf")
+			(footprints
+				(fp "*SOIC*5.3x5.3mm*P1.27mm*")
+			)
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "W25Q32JVSS")
+				(field
+					(name "Footprint") "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm")
+				(field
+					(name "Datasheet") "http://www.winbond.com/resource-files/w25q32jv%20revg%2003272018%20plus.pdf")
+				(field
+					(name "Description") "32Mbit / 4MiB Serial Flash Memory, Standard/Dual/Quad SPI, 2.7-3.6V, SOIC-8 (208 mil)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "~{CS}")
+					(type "input")
+				)
+				(pin
+					(num "2")
+					(name "DO/IO_{1}")
+					(type "bidirectional")
+				)
+				(pin
+					(num "3")
+					(name "~{WP}/IO_{2}")
+					(type "bidirectional")
+				)
+				(pin
+					(num "4")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "5")
+					(name "DI/IO_{0}")
+					(type "bidirectional")
+				)
+				(pin
+					(num "6")
+					(name "CLK")
+					(type "input")
+				)
+				(pin
+					(num "7")
+					(name "~{HOLD}/~{RESET}/IO_{3}")
+					(type "bidirectional")
+				)
+				(pin
+					(num "8")
+					(name "VCC")
+					(type "power_in")
+				)
+			)
+		)
+		(libpart
 			(lib "Power_Management")
 			(part "TPS22917DBV")
 			(description "1V to 5.5V, 2A, 80mΩ Ultra-Low Leakage Load Switch, SOT23-6")
@@ -5134,8 +6392,16 @@
 			(uri "${KICAD10_SYMBOL_DIR}/Diode.kicad_sym")
 		)
 		(library
+			(logical "Jumper")
+			(uri "${KICAD10_SYMBOL_DIR}/Jumper.kicad_sym")
+		)
+		(library
 			(logical "MCU_ST_STM32F4")
 			(uri "${KICAD10_SYMBOL_DIR}/MCU_ST_STM32F4.kicad_sym")
+		)
+		(library
+			(logical "Memory_Flash")
+			(uri "${KICAD10_SYMBOL_DIR}/Memory_Flash.kicad_sym")
 		)
 		(library
 			(logical "Power_Management")
@@ -5191,6 +6457,32 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "C401")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C402")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C403")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C404")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "D401")
+				(pin "2")
+				(pinfunction "A2_2")
+				(pintype "passive")
+			)
+			(node
 				(ref "FB301")
 				(pin "1")
 				(pintype "passive")
@@ -5203,6 +6495,26 @@
 			)
 			(node
 				(ref "R306")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R405")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R406")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R407")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R408")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -5260,9 +6572,151 @@
 				(pinfunction "VDD_48")
 				(pintype "power_in")
 			)
+			(node
+				(ref "U401")
+				(pin "3")
+				(pinfunction "3.3V_3")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U402")
+				(pin "8")
+				(pinfunction "VCC_8")
+				(pintype "power_in")
+			)
 		)
 		(net
 			(code "2")
+			(name "/Funk + Flash/FLASH_HOLD")
+			(class "Default")
+			(node
+				(ref "R408")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U402")
+				(pin "7")
+				(pinfunction "~{HOLD}/~{RESET}/IO_{3}_7")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "3")
+			(name "/Funk + Flash/FLASH_WP")
+			(class "Default")
+			(node
+				(ref "R407")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U402")
+				(pin "3")
+				(pinfunction "~{WP}/IO_{2}_3")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "4")
+			(name "/Funk + Flash/RF_MISO")
+			(class "Default")
+			(node
+				(ref "R402")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U401")
+				(pin "13")
+				(pinfunction "MISO_13")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "5")
+			(name "/Funk + Flash/RF_MOSI")
+			(class "Default")
+			(node
+				(ref "R403")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U401")
+				(pin "14")
+				(pinfunction "MOSI_14")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "6")
+			(name "/Funk + Flash/RF_NSS")
+			(class "Default")
+			(node
+				(ref "R404")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U401")
+				(pin "15")
+				(pinfunction "NSS_15")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "7")
+			(name "/Funk + Flash/RF_SCK")
+			(class "Default")
+			(node
+				(ref "R401")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U401")
+				(pin "12")
+				(pinfunction "SCK_12")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "8")
+			(name "/Funk + Flash/RXEN_MOD")
+			(class "Default")
+			(node
+				(ref "JP402")
+				(pin "1")
+				(pinfunction "A_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U401")
+				(pin "11")
+				(pinfunction "RXEN_11")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "9")
+			(name "/Funk + Flash/TXEN_MOD")
+			(class "Default")
+			(node
+				(ref "JP401")
+				(pin "1")
+				(pinfunction "A_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U401")
+				(pin "5")
+				(pinfunction "TXEN_5")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "10")
 			(name "/MCU/BOOT0")
 			(class "Default")
 			(node
@@ -5284,7 +6738,7 @@
 			)
 		)
 		(net
-			(code "3")
+			(code "11")
 			(name "/MCU/BOOT1")
 			(class "Default")
 			(node
@@ -5300,7 +6754,7 @@
 			)
 		)
 		(net
-			(code "4")
+			(code "12")
 			(name "/MCU/DBG_RX")
 			(class "Default")
 			(node
@@ -5317,7 +6771,7 @@
 			)
 		)
 		(net
-			(code "5")
+			(code "13")
 			(name "/MCU/DBG_TX")
 			(class "Default")
 			(node
@@ -5334,7 +6788,7 @@
 			)
 		)
 		(net
-			(code "6")
+			(code "14")
 			(name "/MCU/HSE_IN")
 			(class "Default")
 			(node
@@ -5356,7 +6810,7 @@
 			)
 		)
 		(net
-			(code "7")
+			(code "15")
 			(name "/MCU/HSE_OUT")
 			(class "Default")
 			(node
@@ -5378,7 +6832,7 @@
 			)
 		)
 		(net
-			(code "8")
+			(code "16")
 			(name "/MCU/LED")
 			(class "Default")
 			(node
@@ -5395,7 +6849,7 @@
 			)
 		)
 		(net
-			(code "9")
+			(code "17")
 			(name "/MCU/LED_A")
 			(class "Default")
 			(node
@@ -5411,7 +6865,7 @@
 			)
 		)
 		(net
-			(code "10")
+			(code "18")
 			(name "/MCU/LSE_IN")
 			(class "Default")
 			(node
@@ -5433,7 +6887,7 @@
 			)
 		)
 		(net
-			(code "11")
+			(code "19")
 			(name "/MCU/LSE_OUT")
 			(class "Default")
 			(node
@@ -5455,7 +6909,7 @@
 			)
 		)
 		(net
-			(code "12")
+			(code "20")
 			(name "/MCU/NRST")
 			(class "Default")
 			(node
@@ -5483,7 +6937,7 @@
 			)
 		)
 		(net
-			(code "13")
+			(code "21")
 			(name "/MCU/SWCLK")
 			(class "Default")
 			(node
@@ -5500,7 +6954,7 @@
 			)
 		)
 		(net
-			(code "14")
+			(code "22")
 			(name "/MCU/SWDIO")
 			(class "Default")
 			(node
@@ -5517,7 +6971,7 @@
 			)
 		)
 		(net
-			(code "15")
+			(code "23")
 			(name "/MCU/USB_CC1")
 			(class "Default")
 			(node
@@ -5533,7 +6987,7 @@
 			)
 		)
 		(net
-			(code "16")
+			(code "24")
 			(name "/MCU/USB_CC2")
 			(class "Default")
 			(node
@@ -5549,7 +7003,7 @@
 			)
 		)
 		(net
-			(code "17")
+			(code "25")
 			(name "/MCU/USB_DM")
 			(class "Default")
 			(node
@@ -5584,7 +7038,7 @@
 			)
 		)
 		(net
-			(code "18")
+			(code "26")
 			(name "/MCU/USB_DP")
 			(class "Default")
 			(node
@@ -5619,7 +7073,7 @@
 			)
 		)
 		(net
-			(code "19")
+			(code "27")
 			(name "/MCU/VCAP")
 			(class "Default")
 			(node
@@ -5635,7 +7089,7 @@
 			)
 		)
 		(net
-			(code "20")
+			(code "28")
 			(name "/MCU/VDDA")
 			(class "Default")
 			(node
@@ -5661,7 +7115,7 @@
 			)
 		)
 		(net
-			(code "21")
+			(code "29")
 			(name "/MCU/WAKE")
 			(class "Default")
 			(node
@@ -5689,7 +7143,7 @@
 			)
 		)
 		(net
-			(code "22")
+			(code "30")
 			(name "/Versorgung/CE_LADEN")
 			(class "Default")
 			(node
@@ -5716,7 +7170,7 @@
 			)
 		)
 		(net
-			(code "23")
+			(code "31")
 			(name "/Versorgung/ILIM")
 			(class "Default")
 			(node
@@ -5732,7 +7186,7 @@
 			)
 		)
 		(net
-			(code "24")
+			(code "32")
 			(name "/Versorgung/ISET")
 			(class "Default")
 			(node
@@ -5748,7 +7202,7 @@
 			)
 		)
 		(net
-			(code "25")
+			(code "33")
 			(name "/Versorgung/LADE_STAT1")
 			(class "Default")
 			(node
@@ -5765,7 +7219,7 @@
 			)
 		)
 		(net
-			(code "26")
+			(code "34")
 			(name "/Versorgung/LADE_STAT2")
 			(class "Default")
 			(node
@@ -5782,7 +7236,7 @@
 			)
 		)
 		(net
-			(code "27")
+			(code "35")
 			(name "/Versorgung/NTC")
 			(class "Default")
 			(node
@@ -5799,7 +7253,7 @@
 			)
 		)
 		(net
-			(code "28")
+			(code "36")
 			(name "/Versorgung/PV1")
 			(class "Default")
 			(node
@@ -5816,7 +7270,7 @@
 			)
 		)
 		(net
-			(code "29")
+			(code "37")
 			(name "/Versorgung/PV2")
 			(class "Default")
 			(node
@@ -5833,7 +7287,7 @@
 			)
 		)
 		(net
-			(code "30")
+			(code "38")
 			(name "/Versorgung/SW_CT")
 			(class "Default")
 			(node
@@ -5849,7 +7303,7 @@
 			)
 		)
 		(net
-			(code "31")
+			(code "39")
 			(name "/Versorgung/SW_QOD")
 			(class "Default")
 			(node
@@ -5865,7 +7319,7 @@
 			)
 		)
 		(net
-			(code "32")
+			(code "40")
 			(name "/Versorgung/TMP_VCC")
 			(class "Default")
 			(node
@@ -5887,7 +7341,7 @@
 			)
 		)
 		(net
-			(code "33")
+			(code "41")
 			(name "/Versorgung/VBAT")
 			(class "Default")
 			(node
@@ -5914,7 +7368,7 @@
 			)
 		)
 		(net
-			(code "34")
+			(code "42")
 			(name "/Versorgung/VIN_LADER")
 			(class "Default")
 			(node
@@ -5970,7 +7424,7 @@
 			)
 		)
 		(net
-			(code "35")
+			(code "43")
 			(name "3V3_SW")
 			(class "Default")
 			(node
@@ -5991,7 +7445,7 @@
 			)
 		)
 		(net
-			(code "36")
+			(code "44")
 			(name "ADC_AKKU")
 			(class "Default")
 			(node
@@ -6017,7 +7471,7 @@
 			)
 		)
 		(net
-			(code "37")
+			(code "45")
 			(name "ADC_SOLAR")
 			(class "Default")
 			(node
@@ -6043,7 +7497,7 @@
 			)
 		)
 		(net
-			(code "38")
+			(code "46")
 			(name "EXT_PA15")
 			(class "Default")
 			(node
@@ -6054,7 +7508,7 @@
 			)
 		)
 		(net
-			(code "39")
+			(code "47")
 			(name "EXT_PB12")
 			(class "Default")
 			(node
@@ -6065,7 +7519,7 @@
 			)
 		)
 		(net
-			(code "40")
+			(code "48")
 			(name "EXT_PB13")
 			(class "Default")
 			(node
@@ -6076,18 +7530,29 @@
 			)
 		)
 		(net
-			(code "41")
+			(code "49")
 			(name "FLASH_CS")
 			(class "Default")
+			(node
+				(ref "R406")
+				(pin "2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "39")
 				(pinfunction "PB3_39")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U402")
+				(pin "1")
+				(pinfunction "~{CS}_1")
+				(pintype "input")
+			)
 		)
 		(net
-			(code "42")
+			(code "50")
 			(name "GND")
 			(class "Default")
 			(node
@@ -6211,9 +7676,35 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "C401")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C402")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C403")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C404")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
 				(ref "D204")
 				(pin "2")
 				(pinfunction "A2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "D401")
+				(pin "1")
+				(pinfunction "A1_1")
 				(pintype "passive")
 			)
 			(node
@@ -6393,6 +7884,30 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "U401")
+				(pin "16")
+				(pinfunction "GND_16")
+				(pintype "passive")
+			)
+			(node
+				(ref "U401")
+				(pin "2")
+				(pinfunction "GND_2")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U401")
+				(pin "9")
+				(pinfunction "GND_9")
+				(pintype "passive")
+			)
+			(node
+				(ref "U402")
+				(pin "4")
+				(pinfunction "GND_4")
+				(pintype "power_in")
+			)
+			(node
 				(ref "Y301")
 				(pin "2")
 				(pinfunction "G_2")
@@ -6406,7 +7921,7 @@
 			)
 		)
 		(net
-			(code "43")
+			(code "51")
 			(name "HX_DOUT")
 			(class "Default")
 			(node
@@ -6417,7 +7932,7 @@
 			)
 		)
 		(net
-			(code "44")
+			(code "52")
 			(name "HX_SCK")
 			(class "Default")
 			(node
@@ -6428,7 +7943,7 @@
 			)
 		)
 		(net
-			(code "45")
+			(code "53")
 			(name "I2C_SCL")
 			(class "Default")
 			(node
@@ -6439,7 +7954,7 @@
 			)
 		)
 		(net
-			(code "46")
+			(code "54")
 			(name "I2C_SDA")
 			(class "Default")
 			(node
@@ -6450,7 +7965,7 @@
 			)
 		)
 		(net
-			(code "47")
+			(code "55")
 			(name "LORA_BUSY")
 			(class "Default")
 			(node
@@ -6459,9 +7974,15 @@
 				(pinfunction "PA3_13")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U401")
+				(pin "10")
+				(pinfunction "BUSY_10")
+				(pintype "output")
+			)
 		)
 		(net
-			(code "48")
+			(code "56")
 			(name "LORA_DIO1")
 			(class "Default")
 			(node
@@ -6470,11 +7991,27 @@
 				(pinfunction "PA2_12")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U401")
+				(pin "6")
+				(pinfunction "DIO1_6")
+				(pintype "output")
+			)
 		)
 		(net
-			(code "49")
+			(code "57")
 			(name "LORA_NSS")
 			(class "Default")
+			(node
+				(ref "R404")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R405")
+				(pin "2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "14")
@@ -6483,7 +8020,7 @@
 			)
 		)
 		(net
-			(code "50")
+			(code "58")
 			(name "LORA_RST")
 			(class "Default")
 			(node
@@ -6492,11 +8029,23 @@
 				(pinfunction "PB4_40")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U401")
+				(pin "4")
+				(pinfunction "RESET_4")
+				(pintype "input")
+			)
 		)
 		(net
-			(code "51")
+			(code "59")
 			(name "LORA_RXEN")
 			(class "Default")
+			(node
+				(ref "JP402")
+				(pin "2")
+				(pinfunction "B_2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "28")
@@ -6505,9 +8054,15 @@
 			)
 		)
 		(net
-			(code "52")
+			(code "60")
 			(name "LORA_TXEN")
 			(class "Default")
+			(node
+				(ref "JP401")
+				(pin "2")
+				(pinfunction "B_2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "27")
@@ -6516,7 +8071,7 @@
 			)
 		)
 		(net
-			(code "53")
+			(code "61")
 			(name "MIC_ADC")
 			(class "Default")
 			(node
@@ -6527,7 +8082,7 @@
 			)
 		)
 		(net
-			(code "54")
+			(code "62")
 			(name "ONEWIRE")
 			(class "Default")
 			(node
@@ -6538,7 +8093,7 @@
 			)
 		)
 		(net
-			(code "55")
+			(code "63")
 			(name "SENSOR_EIN")
 			(class "Default")
 			(node
@@ -6560,40 +8115,73 @@
 			)
 		)
 		(net
-			(code "56")
+			(code "64")
 			(name "SPI_MISO")
 			(class "Default")
+			(node
+				(ref "R402")
+				(pin "1")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "16")
 				(pinfunction "PA6_16")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U402")
+				(pin "2")
+				(pinfunction "DO/IO_{1}_2")
+				(pintype "bidirectional")
+			)
 		)
 		(net
-			(code "57")
+			(code "65")
 			(name "SPI_MOSI")
 			(class "Default")
+			(node
+				(ref "R403")
+				(pin "1")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "17")
 				(pinfunction "PA7_17")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U402")
+				(pin "5")
+				(pinfunction "DI/IO_{0}_5")
+				(pintype "bidirectional")
+			)
 		)
 		(net
-			(code "58")
+			(code "66")
 			(name "SPI_SCK")
 			(class "Default")
+			(node
+				(ref "R401")
+				(pin "1")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "15")
 				(pinfunction "PA5_15")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U402")
+				(pin "6")
+				(pinfunction "CLK_6")
+				(pintype "input")
+			)
 		)
 		(net
-			(code "59")
+			(code "67")
 			(name "SYS")
 			(class "Default")
 			(node
@@ -6631,7 +8219,7 @@
 			)
 		)
 		(net
-			(code "60")
+			(code "68")
 			(name "VBUS")
 			(class "Default")
 			(node
@@ -6672,7 +8260,7 @@
 			)
 		)
 		(net
-			(code "61")
+			(code "69")
 			(name "WAAGE_EIN")
 			(class "Default")
 			(node
@@ -6683,7 +8271,7 @@
 			)
 		)
 		(net
-			(code "62")
+			(code "70")
 			(name "unconnected-(J301-SBU1-PadA8)")
 			(class "Default")
 			(node
@@ -6694,7 +8282,7 @@
 			)
 		)
 		(net
-			(code "63")
+			(code "71")
 			(name "unconnected-(J301-SBU2-PadB8)")
 			(class "Default")
 			(node
@@ -6705,7 +8293,7 @@
 			)
 		)
 		(net
-			(code "64")
+			(code "72")
 			(name "unconnected-(U202-NC-Pad4)")
 			(class "Default")
 			(node
@@ -6716,7 +8304,7 @@
 			)
 		)
 		(net
-			(code "65")
+			(code "73")
 			(name "unconnected-(U204-EN-Pad3)")
 			(class "Default")
 			(node
@@ -6727,7 +8315,7 @@
 			)
 		)
 		(net
-			(code "66")
+			(code "74")
 			(name "unconnected-(U204-NC-Pad4)")
 			(class "Default")
 			(node
@@ -6735,6 +8323,39 @@
 				(pin "4")
 				(pinfunction "NC_4")
 				(pintype "no_connect")
+			)
+		)
+		(net
+			(code "75")
+			(name "unconnected-(U401-ANT-Pad1)")
+			(class "Default")
+			(node
+				(ref "U401")
+				(pin "1")
+				(pinfunction "ANT_1")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "76")
+			(name "unconnected-(U401-DIO2-Pad7)")
+			(class "Default")
+			(node
+				(ref "U401")
+				(pin "7")
+				(pinfunction "DIO2_7")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "77")
+			(name "unconnected-(U401-DIO3-Pad8)")
+			(class "Default")
+			(node
+				(ref "U401")
+				(pin "8")
+				(pinfunction "DIO3_8")
+				(pintype "bidirectional+no_connect")
 			)
 		)
 	)

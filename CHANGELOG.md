@@ -1,12 +1,10 @@
 # Änderungen
 
-## 2026-10-10 – Wetter-Eingang für die Wetterstation SenseCAP S2120
+## 2026-10-10 – Blatt Funk + Flash
 
-- Neu: `server/wetter/` (Webhook-Ziel für TTN). Speichert alle Werte der S2120 je **Bienenstand** in `<stand>/<station>_<JJJJ-MM>.csv`: Temperatur, Feuchte, Druck, Licht, UV, Wind, Windrichtung, Böe, Regenintensität, Regensumme, Batterie, Intervall, Funkdaten und Rohdaten. Zuordnung Station → Stand und Stand → beelogger-Verzeichnisse in `wetter_config.php`; `staende.json` (ohne Token) für die Auswertung.
-- Uplinks ohne Nutzdaten (nach Join) werden mit 200 „ignoriert“ beantwortet, damit TTN den Webhook nicht abschaltet (beim BEEP-Webhook so beobachtet). Doppelte Zustellung wird erkannt, Sperre je Station.
-- Neu: `formatter/s2120_beep_formatter.js` (Gerät `wetterstation-01`): Blöcke 4A/4B/4C nach dem Seeed-Decoder, dazu 03/04 (Batterie, Intervall); Ausgabe mit BEEP-Kürzeln `t`, `h`, `p`, `l`. Nur ASCII.
-- Tests: `test_s2120_formatter.js` (11 Prüfungen, zwei echte Uplinks vom 10.10.; goja 9/9 Vektoren), `test_wetter_funktionen.php` (40), `test_wetter_eingang.sh` (24, PHP-Testserver mit 4 Workern; Gegenprobe ohne Sperre → rot). Eingebunden in `alle_tests_linux.sh` und CI.
-- Änderungsklasse D2 (Persistenz, Zeitstempel). Nachweise T1/T2 im Container; Feldtest (TTN → Produktivserver) offen.
+- Neues Blatt `hauptplatine/funk.kicad_sch` nach `mcu-funk.md` 2, 3.1, 3.2: Ra-01SH (eigenes Symbol, Pinbelegung Datenblatt V1.1 S. 11) an SPI1 mit 33-Ω-Reihenwiderständen, NSS-Pull-up 100 kΩ, Puffer 100 µF + 10 µF + 100 nF und TVS am 3,3-V-Eingang, TXEN/RXEN über offene Lötbrücken, ANT/DIO2/DIO3 offen; SPI-NOR-Flash 64 Mbit (SOIC-8 208 mil) am selben Bus mit CS-Pull-up 100 kΩ, WP/HOLD über 10 kΩ, 100 nF.
+- Die 10 Funk-/Flash-Schnittstellen des Blatts MCU sind damit verbunden; `erc_erwartet.json` entsprechend gekürzt.
+- Prüfung: `pruefen.sh` reproduzierbar, ERC OK (Hauptplatine 11 erwartete Meldungen), Netzvergleich 48/48. Der Netzvergleich fand beim Zeichnen einen verdrehten Pull-up an WP/HOLD; behoben vor der Lieferung.
 
 ## 2026-10-10 – Blatt MCU der Hauptplatine
 

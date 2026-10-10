@@ -1,11 +1,11 @@
 # KiCad-Projekte (KiCad 10)
 
-Stand 10.10.2026: **Akku-Platine** und die Blätter **Versorgung** und **MCU** der Hauptplatine. Die Blätter Funk + Flash, Waage, Mikrofon und Anschlüsse folgen (SCH26-07). **Entwurf, keine Fertigungsfreigabe.**
+Stand 10.10.2026: **Akku-Platine** und die Blätter **Versorgung**, **MCU** und **Funk + Flash** der Hauptplatine. Die Blätter Waage, Mikrofon und Anschlüsse folgen (SCH26-07). **Entwurf, keine Fertigungsfreigabe.**
 
 | Ordner/Datei | Inhalt |
 |---|---|
 | `akku-platine/` | Projekt `akku.kicad_pro`: Zelle, HY2111 + FS8205, Messbrücke, Ladesperre 2 × TMP390 (Stufe 1 → CE, Stufe 2 → NTC-Kreis), NTC, JST PH 5 |
-| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch` |
+| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch` |
 | `bienen.kicad_sym` | Projektsymbole (BQ25185, TMP390, HY2111-GB, FS8205, RT9080, TPS70933), Pinbelegungen mit Datenblattquelle in `werkzeug/symbole.py` |
 | `erc_erwartet.json` | begründete ERC-Warnungen; jede andere Meldung lässt die Prüfung scheitern |
 | `pdf/`, `netzliste/` | Ausdrucke und KiCad-Netzlisten (zum Prüfen ohne KiCad; enthalten ein Datum, daher vom CI-Diff ausgenommen) |
@@ -35,7 +35,7 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|
 | Akku-Platine | 0 | |
-| Hauptplatine | 21 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH 2,2 × 2 mm); 20 globale Netze vom Blatt MCU haben ihre Gegenstelle erst auf den Blättern Funk + Flash, Waage, Mikrofon, Anschlüsse |
+| Hauptplatine | 11 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH, Ra-01SH); 10 globale Netze vom Blatt MCU haben ihre Gegenstelle erst auf den Blättern Waage, Mikrofon, Anschlüsse |
 
 ## Board-Kennung und Umgebung (REG26-10)
 
@@ -65,12 +65,13 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 
 - Footprints selbst anlegen: BQ25185 (DLH0010A, 2,2 × 2 mm), Akkuhalter Keystone 1043 (SMD; Platzhalter 1042).
 - Blatt MCU: Reedkontakt SW304 (Teil und Footprint), Side-View-LED D301 (Platzhalter 0603), Ferrit FB301 (LCSC-Nummer).
+- Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.
 - Klemmen: Platzhalter Phoenix MC 1,5 / 3,5 mm für DEGSON 15EDGRHC-3.5 – Maße vergleichen.
 - LCSC-Nummern ergänzen (BQ25185, TMP390, TPS70933, SS34, SMAJ12A, Klemmen, JST).
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
 - Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
-## Stückliste (bisher, 87 Teile; erzeugt aus den Generatoren)
+## Stückliste (bisher, 104 Teile; erzeugt aus den Generatoren)
 
 | Ref. | Wert | Symbol | Footprint | LCSC | Blatt |
 |---|---|---|---|---|---|
@@ -121,17 +122,24 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | C311 | 18p C0G | Device:C | C_0603_1608Metric |  | MCU |
 | C312 | 8,2p C0G | Device:C | C_0603_1608Metric |  | MCU |
 | C313 | 8,2p C0G | Device:C | C_0603_1608Metric |  | MCU |
+| C401 | 100µ 6,3V X5R | Device:C | C_1210_3225Metric |  | Funk + Flash |
+| C402 | 10µ 10V X5R | Device:C | C_0805_2012Metric |  | Funk + Flash |
+| C403 | 100n | Device:C | C_0603_1608Metric |  | Funk + Flash |
+| C404 | 100n | Device:C | C_0603_1608Metric |  | Funk + Flash |
 | D201 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D202 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D203 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D204 | SMAJ12A | Diode:SMAJ12A | D_SMA |  | Versorgung |
 | D301 | Side-View | Device:LED | LED_0603_1608Metric |  | MCU |
+| D401 | TVS 3,3V | Device:D_TVS | D_SOD-523 |  | Funk + Flash |
 | FB301 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | MCU |
 | J201 | Solar 1 | Connector_Generic:Conn_01x02 | PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal |  | Versorgung |
 | J202 | Solar 2 | Connector_Generic:Conn_01x02 | PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal |  | Versorgung |
 | J203 | Akku (JST PH 5) | Connector_Generic:Conn_01x05 | JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical |  | Versorgung |
 | J301 | USB-C | Connector:USB_C_Receptacle_USB2.0_16P | USB_C_Receptacle_HRO_TYPE-C-31-M-12 | C165948 | MCU |
 | J302 | Debug (SWD + Serial1) | Connector_Generic:Conn_01x07 | PinHeader_1x07_P2.54mm_Vertical |  | MCU |
+| JP401 | TXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
+| JP402 | RXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | R201 | 3,3M | Device:R | R_0603_1608Metric |  | Versorgung |
 | R202 | 470k | Device:R | R_0603_1608Metric |  | Versorgung |
 | R203 | 2,0k 1% | Device:R | R_0603_1608Metric |  | Versorgung |
@@ -147,6 +155,14 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R304 | 5,1k | Device:R | R_0603_1608Metric |  | MCU |
 | R305 | 100k | Device:R | R_0603_1608Metric |  | MCU |
 | R306 | 1k | Device:R | R_0603_1608Metric |  | MCU |
+| R401 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
+| R402 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
+| R403 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
+| R404 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
+| R405 | 100k | Device:R | R_0603_1608Metric |  | Funk + Flash |
+| R406 | 100k | Device:R | R_0603_1608Metric |  | Funk + Flash |
+| R407 | 10k | Device:R | R_0603_1608Metric |  | Funk + Flash |
+| R408 | 10k | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | SW301 | Reset | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW302 | BOOT | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW303 | Service | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
@@ -159,5 +175,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | U204 | TPS70933DBV | Bienen:TPS70933DBV | SOT-23-5 |  | Versorgung |
 | U301 | STM32F411CEU6 | MCU_ST_STM32F4:STM32F411CEUx | QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm |  | MCU |
 | U302 | USBLC6-2SC6 | Power_Protection:USBLC6-2SC6 | SOT-23-6 | C7519 | MCU |
+| U401 | Ra-01SH | Bienen:Ra-01SH | – | C2764087 | Funk + Flash |
+| U402 | 64 Mbit SOIC-8 208 mil | Memory_Flash:W25Q32JVSS | SOIC-8_5.3x5.3mm_P1.27mm |  | Funk + Flash |
 | Y301 | 25MHz 12pF | Device:Crystal_GND24 | Crystal_SMD_3225-4Pin_3.2x2.5mm | C9006 | MCU |
 | Y302 | 32,768k 7pF | Device:Crystal | Crystal_SMD_3215-2Pin_3.2x1.5mm | C97604 | MCU |

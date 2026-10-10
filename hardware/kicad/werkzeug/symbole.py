@@ -116,6 +116,17 @@ SYMBOLE = [
        fp="Package_TO_SOT_SMD:TSOT-23-5",
        ds="https://www.richtek.com/assets/product_file/RT9080/DS9080-03.pdf",
        info="LDO 3,3 V 600 mA, 2 µA Ruhestrom, EN nicht offen lassen"),
+    # Ai-Thinker Ra-01SH (SX1262/LLCC68), 16 Stempellöcher. Quelle: Ai-Thinker Ra-01SH Specification V1.1
+    # vom 18.08.2020, S. 11 Pinbelegung [V]; Footprint aus LCSC/EasyEDA C2764087 noch prüfen (mcu-funk.md 6)
+    ic("Ra-01SH", "U",
+       links=[("3", "3.3V", "power_in"), ("4", "RESET", "input"), ("15", "NSS", "input"), ("12", "SCK", "input"),
+              ("14", "MOSI", "input"), ("13", "MISO", "output"), ("10", "BUSY", "output"), ("6", "DIO1", "output")],
+       rechts=[("1", "ANT", "passive"), ("5", "TXEN", "input"), ("11", "RXEN", "input"), ("7", "DIO2", "bidirectional"),
+               ("8", "DIO3", "bidirectional")],
+       unten=[("2", "GND", "power_in"), ("9", "GND", "passive"), ("16", "GND", "passive")],
+       fp="Bienen:Ai-Thinker_Ra-01SH",
+       ds="https://docs.ai-thinker.com/en/lora",
+       info="LoRa-Modul 868 MHz, SPI; DIO2 schaltet laut Drittquelle den HF-Schalter; Antenne über IPEX, Pin ANT ohne Leiterbahn"),
 ]
 
 

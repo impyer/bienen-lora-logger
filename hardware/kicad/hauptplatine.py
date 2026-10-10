@@ -359,6 +359,106 @@ def zeichne_mcu(b, T):
     for pin in ("1", "3", "4", "6", "5"):
         stub(b, E, pin, 5.08)
 
+def funk(p):
+    """Blatt Funk + Flash (mcu-funk.md 2, 3.1, 3.2): Ra-01SH an SPI1, SPI-Flash 64 Mbit am selben Bus."""
+    b = p.blatt("Funk + Flash", "funk.kicad_sch", titel="Funk + Flash: Ra-01SH (SX1262/LLCC68), SPI-NOR-Flash 64 Mbit")
+    b.teil("Bienen:Ra-01SH", "U401", "Ra-01SH", lcsc="C2764087",
+           netze={"3.3V": "+3V3", "RESET": "LORA_RST", "NSS": "RF_NSS", "SCK": "RF_SCK", "MOSI": "RF_MOSI", "MISO": "RF_MISO",
+                  "BUSY": "LORA_BUSY", "DIO1": "LORA_DIO1", "ANT": "NC", "TXEN": "TXEN_MOD", "RXEN": "RXEN_MOD",
+                  "DIO2": "NC", "DIO3": "NC", "GND": "GND"},
+           info="Antenne über IPEX; Pin ANT ohne Leiterbahn (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
+    b.teil("Device:C", "C401", "100µ 6,3V X5R", fp="Capacitor_SMD:C_1210_3225Metric", netze={"1": "+3V3", "2": "GND"},
+           info="Puffer für Sendestromspitzen > 200 mA (mcu-funk.md 2.2) [A]")
+    b.teil("Device:C", "C402", "10µ 10V X5R", fp=C0805, netze={"1": "+3V3", "2": "GND"})
+    b.teil("Device:C", "C403", "100n", fp=C0603, netze={"1": "+3V3", "2": "GND"}, info="direkt an Pin 3")
+    b.teil("Device:D_TVS", "D401", "TVS 3,3V", fp="Diode_SMD:D_SOD-523", netze={"1": "GND", "2": "+3V3"},
+           info="ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Teil wählen [P]")
+    for ref, mod, mcu_ in (("R401", "RF_SCK", "SPI_SCK"), ("R402", "RF_MISO", "SPI_MISO"), ("R403", "RF_MOSI", "SPI_MOSI"),
+                           ("R404", "RF_NSS", "LORA_NSS")):
+        b.teil("Device:R", ref, "33", fp=R0603, netze={"1": mcu_, "2": mod}, info="Reihenwiderstand 10–100 Ω laut Datenblatt")
+    b.teil("Device:R", "R405", "100k", fp=R0603, netze={"1": "+3V3", "2": "LORA_NSS"}, info="NSS nicht ausgewählt, solange PA4 im Standby hochohmig ist")
+    b.teil("Jumper:SolderJumper_2_Open", "JP401", "TXEN", fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+           netze={"A": "TXEN_MOD", "B": "LORA_TXEN"}, info="offen; nur schließen, falls Senden ohne TXEN nicht geht (mcu-funk.md 2.1)")
+    b.teil("Jumper:SolderJumper_2_Open", "JP402", "RXEN", fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+           netze={"A": "RXEN_MOD", "B": "LORA_RXEN"})
+    b.teil("Memory_Flash:W25Q32JVSS", "U402", "64 Mbit SOIC-8 208 mil", fp="Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
+           netze={"1": "FLASH_CS", "6": "SPI_SCK", "5": "SPI_MOSI", "2": "SPI_MISO", "3": "FLASH_WP", "7": "FLASH_HOLD",
+                  "8": "+3V3", "4": "GND"},
+           info="Teil nach Bestand: XT25F64BSSIGU-S (C2890984) oder ZD25Q64DSIGT (C55199021); Standard-Pinbelegung 25er-Reihe")
+    b.teil("Device:C", "C404", "100n", fp=C0603, netze={"1": "+3V3", "2": "GND"})
+    b.teil("Device:R", "R406", "100k", fp=R0603, netze={"1": "+3V3", "2": "FLASH_CS"}, info="CS nicht ausgewählt im Standby (PB3 hochohmig)")
+    b.teil("Device:R", "R407", "10k", fp=R0603, netze={"1": "+3V3", "2": "FLASH_WP"})
+    b.teil("Device:R", "R408", "10k", fp=R0603, netze={"1": "+3V3", "2": "FLASH_HOLD"})
+    zeichne_funk(b, {t.ref: t for t in b.teile})
+    return b
+
+
+def zeichne_funk(b, T):
+    """Links die Leitungen vom MCU (Netznamen), in der Mitte die 33-Ω-Widerstände, rechts das Modul;
+    oben die 3,3-V-Pufferung, unten der SPI-Flash mit seinen Pull-ups."""
+    S, D, L = b.setze, b.draht, b.label
+    M = S(T["U401"], 190.5, 127.0, text="unten")
+    b.text("1  Funkmodul Ra-01SH: 3,3 V dauernd, Puffer 100 µF + 10 µF + 100 nF, TVS am Eingang", 86.36, 66.04, 2.0)
+    b.text("2  SPI1 vom MCU mit 33 Ω in Reihe; NSS mit 100 kΩ Pull-up", 86.36, 93.98, 1.5)
+    b.text("TXEN/RXEN über offene Lötbrücken (mcu-funk.md 2.1)", 210.82, 106.68, 1.5)
+    b.text("3  SPI-NOR-Flash 64 Mbit am selben Bus, eigener CS (PB3); Sitzung + Messwerte (mcu-funk.md 3.1/3.2)", 86.36, 162.56, 2.0)
+    b.text("ANT ohne Leiterbahn: Antenne über die IPEX-Buchse des Moduls.", 210.82, 132.08, 1.5)
+
+    # --- 3,3 V mit Pufferung -------------------------------------------------
+    y_r = 78.74
+    D(M.p("3.3V"), (176.53, M.p("3.3V")[1]), (176.53, y_r), (109.22, y_r))
+    b.versorgung("+3V3", 109.22, y_r, "oben")
+    for ref, x in (("C401", 116.84), ("C402", 132.08), ("C403", 147.32), ("D401", 162.56)):
+        rot = 90 if ref == "D401" else 0
+        S(T[ref], x, 82.55 if ref != "D401" else 82.55, rot=rot)
+        pin = "2" if ref == "D401" else "1"
+        D(T[ref].p(pin), (x, y_r))
+    # --- RESET, SPI, BUSY, DIO1 ---------------------------------------------
+    x_l = 86.36
+    D(M.p("RESET"), (172.72, M.p("RESET")[1]), (172.72, 99.06), (x_l, 99.06))
+    L("LORA_RST", x_l, 99.06, 180)
+    zeilen = (("R404", "NSS", 152.4), ("R401", "SCK", 134.62), ("R403", "MOSI", 152.4), ("R402", "MISO", 134.62))
+    for ref, pin, x in zeilen:
+        y = M.p(pin)[1]
+        R = S(T[ref], x, y, rot=90, text="oben" if ref in ("R404", "R401") else "unten")
+        D(R.p("2"), M.p(pin))
+        D(R.p("1"), (x_l, y))
+        L(T[ref].pin_netz["1"], x_l, y, 180)
+        L(T[ref].pin_netz["2"], 167.64, y)
+    S(T["R405"], 127.0, 113.03)
+    D(T["R405"].p("2"), (127.0, M.p("NSS")[1]))
+    for pin, netz in (("BUSY", "LORA_BUSY"), ("DIO1", "LORA_DIO1")):
+        D(M.p(pin), (x_l, M.p(pin)[1]))
+        L(netz, x_l, M.p(pin)[1], 180)
+    # --- TXEN/RXEN über Lötbrücken ------------------------------------------
+    for jp, pin, netz in (("JP401", "TXEN", "LORA_TXEN"), ("JP402", "RXEN", "LORA_RXEN")):
+        y = M.p(pin)[1]
+        J = S(T[jp], 218.44, y, text="oben" if jp == "JP401" else "unten")
+        D(M.p(pin), J.p("A"))
+        D(J.p("B"), (238.76, y))
+        L(netz, 238.76, y)
+        L(T[jp].pin_netz["1"], 203.2, y)
+
+    # --- 3 Flash ------------------------------------------------------------
+    F = S(T["U402"], 172.72, 190.5, text="rechts")
+    D(F.p("8"), (172.72, 172.72), (185.42, 172.72))
+    b.versorgung("+3V3", 172.72, 172.72, "oben")
+    S(T["C404"], 185.42, 176.53)
+    x_f = 149.86
+    D(F.p("1"), (x_f, F.p("1")[1]))
+    L("FLASH_CS", x_f, F.p("1")[1], 180)
+    S(T["R406"], 154.94, 177.8)
+    D(T["R406"].p("2"), (154.94, F.p("1")[1]))
+    for pin in ("6", "5", "2"):
+        D(F.p(pin), (x_f, F.p(pin)[1]))
+        L(F.pin_netz[pin], x_f, F.p(pin)[1], 180)
+    for ref, pin in (("R407", "3"), ("R408", "7")):
+        y = F.p(pin)[1]
+        R = S(T[ref], 116.84 if ref == "R407" else 104.14, y, rot=90, text="oben" if ref == "R407" else "unten")
+        D(R.p("2"), F.p(pin))
+        L(F.pin_netz[pin], 124.46, y)
+
+
 def pins_von_lib(lib_id):
     from kicad_gen import lib_symbol, pins_von
     return pins_von(lib_symbol(lib_id))
@@ -453,9 +553,10 @@ def baue():
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)
     w = p.blatt("Bienenlogger Hauptplatine", "logger.kicad_sch", titel="Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
-    w.text("Blätter: Versorgung, MCU (fertig). Folgen: Funk + Flash, Waage, Mikrofon, Anschlüsse.", 30, 25, 2.0)
+    w.text("Blätter: Versorgung, MCU, Funk + Flash (fertig). Folgen: Waage, Mikrofon, Anschlüsse.", 30, 25, 2.0)
     versorgung(p)
     mcu(p)
+    funk(p)
     return p
 
 

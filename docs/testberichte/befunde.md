@@ -27,7 +27,7 @@ Teststufen T0–T6 und Gates G0–G4: [tests-freigaben.md](../entwicklung/tests-
 | SCH26-04 | P1 | ERC/Footprints/Reproduzierbarkeit nicht abgesichert | im Entwurf behoben bis auf Footprints (pruefen.sh, CI-Job) | T3 lokal; CI-Lauf offen | **Fertigung** gesperrt bis Footprints BQ25185/Keystone 1043/Klemmen | dto. |
 | SCH26-05 | P2 | R208 1 MΩ statt 100 kΩ | im Entwurf behoben | T3 | – | dto. |
 | SCH26-06 | P2 | Akkukabel ohne Kabelplan | im Entwurf behoben (Kabelplan) | T0/T3 | G2: Kabel durchprüfen | dto. |
-| SCH26-07 | P2 | Blätter MCU, Funk, Waage, Mikrofon, Anschlüsse fehlen | in Arbeit: Blatt **MCU** im Entwurf (10.10.2026, Netzvergleich 48/48, ERC nur erwartete Meldungen); Funk + Flash, Waage, Mikrofon, Anschlüsse offen | T3 (Blatt MCU) | G2 | dto. |
+| SCH26-07 | P2 | Blätter MCU, Funk, Waage, Mikrofon, Anschlüsse fehlen | in Arbeit: Blätter **MCU** und **Funk + Flash** im Entwurf (10.10.2026, Netzvergleich 48/48, ERC nur erwartete Meldungen); Waage, Mikrofon, Anschlüsse offen | T3 | G2 | dto. |
 | SCH26-08 | P2 | Eingangsschutz nur nominal | im Entwurf behoben (C201 50 V); Panelmessung offen | T0 | G3 bis Panel-Voc/Isc gemessen | dto. |
 | HW26-01 | P0 | Ungeschützte 18650-Zelle | im Entwurf behoben für die neue Platine (HY2111 + FS8205 an der Zelle) | T3 | G3 bis Abschalt-/Freigabeversuch mit Zell-Emulator | [Review 0.3](2026-10-08-hardware-architektur-review.md), `hardware/versorgung.md` 3.4 |
 | HW26-02 | P1 | Solar-Eingang und 3,3-V-Regler | im Entwurf behoben (BQ25185, RT9080) | T0/T2 | G3 bis Messung | dto. |

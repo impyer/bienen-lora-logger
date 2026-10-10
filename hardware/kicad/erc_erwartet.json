@@ -8,56 +8,6 @@
     },
     {
       "type": "isolated_pin_label",
-      "item": "Global Label 'FLASH_CS'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'LORA_RST'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'LORA_TXEN'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'LORA_RXEN'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'LORA_DIO1'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'LORA_BUSY'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'LORA_NSS'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'SPI_SCK'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'SPI_MISO'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'SPI_MOSI'",
-      "grund": "Gegenstelle kommt mit dem Blatt Funk + Flash (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
       "item": "Global Label 'I2C_SCL'",
       "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (SCH26-07)"
     },
