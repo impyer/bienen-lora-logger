@@ -67,11 +67,14 @@ jobs:
           git diff --exit-code formatter/ttn_formatter.min.js
       - name: Tests mit der verkleinerten Fassung
         run: VEKTOREN=vek_min.json node tests/formatter/test_formatter.js formatter/ttn_formatter.min.js
+      - name: Wetterstation S2120 (Node.js)
+        run: VEKTOREN=vek_s2120.json node tests/formatter/test_s2120_formatter.js
       - name: Gleiche Ergebnisse in goja (Laufzeit von The Things Stack)
         working-directory: tests/formatter/goja
         run: |
           go run . ../../../formatter/formatter.js ../../../vek_quelle.json
           go run . ../../../formatter/ttn_formatter.min.js ../../../vek_min.json
+          go run . ../../../formatter/s2120_beep_formatter.js ../../../vek_s2120.json
 
   server:
     name: LoRa-Eingang (PHP, Ende-zu-Ende mit beelogger M.40)
@@ -84,14 +87,18 @@ jobs:
         with:
           node-version: 20
       - name: Syntax
-        run: for f in server/lora/*.php $(find server/beelogger_eigen -name '*.php'); do php -l "$f" > /dev/null || exit 1; done
+        run: for f in server/lora/*.php server/wetter/*.php $(find server/beelogger_eigen -name '*.php'); do php -l "$f" > /dev/null || exit 1; done
       - name: Eigene Server-Fassung aus dem Original-ZIP neu erzeugen und mit dem Repo vergleichen
         run: |
           T=$(mktemp -d) && unzip -q server/M40_261004_ServerSkripte.zip -d "$T/neu"
           python3 server/eigen_anpassen.py "$T/neu"
           diff -r -x beelogger_icons server/beelogger_eigen "$T/neu"
       - name: Unit-Tests
-        run: php tests/server/test_lora_funktionen.php
+        run: |
+          php tests/server/test_lora_funktionen.php
+          php tests/server/test_wetter_funktionen.php
+      - name: Wetter-Eingang Ende-zu-Ende
+        run: bash tests/server/test_wetter_eingang.sh
       - name: Playwright mit Chromium für die Grafikprüfung (SRV26-08)
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.56.1
