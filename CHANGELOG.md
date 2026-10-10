@@ -1,5 +1,20 @@
 # Änderungen
 
+## 2026-10-09 – Schaltpläne lesbar gezeichnet (Verdrahtungsmodus)
+
+- Akku-Platine und Blatt Versorgung werden jetzt mit **echten Leitungen nach dem Stromfluss** gezeichnet statt mit Netzlabels an jedem Pin (Wunsch Philipp). Akku: Leistungspfad oben, Zellschutz im Minuspfad, darunter Ladesperre Stufe 2 und Stufe 1 mit TMP_VCC vom Stecker. Versorgung: Panels/USB → VIN_LADER → BQ25185 → SYS, Akku-Stecker mit VBAT/CE/NTC/TMP_VCC, unten SYS → 3,3 V → 3V3_SW.
+- `kicad_gen.py`: Verdrahtungsmodus (`setze`, `draht`, `label`, `versorgung`), Drehung, Junctions, Teilen von Drähten an Pin-Enden, Abbruch bei Pins ohne Draht; Referenzen von `#`-Symbolen verborgen.
+- `netz_tests.py`: vollständiger Netzvergleich KiCad-Netzliste ↔ Netzbeschreibung je Projekt (48 Prüfungen). Gegenproben: fehlender Draht → Abbruch, falscher Draht → 9 Prüfungen rot.
+- Schaltung elektrisch unverändert (Netzvergleich identisch); ERC wie vorher (Akku 0, Hauptplatine 2 erwartete Meldungen).
+
+## 2026-10-09 – REG26-09/10/11 vor dem Layout
+
+- **REG26-09:** Begründung je `PWR_FLAG` als Symbolbeschreibung im Generator und als Tabelle in `hardware/kicad/README.md`.
+- **REG26-10:** Board-Kennungen PCB-AKKU-0.1 / PCB-MAIN-0.1 und Auslegungsumgebung im Titelblock (neue Option `kommentare` in `kicad_gen.py`), Lastenheft M11.
+- **REG26-11:** Schienentabelle und DC-Bias-Bewertung (`versorgung.md` 3.9). C204 22 µF/1206, C212 4,7 µF/0805, C208/C209 2,2 µF, weil die bisherigen Werte unter Gleichspannung voraussichtlich unter das Datenblatt-Minimum fallen. Herstellerkurven je LCSC-Nummer stehen noch aus.
+- `sicherheit-akku.md` A-5 an LH-M8 (Schutzlack nach dem Test) angeglichen.
+- Prüfung: `pruefen.sh` reproduzierbar, ERC unverändert (2 erwartete Warnungen), 42/42 Netzprüfungen.
+
 ## 2026-10-09 – Sicherheitsanalyse Akku (REG26-06/07)
 
 - Neu: `hardware/sicherheit-akku.md` (SAF-AKKU 0.1): Sicherheitsziele, Gefährdungsliste, Einzelfehleranalyse der Ladesperre, Schutz- und Wiederanlaufzustände, sicherer Versuchsplan (Zell-Emulator mit Stromaufnahme, Strombegrenzung, Abbruchkriterien, SCH-T01 … T11), Rückverfolgbarkeit LH-V1/V2/V3/V7. Stufe T0, Gegenlesen offen.

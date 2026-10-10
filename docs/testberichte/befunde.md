@@ -95,8 +95,8 @@ Teststufen T0–T6 und Gates G0–G4: [tests-freigaben.md](../entwicklung/tests-
 | REG26-06 | P1 | Gefährdungsanalyse und sicherer Versuchsplan Akku fehlen | im Entwurf behoben ([`hardware/sicherheit-akku.md`](../../hardware/sicherheit-akku.md) 0.1); Gegenlesen durch zweiten Prüfweg offen | T0 | **G2 Akku** bis Gegenlesen und Entscheidungen E-1 … E-4 | dto. |
 | REG26-07 | P1 | Rückverfolgbarkeit D3 fehlt | im Entwurf behoben (`sicherheit-akku.md` Abschnitt 8) | T0 | **G2 Akku** wie REG26-06 | dto. |
 | REG26-08 | P2 | Pin-/Footprint-Abgleichbericht fehlt | offen | – | Layout | dto. |
-| REG26-09 | P2 | PWR_FLAG-Begründungen fehlen | offen | – | – | dto. |
-| REG26-10 | P2 | Board-ID/Revision, Umgebungsbedingungen | offen | – | G2 | dto. |
-| REG26-11 | P2 | Kondensator-Derating, Schienentabelle | offen | – | G2 | dto. |
+| REG26-09 | P2 | PWR_FLAG-Begründungen fehlen | im Entwurf behoben (Beschreibung je Flag im Generator, Tabelle in `hardware/kicad/README.md`) | T3 (`pruefen.sh`, ERC unverändert) | – | dto. |
+| REG26-10 | P2 | Board-ID/Revision, Umgebungsbedingungen | im Entwurf behoben (PCB-AKKU-0.1/PCB-MAIN-0.1 im Titelblock, LH-M11); Umgebungswerte sind Annahmen | T0/T3 | G2: Philipp bestätigt die Umgebungswerte | dto. |
+| REG26-11 | P2 | Kondensator-Derating, Schienentabelle | analysiert – bestätigt; im Entwurf teilweise behoben (`versorgung.md` 3.9; C204/C208/C209/C212 vergrößert, weil die wirksame Kapazität sonst unter dem Datenblatt-Minimum läge) | T0/T3 | **Layout** bis DC-Bias-Kurven je LCSC-Nummer eingetragen | dto. |
 | REG26-12 | P1 | Zellmodell/Datenblatt unbekannt (GOV-04) | offen | – | Fertigung | dto. |
 | REG26-13 | P0 | Commit `6dbba8d` übernahm die SCH26-Behebung nur teilweise (erzeugte Schaltpläne und Prüfwerkzeuge ja, Generatoren `akku_platine.py`/`hauptplatine.py`/`symbole.py`/`kicad_gen.py` und `pruefen.sh` nein) → KiCad-CI rot (Lauf 37881512633). Gemeldet von ChatGPT, GitHub Issue #2; gleiche Ursache wie REG26-01/03 | im Entwurf behoben mit `2076c20` (vollständiger Generatorstand) | T3 lokal (`pruefen.sh`: reproduzierbar, ERC OK, 42/42) | G1 bis KiCad-CI auf `2076c20` grün (Ergebnis noch nicht gesehen) | Integrationsprüfung `2026-10-09-sch26-generator-regression.md` (nur auf Branch `review/claude-regelwerk-e1-e12`), Issue #2 |

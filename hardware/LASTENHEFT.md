@@ -126,6 +126,7 @@ Die PDF liegt wegen des Herstellercopyrights nicht im Repo, sondern lokal unter 
 | M8 [M] | **4 Lagen** (Entscheidung Philipp, 09.10.2026), 1,6 mm, Aufbau nach JLCPCB-Standard: L1 Signal/Bauteile, **L2 durchgehende Masse**, L3 Versorgung (3,3 V, SYS, 5 V) mit Masse-Füllung, L4 Signal. L2 nicht auftrennen; Masse-Durchkontaktierungen entlang der Platinenkante und um Funkmodul, Wandler und Waagen-/Mikrofonzweig. HASL bleifrei oder ENIG; Schutzlack nach dem Test; Klemmen, USB und Antennenanschluss abdecken. |
 | M9 [S] | Testpunkte für 3,3 V, Akku, Solar, GND, Mikrofon-Ausgang. |
 | M10 [M] | Temperaturbereich: alle Bauteile mindestens −20 bis +70 °C. |
+| M11 [M] | **Board-Kennung und Umgebung** im Titelblock jedes Schaltplans und später im Bestückungsdruck: **PCB-AKKU-0.1**, **PCB-MAIN-0.1** (REG26-10). Auslegungsumgebung [A]: Gehäuse innen −20 … +60 °C, Betauung möglich (Bienenstock); Laden nur +5 … 42 °C (`sicherheit-akku.md`); Solar-Eingang ≤ 12 V dauernd, 25 V absolut. Jede Änderung von Schaltung oder Leiterplatte erhöht die Kennung. |
 
 ## 5. Fertigung bei JLCPCB (Ablauf)
 

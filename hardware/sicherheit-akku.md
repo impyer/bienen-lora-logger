@@ -31,7 +31,7 @@ Vorschlag zur Entscheidung (Philipp, E-1): **SZ-1 einzelfehlersicher** für die 
 | A-2 | HY2111-**GB** (2,90 V / 4,28 V, Freigabe nur durch Ladegerät, 0-V-Laden erlaubt) [V: HYCON-Datenblatt] | Wiederanlauf und Tiefentladeschutz neu bewerten |
 | A-3 | Solar-Eingang dauerhaft ≤ 12 V, Absolutgrenze BQ25185 25 V, TVS SMAJ12A [V/A] | Eingangsschutz neu auslegen (SCH26-08, Panelmessung offen) |
 | A-4 | Gehäuseinnentemperatur im Sommer bis 60 °C, im Winter bis −20 °C [A] | Wärmepfade, Kaltsperre, Selbstentladung neu rechnen (REG26-10) |
-| A-5 | Leckströme der Ausgänge und FETs wie im Datenblatt, Platine sauber und trocken (Schutzlack nicht vorgesehen) [A] | Pegel neu rechnen; Feuchte als [P] |
+| A-5 | Leckströme der Ausgänge und FETs wie im Datenblatt, Platine sauber und trocken; Schutzlack nach dem Test ist vorgesehen (LH-M8), die Rechnung setzt ihn nicht voraus [A] | Pegel neu rechnen; Feuchte als [P] |
 
 ## 3. Gefährdungsliste
 

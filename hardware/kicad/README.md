@@ -13,8 +13,9 @@ Stand 09.10.2026 nach [Schaltplan-Review V0.1](../../docs/testberichte/2026-10-0
 
 ## Wie die Schaltpläne entstehen
 
-- Jeder Block ist in Python beschrieben: `akku_platine.py`, `hauptplatine.py` (Bauteil, Wert, Footprint, LCSC, Pin → Netz).
-- Der Erzeuger setzt die Symbole und hängt an jedes Pin-Ende ein Netzlabel, ein Versorgungssymbol oder ein No-Connect. Verbindungen laufen über **Netznamen**; Netze auf mehreren Blättern werden globale Labels.
+- Jeder Block ist in Python beschrieben: `akku_platine.py`, `hauptplatine.py` (Bauteil, Wert, Footprint, LCSC, Pin → Netz). **Diese Netzbeschreibung ist die Quelle der Wahrheit.**
+- **Zeichnung (Verdrahtungsmodus, seit 09.10.2026):** Je Blatt legt eine Funktion `zeichne…()` Lage und Drehung jedes Bauteils fest und zieht die Leitungen nach dem Stromfluss (links Quelle, rechts Verbraucher, oben Versorgung, Masse als GND-Symbol). Netznamen stehen als Label an der Leitung; Netze zu anderen Blättern werden globale Labels.
+- Absicherung der Zeichnung: Der Erzeuger bricht ab, wenn ein Pin keinen Draht hat; `netz_tests.py` vergleicht **jedes Netz** der von KiCad exportierten Netzliste mit der Netzbeschreibung (Name und Pins). Ein falsch gezogener oder vergessener Draht fällt so auf (Gegenproben 09.10.2026: fehlender Draht an R5 → Abbruch; U2-VDD an B+ → 9 Prüfungen rot).
 - Danach speichert KiCad jede Datei einmal selbst neu (`kicad-cli sch upgrade --force`): exaktes KiCad-10-Format.
 - **Änderungen nur im Skript.** Handänderungen in KiCad würden beim nächsten Erzeugen überschrieben.
 
@@ -24,7 +25,7 @@ Stand 09.10.2026 nach [Schaltplan-Review V0.1](../../docs/testberichte/2026-10-0
 1. zweimal erzeugen, Prüfsummen vergleichen (reproduzierbar)
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
-4. `werkzeug/netz_tests.py`: 42 Prüfungen sicherheitsrelevanter Netze **in den von KiCad exportierten Netzlisten** (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte)
+4. `werkzeug/netz_tests.py`: 48 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt) und gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte)
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
 
@@ -35,12 +36,37 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 | Akku-Platine | 0 | |
 | Hauptplatine | 2 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH 2,2 × 2 mm); `VBUS` hat erst ein Ende (USB kommt mit Blatt MCU) |
 
+## Board-Kennung und Umgebung (REG26-10)
+
+| Projekt | Kennung (Titelblock Kommentar 2) | Umgebung (Kommentar 3) [A] |
+|---|---|---|
+| Akku-Platine | PCB-AKKU-0.1 | Gehäuse −20 … +60 °C, Betauung möglich; Laden nur +5 … 42 °C |
+| Hauptplatine | PCB-MAIN-0.1 | Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut |
+
+## PWR_FLAG – Begründungen (REG26-09)
+
+Ein `PWR_FLAG` sagt dem ERC: „Hier speist eine Quelle ein, die KiCad nicht als Treiber erkennt.“ Jedes Flag markiert eine echte Quelle; die Begründung steht auch als Beschreibung am Symbol (Generator).
+
+| Projekt | Netz | Echte Quelle |
+|---|---|---|
+| Akku-Platine | B+, B− | Zelle BT1 (Halter = passive Pins) |
+| Akku-Platine | P+ | Zelle über die Lötbrücke JP1 (passiv) |
+| Akku-Platine | GND (P−) | Zelle über Q1 FS8205 (FET kein Treiber im ERC) |
+| Akku-Platine | TMP_VCC | U204 auf der Hauptplatine über J1 Pin 4 (anderes Projekt) |
+| Akku-Platine | HY_VDD | B+ über R1 100 Ω (HYCON-Anwendungsschaltung) |
+| Hauptplatine | VIN_LADER | Panels J201/J202 und VBUS über D201–D203 |
+| Hauptplatine | GND | Klemmen J201/J202 und Akku-Stecker J203 |
+| Hauptplatine | VBAT | Akku-Platine über J203 Pin 5 (anderes Projekt) |
+
+Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz, das schon einen Ausgang hat (z. B. TMP_VCC auf der Hauptplatine), verdeckt Fehler und ist unzulässig.
+
 ## Offene Punkte [P]
 
 - Footprints selbst anlegen: BQ25185 (DLH0010A, 2,2 × 2 mm), Akkuhalter Keystone 1043 (SMD; Platzhalter 1042).
 - Klemmen: Platzhalter Phoenix MC 1,5 / 3,5 mm für DEGSON 15EDGRHC-3.5 – Maße vergleichen.
 - LCSC-Nummern ergänzen (BQ25185, TMP390, TPS70933, SS34, SMAJ12A, Klemmen, JST).
-- Muster: Testmatrix SCH-T01 … T08 aus dem Review.
+- Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
+- Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
 ## Stückliste (bisher, 56 Teile)
 
@@ -71,15 +97,15 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 | C201 | 4,7µ 50V X7R | Device:C | C_1206_3216Metric |  | Versorgung |
 | C202 | 100n 50V | Device:C | C_0603_1608Metric |  | Versorgung |
 | C203 | 100n | Device:C | C_0603_1608Metric |  | Versorgung |
-| C204 | 10µ | Device:C | C_0805_2012Metric |  | Versorgung |
+| C204 | 22µ 25V X5R | Device:C | C_1206_3216Metric |  | Versorgung |
 | C205 | 4,7µ | Device:C | C_0805_2012Metric |  | Versorgung |
 | C206 | 10n | Device:C | C_0603_1608Metric |  | Versorgung |
 | C207 | 100n | Device:C | C_0603_1608Metric |  | Versorgung |
-| C208 | 1µ | Device:C | C_0603_1608Metric |  | Versorgung |
-| C209 | 1µ | Device:C | C_0603_1608Metric |  | Versorgung |
+| C208 | 2,2µ 16V X7R | Device:C | C_0603_1608Metric |  | Versorgung |
+| C209 | 2,2µ 16V X7R | Device:C | C_0603_1608Metric |  | Versorgung |
 | C210 | 1n | Device:C | C_0603_1608Metric |  | Versorgung |
 | C211 | 1µ | Device:C | C_0603_1608Metric |  | Versorgung |
-| C212 | 2,2µ | Device:C | C_0603_1608Metric |  | Versorgung |
+| C212 | 4,7µ 16V X7R | Device:C | C_0805_2012Metric |  | Versorgung |
 | D201 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D202 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D203 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |

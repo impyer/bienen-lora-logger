@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/akku-platine/akku.kicad_sch")
-		(date "2026-10-09T05:50:04")
+		(date "2026-10-09T11:51:02")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -20,11 +20,11 @@
 				)
 				(comment
 					(number "2")
-					(value "")
+					(value "Board-Kennung PCB-AKKU-0.1 (REG26-10)")
 				)
 				(comment
 					(number "3")
-					(value "")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; Laden nur +5 … 42 °C (sicherheit-akku.md)")
 				)
 				(comment
 					(number "4")

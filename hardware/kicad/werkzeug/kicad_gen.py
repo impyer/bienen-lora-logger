@@ -4,10 +4,11 @@
 """Kleiner Erzeuger für KiCad-10-Schaltpläne aus einer Netzbeschreibung.
 
 Idee: Jedes Blatt wird in Python beschrieben (Bauteil, Wert, Footprint, Pin → Netz).
-Der Erzeuger setzt die Symbole in ein Raster und hängt an jedes Pin-Ende ein Netzlabel,
-ein Versorgungssymbol oder ein No-Connect. Verbindungen entstehen über Netznamen, nicht über
-gezeichnete Drähte. Ergebnis: ein ERC-prüfbarer Schaltplan, den man in KiCad weiter
-bearbeiten (und schöner zeichnen) kann.
+Zwei Arten der Zeichnung:
+- Rastermodus (b.gruppe): Symbole in Reihen, an jedem Pin-Ende ein Netzlabel.
+- Verdrahtungsmodus (b.setze, b.draht, b.label, b.versorgung): Lage, Drehung und Leitungen
+  von Hand nach dem Stromfluss; Pins ohne Draht führen zum Abbruch. netz_tests.py vergleicht
+  danach jedes Netz der KiCad-Netzliste mit der Netzbeschreibung.
 
 Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 """
@@ -222,6 +223,8 @@ class Teil:
         self.symdef = lib_symbol(lib_id, blatt.projekt.eigene_bibs)
         self.pins = pins_von(self.symdef)
         self.at = (0.0, 0.0)
+        self.rot = 0              # Drehung in Grad (KiCad: gegen den Uhrzeigersinn)
+        self.textlage = None      # Lage von Referenz/Wert im Verdrahtungsmodus
         # Pins einem Netz zuordnen: Schlüssel = Nummer oder Name
         self.pin_netz = {}
         nummern = {p[0] for p in self.pins}
@@ -260,6 +263,37 @@ class Teil:
     def nur_vertikal(self):
         return all(p[5] % 180 == 90 for p in self.pins)
 
+    # --- Verdrahtungsmodus -------------------------------------------------
+    def _dreh(self, px, py):
+        """Bibliothekskoordinaten (y nach oben) → Versatz auf dem Blatt (y nach unten)."""
+        r = self.rot % 360
+        rx, ry = {0: (px, py), 90: (-py, px), 180: (-px, -py), 270: (py, -px)}[r]
+        return rx, -ry
+
+    def pin_daten(self, schluessel):
+        s = str(schluessel)
+        nummern = {p[0] for p in self.pins}
+        treffer = [p for p in self.pins if p[0] == s] if s in nummern else [p for p in self.pins if p[1] == s]
+        if not treffer:
+            raise KeyError("%s: Pin %s unbekannt" % (self.ref, s))
+        return treffer[0]
+
+    def p(self, schluessel):
+        """Absoluter Endpunkt eines Pins auf dem Blatt (mm)."""
+        nr, _n, _t, px, py, _w, _e = self.pin_daten(schluessel)
+        dx, dy = self._dreh(px, py)
+        return (round(self.at[0] + dx, 4), round(self.at[1] + dy, 4))
+
+    def pin_winkel(self, w):
+        return (w + self.rot) % 360
+
+    def box(self):
+        x0, y0, x1, y1 = koerper_box(self.symdef)
+        ecken = [self._dreh(x, y) for x in (x0, x1) for y in (y0, y1)]
+        xs = [self.at[0] + e[0] for e in ecken]
+        ys = [self.at[1] + e[1] for e in ecken]
+        return min(xs), min(ys), max(xs), max(ys)
+
 
 class Blatt:
     def __init__(self, projekt, name, datei, titel="", papier="A3"):
@@ -267,6 +301,11 @@ class Blatt:
         self.titel, self.papier = titel or name, papier
         self.teile = []
         self.texte = []
+        self.draehte = []          # [(x1, y1, x2, y2)]
+        self.labels = []           # [(netz, x, y, winkel)]
+        self.verdrahtet = False
+        self.ohne_draht = []       # Pins, die im Verdrahtungsmodus nur ein Label bekommen haben
+        self.versorgungen = []     # zusätzliche Versorgungssymbole auf Drähten
         self.uuid = neue_uuid(projekt.name + "/" + datei)
         self.sheet_uuid = neue_uuid(projekt.name + "/sheet/" + datei)
 
@@ -277,6 +316,90 @@ class Blatt:
 
     def text(self, inhalt, x, y, groesse=1.27):
         self.texte.append((inhalt, x, y, groesse))
+
+    # --- Verdrahtungsmodus -------------------------------------------------
+    def setze(self, t, x, y, rot=0, text="rechts"):
+        """Teil an (x, y) mm setzen; x, y werden auf das 1,27-mm-Raster gerundet."""
+        self.verdrahtet = True
+        t.at = (round(x / GRID) * GRID, round(y / GRID) * GRID)
+        t.at = (round(t.at[0], 4), round(t.at[1], 4))
+        t.rot, t.textlage = rot, text
+        return t
+
+    def draht(self, *punkte):
+        """Linienzug durch die Punkte; nur waagerechte und senkrechte Stücke."""
+        pkt = [(round(x, 4), round(y, 4)) for x, y in punkte]
+        for (x1, y1), (x2, y2) in zip(pkt, pkt[1:]):
+            if (x1, y1) == (x2, y2):
+                continue
+            if x1 != x2 and y1 != y2:
+                raise ValueError("schräger Draht %s → %s auf %s" % ((x1, y1), (x2, y2), self.datei))
+            self.draehte.append((x1, y1, x2, y2))
+
+    def l_draht(self, a, b, zuerst="h"):
+        """Rechtwinklige Verbindung a → b, zuerst waagerecht ('h') oder senkrecht ('v')."""
+        knick = (b[0], a[1]) if zuerst == "h" else (a[0], b[1])
+        self.draht(a, knick, b)
+
+    def versorgung(self, netz, x, y, richtung="oben"):
+        """Versorgungssymbol (z. B. +3V3) auf einen gezeichneten Draht setzen."""
+        self.versorgungen.append((netz, round(x, 4), round(y, 4), richtung))
+
+    def label(self, netz, x, y, winkel=0):
+        self.labels.append((netz, round(x, 4), round(y, 4), winkel))
+
+    def _auf_draht(self, pt):
+        x, y = pt
+        for (x1, y1, x2, y2) in self.draehte:
+            if x1 == x2 == x and min(y1, y2) <= y <= max(y1, y2):
+                return True
+            if y1 == y2 == y and min(x1, x2) <= x <= max(x1, x2):
+                return True
+        return False
+
+    def _draehte_teilen(self):
+        """KiCad verbindet einen Pin nur am Drahtende: Drähte an Pin-Enden und Versorgungssymbolen
+        teilen, die mitten auf ihnen liegen."""
+        punkte = {(v[1], v[2]) for v in self.versorgungen}
+        for t in self.teile:
+            for pn in {pp[0] for pp in t.pins}:
+                punkte.add(t.p(pn))
+        neu = []
+        for (x1, y1, x2, y2) in self.draehte:
+            innen = []
+            for (px, py) in punkte:
+                if x1 == x2 == px and min(y1, y2) < py < max(y1, y2):
+                    innen.append((px, py))
+                elif y1 == y2 == py and min(x1, x2) < px < max(x1, x2):
+                    innen.append((px, py))
+            kette = sorted(innen + [(x1, y1), (x2, y2)])
+            for a, c in zip(kette, kette[1:]):
+                neu.append((a[0], a[1], c[0], c[1]))
+        self.draehte = neu
+
+    def _knoten(self):
+        """Verbindungspunkte (Junctions): mindestens drei Anschlüsse an einem Punkt."""
+        enden = {}
+        for (x1, y1, x2, y2) in self.draehte:
+            for pt in ((x1, y1), (x2, y2)):
+                enden[pt] = enden.get(pt, 0) + 1
+        pins = {}
+        for t in self.teile:
+            for pn in {pp[0] for pp in t.pins}:
+                pt = t.p(pn)
+                pins[pt] = pins.get(pt, 0) + 1
+        kandidaten = set(enden) | set(pins)
+        out = []
+        for pt in sorted(kandidaten):
+            n = enden.get(pt, 0) + pins.get(pt, 0)
+            for (x1, y1, x2, y2) in self.draehte:
+                innen = (x1 == x2 == pt[0] and min(y1, y2) < pt[1] < max(y1, y2)) or \
+                        (y1 == y2 == pt[1] and min(x1, x2) < pt[0] < max(x1, x2))
+                if innen:
+                    n += 2
+            if n >= 3:
+                out.append(pt)
+        return out
 
     def gruppe(self, titel, teile, x, y, breite=400):
         """Teile in Reihen ab (x, y) setzen; Überschrift darüber."""
@@ -309,7 +432,8 @@ class Blatt:
         body = [Sym("kicad_sch"), S("version", Sym(SCH_VERSION)), S("generator", "eeschema"),
                 S("generator_version", "10.0"), S("uuid", self.uuid), S("paper", self.papier),
                 S("title_block", S("title", self.titel), S("date", p.datum), S("rev", p.rev),
-                  S("company", p.firma), S("comment", 1, "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript"))]
+                  S("company", p.firma), S("comment", 1, "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript"),
+                  *[S("comment", i + 2, k) for i, k in enumerate(p.kommentare)])]
         libs = {}
         pwr_n = [0]
         objekte = []
@@ -338,11 +462,17 @@ class Blatt:
             x, y = t.at
             u = neue_uuid(p.name + "/" + self.datei + "/" + t.ref)
             x0, y0, x1, y1 = koerper_box(t.symdef)
-            sym = S("symbol", S("lib_id", t.lib_id), S("at", x, y, 0), S("unit", 1),
+            if self.verdrahtet:
+                refpos, wertpos = self._textpos(t)
+            else:
+                refpos = self._ref_pos(t, x, y, x0, y0, x1, y1, True)
+                wertpos = self._ref_pos(t, x, y, x0, y0, x1, y1, False)
+            sym = S("symbol", S("lib_id", t.lib_id), S("at", x, y, t.rot), S("unit", 1),
                     S("exclude_from_sim", Sym("no")), S("in_bom", Sym("yes")), S("on_board", Sym("yes")),
                     S("dnp", Sym("yes" if t.dnp else "no")), S("uuid", u),
-                    S("property", "Reference", t.ref, *self._ref_pos(t, x, y, x0, y0, x1, y1, True)),
-                    S("property", "Value", t.wert, *self._ref_pos(t, x, y, x0, y0, x1, y1, False)),
+                    S("property", "Reference", t.ref, *(refpos if not t.ref.startswith("#") else
+                                                         [S("at", x, y, 0), _txt(None, verbergen=True)])),
+                    S("property", "Value", t.wert, *wertpos),
                     S("property", "Footprint", t.fp, S("at", x, y, 0), _txt(None, verbergen=True)),
                     S("property", "Datasheet", t.ds, S("at", x, y, 0), _txt(None, verbergen=True)),
                     S("property", "Description", t.info, S("at", x, y, 0), _txt(None, verbergen=True)))
@@ -356,16 +486,23 @@ class Blatt:
             gesehen = set()
             for (nr, name, typ, px, py, w, einheit) in t.pins:
                 netz = t.pin_netz.get(nr)
-                ex, ey = x + px, y - py
+                ex, ey = t.p(nr) if self.verdrahtet else (x + px, y - py)
                 key = (round(ex, 3), round(ey, 3))
                 if key in gesehen:      # gestapelte Pins (z. B. mehrere GND an einer Stelle)
                     continue
                 gesehen.add(key)
-                richtung = {0: "links", 180: "rechts", 90: "unten", 270: "oben"}[w % 360]
+                if self.verdrahtet and netz not in (None, "NC") and netz not in VERSORGUNGSNETZE \
+                        and self._auf_draht((ex, ey)):
+                    continue            # Pin hängt an einem gezeichneten Draht
+                richtung = {0: "links", 180: "rechts", 90: "unten", 270: "oben"}[t.pin_winkel(w) if self.verdrahtet else w % 360]
+                if self.verdrahtet and netz not in (None, "NC") and netz not in VERSORGUNGSNETZE:
+                    self.ohne_draht.append("%s.%s (%s)" % (t.ref, nr, netz))
                 if netz is None or netz == "NC":
                     objekte.append(S("no_connect", S("at", ex, ey), S("uuid", neue_uuid(u + "/nc/" + nr))))
                     continue
                 if netz in VERSORGUNGSNETZE:
+                    if self.verdrahtet and netz != "GND" and self._auf_draht((ex, ey)):
+                        continue        # Versorgung als Draht gezeichnet; Symbol setzt b.versorgung()
                     pwr_symbol(netz, ex, ey, richtung)
                     continue
                 winkel = {"links": 180, "rechts": 0, "oben": 90, "unten": 270}[richtung]
@@ -380,6 +517,29 @@ class Blatt:
                     just = ["right", "bottom"] if winkel in (180, 270) else ["left", "bottom"]
                     objekte.append(S("label", netz, S("at", ex, ey, winkel), _txt(None, justify=just), S("uuid", lu)))
 
+        if self.verdrahtet:
+            self._draehte_teilen()
+            for (netz, vx, vy, richtung) in self.versorgungen:
+                pwr_symbol(netz, vx, vy, richtung)
+            for i, (x1, y1, x2, y2) in enumerate(self.draehte):
+                objekte.append(S("wire", S("pts", S("xy", x1, y1), S("xy", x2, y2)),
+                                 S("stroke", S("width", 0), S("type", Sym("default"))),
+                                 S("uuid", neue_uuid("%s/%s/w/%d" % (p.name, self.datei, i)))))
+            for pt in self._knoten():
+                objekte.append(S("junction", S("at", pt[0], pt[1]), S("diameter", 0), S("color", 0, 0, 0, 0),
+                                 S("uuid", neue_uuid("%s/%s/j/%s/%s" % (p.name, self.datei, pt[0], pt[1])))))
+            for i, (netz, lx, ly, winkel) in enumerate(self.labels):
+                lu = neue_uuid("%s/%s/l/%d/%s" % (p.name, self.datei, i, netz))
+                if netz in globale_netze:
+                    just = ["right"] if winkel in (180, 270) else ["left"]
+                    objekte.append(S("global_label", netz, S("shape", Sym("bidirectional")), S("at", lx, ly, winkel),
+                                     S("fields_autoplaced", Sym("yes")), _txt(None, justify=just), S("uuid", lu),
+                                     S("property", "Intersheetrefs", "${INTERSHEET_REFS}", S("at", lx, ly, 0),
+                                       _txt(None, verbergen=True))))
+                else:
+                    just = ["right", "bottom"] if winkel in (180, 270) else ["left", "bottom"]
+                    objekte.append(S("label", netz, S("at", lx, ly, winkel), _txt(None, justify=just), S("uuid", lu)))
+
         for (inhalt, x, y, g) in self.texte:
             objekte.append(S("text", inhalt, S("exclude_from_sim", Sym("no")), S("at", x, y, 0),
                              _txt(None, groesse=g, justify=["left", "bottom"]), S("uuid", neue_uuid(self.datei + "/t/" + inhalt[:40] + str(x) + str(y)))))
@@ -391,6 +551,24 @@ class Blatt:
             body.append(S("sheet_instances", S("path", "/", S("page", "1"))))
         body.append(S("embedded_fonts", Sym("no")))
         return dump(body) + "\n"
+
+    @staticmethod
+    def _textpos(t):
+        """Referenz und Wert neben das gedrehte Bauteil setzen (Verdrahtungsmodus)."""
+        bx0, by0, bx1, by1 = t.box()
+        cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
+        lage = t.textlage or "rechts"
+        if lage == "rechts":
+            a, b, j = (bx1 + 1.0, cy - 1.0), (bx1 + 1.0, cy + 1.6), ["left"]
+        elif lage == "links":
+            a, b, j = (bx0 - 1.0, cy - 1.0), (bx0 - 1.0, cy + 1.6), ["right"]
+        elif lage == "oben":
+            a, b, j = (cx, by0 - 3.6), (cx, by0 - 1.2), None
+        else:
+            a, b, j = (cx, by1 + 1.8), (cx, by1 + 4.2), None
+        w = t.rot % 180            # KiCad dreht Felder mit dem Symbol; so bleiben sie waagerecht lesbar
+        return ([S("at", round(a[0], 3), round(a[1], 3), w), _txt(None, justify=j)],
+                [S("at", round(b[0], 3), round(b[1], 3), w), _txt(None, justify=j)])
 
     @staticmethod
     def _ref_pos(t, x, y, x0, y0, x1, y1, ist_ref):
@@ -420,8 +598,9 @@ class Blatt:
 
 
 class Projekt:
-    def __init__(self, name, ordner, firma="", rev="0.1", datum="", eigene_bibs=None):
+    def __init__(self, name, ordner, firma="", rev="0.1", datum="", eigene_bibs=None, kommentare=None):
         self.name, self.ordner, self.firma, self.rev, self.datum = name, ordner, firma, rev, datum
+        self.kommentare = list(kommentare or [])   # Titelblock-Kommentare 2 … (Board-Kennung, Umgebung; REG26-10)
         self.eigene_bibs = eigene_bibs or {}
         self.schnittstellen = set()   # Netze, die sicher blattübergreifend sind (globale Labels)
         self.wurzel = None
@@ -467,6 +646,8 @@ class Projekt:
         for b in alle:
             with open(os.path.join(self.ordner, b.datei), "w", encoding="utf-8") as f:
                 f.write(b.baue(globale, root_uuid, None))
+            if b.verdrahtet and b.ohne_draht:
+                raise SystemExit("%s: Pins ohne gezeichneten Draht (nur Label): %s" % (b.datei, ", ".join(b.ohne_draht)))
         self._projektdatei()
         self._kicad_normalisieren(alle)
         return globale

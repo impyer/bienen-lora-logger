@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-09T05:50:05")
+		(date "2026-10-09T11:51:02")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -20,11 +20,11 @@
 				)
 				(comment
 					(number "2")
-					(value "")
+					(value "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
 				)
 				(comment
 					(number "3")
-					(value "")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
 				)
 				(comment
 					(number "4")
@@ -68,11 +68,11 @@
 				)
 				(comment
 					(number "2")
-					(value "")
+					(value "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
 				)
 				(comment
 					(number "3")
-					(value "")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
 				)
 				(comment
 					(number "4")
@@ -266,17 +266,17 @@
 		)
 		(comp
 			(ref "C204")
-			(value "10µ")
-			(footprint "Capacitor_SMD:C_0805_2012Metric")
-			(description "≥ 10 µF an SYS")
+			(value "22µ 25V X5R")
+			(footprint "Capacitor_SMD:C_1206_3216Metric")
+			(description "≥ 10 µF an SYS wirksam bei 4,5 V; 10 µF/0805 fiele durch DC-Bias darunter (REG26-11, versorgung.md 3.9)")
 			(fields
 				(field
-					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+					(name "Footprint") "Capacitor_SMD:C_1206_3216Metric")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "≥ 10 µF an SYS")
+					(name "Description") "≥ 10 µF an SYS wirksam bei 4,5 V; 10 µF/0805 fiele durch DC-Bias darunter (REG26-11, versorgung.md 3.9)")
 			)
 			(libsource
 				(lib "Device")
@@ -482,8 +482,9 @@
 		)
 		(comp
 			(ref "C208")
-			(value "1µ")
+			(value "2,2µ 16V X7R")
 			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "≥ 1 µF wirksam bei 4,5 V (REG26-11)")
 			(fields
 				(field
 					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
@@ -491,8 +492,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "≥ 1 µF wirksam bei 4,5 V (REG26-11)")
 			)
 			(libsource
 				(lib "Device")
@@ -536,9 +536,9 @@
 		)
 		(comp
 			(ref "C209")
-			(value "1µ")
+			(value "2,2µ 16V X7R")
 			(footprint "Capacitor_SMD:C_0603_1608Metric")
-			(description "100 µF + 10 µF am Funkmodul (Blatt Funk)")
+			(description "≥ 1 µF wirksam bei 3,3 V (REG26-11); dazu 100 µF + 10 µF am Funkmodul (Blatt Funk)")
 			(fields
 				(field
 					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
@@ -546,7 +546,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "100 µF + 10 µF am Funkmodul (Blatt Funk)")
+					(name "Description") "≥ 1 µF wirksam bei 3,3 V (REG26-11); dazu 100 µF + 10 µF am Funkmodul (Blatt Funk)")
 			)
 			(libsource
 				(lib "Device")
@@ -698,17 +698,17 @@
 		)
 		(comp
 			(ref "C212")
-			(value "2,2µ")
-			(footprint "Capacitor_SMD:C_0603_1608Metric")
-			(description "≥ 2,2 µF am Ausgang (Datenblatt)")
+			(value "4,7µ 16V X7R")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(description "Datenblatt verlangt ≥ 2,2 µF am Ausgang; 4,7 µF/0805 hält das bei 3,3 V trotz DC-Bias (REG26-11)")
 			(fields
 				(field
-					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "≥ 2,2 µF am Ausgang (Datenblatt)")
+					(name "Description") "Datenblatt verlangt ≥ 2,2 µF am Ausgang; 4,7 µF/0805 hält das bei 3,3 V trotz DC-Bias (REG26-11)")
 			)
 			(libsource
 				(lib "Device")

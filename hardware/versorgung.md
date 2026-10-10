@@ -235,6 +235,35 @@ Der Steckverbinder ist verpolsicher kodiert. Zusätzlich P-MOSFET (AO3401A) in B
 - VREFINT messen und damit VDDA korrigieren, falls der LDO schon nicht mehr regelt.
 - **Den VBAT-Pin des STM32 nie an den Akku legen** (nur bis 3,6 V) [V: ST-Datenblatt]. VBAT an 3,3 V; Knopfzelle entfällt (siehe 5, Regel 10).
 
+### 3.9 Schienen und Kondensatoren (REG26-11, 09.10.2026)
+
+**Schienen** (Werte aus den Datenblättern der Bauteile in 3.2–3.7; Welligkeit und Abfall am Muster messen [P]):
+
+| Schiene | Quelle | Bereich | Toleranz / Grenze | Ein- und Ausschalten | Last |
+|---|---|---|---|---|---|
+| VIN_LADER | Panels über D201/D202, USB über D203 | 0–12 V dauernd, Störung bis 25 V | BQ25185 abs. 25 V, OVP 18,5 V; TVS 12 V [V] | folgt der Sonne | Lader, TPS70933, Teiler 3,2 µA |
+| TMP_VCC | U204 TPS70933 aus VIN_LADER | 3,3 V, sobald VIN > ca. 3,5 V [A] | Ausgangsgenauigkeit laut Datenblatt prüfen [P] | **nur bei Sonne/USB**; nachts aus | Ladesperre, max. ca. 80 µA (Pull-ups) |
+| VBAT | Zelle über Zellschutz und Akku-Platine | 3,0 (BUVLO) … 4,1 V | HY2111 2,9 / 4,28 V | dauernd | Lader-Ruhestrom, Teiler 0,9 µA |
+| SYS | BQ25185: bei Quelle 4,5 V geregelt, sonst VBAT über 115 mΩ | 3,0–4,5 V | – | dauernd, solange VBAT > BUVLO oder Quelle da | RT9080, 5-V-Wandler der Waage |
+| +3V3 | U202 RT9080 aus SYS, EN an SYS | 3,3 V bei SYS ≥ ca. 3,4 V; darunter folgt sie SYS | Abfall 0,31 V bei 600 mA [V] | folgt SYS (kein eigener Startablauf) | MCU, Funk (bis 140 mA), SPI-Flash |
+| 3V3_SW | U203 TPS22917 aus +3V3 | wie +3V3 | Anstieg ca. 1,7 ms (CT 1 nF), aktive Entladung über QOD | **nur auf Befehl der MCU** (PB5); Standby aus | Sensoren und alle Pull-ups |
+
+Reihenfolge beim Start: Quelle oder Zelle → SYS → +3V3 → MCU → (Firmware) 3V3_SW → Sensor-Pins. Beim Abschalten umgekehrt; vor 3V3_SW aus stellt die Firmware alle Sensor-Pins hochohmig (3.7, Regel 2). Brownout-Schwelle der MCU und Verhalten bei langsam fallender SYS sind Firmware-Festlegungen auf Blatt MCU und am Muster zu prüfen [P].
+
+**Kondensatoren mit DC-Bias:** Keramikkondensatoren (X5R/X7R) verlieren unter Gleichspannung Kapazität, umso mehr, je kleiner die Bauform und je niedriger die Nennspannung. Mindestwerte aus den Datenblättern gelten für die **wirksame** Kapazität.
+
+| Bauteil | Anforderung | Gewählt (V0.1) | Wirksam bei Betriebsspannung [A] | Bewertung |
+|---|---|---|---|---|
+| C201 VIN_LADER | ≥ 1 µF (BQ25185) | 4,7 µF 50 V X7R 1206 | bei 12 V grob 3–4 µF | ausreichend |
+| C204 SYS | ≥ 10 µF (BQ25185) | **22 µF 25 V X5R 1206** (vorher 10 µF 0805) | bei 4,5 V grob 13–18 µF; 10 µF/0805 läge bei grob 5–7 µF und damit unter der Anforderung | geändert |
+| C205 VBAT | ≥ 1 µF | 4,7 µF 0805 | bei 4,1 V grob 2,5–3,5 µF | ausreichend |
+| C212 TMP_VCC | ≥ 2,2 µF (TPS70933) | **4,7 µF 16 V X7R 0805** (vorher 2,2 µF 0603) | bei 3,3 V grob 3–4 µF; 2,2 µF/0603 läge bei grob 1,3–1,8 µF | geändert |
+| C208 SYS am RT9080 | ≥ 1 µF | **2,2 µF 16 V X7R 0603** (vorher 1 µF) | bei 4,5 V grob 1,2–1,6 µF | geändert |
+| C209 +3V3 | ≥ 1 µF | **2,2 µF 16 V X7R 0603** (vorher 1 µF) | bei 3,3 V grob 1,4–1,8 µF | geändert |
+| C211 3V3_SW | keine Vorgabe | 1 µF 0603 | – | unverändert |
+
+Die Spannen „grob“ sind Erfahrungswerte für übliche MLCC-Familien [A], **keine** Herstellerdaten. Beim Festlegen der LCSC-Nummern (vor dem Layout) für jeden Kondensator dieser Tabelle die DC-Bias-Kurve des Herstellers prüfen und den Wert hier eintragen; erst dann gilt REG26-11 als erledigt. Temperatur: X7R −55 … +125 °C ±15 %, X5R −55 … +85 °C ±15 % [V: EIA-Klassen]; bei +60 °C Gehäuse reicht X5R.
+
 ## 4. Energiebilanz (Auszug aus `energiebilanz.py`)
 
 ### Ruhestrom bei 25 °C

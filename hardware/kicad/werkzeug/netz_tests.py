@@ -48,9 +48,41 @@ def enthaelt(netze, netz, soll):
     pruefe("Netz %s enthält %s" % (netz, sorted(soll)), set(soll) <= ist, sorted(ist))
 
 
+def modell_netze(modul):
+    """Netze laut Generator-Beschreibung (Quelle der Wahrheit) als {Name: {(Ref, Pin)}}."""
+    sys.path.insert(0, HIER)
+    m = __import__(modul)
+    pr = m.baue()
+    netze = {}
+    for b in [pr.wurzel] + pr.blaetter:
+        for netz, knoten in b.netze().items():
+            if netz in (None, "NC"):
+                continue
+            netze.setdefault(netz, set()).update(k for k in knoten if not k[0].startswith("#"))
+    return {n: k for n, k in netze.items() if k}
+
+
+def vollstaendig(modul, ist, datei):
+    """Jedes Netz der KiCad-Netzliste muss exakt einem Netz des Modells entsprechen (Name und Pins).
+    Fängt Zeichenfehler im Verdrahtungsmodus ab: falsch angeschlossene, offene oder kurzgeschlossene Pins."""
+    soll = modell_netze(modul)
+    ist = {n: k for n, k in ist.items() if k and not n.startswith("unconnected")}
+    fehlt = sorted(set(soll) - set(ist))
+    extra = sorted(set(ist) - set(soll))
+    falsch = sorted(n for n in set(soll) & set(ist) if soll[n] != ist[n])
+    pruefe("%s: alle %d Netze des Modells in KiCad vorhanden" % (datei, len(soll)), not fehlt, fehlt)
+    pruefe("%s: keine zusätzlichen Netze in KiCad" % datei, not extra, {n: sorted(ist[n]) for n in extra})
+    pruefe("%s: alle Netze mit genau den Pins des Modells" % datei, not falsch,
+           {n: {"fehlt": sorted(soll[n] - ist[n]), "zuviel": sorted(ist[n] - soll[n])} for n in falsch})
+
+
 def main():
     a, a_pin, a_wert = lade("akku.net")
     h, h_pin, h_wert = lade("logger.net")
+
+    # --- Vollständiger Vergleich Modell ↔ gezeichneter Schaltplan ---
+    vollstaendig("akku_platine", a, "akku.net")
+    vollstaendig("hauptplatine", h, "logger.net")
 
     # --- Akku-Platine: Zellschutz ---
     genau(a, "B-", {("BT1", "2"), ("U1", "6"), ("C1", "2"), ("Q1", "1")})
