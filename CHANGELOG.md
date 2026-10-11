@@ -1,5 +1,12 @@
 # Änderungen
 
+## 2026-10-10 – Schaltplanblatt Waage (SCH26-07, Teil Waage)
+
+- **Neues Blatt „Waage“** auf der Hauptplatine (`hauptplatine/waage.kicad_sch`, Teile 5xx): 5-V-Wandler TPS61240 an SYS (EN = PB10 mit 100 kΩ nach GND, 1 µH, Ferrit zu VSUP), HX711 mit AVDD 4,30 V über S8550 und 20 k/8,2 k, DVDD an 3V3_SW, je 1 kΩ zu PB8/PB9, Wägezellenklemme J501 (= J4) mit TPD4E05U06, 100 Ω, 100 nF und 2 × 10 nF C0G. Kanal B über 0 Ω an INA− [A].
+- `waage.md`: Spulen- und Kondensatorwerte nach TI-Datenblatt, Kanal B, **Ferrit in E+ mit ≤ 0,1 Ω** (neue Rechnung 4.1: Temperaturgang des Leitungswiderstands), Abschnitt 9 Schaltplan, Prüfpunkte 6–8. `anschluesse.md`: J4 (Platine: J501).
+- Prüfwerkzeug: `netz_tests.py` prüft das Blatt Waage (Wandler an SYS, EN-Pull-down, FB an VOUT, AVDD aus den Teilerwerten mit Gegenprobe, Zellenleitungen, J4/J501 gegen `anschluesse.md`), 79 → 114 Prüfungen. Neues Symbol TPS61240 (`symbole.py`). `kicad_gen.py`: gemeinsames GND-Symbol für verbundene GND-Pins, feste Textlage; ältere Blätter unverändert.
+- ERC Hauptplatine 11 → 8 erwartete Meldungen (HX_DOUT, HX_SCK, WAAGE_EIN haben jetzt ihre Gegenstelle). Prüfung lokal mit KiCad 10.0.7: reproduzierbar, 114/114, Gegenproben bestanden; CI und Muster offen. Bericht: `docs/testberichte/2026-10-10-sch26-07-waage.md`.
+
 ## 2026-10-10 – USB-Rolle festgelegt, Ra-01SH nach Herstellerschaltbild (SCH26-10/-11)
 
 - **SCH26-10 / HW-01:** USB-C nur zum Laden und Aufspielen (ROM-DFU); die Anwendungsfirmware nutzt USB nicht, Konsole über Serial1/SWD. Keine VBUS-Erkennung nötig. Lastenheft K5, `mcu-funk.md` 1.3, Entscheidungsregister HW-01.

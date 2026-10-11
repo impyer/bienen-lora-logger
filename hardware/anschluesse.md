@@ -17,7 +17,7 @@ Bezug:
 | J1 (Platine: J201) | Solarpanel 1 | steckbare Klemme 3,5 mm, 2-polig | 1 GND, 2 +PV | Schottky je Panel, TVS SMAJ12A gemeinsam (versorgung.md 3.1) | Panelkabel |
 | J2 (Platine: J202) | Solarpanel 2 | wie J1 | 1 GND, 2 +PV | wie J1 | Panelkabel |
 | J3 (Platine: J203) | Akku-Platine | **JST PH 5-polig** (B5B-PH-K stehend), Kabel im Gehäuse | 1 P− (GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+ | Zellschutz und Ladesperre auf der Akku-Platine (versorgung.md 3.3/3.4); Leitungsbruch an CE_FREI oder TMP_VCC sperrt das Laden | kurz, im Gehäuse, Kabelplan 1.1 |
-| J4 | Wägezelle H40A | steckbare Klemme 3,5 mm, 5-polig | 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+ | **TPD4E05U06** an E+, S+, S− (E− ist Masse); 100 Ω in S±, 100 nF S+/S−, 10 nF je S nach Masse (waage.md 4) | Originalkabel 1,8 m |
+| J4 (Platine: J501) | Wägezelle H40A | steckbare Klemme 3,5 mm, 5-polig | 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+ | **TPD4E05U06** an E+, S+, S− (E− ist Masse); Ferrit ≤ 0,1 Ω in E+; 100 Ω in S±, 100 nF S+/S−, 10 nF je S nach Masse (waage.md 4) | Originalkabel 1,8 m |
 | J5 | Mikrofon | steckbare Klemme 3,5 mm, 4-polig | 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA) | **ESDS304** an OUT und VCC; 100 Ω in OUT (mikrofon.md 2) | LiYCY 3 × 0,14, ≤ 2 m |
 | J6 | DS18B20 Nr. 1 (TempIn) | steckbare Klemme 3,5 mm, 3-polig | 1 GND, 2 DQ, 3 3V3_SW | **ESDS304** (ein Array für J6 + J7) | Fühlerkabel |
 | J7 | DS18B20 Nr. 2 (TempIn2) | wie J6, am selben 1-Wire-Bus | 1 GND, 2 DQ, 3 3V3_SW | wie J6 | Fühlerkabel |

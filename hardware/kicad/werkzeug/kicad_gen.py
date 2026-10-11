@@ -320,7 +320,8 @@ class Blatt:
 
     # --- Verdrahtungsmodus -------------------------------------------------
     def setze(self, t, x, y, rot=0, text="rechts"):
-        """Teil an (x, y) mm setzen; x, y werden auf das 1,27-mm-Raster gerundet."""
+        """Teil an (x, y) mm setzen; x, y werden auf das 1,27-mm-Raster gerundet.
+        text: Lage von Referenz und Wert – 'rechts', 'links', 'oben', 'unten' oder feste Position (x, y)."""
         self.verdrahtet = True
         t.at = (round(x / GRID) * GRID, round(y / GRID) * GRID)
         t.at = (round(t.at[0], 4), round(t.at[1], 4))
@@ -343,7 +344,8 @@ class Blatt:
         self.draht(a, knick, b)
 
     def versorgung(self, netz, x, y, richtung="oben"):
-        """Versorgungssymbol (z. B. +3V3) auf einen gezeichneten Draht setzen."""
+        """Versorgungssymbol (+3V3 oder GND) auf einen gezeichneten Draht setzen. Pins dieses Netzes, die auf
+        einem Draht liegen, bekommen kein eigenes Symbol; netz_tests.py prüft, dass sie trotzdem im Netz sind."""
         self.versorgungen.append((netz, round(x, 4), round(y, 4), richtung))
 
     def label(self, netz, x, y, winkel=0):
@@ -502,8 +504,8 @@ class Blatt:
                     objekte.append(S("no_connect", S("at", ex, ey), S("uuid", neue_uuid(u + "/nc/" + nr))))
                     continue
                 if netz in VERSORGUNGSNETZE:
-                    if self.verdrahtet and netz != "GND" and self._auf_draht((ex, ey)):
-                        continue        # Versorgung als Draht gezeichnet; Symbol setzt b.versorgung()
+                    if self.verdrahtet and self._auf_draht((ex, ey)):
+                        continue        # Versorgung (auch GND) als Draht gezeichnet; Symbol setzt b.versorgung()
                     pwr_symbol(netz, ex, ey, richtung)
                     continue
                 winkel = {"links": 180, "rechts": 0, "oben": 90, "unten": 270}[richtung]
@@ -559,7 +561,9 @@ class Blatt:
         bx0, by0, bx1, by1 = t.box()
         cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
         lage = t.textlage or "rechts"
-        if lage == "rechts":
+        if isinstance(lage, tuple):      # feste Lage (x, y) für Referenz, Wert darunter (z. B. neben Versorgungssymbolen)
+            a, b, j = (lage[0], lage[1]), (lage[0], lage[1] + 2.6), ["left"]
+        elif lage == "rechts":
             a, b, j = (bx1 + 1.0, cy - 1.0), (bx1 + 1.0, cy + 1.6), ["left"]
         elif lage == "links":
             a, b, j = (bx0 - 1.0, cy - 1.0), (bx0 - 1.0, cy + 1.6), ["right"]

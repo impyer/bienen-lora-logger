@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/tmp/claude-0/-home-claude/a624e0f4-7383-5bcd-bcf1-0ca93634bae0/scratchpad/repo/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-10T20:08:19")
+		(date "2026-10-11T04:31:47")
 		(tool "Eeschema 10.0.7-10.0.7~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -158,6 +158,54 @@
 				(rev "0.1 Entwurf")
 				(date "2026-10-09")
 				(source "funk.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
+				)
+				(comment
+					(number "3")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "5")
+			(name "/Waage/")
+			(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			(title_block
+				(title "Waage: 5-V-Wandler TPS61240, HX711, Wägezelle H40A")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "waage.kicad_sch")
 				(comment
 					(number "1")
 					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
@@ -4959,10 +5007,1734 @@
 				)
 			)
 		)
+		(comp
+			(ref "C501")
+			(value "4,7µ 16V X5R")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(description "TI: mindestens 2,2 µF an VIN [V]; 4,7 µF/0805 wegen DC-Bias bei 4,5 V [A]; direkt an VIN/GND")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TI: mindestens 2,2 µF an VIN [V]; 4,7 µF/0805 wegen DC-Bias bei 4,5 V [A]; direkt an VIN/GND")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "959dc325-d222-591a-bffc-c22805ad2cc6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C502")
+			(value "10µ 10V X5R")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(description "TI: COUT 1–20 µF [V]; wirksam bei 5 V etwa die Hälfte [A]; mit C503 zusammen unter 20 µF Nennwert [A]")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TI: COUT 1–20 µF [V]; wirksam bei 5 V etwa die Hälfte [A]; mit C503 zusammen unter 20 µF Nennwert [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "e4cb4d48-7816-5ea5-b129-34b3813244c6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C503")
+			(value "10µ 10V X5R")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "7fc7d72c-2707-5a11-a3ac-c1ff90b37497")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C504")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "direkt an VSUP (Pin 1)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "direkt an VSUP (Pin 1)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "e5bd3f13-ee63-5983-8aea-8808b5c1cc4d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C505")
+			(value "10µ 10V X5R")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "f4779f9d-04d5-5b11-8258-e0d49ad41892")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C506")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "direkt an AVDD (Pin 3)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "direkt an AVDD (Pin 3)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "2c71439d-9f63-508d-8e13-996b60439b7b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C507")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "VBG-Abblockung (Datenblatt Fig. 1)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "VBG-Abblockung (Datenblatt Fig. 1)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "b5d13dc3-22fb-5a4b-8c78-decbcd57baf7")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C508")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "DVDD an 3V3_SW: Pegel wie STM32 (waage.md 3)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "DVDD an 3V3_SW: Pegel wie STM32 (waage.md 3)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "9a625f43-396b-5749-ac9e-e9a4edc86f5d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C510")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Differenzfilter S+/S−")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Differenzfilter S+/S−")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "4a2e62f8-b73c-5958-8eee-f54d93f7b289")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C511")
+			(value "10n C0G")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Gleichtaktfilter; C0G für gleiche Werte S+/S− [A]")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Gleichtaktfilter; C0G für gleiche Werte S+/S− [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "bca34f65-7299-5df4-9454-fbc1daaf1847")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C512")
+			(value "10n C0G")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "c3f48681-a405-570d-8248-9d81b867384b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D501")
+			(value "TPD4E05U06DQAR")
+			(description "5,5 V, Leckstrom 0,01 nA typ./10 nA max. (anschluesse.md 2) [V]; direkt hinter J501; 4. Kanal frei")
+			(fields
+				(field
+					(name "LCSC") "C138714")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "5,5 V, Leckstrom 0,01 nA typ./10 nA max. (anschluesse.md 2) [V]; direkt hinter J501; 4. Kanal frei")
+			)
+			(libsource
+				(lib "Power_Protection")
+				(part "TPD4E05U06DQA")
+				(description "4-Channel ESD Protection for Super-Speed USB 3.0 Interface, USON-10")
+			)
+			(property
+				(name "LCSC")
+				(value "C138714")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "ESD protection USB 3.0")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "USON*2.5x1.0mm*P0.5mm*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "34613665-5898-5108-9c90-a17bd980296d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "6")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "FB501")
+			(value "600R@100MHz")
+			(footprint "Inductor_SMD:L_0603_1608Metric")
+			(description "trennt den 3,5-MHz-Wandler von VSUP (waage.md 2) [A]; Teil wählen [P]")
+			(fields
+				(field
+					(name "Footprint") "Inductor_SMD:L_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "trennt den 3,5-MHz-Wandler von VSUP (waage.md 2) [A]; Teil wählen [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "FerriteBead_Small")
+				(description "Ferrite bead, small symbol")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "L ferrite bead inductor filter")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Inductor_* L_* *Ferrite*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "3d29e7aa-de27-5cea-a2db-96497f2b1859")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "FB502")
+			(value "Ferrit ≤ 0,1 Ω")
+			(footprint "Inductor_SMD:L_0603_1608Metric")
+			(description "E+ aus AVDD; Gleichstromwiderstand ≤ 0,1 Ω, sonst ändert sich die Brückenspeisung mit der Temperatur [A]; Teil wählen [P]")
+			(fields
+				(field
+					(name "Footprint") "Inductor_SMD:L_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "E+ aus AVDD; Gleichstromwiderstand ≤ 0,1 Ω, sonst ändert sich die Brückenspeisung mit der Temperatur [A]; Teil wählen [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "FerriteBead_Small")
+				(description "Ferrite bead, small symbol")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "L ferrite bead inductor filter")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Inductor_* L_* *Ferrite*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "7805dbf3-8b7d-58ee-840d-bfeb2f75252d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J501")
+			(value "Wägezelle")
+			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_5-G-3.5_1x05_P3.50mm_Horizontal")
+			(description "= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRHC-3.5 5-polig (Platzhalter Phoenix MC) [P]; Schirm nur hier an Masse")
+			(fields
+				(field
+					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_5-G-3.5_1x05_P3.50mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRHC-3.5 5-polig (Platzhalter Phoenix MC) [P]; Schirm nur hier an Masse")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x05")
+				(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "8e6119ea-4c50-50b4-9663-834889dc5412")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "L501")
+			(value "1µ")
+			(footprint "Inductor_SMD:L_0805_2012Metric")
+			(description "TI: 1,0 µH empfohlen, Schaltstrombegrenzung 500–600 mA [V]; Teil mit Isat ≥ 0,7 A wählen (TI-Liste: TOKO MDT2012-CH1R0AN) [P]")
+			(fields
+				(field
+					(name "Footprint") "Inductor_SMD:L_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TI: 1,0 µH empfohlen, Schaltstrombegrenzung 500–600 mA [V]; Teil mit Isat ≥ 0,7 A wählen (TI-Liste: TOKO MDT2012-CH1R0AN) [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "L")
+				(description "Inductor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "inductor choke coil reactor magnetic")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Choke_* *Coil* Inductor_* L_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "0831fa73-9ac2-537d-af91-e58577ff62c0")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "Q501")
+			(value "S8550")
+			(description "PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
+			(fields
+				(field
+					(name "LCSC") "C397181")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
+			)
+			(libsource
+				(lib "Transistor_BJT")
+				(part "SS8550")
+				(description "General Purpose PNP Transistor, 1.5A Ic, 25V Vce, SOT-23")
+			)
+			(property
+				(name "LCSC")
+				(value "C397181")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "SS8550 PNP Transistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "35426521-a604-5a68-9d2e-bdbc160f453e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R501")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "EN nie offen: PB10 ist im Standby hochohmig; Datenblatt nennt keinen internen Pull-down (waage.md 2)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "EN nie offen: PB10 ist im Standby hochohmig; Datenblatt nennt keinen internen Pull-down (waage.md 2)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "07fbee0f-a9ed-526b-9dc5-a3a03aeda270")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R502")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "entlädt 5 V nach dem Abschalten, damit die HX711 beim nächsten Einschalten sicher neu startet [A]")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "entlädt 5 V nach dem Abschalten, damit die HX711 beim nächsten Einschalten sicher neu startet [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "15701dc6-3d30-5518-b065-8d3bd35324e6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R503")
+			(value "20k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "AVDD = 1,25 V × (1 + 20k/8,2k) = 4,30 V (waage.md 3)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "AVDD = 1,25 V × (1 + 20k/8,2k) = 4,30 V (waage.md 3)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "8b184293-e344-5fff-941d-7dbf7871e002")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R504")
+			(value "8,2k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "c48c90cc-db0f-58f7-8441-38b4a89315b1")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R505")
+			(value "100")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "waage.md 4")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "waage.md 4")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "15f98874-2e85-532a-a1eb-ff2d0f178eb8")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R506")
+			(value "100")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "b75d582e-6654-50ce-8577-25328bdcc769")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R507")
+			(value "0")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Kanal B unbenutzt, auf Gleichtakt der Brücke gelegt [A]; bei Störung der Messung auslöten [P]")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Kanal B unbenutzt, auf Gleichtakt der Brücke gelegt [A]; bei Störung der Messung auslöten [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "73bff940-592b-5ca8-b536-f3c63c1b246b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R508")
+			(value "1k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "begrenzt den Strom, wenn PB9 high ist und 3V3_SW aus (mcu-funk.md 4)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "begrenzt den Strom, wenn PB9 high ist und 3V3_SW aus (mcu-funk.md 4)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "33b4bb6a-6664-5e10-b874-1b84d3a1546c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R509")
+			(value "1k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "8755f0ed-bb8e-53ab-9e17-376f9513637c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U501")
+			(value "TPS61240DRVR")
+			(description "fest 5,0 V ±2 %, Lasttrennung im Aus [V]; Footprint KiCad WSON-6 2×2 mit TI DRV0006A vergleichen [P]")
+			(fields
+				(field
+					(name "LCSC") "C59567")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "fest 5,0 V ±2 %, Lasttrennung im Aus [V]; Footprint KiCad WSON-6 2×2 mit TI DRV0006A vergleichen [P]")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "TPS61240")
+				(description "Aufwärtswandler fest 5,0 V, 3,5 MHz, Lasttrennung im Aus; FB direkt an VOUT; Datenblatt nennt keinen internen Pull-down an EN")
+			)
+			(property
+				(name "LCSC")
+				(value "C59567")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "2796b4a8-1766-5945-b192-22aba6f13b36")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U502")
+			(value "HX711")
+			(description "Kanal A, Verstärkung 128; RATE an GND = 10 Werte/s; XI an GND = interner Takt [V]")
+			(fields
+				(field
+					(name "LCSC") "C43656")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Kanal A, Verstärkung 128; RATE an GND = 10 Werte/s; XI an GND = interner Takt [V]")
+			)
+			(libsource
+				(lib "Analog_ADC")
+				(part "HX711")
+				(description "24-bit Analog-to-Digital Converter (ADC) for Weight Scales, SOIC-16 (SOP-16)")
+			)
+			(property
+				(name "LCSC")
+				(value "C43656")
+			)
+			(property
+				(name "Sheetname")
+				(value "Waage")
+			)
+			(property
+				(name "Sheetfile")
+				(value "waage.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "load-cell 24-bits")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "*SO*3.9x9.9mm*P1.27mm*")
+			)
+			(sheetpath
+				(names "/Waage/")
+				(tstamps "/5ebcfc32-45cc-5147-9b13-dd3f9b87fa18/")
+			)
+			(tstamps "3bd5b646-8927-52a4-b378-7d2ffb1fd05a")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "16")
+						)
+						(pin
+							(num "12")
+						)
+						(pin
+							(num "11")
+						)
+						(pin
+							(num "13")
+						)
+						(pin
+							(num "14")
+						)
+						(pin
+							(num "15")
+						)
+					)
+				)
+			)
+		)
 	)
 	(groups)
 	(variants)
 	(libparts
+		(libpart
+			(lib "Analog_ADC")
+			(part "HX711")
+			(description "24-bit Analog-to-Digital Converter (ADC) for Weight Scales, SOIC-16 (SOP-16)")
+			(docs "https://web.archive.org/web/20220615044707/https://akizukidenshi.com/download/ds/avia/hx711.pdf")
+			(footprints
+				(fp "*SO*3.9x9.9mm*P1.27mm*")
+			)
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "HX711")
+				(field
+					(name "Footprint") "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm")
+				(field
+					(name "Datasheet") "https://web.archive.org/web/20220615044707/https://akizukidenshi.com/download/ds/avia/hx711.pdf")
+				(field
+					(name "Description") "24-bit Analog-to-Digital Converter (ADC) for Weight Scales, SOIC-16 (SOP-16)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "VSUP")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "BASE")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "AVDD")
+					(type "power_in")
+				)
+				(pin
+					(num "4")
+					(name "VFB")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "AGND")
+					(type "power_in")
+				)
+				(pin
+					(num "6")
+					(name "VBG")
+					(type "passive")
+				)
+				(pin
+					(num "7")
+					(name "INA-")
+					(type "input")
+				)
+				(pin
+					(num "8")
+					(name "INA+")
+					(type "input")
+				)
+				(pin
+					(num "9")
+					(name "INB-")
+					(type "input")
+				)
+				(pin
+					(num "10")
+					(name "INB+")
+					(type "input")
+				)
+				(pin
+					(num "11")
+					(name "PD_SCK")
+					(type "input")
+				)
+				(pin
+					(num "12")
+					(name "DOUT")
+					(type "output")
+				)
+				(pin
+					(num "13")
+					(name "XO")
+					(type "passive")
+				)
+				(pin
+					(num "14")
+					(name "XI")
+					(type "passive")
+				)
+				(pin
+					(num "15")
+					(name "RATE")
+					(type "input")
+				)
+				(pin
+					(num "16")
+					(name "DVDD")
+					(type "power_in")
+				)
+			)
+		)
 		(libpart
 			(lib "Bienen")
 			(part "BQ25185")
@@ -5179,6 +6951,61 @@
 				(pin
 					(num "16")
 					(name "GND")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "TPS61240")
+			(description "Aufwärtswandler fest 5,0 V, 3,5 MHz, Lasttrennung im Aus; FB direkt an VOUT; Datenblatt nennt keinen internen Pull-down an EN")
+			(docs "https://www.ti.com/lit/ds/symlink/tps61240.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TPS61240")
+				(field
+					(name "Footprint") "Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm")
+				(field
+					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/tps61240.pdf")
+				(field
+					(name "Description") "Aufwärtswandler fest 5,0 V, 3,5 MHz, Lasttrennung im Aus; FB direkt an VOUT; Datenblatt nennt keinen internen Pull-down an EN")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "VOUT")
+					(type "power_out")
+				)
+				(pin
+					(num "3")
+					(name "FB")
+					(type "input")
+				)
+				(pin
+					(num "4")
+					(name "EN")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "L")
+					(type "passive")
+				)
+				(pin
+					(num "6")
+					(name "VIN")
+					(type "power_in")
+				)
+				(pin
+					(num "7")
+					(name "EP")
 					(type "passive")
 				)
 			)
@@ -5694,6 +7521,43 @@
 				(pin
 					(num "2")
 					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
+			(part "L")
+			(description "Inductor")
+			(footprints
+				(fp "Choke_*")
+				(fp "*Coil*")
+				(fp "Inductor_*")
+				(fp "L_*")
+			)
+			(fields
+				(field
+					(name "Reference") "L")
+				(field
+					(name "Value") "L")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Inductor")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "2")
 					(type "passive")
 				)
 			)
@@ -6256,6 +8120,79 @@
 		)
 		(libpart
 			(lib "Power_Protection")
+			(part "TPD4E05U06DQA")
+			(description "4-Channel ESD Protection for Super-Speed USB 3.0 Interface, USON-10")
+			(docs "https://www.ti.com/lit/ds/symlink/tpd4e05u06.pdf")
+			(footprints
+				(fp "USON*2.5x1.0mm*P0.5mm*")
+			)
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TPD4E05U06DQA")
+				(field
+					(name "Footprint") "Package_SON:USON-10_2.5x1.0mm_P0.5mm")
+				(field
+					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/tpd4e05u06.pdf")
+				(field
+					(name "Description") "4-Channel ESD Protection for Super-Speed USB 3.0 Interface, USON-10")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "D1+")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "D1-")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "4")
+					(name "D2+")
+					(type "passive")
+				)
+				(pin
+					(num "5")
+					(name "D2-")
+					(type "passive")
+				)
+				(pin
+					(num "6")
+					(name "NC")
+					(type "free")
+				)
+				(pin
+					(num "7")
+					(name "NC")
+					(type "free")
+				)
+				(pin
+					(num "8")
+					(name "GND")
+					(type "passive")
+				)
+				(pin
+					(num "9")
+					(name "NC")
+					(type "free")
+				)
+				(pin
+					(num "10")
+					(name "NC")
+					(type "free")
+				)
+			)
+		)
+		(libpart
+			(lib "Power_Protection")
 			(part "USBLC6-2SC6")
 			(description "Very low capacitance ESD protection diode, 2 data-line, SOT-23-6")
 			(docs "https://www.st.com/resource/en/datasheet/usblc6-2.pdf")
@@ -6369,8 +8306,54 @@
 				)
 			)
 		)
+		(libpart
+			(lib "Transistor_BJT")
+			(part "SS8550")
+			(description "General Purpose PNP Transistor, 1.5A Ic, 25V Vce, SOT-23")
+			(docs "http://www.secosgmbh.com/datasheet/products/SSMPTransistor/SOT-23/SS8550.pdf")
+			(footprints
+				(fp "SOT?23*")
+			)
+			(fields
+				(field
+					(name "Reference") "Q")
+				(field
+					(name "Value") "SS8550")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
+				(field
+					(name "Datasheet") "http://www.secosgmbh.com/datasheet/products/SSMPTransistor/SOT-23/SS8550.pdf")
+				(field
+					(name "Description") "General Purpose PNP Transistor, 1.5A Ic, 25V Vce, SOT-23")
+				(field
+					(name "Sim.Device") "PNP")
+				(field
+					(name "Sim.Pins") "1=B 2=E 3=C")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "B")
+					(type "input")
+				)
+				(pin
+					(num "2")
+					(name "E")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "C")
+					(type "passive")
+				)
+			)
+		)
 	)
 	(libraries
+		(library
+			(logical "Analog_ADC")
+			(uri "${KICAD10_SYMBOL_DIR}/Analog_ADC.kicad_sym")
+		)
 		(library
 			(logical "Bienen")
 			(uri "${KIPRJMOD}/../bienen.kicad_sym")
@@ -6414,6 +8397,10 @@
 		(library
 			(logical "Switch")
 			(uri "${KICAD10_SYMBOL_DIR}/Switch.kicad_sym")
+		)
+		(library
+			(logical "Transistor_BJT")
+			(uri "${KICAD10_SYMBOL_DIR}/Transistor_BJT.kicad_sym")
 		)
 	)
 	(nets
@@ -7425,10 +9412,364 @@
 		)
 		(net
 			(code "43")
+			(name "/Waage/5V_WAAGE")
+			(class "Default")
+			(node
+				(ref "C502")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "FB501")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R502")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U501")
+				(pin "2")
+				(pinfunction "VOUT_2")
+				(pintype "power_out")
+			)
+			(node
+				(ref "U501")
+				(pin "3")
+				(pinfunction "FB_3")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "44")
+			(name "/Waage/HX_AVDD")
+			(class "Default")
+			(node
+				(ref "C505")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C506")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "FB502")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q501")
+				(pin "3")
+				(pinfunction "C_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "R503")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "3")
+				(pinfunction "AVDD_3")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "45")
+			(name "/Waage/HX_BASE")
+			(class "Default")
+			(node
+				(ref "Q501")
+				(pin "1")
+				(pinfunction "B_1")
+				(pintype "input")
+			)
+			(node
+				(ref "U502")
+				(pin "2")
+				(pinfunction "BASE_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "46")
+			(name "/Waage/HX_DOUT_IC")
+			(class "Default")
+			(node
+				(ref "R509")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "12")
+				(pinfunction "DOUT_12")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "47")
+			(name "/Waage/HX_INB")
+			(class "Default")
+			(node
+				(ref "R507")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "10")
+				(pinfunction "INB+_10")
+				(pintype "input")
+			)
+			(node
+				(ref "U502")
+				(pin "9")
+				(pinfunction "INB-_9")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "48")
+			(name "/Waage/HX_INN")
+			(class "Default")
+			(node
+				(ref "C510")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C512")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R506")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R507")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "7")
+				(pinfunction "INA-_7")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "49")
+			(name "/Waage/HX_INP")
+			(class "Default")
+			(node
+				(ref "C510")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C511")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R505")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "8")
+				(pinfunction "INA+_8")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "50")
+			(name "/Waage/HX_PD_SCK")
+			(class "Default")
+			(node
+				(ref "R508")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "11")
+				(pinfunction "PD_SCK_11")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "51")
+			(name "/Waage/HX_VBG")
+			(class "Default")
+			(node
+				(ref "C507")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "6")
+				(pinfunction "VBG_6")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "52")
+			(name "/Waage/HX_VFB")
+			(class "Default")
+			(node
+				(ref "R503")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R504")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "4")
+				(pinfunction "VFB_4")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "53")
+			(name "/Waage/L_5V")
+			(class "Default")
+			(node
+				(ref "L501")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U501")
+				(pin "5")
+				(pinfunction "L_5")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "54")
+			(name "/Waage/VSUP_HX")
+			(class "Default")
+			(node
+				(ref "C503")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C504")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "FB501")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q501")
+				(pin "2")
+				(pinfunction "E_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "1")
+				(pinfunction "VSUP_1")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "55")
+			(name "/Waage/ZELLE_EP")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "1")
+				(pinfunction "D1+_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "FB502")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J501")
+				(pin "5")
+				(pinfunction "Pin_5_5")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "56")
+			(name "/Waage/ZELLE_SN")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "4")
+				(pinfunction "D2+_4")
+				(pintype "passive")
+			)
+			(node
+				(ref "J501")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "R506")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "57")
+			(name "/Waage/ZELLE_SP")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "2")
+				(pinfunction "D1-_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J501")
+				(pin "4")
+				(pinfunction "Pin_4_4")
+				(pintype "passive")
+			)
+			(node
+				(ref "R505")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "58")
 			(name "3V3_SW")
 			(class "Default")
 			(node
 				(ref "C211")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C508")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -7443,9 +9784,15 @@
 				(pinfunction "VOUT_6")
 				(pintype "power_out")
 			)
+			(node
+				(ref "U502")
+				(pin "16")
+				(pinfunction "DVDD_16")
+				(pintype "power_in")
+			)
 		)
 		(net
-			(code "44")
+			(code "59")
 			(name "ADC_AKKU")
 			(class "Default")
 			(node
@@ -7471,7 +9818,7 @@
 			)
 		)
 		(net
-			(code "45")
+			(code "60")
 			(name "ADC_SOLAR")
 			(class "Default")
 			(node
@@ -7497,7 +9844,7 @@
 			)
 		)
 		(net
-			(code "46")
+			(code "61")
 			(name "EXT_PA15")
 			(class "Default")
 			(node
@@ -7508,7 +9855,7 @@
 			)
 		)
 		(net
-			(code "47")
+			(code "62")
 			(name "EXT_PB12")
 			(class "Default")
 			(node
@@ -7519,7 +9866,7 @@
 			)
 		)
 		(net
-			(code "48")
+			(code "63")
 			(name "EXT_PB13")
 			(class "Default")
 			(node
@@ -7530,7 +9877,7 @@
 			)
 		)
 		(net
-			(code "49")
+			(code "64")
 			(name "FLASH_CS")
 			(class "Default")
 			(node
@@ -7552,7 +9899,7 @@
 			)
 		)
 		(net
-			(code "50")
+			(code "65")
 			(name "GND")
 			(class "Default")
 			(node
@@ -7696,6 +10043,56 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "C501")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C502")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C503")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C504")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C505")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C506")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C507")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C508")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C511")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C512")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
 				(ref "D204")
 				(pin "2")
 				(pinfunction "A2_2")
@@ -7705,6 +10102,18 @@
 				(ref "D401")
 				(pin "1")
 				(pinfunction "A1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "D501")
+				(pin "3")
+				(pinfunction "GND_3")
+				(pintype "power_in")
+			)
+			(node
+				(ref "D501")
+				(pin "8")
+				(pinfunction "GND_8")
 				(pintype "passive")
 			)
 			(node
@@ -7762,6 +10171,18 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "J501")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J501")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
 				(ref "R202")
 				(pin "2")
 				(pintype "passive")
@@ -7808,6 +10229,21 @@
 			)
 			(node
 				(ref "R305")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R501")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R502")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R504")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -7908,6 +10344,36 @@
 				(pintype "power_in")
 			)
 			(node
+				(ref "U501")
+				(pin "1")
+				(pinfunction "GND_1")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U501")
+				(pin "7")
+				(pinfunction "EP_7")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "14")
+				(pinfunction "XI_14")
+				(pintype "passive")
+			)
+			(node
+				(ref "U502")
+				(pin "15")
+				(pinfunction "RATE_15")
+				(pintype "input")
+			)
+			(node
+				(ref "U502")
+				(pin "5")
+				(pinfunction "AGND_5")
+				(pintype "power_in")
+			)
+			(node
 				(ref "Y301")
 				(pin "2")
 				(pinfunction "G_2")
@@ -7921,9 +10387,14 @@
 			)
 		)
 		(net
-			(code "51")
+			(code "66")
 			(name "HX_DOUT")
 			(class "Default")
+			(node
+				(ref "R509")
+				(pin "2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "45")
@@ -7932,9 +10403,14 @@
 			)
 		)
 		(net
-			(code "52")
+			(code "67")
 			(name "HX_SCK")
 			(class "Default")
+			(node
+				(ref "R508")
+				(pin "2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "46")
@@ -7943,7 +10419,7 @@
 			)
 		)
 		(net
-			(code "53")
+			(code "68")
 			(name "I2C_SCL")
 			(class "Default")
 			(node
@@ -7954,7 +10430,7 @@
 			)
 		)
 		(net
-			(code "54")
+			(code "69")
 			(name "I2C_SDA")
 			(class "Default")
 			(node
@@ -7965,7 +10441,7 @@
 			)
 		)
 		(net
-			(code "55")
+			(code "70")
 			(name "LORA_BUSY")
 			(class "Default")
 			(node
@@ -7982,7 +10458,7 @@
 			)
 		)
 		(net
-			(code "56")
+			(code "71")
 			(name "LORA_DIO1")
 			(class "Default")
 			(node
@@ -7999,7 +10475,7 @@
 			)
 		)
 		(net
-			(code "57")
+			(code "72")
 			(name "LORA_NSS")
 			(class "Default")
 			(node
@@ -8020,7 +10496,7 @@
 			)
 		)
 		(net
-			(code "58")
+			(code "73")
 			(name "LORA_RST")
 			(class "Default")
 			(node
@@ -8037,7 +10513,7 @@
 			)
 		)
 		(net
-			(code "59")
+			(code "74")
 			(name "LORA_RXEN")
 			(class "Default")
 			(node
@@ -8054,7 +10530,7 @@
 			)
 		)
 		(net
-			(code "60")
+			(code "75")
 			(name "LORA_TXEN")
 			(class "Default")
 			(node
@@ -8071,7 +10547,7 @@
 			)
 		)
 		(net
-			(code "61")
+			(code "76")
 			(name "MIC_ADC")
 			(class "Default")
 			(node
@@ -8082,7 +10558,7 @@
 			)
 		)
 		(net
-			(code "62")
+			(code "77")
 			(name "ONEWIRE")
 			(class "Default")
 			(node
@@ -8093,7 +10569,7 @@
 			)
 		)
 		(net
-			(code "63")
+			(code "78")
 			(name "SENSOR_EIN")
 			(class "Default")
 			(node
@@ -8115,7 +10591,7 @@
 			)
 		)
 		(net
-			(code "64")
+			(code "79")
 			(name "SPI_MISO")
 			(class "Default")
 			(node
@@ -8137,7 +10613,7 @@
 			)
 		)
 		(net
-			(code "65")
+			(code "80")
 			(name "SPI_MOSI")
 			(class "Default")
 			(node
@@ -8159,7 +10635,7 @@
 			)
 		)
 		(net
-			(code "66")
+			(code "81")
 			(name "SPI_SCK")
 			(class "Default")
 			(node
@@ -8181,7 +10657,7 @@
 			)
 		)
 		(net
-			(code "67")
+			(code "82")
 			(name "SYS")
 			(class "Default")
 			(node
@@ -8192,6 +10668,17 @@
 			(node
 				(ref "C208")
 				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C501")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "L501")
+				(pin "1")
+				(pinfunction "1_1")
 				(pintype "passive")
 			)
 			(node
@@ -8217,9 +10704,15 @@
 				(pinfunction "EN_3")
 				(pintype "input")
 			)
+			(node
+				(ref "U501")
+				(pin "6")
+				(pinfunction "VIN_6")
+				(pintype "power_in")
+			)
 		)
 		(net
-			(code "68")
+			(code "83")
 			(name "VBUS")
 			(class "Default")
 			(node
@@ -8260,18 +10753,84 @@
 			)
 		)
 		(net
-			(code "69")
+			(code "84")
 			(name "WAAGE_EIN")
 			(class "Default")
+			(node
+				(ref "R501")
+				(pin "1")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "21")
 				(pinfunction "PB10_21")
 				(pintype "bidirectional")
 			)
+			(node
+				(ref "U501")
+				(pin "4")
+				(pinfunction "EN_4")
+				(pintype "input")
+			)
 		)
 		(net
-			(code "70")
+			(code "85")
+			(name "unconnected-(D501-D2--Pad5)")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "5")
+				(pinfunction "D2-_5")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "86")
+			(name "unconnected-(D501-NC-Pad6)")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "6")
+				(pinfunction "NC_6")
+				(pintype "free+no_connect")
+			)
+		)
+		(net
+			(code "87")
+			(name "unconnected-(D501-NC-Pad7)")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "7")
+				(pinfunction "NC_7")
+				(pintype "free+no_connect")
+			)
+		)
+		(net
+			(code "88")
+			(name "unconnected-(D501-NC-Pad9)")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "9")
+				(pinfunction "NC_9")
+				(pintype "free+no_connect")
+			)
+		)
+		(net
+			(code "89")
+			(name "unconnected-(D501-NC-Pad10)")
+			(class "Default")
+			(node
+				(ref "D501")
+				(pin "10")
+				(pinfunction "NC_10")
+				(pintype "free+no_connect")
+			)
+		)
+		(net
+			(code "90")
 			(name "unconnected-(J301-SBU1-PadA8)")
 			(class "Default")
 			(node
@@ -8282,7 +10841,7 @@
 			)
 		)
 		(net
-			(code "71")
+			(code "91")
 			(name "unconnected-(J301-SBU2-PadB8)")
 			(class "Default")
 			(node
@@ -8293,7 +10852,7 @@
 			)
 		)
 		(net
-			(code "72")
+			(code "92")
 			(name "unconnected-(U202-NC-Pad4)")
 			(class "Default")
 			(node
@@ -8304,7 +10863,7 @@
 			)
 		)
 		(net
-			(code "73")
+			(code "93")
 			(name "unconnected-(U204-EN-Pad3)")
 			(class "Default")
 			(node
@@ -8315,7 +10874,7 @@
 			)
 		)
 		(net
-			(code "74")
+			(code "94")
 			(name "unconnected-(U204-NC-Pad4)")
 			(class "Default")
 			(node
@@ -8326,7 +10885,7 @@
 			)
 		)
 		(net
-			(code "75")
+			(code "95")
 			(name "unconnected-(U401-ANT-Pad1)")
 			(class "Default")
 			(node
@@ -8337,7 +10896,7 @@
 			)
 		)
 		(net
-			(code "76")
+			(code "96")
 			(name "unconnected-(U401-DIO2-Pad7)")
 			(class "Default")
 			(node
@@ -8348,7 +10907,7 @@
 			)
 		)
 		(net
-			(code "77")
+			(code "97")
 			(name "unconnected-(U401-DIO3-Pad8)")
 			(class "Default")
 			(node
@@ -8356,6 +10915,17 @@
 				(pin "8")
 				(pinfunction "DIO3_8")
 				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "98")
+			(name "unconnected-(U502-XO-Pad13)")
+			(class "Default")
+			(node
+				(ref "U502")
+				(pin "13")
+				(pinfunction "XO_13")
+				(pintype "passive+no_connect")
 			)
 		)
 	)

@@ -8,6 +8,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Schaltplanblatt Waage](2026-10-10-sch26-07-waage.md)** | **10.10.2026, Basis `eb9e10b`** | **SCH26-07 Teil Waage im Entwurf: TPS61240, HX711 (AVDD 4,30 V), J501 = J4 mit ESD und Filter; T3 lokal 114/114, Gegenproben; CI offen, kein Muster** |
 | **[Analyse USB-Rolle und Ra-01SH-HF-Schalter](2026-10-10-sch26-10-11-analyse.md)** | **10.10.2026, Basis `3ff894a`** | **SCH26-10 Festlegung HW-01 (USB nur Laden/DFU); SCH26-11 Herstellerschaltbild: TXEN = DIO2, Brücken offen, Modell `funk_modell.py`; T4 F-1…F-7 offen** |
 | **[Behebung SCH26-09 bis -12](2026-10-10-sch26-09-12-behebung.md)** | **10.10.2026, Basis `4c12b6d`** | **SCH26-09/-12 im Entwurf behoben (T3 lokal, 74/74, Gegenproben); CI offen, kein HiL** |
 | **[Neuestes unabhängiges Schaltplan-Review: main 4c12b6d](2026-10-10-main-4c12b6d-schaltplan-review.md)** | **10.10.2026, SHA `4c12b6d`** | **7/7 CI PASS, KiCad 48/48 Netztests, ERC 0 unerwartete; P1 Debug-Pinout, USB-VBUS, Ra-01SH-RF, P2 Doppelhash; kein HiL** |

@@ -3,10 +3,10 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
-Stand 10.10.2026: Blätter „Versorgung“, „MCU“ und „Funk + Flash“. Weitere Blätter (Waage, Mikrofon,
+Stand 10.10.2026: Blätter „Versorgung“, „MCU“, „Funk + Flash“ und „Waage“. Weitere Blätter (Mikrofon,
 Anschlüsse) folgen; Netze zu diesen Blättern sind als Schnittstellen (globale Labels) angelegt.
 
-Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7.
+Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7, mcu-funk.md, waage.md.
 Aufruf: python3 hardware/kicad/hauptplatine.py
 Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 """
@@ -462,6 +462,185 @@ def zeichne_funk(b, T):
         L(F.pin_netz[pin], 124.46, y)
 
 
+def waage(p):
+    """Blatt Waage (waage.md 2–4, anschluesse.md J4): 5-V-Wandler TPS61240 an SYS, HX711 mit AVDD 4,30 V über
+    PNP, Wägezellenklemme J501 (= J4) mit ESD-Schutz und Eingangsfilter. Kennzeichnung: [V] Datenblatt, [A] Annahme,
+    [P] am Muster bzw. vor der Bestellung prüfen."""
+    b = p.blatt("Waage", "waage.kicad_sch", titel="Waage: 5-V-Wandler TPS61240, HX711, Wägezelle H40A")
+    # --- 1 5-V-Wandler (waage.md 2) ------------------------------------------
+    b.teil("Bienen:TPS61240", "U501", "TPS61240DRVR", lcsc="C59567",
+           netze={"VIN": "SYS", "L": "L_5V", "EN": "WAAGE_EIN", "VOUT": "5V_WAAGE", "FB": "5V_WAAGE", "GND": "GND", "EP": "GND"},
+           info="fest 5,0 V ±2 %, Lasttrennung im Aus [V]; Footprint KiCad WSON-6 2×2 mit TI DRV0006A vergleichen [P]")
+    b.teil("Device:C", "C501", "4,7µ 16V X5R", fp=C0805, netze={"1": "SYS", "2": "GND"},
+           info="TI: mindestens 2,2 µF an VIN [V]; 4,7 µF/0805 wegen DC-Bias bei 4,5 V [A]; direkt an VIN/GND")
+    b.teil("Device:L", "L501", "1µ", fp="Inductor_SMD:L_0805_2012Metric", netze={"1": "SYS", "2": "L_5V"},
+           info="TI: 1,0 µH empfohlen, Schaltstrombegrenzung 500–600 mA [V]; Teil mit Isat ≥ 0,7 A wählen (TI-Liste: TOKO MDT2012-CH1R0AN) [P]")
+    b.teil("Device:R", "R501", "100k", fp=R0603, netze={"1": "WAAGE_EIN", "2": "GND"},
+           info="EN nie offen: PB10 ist im Standby hochohmig; Datenblatt nennt keinen internen Pull-down (waage.md 2)")
+    b.teil("Device:C", "C502", "10µ 10V X5R", fp=C0805, netze={"1": "5V_WAAGE", "2": "GND"},
+           info="TI: COUT 1–20 µF [V]; wirksam bei 5 V etwa die Hälfte [A]; mit C503 zusammen unter 20 µF Nennwert [A]")
+    b.teil("Device:R", "R502", "100k", fp=R0603, netze={"1": "5V_WAAGE", "2": "GND"},
+           info="entlädt 5 V nach dem Abschalten, damit die HX711 beim nächsten Einschalten sicher neu startet [A]")
+    b.teil("Device:FerriteBead_Small", "FB501", "600R@100MHz", fp="Inductor_SMD:L_0603_1608Metric",
+           netze={"1": "5V_WAAGE", "2": "VSUP_HX"}, info="trennt den 3,5-MHz-Wandler von VSUP (waage.md 2) [A]; Teil wählen [P]")
+    b.teil("Device:C", "C503", "10µ 10V X5R", fp=C0805, netze={"1": "VSUP_HX", "2": "GND"})
+    b.teil("Device:C", "C504", "100n", fp=C0603, netze={"1": "VSUP_HX", "2": "GND"}, info="direkt an VSUP (Pin 1)")
+    b.teil("power:PWR_FLAG", "#FLG501", "PWR_FLAG", netze={"1": "VSUP_HX"}, info="VSUP aus 5V_WAAGE über FB501 (Ferrit ist für den ERC kein Treiber)")
+    # --- 2 HX711 mit Analogregler (waage.md 3) --------------------------------
+    b.teil("Analog_ADC:HX711", "U502", "HX711", lcsc="C43656",
+           netze={"VSUP": "VSUP_HX", "BASE": "HX_BASE", "AVDD": "HX_AVDD", "VFB": "HX_VFB", "AGND": "GND", "VBG": "HX_VBG",
+                  "INA-": "HX_INN", "INA+": "HX_INP", "INB-": "HX_INB", "INB+": "HX_INB", "PD_SCK": "HX_PD_SCK",
+                  "DOUT": "HX_DOUT_IC", "XO": "NC", "XI": "GND", "RATE": "GND", "DVDD": "3V3_SW"},
+           info="Kanal A, Verstärkung 128; RATE an GND = 10 Werte/s; XI an GND = interner Takt [V]")
+    b.teil("Transistor_BJT:SS8550", "Q501", "S8550", lcsc="C397181",
+           netze={"B": "HX_BASE", "E": "VSUP_HX", "C": "HX_AVDD"},
+           info="PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
+    b.teil("Device:R", "R503", "20k 1%", fp=R0603, netze={"1": "HX_AVDD", "2": "HX_VFB"},
+           info="AVDD = 1,25 V × (1 + 20k/8,2k) = 4,30 V (waage.md 3)")
+    b.teil("Device:R", "R504", "8,2k 1%", fp=R0603, netze={"1": "HX_VFB", "2": "GND"})
+    b.teil("Device:C", "C505", "10µ 10V X5R", fp=C0805, netze={"1": "HX_AVDD", "2": "GND"})
+    b.teil("Device:C", "C506", "100n", fp=C0603, netze={"1": "HX_AVDD", "2": "GND"}, info="direkt an AVDD (Pin 3)")
+    b.teil("power:PWR_FLAG", "#FLG502", "PWR_FLAG", netze={"1": "HX_AVDD"}, info="AVDD kommt vom Kollektor Q501 (für den ERC kein Treiber)")
+    b.teil("Device:C", "C507", "100n", fp=C0603, netze={"1": "HX_VBG", "2": "GND"}, info="VBG-Abblockung (Datenblatt Fig. 1)")
+    b.teil("Device:C", "C508", "100n", fp=C0603, netze={"1": "3V3_SW", "2": "GND"}, info="DVDD an 3V3_SW: Pegel wie STM32 (waage.md 3)")
+    b.teil("Device:R", "R507", "0", fp=R0603, netze={"1": "HX_INN", "2": "HX_INB"},
+           info="Kanal B unbenutzt, auf Gleichtakt der Brücke gelegt [A]; bei Störung der Messung auslöten [P]")
+    b.teil("Device:R", "R508", "1k", fp=R0603, netze={"1": "HX_PD_SCK", "2": "HX_SCK"},
+           info="begrenzt den Strom, wenn PB9 high ist und 3V3_SW aus (mcu-funk.md 4)")
+    b.teil("Device:R", "R509", "1k", fp=R0603, netze={"1": "HX_DOUT_IC", "2": "HX_DOUT"})
+    # --- 3 Wägezelle (waage.md 4, anschluesse.md J4) ---------------------------
+    b.teil("Connector_Generic:Conn_01x05", "J501", "Wägezelle", fp=KLEMME % (5, 5),
+           netze={"1": "GND", "2": "GND", "3": "ZELLE_SN", "4": "ZELLE_SP", "5": "ZELLE_EP"},
+           info="= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRHC-3.5 5-polig (Platzhalter Phoenix MC) [P]; Schirm nur hier an Masse")
+    b.teil("Power_Protection:TPD4E05U06DQA", "D501", "TPD4E05U06DQAR", lcsc="C138714",
+           netze={"D1+": "ZELLE_EP", "D1-": "ZELLE_SP", "D2+": "ZELLE_SN", "D2-": "NC", "6": "NC", "7": "NC", "9": "NC",
+                  "10": "NC", "GND": "GND"},
+           info="5,5 V, Leckstrom 0,01 nA typ./10 nA max. (anschluesse.md 2) [V]; direkt hinter J501; 4. Kanal frei")
+    b.teil("Device:FerriteBead_Small", "FB502", "Ferrit ≤ 0,1 Ω", fp="Inductor_SMD:L_0603_1608Metric",
+           netze={"1": "HX_AVDD", "2": "ZELLE_EP"},
+           info="E+ aus AVDD; Gleichstromwiderstand ≤ 0,1 Ω, sonst ändert sich die Brückenspeisung mit der Temperatur [A]; Teil wählen [P]")
+    b.teil("Device:R", "R505", "100", fp=R0603, netze={"1": "ZELLE_SP", "2": "HX_INP"}, info="waage.md 4")
+    b.teil("Device:R", "R506", "100", fp=R0603, netze={"1": "ZELLE_SN", "2": "HX_INN"})
+    b.teil("Device:C", "C510", "100n", fp=C0603, netze={"1": "HX_INP", "2": "HX_INN"}, info="Differenzfilter S+/S−")
+    b.teil("Device:C", "C511", "10n C0G", fp=C0603, netze={"1": "HX_INP", "2": "GND"}, info="Gleichtaktfilter; C0G für gleiche Werte S+/S− [A]")
+    b.teil("Device:C", "C512", "10n C0G", fp=C0603, netze={"1": "HX_INN", "2": "GND"})
+    zeichne_waage(b, {t.ref: t for t in b.teile})
+    return b
+
+
+def zeichne_waage(b, T):
+    """Oben die 5-V-Kette von links nach rechts (SYS → TPS61240 → Ferrit → VSUP_HX → PNP → HX711), darunter
+    der AVDD-Regler links vom HX711, rechts die Leitungen zum MCU. Unten links die Klemme J501 mit Filter;
+    ESD-Baustein und HX711-Eingänge sind über Netznamen verbunden."""
+    S, D, L = b.setze, b.draht, b.label
+    yr = 119.38                       # Schiene SYS → 5 V → VSUP_HX
+    yb, ya = 129.54, 137.16           # Zeilen HX_BASE und HX_AVDD
+    b.text("1  5-V-Wandler an SYS, nur beim Wiegen an (WAAGE_EIN = PB10, 100 kΩ nach GND)", 30.48, 99.06, 2.0)
+    b.text("2  HX711: AVDD 4,30 V über PNP, DVDD an 3V3_SW, 10 Werte/s", 198.12, 99.06, 2.0)
+    b.text("AVDD = 1,25 V × (1 + 20 kΩ / 8,2 kΩ) = 4,30 V; VSUP − AVDD ≥ 0,1 V", 198.12, 106.68, 1.5)
+    b.text("3  Wägezelle J501 (= J4): E+ über Ferrit aus AVDD, S± mit 100 Ω und Filter", 30.48, 152.4, 2.0)
+    b.text("ESD direkt hinter J501, Leckstrom ≤ 10 nA", 30.48, 199.39, 1.5)
+    b.text("4  Zum MCU: je 1 kΩ in Reihe", 297.18, 172.72, 2.0)
+    b.text("Regeln (waage.md 7): Wandler nur beim Wiegen an, nie während einer Funkübertragung; erst 3V3_SW, dann WAAGE_EIN; "
+           "SCK low, solange VSUP aus ist.", 30.48, 236.22, 1.5)
+    b.text("Layout: Analogmasse und Zellenleitungen getrennt von Wandler und Funk; Wandler weit weg vom Mikrofoneingang; "
+           "Schirm nur auf der Platine an Masse.", 30.48, 241.3, 1.5)
+
+    # --- 1 5-V-Wandler ---------------------------------------------------------
+    U = S(T["U501"], 86.36, 124.46, text="oben")
+    D((30.48, yr), U.p("VIN"))
+    L("SYS", 30.48, yr, 180)
+    S(T["C501"], 38.1, 123.19)
+    S(T["L501"], 58.42, 123.19)
+    D(T["L501"].p("2"), (68.58, 127.0), (68.58, U.p("L")[1]), U.p("L"))
+    L("L_5V", 69.85, U.p("L")[1])
+    D(U.p("EN"), (71.12, U.p("EN")[1]), (71.12, 137.16), (30.48, 137.16))
+    L("WAAGE_EIN", 30.48, 137.16, 180)
+    S(T["R501"], 45.72, 140.97)
+    D(U.p("GND"), (U.p("GND")[0], 137.16), (U.p("EP")[0], 137.16), U.p("EP"))
+    b.versorgung("GND", U.p("GND")[0], 137.16, "unten")
+    D(U.p("FB"), (99.06, U.p("FB")[1]), (99.06, yr))
+    F = S(T["FB501"], 142.24, yr, rot=90, text="oben")
+    D(U.p("VOUT"), F.p("1"))
+    S(T["C502"], 106.68, 123.19)
+    S(T["R502"], 124.46, 123.19)
+    L("5V_WAAGE", 127.0, yr)
+    D(F.p("2"), (261.62, yr))
+    S(T["C503"], 152.4, 123.19)
+    S(T["C504"], 170.18, 123.19)
+    L("VSUP_HX", 177.8, yr)
+    S(T["#FLG501"], 193.04, yr, text="oben")
+
+    # --- 2 HX711 und AVDD-Regler -----------------------------------------------
+    H = S(T["U502"], 264.16, 157.48, text=(267.97, 182.88))
+    D(H.p("VSUP"), (H.p("VSUP")[0], yr))
+    Q = S(T["Q501"], 226.06, yb, rot=180, text="links")
+    D(Q.p("E"), (Q.p("E")[0], yr))
+    D(Q.p("B"), (248.92, yb), (248.92, H.p("BASE")[1]), H.p("BASE"))
+    L("HX_BASE", 233.68, yb)
+    D(Q.p("C"), (Q.p("C")[0], ya))
+    D((180.34, ya), (246.38, ya), (246.38, H.p("AVDD")[1]), H.p("AVDD"))
+    S(T["FB502"], 180.34, 139.7, text="links")
+    S(T["#FLG502"], 193.04, ya, text="oben")
+    L("HX_AVDD", 181.61, ya)
+    S(T["C505"], 203.2, 140.97, text="links")
+    S(T["C506"], 213.36, 140.97)
+    S(T["R503"], 233.68, 140.97, text="links")
+    S(T["R504"], 233.68, 148.59, text="links")
+    D(T["R503"].p("2"), (243.84, 144.78), (243.84, H.p("VFB")[1]), H.p("VFB"))
+    L("HX_VFB", 234.95, 144.78)
+    # Eingänge über Netznamen, Kanal B über R507 an INA−
+    for pin, netz in (("INA+", "HX_INP"), ("INA-", "HX_INN")):
+        D(H.p(pin), (243.84, H.p(pin)[1]))
+        L(netz, 243.84, H.p(pin)[1], 180)
+    S(T["R507"], 246.38, 163.83, text="links")
+    D(H.p("INB-"), (238.76, H.p("INB-")[1]))
+    D(H.p("INB+"), (248.92, H.p("INB+")[1]), (248.92, H.p("INB-")[1]))
+    L("HX_INB", 238.76, H.p("INB-")[1], 180)
+    D(H.p("VBG"), (238.76, H.p("VBG")[1]))
+    S(T["C507"], 238.76, 176.53, text="links")
+    L("HX_VBG", 240.03, H.p("VBG")[1])
+    # DVDD an 3V3_SW
+    D(H.p("DVDD"), (H.p("DVDD")[0], 127.0), (289.56, 127.0))
+    S(T["C508"], 279.4, 130.81)
+    L("3V3_SW", 289.56, 127.0)
+    # Leitungen zum MCU
+    R9 = S(T["R509"], 304.8, 142.24, rot=90, text="oben")
+    D(H.p("DOUT"), (281.94, H.p("DOUT")[1]), (281.94, 142.24), R9.p("1"))
+    D(R9.p("2"), (320.04, 142.24))
+    L("HX_DOUT_IC", 283.21, 142.24)
+    L("HX_DOUT", 320.04, 142.24)
+    R8 = S(T["R508"], 304.8, H.p("PD_SCK")[1], rot=90, text="unten")
+    D(H.p("PD_SCK"), R8.p("1"))
+    D(R8.p("2"), (320.04, H.p("PD_SCK")[1]))
+    L("HX_PD_SCK", 283.21, H.p("PD_SCK")[1])
+    L("HX_SCK", 320.04, H.p("PD_SCK")[1])
+
+    # --- 3 Wägezelle -----------------------------------------------------------
+    J = S(T["J501"], 45.72, 177.8, rot=180, text="links")
+    D(J.p("5"), (55.88, J.p("5")[1]), (55.88, 160.02), (180.34, 160.02), T["FB502"].p("2"))
+    L("ZELLE_EP", 60.96, 160.02)
+    R5 = S(T["R505"], 96.52, J.p("4")[1], rot=90, text="oben")
+    D(J.p("4"), R5.p("1"))
+    L("ZELLE_SP", 60.96, J.p("4")[1])
+    y_sn = 182.88
+    R6 = S(T["R506"], 96.52, y_sn, rot=90, text="unten")
+    D(J.p("3"), (58.42, J.p("3")[1]), (58.42, y_sn), R6.p("1"))
+    L("ZELLE_SN", 60.96, y_sn)
+    D(J.p("1"), (53.34, J.p("1")[1]), (53.34, J.p("2")[1]), J.p("2"))
+    b.versorgung("GND", 53.34, J.p("1")[1], "unten")
+    D(R5.p("2"), (165.1, R5.p("2")[1]))
+    D(R6.p("2"), (139.7, y_sn))
+    S(T["C510"], 111.76, 179.07)
+    S(T["C512"], 127.0, 186.69)
+    S(T["C511"], 152.4, 179.07)
+    L("HX_INP", 165.1, R5.p("2")[1])
+    L("HX_INN", 139.7, y_sn)
+    E = S(T["D501"], 78.74, 215.9, text=(95.25, 226.06))
+    for pin in ("D1+", "D1-", "D2+"):
+        stub(b, E, pin, 7.62)
+
+
 def pins_von_lib(lib_id):
     from kicad_gen import lib_symbol, pins_von
     return pins_von(lib_symbol(lib_id))
@@ -556,10 +735,11 @@ def baue():
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)
     w = p.blatt("Bienenlogger Hauptplatine", "logger.kicad_sch", titel="Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
-    w.text("Blätter: Versorgung, MCU, Funk + Flash (fertig). Folgen: Waage, Mikrofon, Anschlüsse.", 30, 25, 2.0)
+    w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage (fertig). Folgen: Mikrofon, Anschlüsse.", 30, 25, 2.0)
     versorgung(p)
     mcu(p)
     funk(p)
+    waage(p)
     return p
 
 

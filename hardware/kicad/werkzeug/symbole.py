@@ -127,6 +127,15 @@ SYMBOLE = [
        fp="Bienen:Ai-Thinker_Ra-01SH",
        ds="https://docs.ai-thinker.com/en/lora",
        info="LoRa-Modul 868 MHz, SPI; DIO2 schaltet laut Drittquelle den HF-Schalter; Antenne über IPEX, Pin ANT ohne Leiterbahn"),
+    # TI TPS61240, WSON-6 2 × 2 mm (DRV) + Thermal-Pad: 1 GND, 2 VOUT, 3 FB, 4 EN, 5 L, 6 VIN.
+    # Quelle: TI-Datenblatt TPS6124x, Abschnitt 6 Pin Functions [V]; Pad laut Gehäusezeichnung verlöten, an GND [A]
+    ic("TPS61240", "U",
+       links=[("6", "VIN", "power_in"), ("5", "L", "passive"), ("4", "EN", "input")],
+       rechts=[("2", "VOUT", "power_out"), ("3", "FB", "input")],
+       unten=[("1", "GND", "power_in"), ("7", "EP", "passive")],
+       fp="Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm",
+       ds="https://www.ti.com/lit/ds/symlink/tps61240.pdf",
+       info="Aufwärtswandler fest 5,0 V, 3,5 MHz, Lasttrennung im Aus; FB direkt an VOUT; Datenblatt nennt keinen internen Pull-down an EN"),
 ]
 
 

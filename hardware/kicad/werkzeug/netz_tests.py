@@ -5,6 +5,7 @@
 Generator-Daten): Ladesperre, Zellschutz, Kabel Akku-Platine ↔ Hauptplatine, Widerstandswerte.
 Seit SCH26-09 zusätzlich: Pinbelegung der Stecker laut hardware/anschluesse.md (Spalte „Pins“)
 gegen die Netzliste, mit Gegenprobe (vertauschter Pin muss auffallen).
+Seit SCH26-07 (Blatt Waage): Wandler-Ansteuerung, HX711-Versorgung, AVDD aus dem Teiler, Zellenleitungen.
 Aufruf (nach pruefen.sh): python3 werkzeug/netz_tests.py
 """
 import os
@@ -26,7 +27,10 @@ STECKER_DOKU = {
     "J3": ("J203", {"P−": "GND", "NTC": "NTC", "CE_FREI": "CE_LADEN", "TMP_VCC": "TMP_VCC", "P+": "VBAT"}),
     "J10": ("J302", {"3V3": "+3V3", "SWDIO": "SWDIO", "SWCLK": "SWCLK", "NRST": "NRST", "GND": "GND",
                      "TX1": "DBG_TX", "RX1": "DBG_RX"}),
+    "J4": ("J501", {"Schirm": "GND", "E−": "GND", "S−": "ZELLE_SN", "S+": "ZELLE_SP", "E+": "ZELLE_EP"}),
 }
+VBG_HX711 = 1.25        # V, Bandgap-Referenz des AVDD-Reglers (HX711-Datenblatt, waage.md 3)
+VSUP_MIN = 4.9          # V, TPS61240 5,0 V −2 % (waage.md 2)
 
 
 def lade(name):
@@ -108,6 +112,64 @@ def stecker_gegen_doku(pin_netz):
     pruefe("Gegenprobe: J302 mit TX an Pin 5 und GND an Pin 7 wird erkannt", len(stecker_abweichungen(falsch, ref, soll)) == 2)
 
 
+def ohm(wert):
+    """Widerstandswert aus dem Wertfeld, z. B. „8,2k 1%“ → 8200.0."""
+    zahl = wert.split()[0].replace(",", ".")
+    faktor = {"k": 1e3, "M": 1e6}.get(zahl[-1], 1.0)
+    return float(zahl.rstrip("kM")) * faktor
+
+
+def avdd(r_oben, r_unten):
+    """AVDD des HX711 aus dem Teiler an VFB: 1,25 V × (1 + R_oben / R_unten)."""
+    return VBG_HX711 * (1 + r_oben / r_unten)
+
+
+def avdd_ok(u):
+    """AVDD im Zielbereich 4,2–4,4 V und mindestens 0,1 V unter VSUP (HX711-Datenblatt)."""
+    return 4.2 <= u <= 4.4 and VSUP_MIN - u >= 0.1
+
+
+def waage(h, h_pin, h_wert):
+    """SCH26-07: Blatt Waage gegen waage.md 2–4 und die Regeln in waage.md 7."""
+    genau(h, "WAAGE_EIN", {("U301", "21"), ("U501", "4"), ("R501", "1")})          # PB10 → EN, Pull-down
+    pruefe("R501 (EN-Pull-down) an GND, 100k", h_pin.get(("R501", "2")) == "GND" and h_wert.get("R501") == "100k",
+           (h_pin.get(("R501", "2")), h_wert.get("R501")))
+    pruefe("TPS61240 VIN an SYS, nicht an 3,3 V (Regel 3)", h_pin.get(("U501", "6")) == "SYS", h_pin.get(("U501", "6")))
+    pruefe("TPS61240 FB direkt an VOUT", h_pin.get(("U501", "3")) == h_pin.get(("U501", "2")) == "5V_WAAGE",
+           (h_pin.get(("U501", "2")), h_pin.get(("U501", "3"))))
+    pruefe("TPS61240 Thermal-Pad an GND", h_pin.get(("U501", "7")) == "GND", h_pin.get(("U501", "7")))
+    genau(h, "L_5V", {("L501", "2"), ("U501", "5")})
+    pruefe("Ferrit FB501 zwischen 5V_WAAGE und VSUP_HX",
+           {h_pin.get(("FB501", "1")), h_pin.get(("FB501", "2"))} == {"5V_WAAGE", "VSUP_HX"})
+    enthaelt(h, "VSUP_HX", {("U502", "1"), ("Q501", "2")})                          # VSUP und Emitter
+    pruefe("HX711 DVDD an 3V3_SW (Regel 4)", h_pin.get(("U502", "16")) == "3V3_SW", h_pin.get(("U502", "16")))
+    genau(h, "HX_BASE", {("U502", "2"), ("Q501", "1")})
+    enthaelt(h, "HX_AVDD", {("U502", "3"), ("Q501", "3"), ("R503", "1"), ("FB502", "1")})
+    genau(h, "HX_VFB", {("U502", "4"), ("R503", "2"), ("R504", "1")})
+    pruefe("R504 (unterer Teilerwiderstand) an GND", h_pin.get(("R504", "2")) == "GND", h_pin.get(("R504", "2")))
+    u = avdd(ohm(h_wert.get("R503", "0")), ohm(h_wert.get("R504", "1")))
+    pruefe(("AVDD aus R503/R504 = %.2f V: 4,2–4,4 V und ≥ 0,1 V unter VSUP %.1f V" % (u, VSUP_MIN)).replace(".", ","), avdd_ok(u))
+    pruefe(("Gegenprobe: Teiler 20k/6,8k (AVDD %.2f V) wird als falsch erkannt" % avdd(20e3, 6.8e3)).replace(".", ","),
+           not avdd_ok(avdd(20e3, 6.8e3)))
+    for pin, netz in (("15", "GND"), ("14", "GND")):                                    # RATE, XI
+        pruefe("HX711 Pin %s an %s (10 Werte/s, interner Takt)" % (pin, netz), h_pin.get(("U502", pin)) == netz)
+    pruefe("HX711 XO offen", h_pin.get(("U502", "13"), "unconnected").startswith("unconnected"), h_pin.get(("U502", "13")))
+    genau(h, "HX_DOUT", {("U301", "45"), ("R509", "2")})                           # PB8
+    genau(h, "HX_SCK", {("U301", "46"), ("R508", "2")})                            # PB9
+    genau(h, "HX_DOUT_IC", {("U502", "12"), ("R509", "1")})
+    genau(h, "HX_PD_SCK", {("U502", "11"), ("R508", "1")})
+    for ref in ("R508", "R509"):
+        pruefe("Wert %s = 1k (Reihenwiderstand)" % ref, h_wert.get(ref) == "1k", h_wert.get(ref))
+    # Zellenleitungen: nur Klemme, ESD mit kleinem Leckstrom und Reihenwiderstand (Regel 6)
+    genau(h, "ZELLE_EP", {("J501", "5"), ("D501", "1"), ("FB502", "2")})
+    genau(h, "ZELLE_SP", {("J501", "4"), ("D501", "2"), ("R505", "1")})
+    genau(h, "ZELLE_SN", {("J501", "3"), ("D501", "4"), ("R506", "1")})
+    genau(h, "HX_INP", {("U502", "8"), ("R505", "2"), ("C510", "1"), ("C511", "1")})
+    genau(h, "HX_INN", {("U502", "7"), ("R506", "2"), ("C510", "2"), ("C512", "1"), ("R507", "1")})
+    genau(h, "HX_INB", {("U502", "9"), ("U502", "10"), ("R507", "2")})
+    pruefe("ESD D501 ist TPD4E05U06 (≤ 10 nA)", h_wert.get("D501", "").startswith("TPD4E05U06"), h_wert.get("D501"))
+
+
 def modell_netze(modul):
     """Netze laut Generator-Beschreibung (Quelle der Wahrheit) als {Name: {(Ref, Pin)}}."""
     sys.path.insert(0, HIER)
@@ -187,6 +249,8 @@ def main():
         pruefe("%s ist offene Lötbrücke" % jp, "_Open_" in h_wert.get(jp + ":footprint", ""), h_wert.get(jp + ":footprint"))
         genau(h, mod, {("U401", pin), (jp, "1")})
     pruefe("Ra-01SH DIO2 ohne Verbindung", h_pin.get(("U401", "7"), "unconnected").startswith("unconnected"), h_pin.get(("U401", "7")))
+    # --- Waage (SCH26-07) ---
+    waage(h, h_pin, h_wert)
     # --- Stecker: anschluesse.md ↔ Netzliste ---
     stecker_gegen_doku(h_pin)
 

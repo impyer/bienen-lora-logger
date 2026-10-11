@@ -38,21 +38,6 @@
     },
     {
       "type": "isolated_pin_label",
-      "item": "Global Label 'HX_DOUT'",
-      "grund": "Gegenstelle kommt mit dem Blatt Waage (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'HX_SCK'",
-      "grund": "Gegenstelle kommt mit dem Blatt Waage (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'WAAGE_EIN'",
-      "grund": "Gegenstelle kommt mit dem Blatt Waage (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
       "item": "Global Label 'MIC_ADC'",
       "grund": "Gegenstelle kommt mit dem Blatt Mikrofon (SCH26-07)"
     }
