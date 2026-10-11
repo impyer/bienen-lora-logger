@@ -119,7 +119,7 @@ jobs:
         run: SERVER_UHR="2026-10-09 14:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
 
   hardware-rechnungen:
-    name: Hardware-Rechenmodelle (Energie, Mikrofonfilter, I²C)
+    name: Hardware-Rechenmodelle (Energie, Mikrofonfilter, I²C, Funkmodul)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -129,6 +129,8 @@ jobs:
         run: python3 hardware/mikrofon_filter.py
       - name: I²C-Leitung (Fehler, wenn das gewählte Kabel das 340-pF-Ziel verfehlt)
         run: python3 hardware/i2c_leitung.py
+      - name: Funkmodul Ra-01SH (HF-Schalter-Logik, Funkstrecke; Fehler, wenn die Soll-Konfiguration nicht funktioniert)
+        run: python3 hardware/funk_modell.py
 
   kicad-schaltplan:
     name: KiCad-10-Schaltpläne (Erzeugung reproduzierbar, ERC, Netzprüfungen)
@@ -147,6 +149,10 @@ jobs:
         run: bash hardware/kicad/pruefen.sh
       - name: Eingecheckter Stand = erzeugter Stand (ohne PDF/Netzliste, die enthalten Datum)
         run: git diff --exit-code -- hardware/kicad ':!hardware/kicad/pdf' ':!hardware/kicad/netzliste'
+      - name: Gegenprobe Reproduzierbarkeit (Zufalls-UUIDs müssen in jedem Blatt auffallen, SCH26-12)
+        run: |
+          bash hardware/kicad/pruefen.sh --gegenprobe
+          git diff --exit-code -- hardware/kicad ':!hardware/kicad/pdf' ':!hardware/kicad/netzliste'
 
   windows-programme:
     name: Windows-Programme für die PC-Tests
