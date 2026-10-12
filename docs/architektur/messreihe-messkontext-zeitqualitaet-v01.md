@@ -10,7 +10,7 @@
 - **[BESTÄTIGT]** Ausgangspunkt ist **die fachliche Messgröße am/im Volk** und ihr biologisch/physikalisch richtiger Kontext, **nicht** die Sensorbelegung eines bestimmten beeloggers. Wichtige Kernbereiche: **Gewicht, Temperatur, Luftfeuchte, Schallwellen**. Strukturvibration ist ein eigener möglicher Messbereich.
 - **[BESTÄTIGT]** Das System soll allgemeingültig, änderbar und für mehrere Völker und Stände vergleichbar sein. beelogger und BEEP Base sind **alternative** primäre Stockmesssysteme. Umweltmessungen werden Stand/Messstelle zugeordnet; BEEP-Stockkartenereignisse bleiben unabhängig vom Messsystem.
 - **[BESTÄTIGT]** Jedes Bienenvolk behält seine Identität; ein Ableger erhält eine neue eigene Volk-ID mit Herkunftsbeziehung.
-- **[VORSCHLAG]** Ein physisches Messobjekt **Beute** wird als eigenständige Entität modelliert. Das ist noch **nicht** vom Betreiber freigegeben.
+- **[BESTÄTIGT – 12.10.2026]** Die **physische Beute** ist eine **dauerhaft identifizierbare, vom Volk und Standort getrennte Entität mit Historie**. Die genaue Belegungs-/Standortkardinalität, Beutendefinition bei Komponentenwechsel und SQL-Umsetzung bleiben **[VORSCHLAG]/[OFFEN]**. Details: [Beute–Volk–Stand: Fachentwurf 0.1](beute-volk-stand-beziehungen-v01.md).
 - **[VORSCHLAG]** Eine fachliche Messreihe beschreibt **was, wo und nach welcher Semantik** über die Zeit beobachtet wird. Gerät, Kanal und Sensor werden zeitabhängig als technische Herkunft angehängt, **nicht** als fachliche Identität der Reihe.
 - **[OFFEN]** Konkrete Wertebereiche, Kalibriertoleranzen, Datenraten, Aufbewahrungsfristen und BEEP-Exportformate. Unbekannte Details nicht erfinden.
 
@@ -20,7 +20,7 @@
 
 ### 1.1 Volk, Beute, Bienenstand
 
-**[VORSCHLAG]** Drei eigenständige, dauerhaft interne Identitäten:
+**[BESTÄTIGT]** Drei eigenständige, dauerhaft interne **fachliche Identitäten** sind erforderlich; **[VORSCHLAG]** sind die konkreten Tabellennamen und Ausgestaltungen:
 
 | Identität | Was sie bezeichnet | Typische Lebensdauer/Änderung |
 |---|---|---|
@@ -265,7 +265,7 @@ flowchart TD
 
 ## 10. Offene fachliche Entscheidungen – zur gemeinsamen Abnahme
 
-1. **Beute als eigenständige Entität:** Empfehlung ja; detaillierter Zuschnitt (Beute, Boden, Zargen, Deckel als Baugruppen) noch offen.
+1. **Beute als eigenständige Entität: BESTÄTIGT (12.10.2026).** Die konkrete Definition der Beutenidentität bei vollständigem Umbau und der Zuschnitt von Boden, Zargen und Deckel als optionale Baugruppen bleiben **OFFEN**; [Beute–Volk–Stand-Fachentwurf](beute-volk-stand-beziehungen-v01.md).
 2. **Volk-Stand-Zuordnung:** Bei vorhandener Beutenhistorie aus dem Standort der Beute ableiten; Regeln für historische Unvollständigkeit festlegen.
 3. **Identität einer fachlichen Reihe:** Beim reinen Sensortausch weiterführen, beim Positionswechsel grundsätzlich neue Reihe; Grenzfälle/Parallelmessungen entscheiden.
 4. **Messpositionstaxonomie:** standardisierte Bereiche plus optionale frei dokumentierte Lage; Typ „Brutraum“ nicht mit „tatsächlich im Brutnest“ gleichsetzen.
@@ -278,6 +278,6 @@ flowchart TD
 
 ## 11. Nächste fachliche Phase
 
-Als Nächstes die **Beute-/Volk-/Stand-Historie** gegen schwierige Fälle (Ableger, Volksteilung, Vereinigung, leere Beute, Umzug) prüfen und entscheiden, ob die Beute als eigenes Objekt verbindlich aufgenommen werden soll. Danach das konkrete Kardinalitäts- und Constraint-Modell festlegen. Erst nach fachlicher Abnahme SQL-DDL/Migration.
+**Entscheidungsfortschritt 12.10.2026:** Die eigene Beutenidentität ist **verbindlich beschlossen**. Das noch nicht freigegebene [Fachmodell zu Beute, Volk und Bienenstand](beute-volk-stand-beziehungen-v01.md) führt Sonderfälle (Ableger, Vereinigung, leere Beute, Stand- und Gerätewechsel), zeitliche Kardinalitäten sowie Konflikte zwischen direkter und abgeleiteter Standhistorie zusammen. Diese Regeln als Nächstes fachlich prüfen; erst nach ihrer Abnahme SQL-DDL/Migration.
 
 **Keine Änderung an Server, Datenbank, Firmware, BEEP-Anbindung oder öffentlichen Diensten.**
