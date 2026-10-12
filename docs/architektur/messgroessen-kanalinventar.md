@@ -161,7 +161,11 @@ raw_record (Originalnachricht, Zeitquellen, Gerät, Verarbeitungspfad)
 
 Es sollen **keine** technischen Feldnamen als fachliche Schlüssel missbraucht werden. Vor allem müssen `FeuchteIn`, `Aux1`–`Aux3`, Gewichts-/Kalibrierstatus und BEEP-Felder im konkreten Betrieb validiert werden.
 
-## 10. Nächste Arbeitsschritte und noch fehlende Nachweise
+## 10. Gerätespezifischer Abgleich begonnen
+
+Für den Logger `beelogger1` existiert eine [Ist-Inventur 0.1](ist-inventur-beelogger1.md) mit Quellenstand, noch ungeprüften Hardwaredetails und einer nur lesenden [Diagnose](../../server/diagnose/README.md). Die tatsächlichen Messdateien wurden von dieser Umgebung **noch nicht gelesen**.
+
+## 11. Nächste Arbeitsschritte und noch fehlende Nachweise
 
 1. **Ist-Belegung beelogger:** Für jedes tatsächlich installierte Gerät Firmware/FPort, Sensorbestückung, logische Beute-/Kanalzuordnung, DS18B20-Positionen, Aux-Mapping, Tara/Kalibrierung und Änderungen über die Zeit bestätigen; **keine geheimen Konfigurationswerte öffentlich einchecken**.
 2. **S2120-Kontext ergänzen:** Installationshöhe/-position, dokumentierte Bedeutung und Resetzeitpunkt von `rain_mm`, zeitlicher Standwechsel und Datenqualität.
