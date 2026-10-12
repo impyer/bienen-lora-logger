@@ -172,6 +172,7 @@ Die folgenden Fälle müssen das ER-Modell abbilden können; sie sind **Akzeptan
 ## 11. Quellen, verwandte Projektunterlagen und Pflege
 
 ### Innerhalb dieses Repositories
+- [Fachentwurf Sensoren und Messkanäle](sensoren-messkanaele-entwurf.md) – **Entwurf 0.1, noch nicht freigegeben**; zeitliche Interpretation von Quellfeldern, Sensorwechsel, Kalibrierung und Qualität.
 - [Entwicklungsregelwerk](../entwicklung/README.md) – verbindlicher Arbeits-/Prüfprozess.
 - [Governance und Ausnahmen](../entwicklung/entscheidungen.md) – beschlossene Projektstandards.
 - [BEEP-Anbindung](../beep-anbindung.md) – frühere Untersuchung möglicher BEEP-Schnittstellen; fachliche Abgrenzung siehe Abschnitt 2.
