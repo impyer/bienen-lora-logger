@@ -4,6 +4,8 @@
 **Status:** **Fachlicher Entwurf – noch kein genehmigtes SQL-/Tabellenschema (G0)**  
 **Änderungsklasse:** D0 (Dokumentation), T0 = Abgleich mit bestätigten Betreiberentscheidungen und vorhandenen Architekturunterlagen. Keine Datenbank-, Migrations-, Feld- oder Funktionstests.  
 **Verbindliche Betreiberentscheidungen vom 12.10.2026:** **[BESTÄTIGT]** Die **physische Beute** wird als **eigenständige, dauerhaft identifizierbare Entität mit Historie** geführt. Sie ist ausdrücklich nicht identisch mit Bienenvolk, Bienenstand, Sensor oder Messgerät. **[BESTÄTIGT]** Eine Beute darf **gleichzeitig höchstens ein Bienenvolk beherbergen**, kann aber auch unbewohnt sein. Nacheinander sind verschiedene Völker möglich. **[OFFEN]** Ob ein Volk zeitgleich mehrere Beuten nutzen darf, wurde damit nicht ausdrücklich entschieden.  
+**Ergänzende Betreiberentscheidung vom 12.10.2026:** **[BESTÄTIGT] Eine Beute besteht aus einer oder mehreren Zargen.** Die Zahl der Zargen kann sich bei gleicher Beuten-ID ändern. Einzelne Zargen-IDs und eine genaue Bauteilmodellierung sind noch nicht bestätigt.
+
 **Lesehilfe:** **[BESTÄTIGT]** = ausdrückliche Anforderung; **[VORSCHLAG]** = noch nicht beschlossene genaue Modellierung; **[OFFEN]** = erfordert weitere Entscheidung; **[BEISPIEL]** = synthetischer Testfall, keine reale Betriebsaufnahme.
 
 **Übergeordnete Dokumente:** [Anforderungen](anforderungen-datenplattform.md), [allgemeine Messgrößen](messgroessen-am-bienenvolk.md), [Messreihe, Messkontext und Datenqualität](messreihe-messkontext-zeitqualitaet-v01.md), [ER-Gesamtentwurf](er-modell-datenplattform-v01.md).
@@ -17,7 +19,8 @@
 | **Bienenstand** (`apiary`) | **BESTÄTIGT** | eigenständiger Standort, an dem sich Beuten über bestimmte Zeitintervalle befinden |
 | **Messgerät** (`device`) | **BESTÄTIGT** | technische Identität; beelogger, BEEP Base und Umweltgeräte sind weder Beute noch Volk |
 | **Messposition** (`measurement_position`) | **BESTÄTIGTE TRENNUNG**, genaue Struktur **VORSCHLAG** | Brutbereich, Beutendeckel, Waagenposition, Standortwetter, Bodentiefe usw. sind vom Gerät/Volk unabhängig zu beschreiben |
-| **Beutenkomponente** (`hive_component`) | **VORSCHLAG, OFFEN** | optional separat identifizierbare Zarge, Boden, Deckel, Rähmchen, Aufsatz; nicht automatisch für jede Schraube eigene ID |
+| **Zarge (Beutenaufbau)** | **BESTÄTIGT** als Bestandteil einer Beute; **VORSCHLAG** für eigene Entität | Eine Beute besteht im belegten/zusammengesetzten Zustand aus **mindestens einer Zarge**, auch mehrere sind möglich. Die tatsächliche Zahl und Konfiguration sind zeitabhängig. **[OFFEN]** Ob eine einzelne physische Zarge dauerhaft eigene ID bekommt. |
+| **Weitere Beutenkomponente** (`hive_component`) | **VORSCHLAG, OFFEN** | optional getrennt verfolgte Böden, Deckel, Rähmchen oder andere Bauteile; nicht alle Teile brauchen automatisch eigene IDs |
 | **Königin** | **VORSCHLAG, OFFEN** | eigene biologische Abstammung und Wechselhistorie später von Volkshistorie trennen |
 
 **Regel:** Eine ID wird nie wiederverwendet. Eine alte Beute-ID, Volk-ID oder Geräte-ID wird nicht bei einem Umzug durch die neue Standort-/Gerätekennung ersetzt. Eine physische Beute darf auch **leer, stillgelegt oder ohne bekannte Volkzuordnung** sein. „Keine dokumentierte Belegung“ und „nachweislich leer“ sind **unterschiedliche Wissensstände**.
@@ -54,6 +57,20 @@ erDiagram
 
 ## 3. Tabellenkandidaten und Kardinalitäten
 
+### Präzisierung: Zargen sind Teil des Beutenaufbaus
+
+**[BESTÄTIGT]** Die Beute hat **eine oder mehrere Zargen**. Die bestätigte Regel **höchstens ein Volk je Beute zur selben Zeit** bleibt unabhängig von der Zargenanzahl gültig: Zwei Zargen bedeuten **nicht** zwei Völker. Die biologische Identität eines Volkes ist weder von der Zargenanzahl noch von der Zargen-ID abhängig.
+
+**[VORSCHLAG]** Für eine aufgebaute bzw. bewohnte Beute muss die Konfiguration eine **positive Zargenanzahl** haben (`zargen_count >= 1`). Ein leerstehender Lagerbestand aus auseinandergenommenen Teilen darf gesondert als `disassembled` markiert sein; daraus folgt **nicht**, dass eine bewohnte Beute aus null Zargen bestehen dürfte. Diese Ausnahme ist nur Modellierungsüberlegung, keine bestätigte Betriebsregel.
+
+**[VORSCHLAG – minimaler Erstentwurf]** `hive_configuration_periods(hive_id, valid_from, valid_to, zargen_count, composition_description?, evidence_id?)` plus `hive_configuration_events` für Hinzufügen, Entfernen, Umordnen und Austausch. Die Zeitabschnitte dürfen bei derselben Beute nicht überlappen. Die Anzahl ist **kein unveränderliches Feld in `hives`**.
+
+**[VORSCHLAG – spätere Detailvariante]** `hive_boxes(box_id, ...)` für **individuell identifizierte** Zargen und `hive_box_installations(hive_id, box_id, valid_from, valid_to, stack_position?, role?, ...)` für ihren zeitlichen Einbau; dieselbe einzelne Zarge darf zur selben Zeit nicht in zwei Beuten verbaut sein. Auch **Brutraum/Honigraum** bezeichnet im Allgemeinen eine zeit- und nutzungsabhängige Funktion einer Zarge, nicht zwangsläufig ihren dauerhaft festen Typ. Eine aufwendige Einzelzargenverwaltung ist **nicht beschlossen**.
+
+**Wichtig für Gewicht:** Zarge auf- oder absetzen verändert die Masse der Beute samt Inhalt möglicherweise abrupt. Ein registriertes Beutenaufbauereignis hilft der späteren Analyse, diesen Sprung vom Trachtverlauf zu trennen. Ohne belegtes Komponentengewicht darf die Analyse jedoch **keine exakte Massekorrektur erfinden**. Auch Sensorpositionen können relativ zu einer Zarge liegen und sich bei Umbauten verlagern.
+
+
+
 **Alle Tabellen- und Spaltennamen in diesem Abschnitt sind [VORSCHLAG].**
 
 | Entität | Kernattribute | Historienregel |
@@ -63,7 +80,9 @@ erDiagram
 | `apiaries` | `apiary_id`, interne Bezeichnung, Standortschutz | Standortidentität unabhängig von Geräten/Völkern |
 | `colony_hive_occupancies` | `occupancy_id`, `colony_id`, `hive_id`, `valid_from`, `valid_to`, `certainty`, `source_event_id?` | Volk nutzt Beute **in bestimmtem Zeitraum** |
 | `hive_apiary_placements` | `placement_id`, `hive_id`, `apiary_id`, `valid_from`, `valid_to`, `certainty` | Beute befindet sich zu bestimmtem Zeitpunkt an Stand |
-| `hive_configuration_events` | `event_id`, `hive_id`, `happened_at`, `change_type`, Details/Quelle | Auf-/Absetzen von Zargen, Boden/Deckel-Austausch, Reparatur, Änderung der Waagenaufstellung |
+| `hive_configuration_events` | `event_id`, `hive_id`, `happened_at`, `change_type`, Details/Quelle | Auf-/Absetzen, Umordnen und Austausch von Zargen; außerdem Boden/Deckel, Reparatur, Waagenaufstellung |
+| `hive_configuration_periods` | `hive_id`, `valid_from`, `valid_to`, `zargen_count >= 1` im aufgebauten Zustand, Aufbau-/Herkunftsdetails | **[VORSCHLAG]** zeitlich gültige Zahl der Zargen; nur dokumentierter Wechsel, nicht stilles Überschreiben |
+| `hive_boxes`, `hive_box_installations` | optionale Zargen-ID, Beute, Einbauzeitraum und Position im Stapel | **[VORSCHLAG / OFFEN]** nur falls jede einzelne Zarge später verfolgt werden soll |
 | `lifecycle_events` | `event_id`, `type`, `happened_at`, externe BEEP-Referenz? | biologisches Volkereignis, nicht Messwert |
 | `lifecycle_participants` | `event_id`, `colony_id`, `role`, `certainty` | Herkunfts- und Ergebnisvölker, z. B. Ableger/Vereinigung |
 | `hive_measurement_positions` | `position_id`, `hive_id`, `zone`, genaue Lage?, Validität? | reproduzierbarer Messort innerhalb/an einer Beute |
@@ -179,7 +198,7 @@ Stand A --(Umweltmesspunkt, Zeit t)--> lokaler Wetterkontext
 2. **Belegungs-Kardinalität:** **BESTÄTIGT: höchstens 1 Volk pro Beute je Zeitpunkt.** Noch **OFFEN** ist die Gegenrichtung (höchstens eine Beute pro Volk?), sowie die Definition eigenständiger Beutenidentitäten für baulich getrennte Abteile. Die bestätigte Beutenseiten-Regel darf durch künftige Erweiterungen nicht verletzt werden.
 3. **Stand-Historie mit unbekannter Beute:** Aus dem Beutenstand ableiten, jedoch dokumentierte Direktangaben als Ersatznachweis. Ausführung der Prioritäts-/Konfliktregel offen.
 4. **Lebenszyklus bei Vereinigung:** Bleibt eine der Volk-IDs bestehen, oder entsteht eine neue? Ereignisrollen dürfen diese Frage nicht vorwegnehmen.
-5. **Beutenaufbau:** Zargen, Rähmchen, Deckel, Boden als optionale Komponenten mit Masse/Einbauzeit oder zunächst nur Konfigurationsereignisse? Beutenmasse ist keine Messung des Volkes.
+5. **Beutenaufbau:** **BESTÄTIGT: mindestens eine Zarge pro aufgebauter Beute, mehrere möglich**. **OFFEN** ist die Tiefe des Modells: zunächst Zargenanzahl + Konfigurationsereignis oder individuell identifizierte Zargen mit Einbauhistorie? Weitere Komponenten (Boden, Deckel, Rähmchen) und ihre Massen sind erst zu spezifizieren. Beutenmasse ist keine Messung des Volkes.
 6. **Messgerätemontage vs. logische Zuordnung:** Wie erkennen wir einen Wechsel, wenn der Logger physisch weiter an H1 befestigt bleibt, aber der Volkseintrag sich verändert?
 7. **Ungewisse Uhrzeit/Ereignisse:** Umgang mit Belegungswechseln, deren genaues Datum bekannt, genaue Uhrzeit aber unbekannt ist.
 8. **Korrekturhistorie:** Wie bilden wir nachträgliche Änderungen an Stand-/Volk-/Beuten-Zuordnungen revisionssicher ab?
