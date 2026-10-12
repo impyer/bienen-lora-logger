@@ -86,7 +86,7 @@ erDiagram
 
 ### 4.1 Bienenvolk, physische Beute und Stand
 
-**[BESTÄTIGT – 12.10.2026]** Die physische **Beute besitzt eine eigene, dauerhafte Identität und Historie**. Die im ursprünglichen ER-0.1 gezeichnete direkte `colony_placements`-Beziehung bleibt als **historischer Entwurfsstand** sichtbar und ist **nicht mehr als einziges fachliches Standortmodell geeignet**. Neue vorrangige fachliche Beziehungskette: `colony ↔ (zeitlich) hive ↔ (zeitlich) apiary`. Direkte Volk–Stand-Nachweise bei unbekannter Beute und ihre Priorität sind offen. Siehe [Beute–Volk–Stand: Entwurf 0.1](beute-volk-stand-beziehungen-v01.md).
+**[BESTÄTIGT – 12.10.2026]** Die physische **Beute besitzt eine eigene, dauerhafte Identität und Historie**. **[BESTÄTIGT]** Eine Beute kann zu einem Zeitpunkt höchstens **ein Bienenvolk** beherbergen (0..1); eine spätere Wiederbelegung ist zulässig. **[VORSCHLAG / OFFEN]** Höchstens eine Beute pro Volk zur gleichen Zeit ist bislang nicht ausdrücklich bestätigt. Die im ursprünglichen ER-0.1 gezeichnete direkte `colony_placements`-Beziehung bleibt als **historischer Entwurfsstand** sichtbar und ist **nicht mehr als einziges fachliches Standortmodell geeignet**. Neue vorrangige fachliche Beziehungskette: `colony ↔ (zeitlich) hive ↔ (zeitlich) apiary`. Direkte Volk–Stand-Nachweise bei unbekannter Beute und ihre Priorität sind offen. Siehe [Beute–Volk–Stand: Entwurf 0.1](beute-volk-stand-beziehungen-v01.md).
 
 - `colonies.id` ist eine **stabile interne ID**, keine beelogger-/BEEP-ID.
 - `colony_placements(colony_id, apiary_id, valid_from, valid_to)` dokumentiert die historische Bienenstandzuordnung.
