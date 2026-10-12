@@ -124,7 +124,9 @@ Die Namen sind Arbeitstitel, die Attribute exemplarisch. Bestehende Tabellen `ap
 8. **[OFFEN]** Technische Wahl: eigenständige Tabellen für `sensor_components` und `channel_mappings` im ersten SQL-Schema oder schrittweise Einführung – ohne Verlust an Semantik und Rückverfolgbarkeit.
 9. **[OFFEN]** Der spätere Mehrfachloggerfall bleibt **nur Erweiterungsfähigkeit** und wird nicht als aktiver Betriebsfall behauptet.
 
-## 10. Quellengeprüfter Kanal-Inventarstand**Folgeentwurf:** [Fachliches ER-Modell der Datenplattform 0.1](er-modell-datenplattform-v01.md) verknüpft diese Sensorebene mit Völkern, Bienenständen, Rohdaten und Analyseläufen. Das Dokument ist ein **nicht abgenommener Entwurf**, keine Migration.
+## 10. Quellengeprüfter Kanal-Inventarstand
+
+**Folgeentwurf:** [Fachliches ER-Modell der Datenplattform 0.1](er-modell-datenplattform-v01.md) verknüpft diese Sensorebene mit Völkern, Bienenständen, Rohdaten und Analyseläufen. Das Dokument ist ein **nicht abgenommener Entwurf**, keine Migration.
 
 
 
