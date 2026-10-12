@@ -5,11 +5,13 @@
 **Änderungsklasse:** D0 (Entwurfsdokument), Review-Nachweis T0: Abgleich mit den vorhandenen Quellen und bestätigten Anforderungen; **keine Datenbank-/Feldtests**  
 **Ziel:** Ein tragfähiges Modell für mehrere Völker und Stände, alternative Stockmesstechnik (beelogger / BEEP Base), beliebige Umweltmessstellen, BEEP-Stockkarten, abgeleitete Werte und künftig automatische Analyseergebnisse.
 
-**Verbindliche fachliche Grundlage:** [Anforderungen](anforderungen-datenplattform.md) · [Sensor- und Messkanalentwurf](sensoren-messkanaele-entwurf.md) · [Kanalinventar](messgroessen-kanalinventar.md) · [Ist-Inventur beelogger1](ist-inventur-beelogger1.md)
+**Verbindliche fachliche Grundlage:** [Anforderungen](anforderungen-datenplattform.md) · **[Volkzentriertes Messgrößen-Fachmodell](messgroessen-am-bienenvolk.md)** · [Sensor- und Messkanalentwurf](sensoren-messkanaele-entwurf.md) · [technisches Kanalinventar](messgroessen-kanalinventar.md). Die [Ist-Inventur beelogger1](ist-inventur-beelogger1.md) ist optional für die spätere Geräteintegration, **keine Voraussetzung für das ER-Modell**.
 
 **Status:** **BESTÄTIGT** = vom Betreiber beschlossen; **VORSCHLAG** = Architekturidee; **OFFEN** = Klärung erforderlich; **QUELLBEFUND** = durch Projektdateien belegtes Verhalten, nicht notwendigerweise produktiv.
 
 ## 1. Ziel und bewusste Grenzen
+
+**[BESTÄTIGT, fachliche Priorität vom 12.10.2026]** Der Entwurf ist **messgrößen- und volkzentriert** statt `beelogger1`-zentriert. Ausgangspunkt sind **Gewicht, Temperatur, Luftfeuchte und Schallwellen**, ergänzend als getrennte Modalität Körperschwingung/Vibration. Details zu Messpositionen, Beuten- vs. Volkmasse, zeitlich geschnittenen Akustiksignalen, vorverarbeiteten FFT-Merkmalen und vorsichtigen biologischen Interpretationen: [Messgrößen am Bienenvolk](messgroessen-am-bienenvolk.md). Das konkrete Ist-Sensorinventar ist keine Blockade für das Modell.
 
 ### Bereits bestätigt
 
@@ -245,7 +247,7 @@ Dasselbe Volk kann morgen in einem anderen Cluster liegen; dieselbe Clusterziffe
 
 1. **Identitäten und Target-FKs:** Sollen `measurement_positions` getrennte Typen (Kolonie/Stand) erhalten, um referenzielle Integrität ohne polymorphe Fremdschlüssel sicherzustellen?
 2. **Zeitvalidität:** Stände, Geräte/Einheiten, Sensortausch, Kanalinterpretation und Firmware-/Decoderprofile müssen klar definierte Priorität und nachvollziehbare Konfigurationsänderungen erhalten.
-3. **Messkanaldaten:** Liste real vorhandener Sensoren und Belegungen von `beelogger1` anhand der **tatsächlichen** Firmware und Dateien; [read-only Inventur](../../server/diagnose/README.md) ist vorbereitet, aber bislang **nicht auf der ThinkStation durchgeführt**.
+3. **Biologische Messgrößen und Signale:** zuerst die gemeinsamen Begriffe für Stockgewicht, mehrpunktige Temperatur, Feuchte, Luftschall und Vibration sowie deren unterschiedliche Datenformen festlegen; außerdem prüfen, ob die physische **Beute** als von der Volk-ID getrennte Entität notwendig ist. Die tatsächliche Zuordnung von `beelogger1` und anderen Geräten bleibt **nachgeordnete Integrationsarbeit**, für die eine [optionale read-only Inventur](../../server/diagnose/README.md) existiert; sie wurde nicht auf der ThinkStation durchgeführt.
 4. **BEEP-Base-Import:** Zuerst echte, autorisierte Schnittstellen-/Exportstruktur prüfen; keine angenommene Feldliste.
 5. **Beobachtungsrevisionen:** Entscheidung, wie unveränderliche Ursprungsdaten, fachliche Neubewertungen und DB-Snapshots revisionssicher verbunden werden.
 6. **Aggregationsregeln:** Für Regen `rain_mm` insbesondere die Reset- und Bezugszeit recherchieren und ggf. mit echten Daten validieren.
@@ -257,6 +259,8 @@ Dasselbe Volk kann morgen in einem anderen Cluster liegen; dieselbe Clusterziffe
 PostgreSQL wird hier **nicht installiert**, und es werden **keine produktiven Tabellen, Dienste, CSV-Dateien oder Apache-Konfigurationen geändert**. Dieser Entwurf soll vor dem konkreten SQL-Schema und der Datenmigration geprüft werden.
 
 ## 11. Bezug zu weiteren Projektunterlagen
+
+- **[Biologisch relevante Messgrößen am/im Bienenvolk](messgroessen-am-bienenvolk.md) – vorrangige fachliche Quelle für die Definition der Datenobjekte.**
 
 - [Bestätigte Anforderungen und Statusregeln](anforderungen-datenplattform.md)
 - [Sensor- und Messkanalentwurf](sensoren-messkanaele-entwurf.md)
