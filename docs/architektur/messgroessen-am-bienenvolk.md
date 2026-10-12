@@ -141,7 +141,7 @@ biological_interpretations
 
 Die Feldnamen sind **Arbeitsbegriffe**; Constraints und FK-Modell noch nicht verabschiedet. Das Modell erlaubt, **ohne einen vorhandenen Sensor** eine Messgröße zu definieren. Eine Messung entsteht erst, wenn tatsächlich ein entsprechender Quellwert nachgewiesen ist.
 
-### 5.2 Identität der Beute prüfen
+### 5.2 Bestätigte Identität der Beute
 
 **BESTÄTIGT / fachlich wichtig:** Die **Beute wird als eigenständiges, historisiertes Objekt** (`hives` als Arbeitstitel) geführt, getrennt vom Bienenvolk. Diese Trennung ist beschlossen, weil Stockgewicht immer auch Beuten-/Zargenmasse ist, Sensorpositionen physisch an der Beute liegen und ein Volk in eine andere Beute umgesetzt werden kann. Eine Beute kann wiederum ohne Volk oder mit einem anderen Volk genutzt werden. Die eigentliche Auswertung erfolgt weiterhin volkzentriert über die **zeitliche Zuordnung** `colony ↔ hive ↔ stand`; die genauen zeitlichen Kardinalitäten sind **noch Vorschläge**. [Vertiefung](beute-volk-stand-beziehungen-v01.md).
 
@@ -189,7 +189,7 @@ Eine Merkmalsgruppe darf „nicht verfügbar“ sein. Die Anzahl verfügbarer Se
 **Empfohlene Reihenfolge:**
 
 1. Fachliche Messgrößen-Ontologie und ihre Untertypen (insb. Gewicht, Temperatur, Feuchte, Luftschall, Vibration).
-2. Physische Messkontexte, ggf. Beute als eigenständiges Objekt; wechselnde Volk-/Beuten-/Standbeziehungen.
+2. Physische Messkontexte mit **bestätigter, eigenständiger Beutenidentität**; wechselnde Volk-/Beuten-/Standbeziehungen.
 3. Allgemeine Zeitreihen- **und** Signal-/Spektrendatenmodellierung (Skalar vs. segmentierter Signalstrom).
 4. Unterschied gemessen – korrigiert – abgeleitet – biologisch interpretiert; gemeinsame Provenienz und Qualitätsregeln.
 5. Analysetauglichkeit für mehrere Völker und Stände, Labels durch BEEP-Stockkarte, Reproduzierbarkeit.
