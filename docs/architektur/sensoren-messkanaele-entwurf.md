@@ -124,7 +124,9 @@ Die Namen sind Arbeitstitel, die Attribute exemplarisch. Bestehende Tabellen `ap
 8. **[OFFEN]** Technische Wahl: eigenständige Tabellen für `sensor_components` und `channel_mappings` im ersten SQL-Schema oder schrittweise Einführung – ohne Verlust an Semantik und Rückverfolgbarkeit.
 9. **[OFFEN]** Der spätere Mehrfachloggerfall bleibt **nur Erweiterungsfähigkeit** und wird nicht als aktiver Betriebsfall behauptet.
 
-## 10. Quellengeprüfter Kanal-Inventarstand
+## 10. Quellengeprüfter Kanal-Inventarstand**Folgeentwurf:** [Fachliches ER-Modell der Datenplattform 0.1](er-modell-datenplattform-v01.md) verknüpft diese Sensorebene mit Völkern, Bienenständen, Rohdaten und Analyseläufen. Das Dokument ist ein **nicht abgenommener Entwurf**, keine Migration.
+
+
 
 Die erste Schnittstellen-Bestandsaufnahme wurde in [**Messgrößen- und Kanal-Inventar 0.1**](messgroessen-kanalinventar.md) und [**maschinenlesbarer CSV**](messgroessen-kanalinventar.csv) dokumentiert. Die vollständige tatsächliche Belegung der produktiven Hardware ist **noch nicht verifiziert**; BEEP-Base-Exportfelder sind bewusst **nicht erfunden** worden.
 
