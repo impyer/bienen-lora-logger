@@ -137,6 +137,26 @@ erDiagram
 - **VORSCHLAG:** Kalibrierung, Tara und Messkorrektur erhalten jeweils Version, gültigen Zeitraum, Parameter/Referenz, Gültigkeitsstatus und einen Nachweis. Unkorrigierter Sensorwert, bereits **quellseitig korrigierter Wert** und neue eigene Berechnung werden **nicht** kommentarlos überschrieben.
 - Für Analysen ist ein markierter **Sensorwechsel-/Kalibrierungssprung** wichtig; sonst könnte der Clusteralgorithmus einen Technikwechsel für ein Volkereignis halten.
 
+### 5.4 Fachliches Primat der Messgröße und der Beute (Nachtrag 12.10.2026)
+
+**[BESTÄTIGT]** Die Modellierung startet bei **Gewicht, Temperatur, Feuchte und Schall**, nicht bei einem bestimmten Gerät, Kanalnamen oder beelogger-Verzeichnis. Ein einzelner beelogger ist **keine** Referenzhardware und keine Voraussetzung für die fachliche Schemaentwicklung. Siehe [biologisch relevante Messgrößen](messgroessen-am-bienenvolk.md).
+
+**[VORSCHLAG]** Neben `colonies` eine physische `hives`-Identität und `colony_hive_assignments` prüfen: Die Stockwaage erfasst **Beutenmasse**, nicht unmittelbar Futter- oder Bienenmasse. Sensoren können an Beute/Brutbereich/Deckel befestigt sein, während das biologische Volk weiterhin separat identifiziert wird. Zeitgültige Beziehungen verhindern, dass ein Beutenwechsel einen falschen biologischen Gewichtssprung suggeriert.
+
+**[VORSCHLAG]** Für eine Messung ist primär `measurement_quantity + physical_context + observation_time/window` fachlich bedeutsam. `device_channel` und `channel_mapping` dienen der **Herkunft und Integration**, nicht der Definition einer biologischen Größe.
+
+### 5.5 Unterschiedliche Datenformen: Skalar, Signal, Spektralmerkmal
+
+| Datenform | Beispiel | Vorgesehene technische Repräsentation |
+|---|---|---|
+| **Skalare Messung** | Beutengewicht in kg, Temperatur °C, relative Luftfeuchte % | `observations` als Zahlenwert mit Ort, Zeit, Einheit und Qualität |
+| **Zeitfenster / Aggregat** | 24-h-Gewichtsänderung, Temperaturvarianz | `derived_values` samt Zeitfenster, Algorithmus-/Eingangsversion |
+| **Roh-Signalsegment** | akustische Abtastwerte eines Mikrofons, Vibration von Beschleunigungssensor | **`signal_segments`** als eigenes Objekt mit Zeitspanne, Samplingrate, Sensorposition, Kalibrierung und optionaler Artefaktreferenz/Hash |
+| **Signalfeature / Spektrum** | FFT-Peakfrequenz, Bandenergie, RMS, spektraler Schwerpunkt | **`signal_features`** mit Banddefinition, Zeitfenster, DSP-/Codeversion, Amplitudenbezug (relativ, dBFS oder kalibriert dB SPL) und Quellenreferenz |
+| **Biologische Hypothese** | Muster könnte Schwarmvorbereitung anzeigen | `analysis_results` mit Modell-/Trainingsdatenversion, Score, Unsicherheit und Validierungsstatus; **kein direkt gemessener Zustand** |
+
+**Abgrenzung:** Luftschall (Mikrofon) und strukturgebundene Vibration (Accelerometer) sind eigene Modalitäten. Vorverarbeitete FFT-Werte im beelogger-Quellformat belegen **keine** vorhandene Roh-Tonaufzeichnung. Es ist nicht festgelegt, dass langfristige Audiodateien überhaupt gespeichert werden; die Signalobjekte sind **optional** und dürfen keine ungewollte Audio-/Sprachveröffentlichung bewirken.
+
 ## 6. Rohdatensatz, Einzelkanalwert und Beobachtung
 
 ### 6.1 Getrennte Entitäten
