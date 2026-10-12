@@ -185,7 +185,7 @@ Quelle (beelogger | Umweltsensor | BEEP)
 
 ```mermaid
 flowchart TD
-  A["Bienenvolk"] -->|"zeitliche Belegung"| H["Physische Beute (Vorschlag)"]
+  A["Bienenvolk"] -->|"zeitliche Belegung"| H["Physische Beute (bestätigte Identität)"]
   H -->|"zeitliche Aufstellung"| S["Bienenstand"]
   H --> P["Messposition am / im Stock"]
   S --> W["Umweltmessstelle"]
