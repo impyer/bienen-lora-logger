@@ -176,6 +176,8 @@ Die folgenden Fälle müssen das ER-Modell abbilden können; sie sind **Akzeptan
 
 ## 11. Quellen, verwandte Projektunterlagen und Pflege
 
+- **[Beute–Volk–Stand: Identitäten und zeitliche Beziehungen 0.1](beute-volk-stand-beziehungen-v01.md)** – bestätigte eigenständige Beutenidentität und gesondert gekennzeichnete Vorschläge für Kardinalitäten, Wechsel und historische Zuordnungen.
+
 - **[Fachentwurf Messreihe, Messkontext, Zeit und Datenqualität 0.1](messreihe-messkontext-zeitqualitaet-v01.md)** – volkzentrierte und geräteunabhängige Struktur von Beobachtungen; **nicht freigegeben**.
 - **[Biologisch relevante Messgrößen am und im Bienenvolk](messgroessen-am-bienenvolk.md)** – **neue vorrangige Modellperspektive:** Gewicht, Mehrpunkt-Temperatur, Feuchte, Luftschall und optionale Vibration, unabhängig von der tatsächlichen Sensorbelegung eines Geräts.
 - [Fachliches ER-Modell der Datenplattform 0.1](er-modell-datenplattform-v01.md) – Identitäten, zeitliche Geräte-/Sensorzuordnungen, Rohdaten, Messwertsemantik und Analyseprovenienz; **noch nicht freigegeben**.
