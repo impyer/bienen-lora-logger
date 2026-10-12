@@ -174,6 +174,7 @@ Die folgenden Fälle müssen das ER-Modell abbilden können; sie sind **Akzeptan
 ### Innerhalb dieses Repositories
 - [Fachentwurf Sensoren und Messkanäle](sensoren-messkanaele-entwurf.md) – **Entwurf 0.1, noch nicht freigegeben**; zeitliche Interpretation von Quellfeldern, Sensorwechsel, Kalibrierung und Qualität.
 - [Messgrößen- und Kanal-Inventar 0.1](messgroessen-kanalinventar.md) samt [maschinenlesbarer CSV](messgroessen-kanalinventar.csv) – quellgeprüfte Felder; tatsächliche Sensorbestückung und BEEP-API-Felder bleiben als solche offen.
+- [Ist-Inventur beelogger1](ist-inventur-beelogger1.md) – erster gerätebezogener Abgleich, einschließlich [read-only Diagnose](../../server/diagnose/README.md); tatsächliche Sensorbestückung noch offen.
 - [Entwicklungsregelwerk](../entwicklung/README.md) – verbindlicher Arbeits-/Prüfprozess.
 - [Governance und Ausnahmen](../entwicklung/entscheidungen.md) – beschlossene Projektstandards.
 - [BEEP-Anbindung](../beep-anbindung.md) – frühere Untersuchung möglicher BEEP-Schnittstellen; fachliche Abgrenzung siehe Abschnitt 2.
