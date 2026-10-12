@@ -30,7 +30,7 @@
 
 **[VORSCHLAG]** Zwei historische Beziehungen statt dauerhafter Felder `colony.hive_id` und `hive.apiary_id`:
 
-- `colony_hive_occupancies`: `colony_id`, `hive_id`, `valid_from`, `valid_to`, Status und Ereignisreferenz; im normalen Modell gleichzeitig höchstens eine aktive Beute pro Volk und höchstens ein aktives Volk pro Beute. **Sonderfälle/technische Ablegerkästen offen.**
+- `colony_hive_occupancies`: `colony_id`, `hive_id`, `valid_from`, `valid_to`, Status und Ereignisreferenz; **[BESTÄTIGT]** pro Beute ist zu jedem Zeitpunkt **höchstens ein Volk** zulässig (zeitliche Nichtüberlappung auf `hive_id`). **[VORSCHLAG / OFFEN]** Die Gegenrichtung – höchstens eine gleichzeitig belegte Beute je Volk – bedarf noch einer ausdrücklichen Festlegung; technische Abteile/weitere Sonderfälle sind nicht beschlossen.
 - `hive_apiary_placements`: `hive_id`, `apiary_id`, `valid_from`, `valid_to`; die Standortzuordnung des Volkes wird **bei belegter Beute aus diesen Beziehungen abgeleitet**.
 
 **Abgleich mit bisherigem ER-Entwurf:** Dort ist `colony_placements` als direkte Volk-Stand-Historie vorgesehen. **[OFFEN / Strukturentscheidung]** Eine direkte Standzuordnung kann für Völker ohne bekannte Beute oder historische Lücken erforderlich sein. Es darf **keine widersprüchlichen, unabhängig editierbaren parallelen „Wahrheiten“** zwischen direkter und abgeleiteter Standzuordnung geben. Vorschlag: Beutenbelegung als Primärnachweis bei bekanntem Hive, direkte Volk-Stand-Zuordnung nur als klar gekennzeichneter **Ersatznachweis**, mit Prioritäts-/Konfliktregel.
