@@ -161,6 +161,8 @@ raw_record (Originalnachricht, Zeitquellen, Gerät, Verarbeitungspfad)
 
 Es sollen **keine** technischen Feldnamen als fachliche Schlüssel missbraucht werden. Vor allem müssen `FeuchteIn`, `Aux1`–`Aux3`, Gewichts-/Kalibrierstatus und BEEP-Felder im konkreten Betrieb validiert werden.
 
+**Fachliche Priorität:** [Messreihe, Messkontext, Zeit und Datenqualität 0.1](messreihe-messkontext-zeitqualitaet-v01.md) definiert das **geräteunabhängige** Beobachtungsmodell. Dieser Kanalkatalog dokumentiert lediglich potenzielle technische Eingänge.
+
 ## 10. Gerätespezifischer Abgleich begonnen
 
 **Einordnung nach Betreiberkorrektur vom 12.10.2026:** Dieser Quellfeldkatalog ist **technisches Referenzmaterial für die spätere Integration**, nicht die fachliche Grundlage des Datenbankschemas. Der **allgemeine, volkzentrierte Messgrößenentwurf** liegt in [Messgrößen am Bienenvolk](messgroessen-am-bienenvolk.md). Die tatsächliche Belegung von `beelogger1` ist für das allgemeine ER-Modell **nicht relevant** und muss nicht vorgezogen werden.
