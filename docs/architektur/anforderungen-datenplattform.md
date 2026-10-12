@@ -161,6 +161,8 @@ Die folgenden Fälle müssen das ER-Modell abbilden können; sie sind **Akzeptan
 
 ## 10. Offene Entscheidungen – Reihenfolge der nächsten Architekturgespräche
 
+**Korrigierte Priorität vom 12.10.2026 [BESTÄTIGT]:** Das **allgemeine fachliche Messgrößenmodell** für Gewicht, Temperatur, Luftfeuchte und Schallwellen wird **vor** einer gerätespezifischen Bestandsaufnahme entworfen. Ein einzelner beelogger ist weder Referenzgerät noch Voraussetzung des Schemas. Siehe [Messgrößen am Bienenvolk](messgroessen-am-bienenvolk.md).
+
 1. **Volk- und Stand-Identität:** Identitätsregeln bei Vereinigung, Schwarm, Verkauf/Verlust; Standortwechsel und unvollständige Historiendaten.
 2. **Geräte und Sensorik:** Primärmesssystem, Gerätewechsel, Kanal-/Messgrößenkatalog, Umweltmessstellen und Messhöhen/-tiefen.
 3. **Messzeit und Rohdaten:** Quellformate, Zeitqualität, Duplikate, Datenlücken, Einheiten, Wetterzähler und Korrekturen.
@@ -172,10 +174,11 @@ Die folgenden Fälle müssen das ER-Modell abbilden können; sie sind **Akzeptan
 ## 11. Quellen, verwandte Projektunterlagen und Pflege
 
 ### Innerhalb dieses Repositories
+- **[Biologisch relevante Messgrößen am und im Bienenvolk](messgroessen-am-bienenvolk.md)** – **neue vorrangige Modellperspektive:** Gewicht, Mehrpunkt-Temperatur, Feuchte, Luftschall und optionale Vibration, unabhängig von der tatsächlichen Sensorbelegung eines Geräts.
 - [Fachliches ER-Modell der Datenplattform 0.1](er-modell-datenplattform-v01.md) – Identitäten, zeitliche Geräte-/Sensorzuordnungen, Rohdaten, Messwertsemantik und Analyseprovenienz; **noch nicht freigegeben**.
 - [Fachentwurf Sensoren und Messkanäle](sensoren-messkanaele-entwurf.md) – **Entwurf 0.1, noch nicht freigegeben**; zeitliche Interpretation von Quellfeldern, Sensorwechsel, Kalibrierung und Qualität.
 - [Messgrößen- und Kanal-Inventar 0.1](messgroessen-kanalinventar.md) samt [maschinenlesbarer CSV](messgroessen-kanalinventar.csv) – quellgeprüfte Felder; tatsächliche Sensorbestückung und BEEP-API-Felder bleiben als solche offen.
-- [Ist-Inventur beelogger1](ist-inventur-beelogger1.md) – erster gerätebezogener Abgleich, einschließlich [read-only Diagnose](../../server/diagnose/README.md); tatsächliche Sensorbestückung noch offen.
+- [Ist-Inventur beelogger1](ist-inventur-beelogger1.md) – **optionale, nachgeordnete Geräteintegrationshilfe**, einschließlich [read-only Diagnose](../../server/diagnose/README.md); tatsächliche Sensorbestückung noch offen, **kein Architektur-Gate**.
 - [Entwicklungsregelwerk](../entwicklung/README.md) – verbindlicher Arbeits-/Prüfprozess.
 - [Governance und Ausnahmen](../entwicklung/entscheidungen.md) – beschlossene Projektstandards.
 - [BEEP-Anbindung](../beep-anbindung.md) – frühere Untersuchung möglicher BEEP-Schnittstellen; fachliche Abgrenzung siehe Abschnitt 2.
