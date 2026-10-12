@@ -159,6 +159,9 @@ erDiagram
 
 ## 6. Rohdatensatz, Einzelkanalwert und Beobachtung
 
+**Vertiefung:** [Messreihe, Messkontext, Zeit und Datenqualität 0.1](messreihe-messkontext-zeitqualitaet-v01.md) präzisiert eine geräteunabhängige fachliche Reihe, technische Erfassungsabschnitte, physische Beute und getrennte Signal-/Merkmalsdaten. Die dortigen Tabellenkandidaten sind **Vorschläge** und ersetzen noch keine abgenommene SQL-Spezifikation.
+
+
 ### 6.1 Getrennte Entitäten
 
 | Entität | Inhalt | Beispiel |
