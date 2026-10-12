@@ -26,7 +26,7 @@ Rohdatensatz → standardisierter Wert / Signal → abgeleitetes Feature
 Analyselauf → vorsichtig formulierte biologische Interpretation / Hypothese
 ```
 
-**[VORSCHLAG]** Die Datenbank sollte die physische **Beute** optional von der biologischen **Volk-Identität** trennen. Eine Stockwaage wiegt normalerweise **Beute samt Material, Bienen, Brut, Vorräten und ggf. wetterbedingten Zusatzlasten**, nicht die reine Bienenmasse; ein Volk kann außerdem umziehen, aufgeteilt oder vereinigt werden. `hives` / `colony_hive_assignments` sind daher **zu prüfende zusätzliche Entitäten**, kein bereits beschlossener Ausbau.
+**[BESTÄTIGT – 12.10.2026]** Die Datenbank führt die physische **Beute** zwingend als **eigenständige, dauerhaft identifizierte Entität** getrennt von der biologischen **Volk-Identität**. Eine Stockwaage wiegt normalerweise **Beute samt Material, Bienen, Brut, Vorräten und ggf. wetterbedingten Zusatzlasten**, nicht die reine Bienenmasse; ein Volk kann außerdem umziehen, aufgeteilt oder vereinigt werden. Die **Trennung selbst ist beschlossen**; `hives` / `colony_hive_assignments` sind lediglich **vorläufige Tabellennamen/Beziehungsformen**. Siehe [Beute–Volk–Stand-Entwurf](beute-volk-stand-beziehungen-v01.md).
 
 **[BESTÄTIGT]** Die drei Datenquellengruppen bleiben unverändert: beelogger; Umweltsensoren; BEEP (BEEP Base als Alternative zu beelogger und digitale Stockkarte als unabhängige Dokumentationsquelle). Sie sind **Lieferwege**, nicht die fachliche Definition der Messgröße.
 
@@ -143,7 +143,7 @@ Die Feldnamen sind **Arbeitsbegriffe**; Constraints und FK-Modell noch nicht ver
 
 ### 5.2 Identität der Beute prüfen
 
-**OFFEN / fachlich wichtig:** Wird **Beute** als eigenständiges Objekt (`hives`) historisiert? Empfehlung: **Ja, prüfen und sehr wahrscheinlich getrennt modellieren**, weil Stockgewicht immer auch Beuten-/Zargenmasse ist, Sensorpositionen physisch an der Beute liegen und ein Volk in eine andere Beute umgesetzt werden kann. Eine Beute kann wiederum ohne Volk oder mit einem anderen Volk genutzt werden. Die eigentliche Auswertung erfolgt weiterhin volkzentriert über die **zeitliche Zuordnung** `colony ↔ hive ↔ stand`.
+**BESTÄTIGT / fachlich wichtig:** Die **Beute wird als eigenständiges, historisiertes Objekt** (`hives` als Arbeitstitel) geführt, getrennt vom Bienenvolk. Diese Trennung ist beschlossen, weil Stockgewicht immer auch Beuten-/Zargenmasse ist, Sensorpositionen physisch an der Beute liegen und ein Volk in eine andere Beute umgesetzt werden kann. Eine Beute kann wiederum ohne Volk oder mit einem anderen Volk genutzt werden. Die eigentliche Auswertung erfolgt weiterhin volkzentriert über die **zeitliche Zuordnung** `colony ↔ hive ↔ stand`; die genauen zeitlichen Kardinalitäten sind **noch Vorschläge**. [Vertiefung](beute-volk-stand-beziehungen-v01.md).
 
 **Wichtig:** Das ist **keine** Aussage, dass der Betreiber einen solchen Umzug bereits gemeldet hat. Dies ist ein robuster fachlicher Vorschlag, bevor wir FK-Constraints festlegen.
 
