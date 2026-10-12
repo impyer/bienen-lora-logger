@@ -64,6 +64,8 @@ Bei allen folgenden Punkten ist der Status explizit ausgewiesen:
 - **[BESTÄTIGT]** Ein beelogger bzw. eine BEEP Base kann ausgewechselt und einem anderen Volk zugeordnet werden, ohne die Volk-ID zu ändern.
 - **[BESTÄTIGT]** Umweltmessstellen können an verschiedenen Positionen liegen; Höhe/Tiefe (z. B. Bodentemperatur) müssen modellierbar sein.
 - **[VORSCHLAG]** Eine eigene Zuordnung von Sensor/Kanal zu standardisierter Messgröße erlaubt mehrere Kanäle gleichen Typs, Einheitenumrechnung und Geräteversionen.
+- **[BESTÄTIGT – ZUKUNFTSFÄHIGKEIT, NICHT GEPLANTER ERSTAUSBAU]** Das fachliche Modell soll beelogger-Duo-/Triple- und andere **Mehrfachsysteme prinzipiell unterstützen können**, bei denen ein physisches Messgerät getrennte Stockmesseinheiten für mehrere Völker bereitstellt. **Solche Mehrfachsysteme sind derzeit nicht vorgesehen** und dürfen nicht als vorhandene Geräte oder als verpflichtende Funktion der ersten Umsetzung behandelt werden.
+- **[VORSCHLAG]** Zur Erweiterbarkeit wird zwischen physischem Gerät und ggf. mehreren logischen Stockmesseinheiten/Kanalsätzen unterschieden. Bei Einzelgeräten genügt eine Stockmesseinheit; die konkreten Tabellen, Grenzen und Validierungsregeln bleiben Teil des ER-/SQL-Entwurfs.
 - **[OFFEN]** Details der Geokoordinaten, öffentlich zulässige Ortsauflösung, Sensorkalibrierung und exakte Bezeichnungen aller BEEP-/beelogger-Kanäle.
 
 ### 3.3 Ableger, Schwarm, Vereinigung, Königin
