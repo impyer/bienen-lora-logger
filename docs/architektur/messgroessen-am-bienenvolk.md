@@ -181,6 +181,9 @@ Eine Merkmalsgruppe darf „nicht verfügbar“ sein. Die Anzahl verfügbarer Se
 
 ## 7. Priorisierung des weiteren Architekturentwurfs
 
+**Folgedokument (12.10.2026):** [Fachentwurf Messreihe, Messkontext, Zeit und Datenqualität 0.1](messreihe-messkontext-zeitqualitaet-v01.md) konkretisiert semantische Reihen, Erfassungsabschnitte, Zeitfenster, Beuten-/Volkbezug, Signalfeatures, Qualität und Rohdaten-Provenienz. Der Entwurf ist **noch nicht fachlich freigegeben**.
+
+
 **[BESTÄTIGT]** Vorrang hat **nicht** die tatsächliche Sensorbelegung eines bestimmten beelogger.
 
 **Empfohlene Reihenfolge:**
