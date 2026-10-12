@@ -25,7 +25,7 @@
 | Identität | Was sie bezeichnet | Typische Lebensdauer/Änderung |
 |---|---|---|
 | `colony` | biologische/betriebliche Identität eines Volkes | Ableger: neue ID; Wechsel von Beute, Stand und Logger: **gleiche Volk-ID** |
-| `hive` | physische Beute bzw. Stockeinheit | kann Zargenwechsel, Reparatur, Ortswechsel oder andere Völker erleben; **Beutenkonfiguration** ändert sich |
+| `hive` | physische Beute bzw. Stockeinheit mit **einer oder mehreren Zargen [BESTÄTIGT]** | kann Zargenwechsel, Reparatur, Ortswechsel oder andere Völker erleben; **Zargenanzahl und Beutenkonfiguration** ändern sich zeitlich |
 | `apiary` | Bienenstand | beherbergt über die Zeit Beuten und Völker, kann Umweltmessstellen haben |
 
 **[VORSCHLAG]** Zwei historische Beziehungen statt dauerhafter Felder `colony.hive_id` und `hive.apiary_id`:
@@ -131,6 +131,10 @@ In einer **SQL-Entscheidung** sind referenziell gesicherte Zieltypen (z. B. getr
 | **Vibration** | strukturgebundene Beschleunigung bzw. Schwingungsmerkmal | Ankopplung, Achsen, Montageposition, Frequenzband/Verarbeitung; **nicht** mit Luftschall mischen |
 
 ### 4.1 Gewicht und Eingriffe
+
+**[BESTÄTIGT]** Eine Beute besteht aus **einer oder mehreren Zargen**. **[VORSCHLAG]** Die zugehörige Zahl und Zusammenstellung werden als **zeitlich gültige Beutenkonfiguration** geführt. Jede Änderung kann die Stockwaagenmessung sprunghaft beeinflussen. Das ist ein Kontextereignis, **keine** automatische Messung des Honig- oder Futterverbrauchs. Die optionale individuelle Zargen-ID bleibt offen. [Beutenaufbau-Fachentwurf](beute-volk-stand-beziehungen-v01.md).
+
+
 
 **[VORSCHLAG]** `hive_configuration_events` dokumentiert neben Stockkartenereignissen physische Änderungen: Beuten-/Zargenbestand, neue Waage/Tara, Fütterung, Ernte, Umstellen usw., mit Ereigniszeitpunkt und Herkunft. Solche Ereignisse können Gewichtssprünge erklären, dürfen aber **nicht** automatisch als einzige Ursache behauptet werden.
 
