@@ -50,7 +50,7 @@ Die genannten **Features sind mögliche Forschungsfragen, nicht gemessene Diagno
 
 - **Primärer Messwert:** `hive_mass_total` als kg, gemessen an einer Waage **unter einer konkreten Beute**; zur späteren Zuordnung wird geprüft, welches Volk zum Messzeitpunkt darin war.
 - **Kein unzulässiger Schluss:** `hive_mass_total` ist **weder** Honigvorrat noch Futtermenge, Bienenmasse oder Trachteintrag. Solche Größen lassen sich höchstens mittels Zusatzinformationen/Modellen **schätzen**.
-- **Kontext:** Waagentyp, Belastungs-/Kalibrierstatus, Tara, Wägezellentemperatur, Beute-/Zargenkonfiguration, Austausch und Zeitpunkte von Honigernte, Fütterung, Umstellen/Zargenwechsel aus der Stockkarte.
+- **Kontext:** Waagentyp, Belastungs-/Kalibrierstatus, Tara, Wägezellentemperatur, **zeitlich gültiger Beutenaufbau aus einer oder mehreren Zargen [BESTÄTIGT]**, Austausch und Zeitpunkte von Honigernte, Fütterung, Umstellen/Zargenwechsel aus der Stockkarte. **[VORSCHLAG]** Zargenanzahl und Aufbauänderungen getrennt historisieren; einzelne Zargen-IDs noch offen.
 - **Rechenwerte:** `mass_delta_1h`, `mass_delta_24h`, `intraday_amplitude`, `mass_change_rate`, saisonaler Trend usw. jeweils **definierte Funktion** von Zeit, Datenqualität und Zustand.
 - **FORSCHUNG:** Trachtphasen und unterschiedliche tageszeitliche Gewichtsverläufe lassen sich unter Umständen erkennen; Wind/Regen, Eingriffe und Aus-/Einflugbewegungen beeinflussen die Messkurve. Quelle: Meikle & Holst (2015), Liu & Lin (2025).
 
