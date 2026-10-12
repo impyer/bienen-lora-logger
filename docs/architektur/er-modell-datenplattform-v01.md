@@ -99,10 +99,10 @@ erDiagram
 ### 4.3 Geräte, Einheiten und primäres Stockmesssystem
 
 - `devices` modelliert eine physische Einheit mit **Quellgruppe** und externen Kennungen. Eine BEEP Base bleibt ein BEEP-Gerät, ein beelogger ein beelogger-Gerät.
-- `measurement_units` bezeichnet **logische Stockmesseinheiten** eines Geräts. Im Normalfall gibt es genau eine solche Einheit; mehrere sind erst für mögliche zukünftige Mehrfachsysteme erforderlich.
+- `measurement_units` bezeichnet **logische Messeinheiten** eines Geräts (Typ `hive` oder `environment`). Im Normalfall besitzt ein Stockmessgerät eine Stockmesseinheit; mehrere Stockmesseinheiten sind erst für mögliche zukünftige Mehrfachsysteme erforderlich. Eine Umweltmesseinheit wird dagegen einer Umweltmessstelle zugeordnet.
 - `unit_assignments(unit_id, target_colony_id?, target_position_id?, role, valid_from, valid_to)` muss eine **exklusive Zielart** erzwingen (Volk **oder** Umweltmessstelle), nicht beide gleichzeitig.
 - **BESTÄTIGT:** Ein Volk hat zeitgleich **höchstens ein primäres Stockmesssystem**, kann aber auch keines haben.
-- **VORSCHLAG:** Nicht nur auf `unit_id` pro Zeitpunkt Exklusivität, sondern auch pro Volk/Primärrolle gegen überlappende Zuweisungen. Ein Gerät kann später neu zugeordnet werden, alte Zuordnungen bleiben erhalten.
+- **VORSCHLAG:** Nicht nur auf `unit_id` pro Zeitpunkt Exklusivität, sondern auch pro Volk/Primärrolle gegen überlappende Zuweisungen. Eine `hive`-Einheit darf nur einem Volk, eine `environment`-Einheit nur einer Messstelle zugeordnet werden. Ein Gerät kann später neu zugeordnet werden; alte Zuordnungen bleiben erhalten.
 - **OFFEN:** Bei späteren mehreren physischen Sensoren im selben Stock ist „ein primäres Stockmesssystem“ **nicht** gleichzusetzen mit „genau ein Sensor / ein Kanal“.
 - **Wichtige Korrektur:** Umweltmessstellen werden durch Umweltgeräte/Einheiten belegt; daraus entsteht **keine zweite primäre Stockmesseinheit** des Volkes.
 
