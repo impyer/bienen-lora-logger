@@ -50,7 +50,10 @@ Bei allen folgenden Punkten ist der Status explizit ausgewiesen:
 
 ## 3. Identitäten und Beziehungen
 
-### 3.1 Bienenstand und Volk
+### 3.1 Bienenstand, Volk und physische Beute
+
+- **[BESTÄTIGT – 12.10.2026]** Die **physische Beute ist eine eigenständige, dauerhaft identifizierbare Entität** mit eigener Historie, unabhängig von Volk, Bienenstand, Sensor und Messgerät. Die Beuten-ID bleibt bei einem gewöhnlichen Volk-/Stand-/Gerätewechsel erhalten. Einzelheiten zu Beutenaufbau und seltenen Sonderfällen sind **noch offen**.
+- **[VORSCHLAG]** Belegungs- und Standortintervalle führen die Beziehungen `Volk ↔ Beute` und `Beute ↔ Bienenstand` historisch. Der Stand eines Volkes kann bei gesicherter Beutenbelegung und Standaufstellung daraus abgeleitet werden; historische Lücken und abweichende Direktangaben sind ausdrücklich zu behandeln. [Fachentwurf Beute–Volk–Stand](beute-volk-stand-beziehungen-v01.md).
 
 - **[BESTÄTIGT]** Ein Bienenvolk erhält eine **dauerhaft eindeutige interne Volk-ID**; diese darf nicht aus der Loggernummer, einer BEEP-ID oder einer Standbezeichnung abgeleitet werden.
 - **[BESTÄTIGT]** Ein Volk kann den Bienenstand wechseln; Standort- und Gerätezuteilungen werden **zeitlich historisiert**, damit alte Messungen am damals zutreffenden Stand ausgewertet werden.
@@ -128,8 +131,8 @@ Bei allen folgenden Punkten ist der Status explizit ausgewiesen:
 
 | Kandidat | Zweck | Status |
 |---|---|---|
-| `apiaries`, `colonies` | Stände und dauerhafte Volk-Identitäten | [VORSCHLAG] Tabellenname |
-| `colony_placements` | Zeitliche Standortzuordnung | [VORSCHLAG] |
+| `apiaries`, `colonies`, `hives` | Drei **bestätigte, getrennte Identitäten** Stand / Volk / physische Beute; englische Tabellennamen sind Vorschläge | [BESTÄTIGT] fachliche Trennung, [VORSCHLAG] Namen |
+| `colony_hive_occupancies`, `hive_apiary_placements` | Historische Beziehungen Volk–Beute und Beute–Stand; direkte `colony_placements` nur als zu klärender Ersatznachweis bei unbekannter Beute | [VORSCHLAG], Details offen |
 | `colony_lifecycle_events`, `colony_lineage` | Ableger, Herkunft, Teilungen, Vereinigungen | [VORSCHLAG] |
 | `data_sources`, `devices`, `device_assignments` | Drei Datenquellengruppen, Geräte, zeitliche Primärmesssystemzuordnung | [VORSCHLAG] |
 | `measurement_points`, `sensors`, `measurement_types` | Umweltmesspunkte, Sensorkanäle, Messgrößen | [VORSCHLAG] |
