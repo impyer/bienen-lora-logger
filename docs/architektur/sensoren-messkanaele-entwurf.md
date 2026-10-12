@@ -132,6 +132,6 @@ Die erste Schnittstellen-Bestandsaufnahme wurde in [**Messgrößen- und Kanal-In
 
 ## 10. Nächster Architektur-Schritt
 
-Vor Datenbank-Installation oder Migration: aus diesem Konzept ein **konkretes Kanal-Inventar je vorhandener Geräte- und Softwarekonfiguration** erzeugen und die Abbildung `Quellfeld → Kanal → Messgröße → Messposition → Einheit → Zeitgültigkeit` durchgehen. Erst danach das ER-Diagramm mit Kardinalitäten/Constraints und die SQL-DDL entwerfen.
+**Korrigierte Reihenfolge (12.10.2026):** Zuerst das **allgemeingültige fachliche Messgrößenmodell** ([Gewicht, Temperatur, Feuchte, Schall und Vibration](messgroessen-am-bienenvolk.md)), die Messpositionen und die Datenformen (Skalar, Signal, Spektralmerkmal) entwerfen. Danach das ER-Modell und die fachlichen Constraints ausarbeiten. Das vorhandene technische [Kanal-Inventar](messgroessen-kanalinventar.md) dient **später der Geräteintegration**; eine vollständige Ist-Belegung von `beelogger1` ist **nicht nötig**, um das allgemeingültige Datenmodell zu entwerfen. Vor produktiver Anbindung müssen die tatsächlich genutzten Felder selbstverständlich verifiziert werden.
 
 **Kein** Produktiveingriff, **kein** Laufzeittest, **keine** BEEP-Schnittstelle implementiert und **keine** allgemeine Verifikation aller Sensorfelder beansprucht.
