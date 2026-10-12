@@ -3,7 +3,7 @@
 **Datum:** 12.10.2026  
 **Status:** **Fachlicher Entwurf – noch kein genehmigtes SQL-/Tabellenschema (G0)**  
 **Änderungsklasse:** D0 (Dokumentation), T0 = Abgleich mit bestätigten Betreiberentscheidungen und vorhandenen Architekturunterlagen. Keine Datenbank-, Migrations-, Feld- oder Funktionstests.  
-**Verbindliche Betreiberentscheidung vom 12.10.2026:** **[BESTÄTIGT]** Die **physische Beute** wird als **eigenständige, dauerhaft identifizierbare Entität mit Historie** geführt. Sie ist ausdrücklich nicht identisch mit Bienenvolk, Bienenstand, Sensor oder Messgerät.  
+**Verbindliche Betreiberentscheidungen vom 12.10.2026:** **[BESTÄTIGT]** Die **physische Beute** wird als **eigenständige, dauerhaft identifizierbare Entität mit Historie** geführt. Sie ist ausdrücklich nicht identisch mit Bienenvolk, Bienenstand, Sensor oder Messgerät. **[BESTÄTIGT]** Eine Beute darf **gleichzeitig höchstens ein Bienenvolk beherbergen**, kann aber auch unbewohnt sein. Nacheinander sind verschiedene Völker möglich. **[OFFEN]** Ob ein Volk zeitgleich mehrere Beuten nutzen darf, wurde damit nicht ausdrücklich entschieden.  
 **Lesehilfe:** **[BESTÄTIGT]** = ausdrückliche Anforderung; **[VORSCHLAG]** = noch nicht beschlossene genaue Modellierung; **[OFFEN]** = erfordert weitere Entscheidung; **[BEISPIEL]** = synthetischer Testfall, keine reale Betriebsaufnahme.
 
 **Übergeordnete Dokumente:** [Anforderungen](anforderungen-datenplattform.md), [allgemeine Messgrößen](messgroessen-am-bienenvolk.md), [Messreihe, Messkontext und Datenqualität](messreihe-messkontext-zeitqualitaet-v01.md), [ER-Gesamtentwurf](er-modell-datenplattform-v01.md).
@@ -83,7 +83,7 @@ erDiagram
 
 ### Invarianten im Normalfall
 
-1. **Volk–Beute:** Ein Volk belegt **höchstens eine** Beute zu einem Zeitpunkt; eine Beute beherbergt **höchstens ein** Volk zu einem Zeitpunkt. **Ausnahmen** (z. B. technisch geteilte Beute, gleichzeitiger Ableger-Aufbau) sind **noch nicht beschlossen** und dürfen nicht stillschweigend als Fehlerfreiheit angenommen werden.
+1. **Volk–Beute (teilweise BESTÄTIGT):** Eine **Beute beherbergt höchstens ein Volk gleichzeitig** (**0..1**, ausdrücklich bestätigt). Der Normalfall „ein Volk belegt gleichzeitig höchstens eine Beute“ bleibt **[VORSCHLAG / OFFEN]**, nicht aus der bestätigten Gegenrichtung ableiten. Baulich getrennte Abteile dürfen die bestätigte Regel **nicht stillschweigend umgehen**; ob solche Abteile als eigene identifizierbare Beuten modelliert werden, bleibt für den Sonderfall offen.
 2. **Beute–Stand:** Eine Beute steht zum Zeitpunkt `t` an **höchstens einem** Bienenstand; Lücken/unbekannte Zeiten bleiben ausdrücklich möglich.
 3. **Primäre Stockmessung:** Ein Volk besitzt zu `t` **höchstens eine** primäre Messeinheit, entweder beelogger **oder** BEEP Base, oder **keine**. Die digitale BEEP-Stockkarte ist **unabhängig** davon.
 4. **Gerätezuordnung:** Derselbe physische Montagepunkt / dieselbe Messeinheit darf nicht ohne explizite Mehrfach-/Sonderkonfiguration als zwei gleichzeitige primäre Stockmesseinheiten gelten.
@@ -99,6 +99,12 @@ erDiagram
 Ein Messwert über `[start,end)` kann **zwei** Belegungs- oder Standortintervalle berühren. Dann darf die Auswertung ihn **nicht** blind dem Volk oder Standort am Messfensterende zuschlagen.
 
 **[VORSCHLAG]** Analyse wählt eine dokumentierte Regel: in eindeutig belegte Teilintervalle aufsplitten **nur wenn die Messsemantik dies erlaubt**, anderenfalls als `crosses_assignment_boundary` kennzeichnen und für vergleichbare Volksanalysen ausklammern. Summen nicht proportional teilen, wenn das physikalisch unbegründet wäre.
+
+### Präzisierung der späteren Datenbank-Constraint (VORSCHLAG)
+
+Die bestätigte Regel wird für eine Tabelle wie `colony_hive_occupancies` durch eine **zeitliche Nichtüberlappung pro `hive_id`** umgesetzt. Zwei Belegungsintervalle derselben Beute dürfen sich bei `[valid_from, valid_to)` nicht überschneiden; an exakt derselben Grenze kann das nächste Volk beginnen. Historisch vorherige und nachfolgende Völker bleiben unverändert nachvollziehbar. Ein reguläres `UNIQUE(hive_id)` über sämtliche Historieneinträge wäre **falsch**, da es die Wiederbelegung verhindert.
+
+**Noch nicht festgelegt:** Ob dieselbe Exklusion auch pro `colony_id` gilt; was bei unbekanntem Wechselzeitpunkt passiert; wie ein explizit als „leer“ protokolliertes Ereignis von einer unbekannten Belegung unterschieden wird. Eine dauerhafte `hives.current_colony_id` als einzige Wahrheit ist ausdrücklich **nicht** ausreichend.
 
 ## 5. Eine einzige zeitlich konsistente Standort-Aussage
 
@@ -170,7 +176,7 @@ Stand A --(Umweltmesspunkt, Zeit t)--> lokaler Wetterkontext
 ## 9. Offene Entscheidungen vor der SQL-Phase
 
 1. **Beutenidentität:** Welche physischen Kernkomponenten definieren eine Beute über Umbauten hinweg? Empfehlung: als Einheit vergebene Beute-ID, Bauteile und Zargen nur bei Bedarf separat verfolgen.
-2. **Belegungs-Kardinalität:** Reicht im ersten SQL-Entwurf 0..1 Volk pro Beute und 0..1 Beute pro Volk je Zeitpunkt? Sollen Sonderbeuten mit mehreren räumlich getrennten Abteilen von Anfang an fachlich eingeplant werden?
+2. **Belegungs-Kardinalität:** **BESTÄTIGT: höchstens 1 Volk pro Beute je Zeitpunkt.** Noch **OFFEN** ist die Gegenrichtung (höchstens eine Beute pro Volk?), sowie die Definition eigenständiger Beutenidentitäten für baulich getrennte Abteile. Die bestätigte Beutenseiten-Regel darf durch künftige Erweiterungen nicht verletzt werden.
 3. **Stand-Historie mit unbekannter Beute:** Aus dem Beutenstand ableiten, jedoch dokumentierte Direktangaben als Ersatznachweis. Ausführung der Prioritäts-/Konfliktregel offen.
 4. **Lebenszyklus bei Vereinigung:** Bleibt eine der Volk-IDs bestehen, oder entsteht eine neue? Ereignisrollen dürfen diese Frage nicht vorwegnehmen.
 5. **Beutenaufbau:** Zargen, Rähmchen, Deckel, Boden als optionale Komponenten mit Masse/Einbauzeit oder zunächst nur Konfigurationsereignisse? Beutenmasse ist keine Messung des Volkes.
