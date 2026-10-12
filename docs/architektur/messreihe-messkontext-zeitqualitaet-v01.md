@@ -132,11 +132,11 @@ In einer **SQL-Entscheidung** sind referenziell gesicherte Zieltypen (z. B. getr
 
 ### 4.1 Gewicht und Eingriffe
 
-**[BESTÄTIGT]** Eine Beute besteht aus **einer oder mehreren Zargen**. **[VORSCHLAG]** Die zugehörige Zahl und Zusammenstellung werden als **zeitlich gültige Beutenkonfiguration** geführt. Jede Änderung kann die Stockwaagenmessung sprunghaft beeinflussen. Das ist ein Kontextereignis, **keine** automatische Messung des Honig- oder Futterverbrauchs. Die optionale individuelle Zargen-ID bleibt offen. [Beutenaufbau-Fachentwurf](beute-volk-stand-beziehungen-v01.md).
+**[BESTÄTIGT]** Eine Beute besteht aus **einer oder mehreren Zargen**; der Betreiber **dokumentiert deren Aufbau in der digitalen BEEP-Stockkarte**. **[VORSCHLAG]** Die zugehörige Zahl und Zusammenstellung werden **ausschließlich als aus BEEP-Stockkarteninformationen abgeleitete**, zeitlich gültige Beutenkonfiguration geführt, **nicht zusätzlich unabhängig manuell**. Jede Änderung kann die Stockwaagenmessung sprunghaft beeinflussen. Das ist ein Kontextereignis, **keine** automatische Messung des Honig- oder Futterverbrauchs. Die optionale individuelle Zargen-ID bleibt offen. [Beutenaufbau-Fachentwurf](beute-volk-stand-beziehungen-v01.md).
 
 
 
-**[VORSCHLAG]** `hive_configuration_events` dokumentiert neben Stockkartenereignissen physische Änderungen: Beuten-/Zargenbestand, neue Waage/Tara, Fütterung, Ernte, Umstellen usw., mit Ereigniszeitpunkt und Herkunft. Solche Ereignisse können Gewichtssprünge erklären, dürfen aber **nicht** automatisch als einzige Ursache behauptet werden.
+**[VORSCHLAG]** `hive_configuration_events` ist eine **aus importierten BEEP-Stockkartenereignissen erzeugte Projektion** für Änderungen am Zargen-/Beutenaufbau. Sie bildet keine zweite, unabhängig editierbare Primärquelle. Andere Gewichts-Kontexte (neue Waage/Tara, Fütterung, Ernte, Umstellen) können aus der jeweils maßgeblichen dokumentierten Quelle stammen, mit Ereigniszeitpunkt und Herkunft. Die Zuordnung zum physischen `hive_id` erfordert die belegte zeitliche Volk–Beute-Historie oder eine explizite Quellreferenz; bei Unklarheit keine Annahme. Solche Ereignisse können Gewichtssprünge erklären, dürfen aber **nicht** automatisch als einzige Ursache behauptet werden.
 
 Eine reine Gewichtskurve **misst nicht direkt** Honigertrag, Volksstärke oder Futterverbrauch; diese dürfen nur als **abgeleitete Schätzungen** mit Berechnungsprotokoll auftreten.
 
