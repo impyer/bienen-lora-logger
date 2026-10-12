@@ -172,6 +172,7 @@ Die folgenden Fälle müssen das ER-Modell abbilden können; sie sind **Akzeptan
 ## 11. Quellen, verwandte Projektunterlagen und Pflege
 
 ### Innerhalb dieses Repositories
+- [Fachliches ER-Modell der Datenplattform 0.1](er-modell-datenplattform-v01.md) – Identitäten, zeitliche Geräte-/Sensorzuordnungen, Rohdaten, Messwertsemantik und Analyseprovenienz; **noch nicht freigegeben**.
 - [Fachentwurf Sensoren und Messkanäle](sensoren-messkanaele-entwurf.md) – **Entwurf 0.1, noch nicht freigegeben**; zeitliche Interpretation von Quellfeldern, Sensorwechsel, Kalibrierung und Qualität.
 - [Messgrößen- und Kanal-Inventar 0.1](messgroessen-kanalinventar.md) samt [maschinenlesbarer CSV](messgroessen-kanalinventar.csv) – quellgeprüfte Felder; tatsächliche Sensorbestückung und BEEP-API-Felder bleiben als solche offen.
 - [Ist-Inventur beelogger1](ist-inventur-beelogger1.md) – erster gerätebezogener Abgleich, einschließlich [read-only Diagnose](../../server/diagnose/README.md); tatsächliche Sensorbestückung noch offen.
