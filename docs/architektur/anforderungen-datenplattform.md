@@ -173,7 +173,7 @@ Die folgenden Fälle müssen das ER-Modell abbilden können; sie sind **Akzeptan
 
 ## 11. Quellen, verwandte Projektunterlagen und Pflege
 
-### Innerhalb dieses Repositories
+- **[Fachentwurf Messreihe, Messkontext, Zeit und Datenqualität 0.1](messreihe-messkontext-zeitqualitaet-v01.md)** – volkzentrierte und geräteunabhängige Struktur von Beobachtungen; **nicht freigegeben**.
 - **[Biologisch relevante Messgrößen am und im Bienenvolk](messgroessen-am-bienenvolk.md)** – **neue vorrangige Modellperspektive:** Gewicht, Mehrpunkt-Temperatur, Feuchte, Luftschall und optionale Vibration, unabhängig von der tatsächlichen Sensorbelegung eines Geräts.
 - [Fachliches ER-Modell der Datenplattform 0.1](er-modell-datenplattform-v01.md) – Identitäten, zeitliche Geräte-/Sensorzuordnungen, Rohdaten, Messwertsemantik und Analyseprovenienz; **noch nicht freigegeben**.
 - [Fachentwurf Sensoren und Messkanäle](sensoren-messkanaele-entwurf.md) – **Entwurf 0.1, noch nicht freigegeben**; zeitliche Interpretation von Quellfeldern, Sensorwechsel, Kalibrierung und Qualität.
