@@ -84,7 +84,9 @@ erDiagram
 
 ## 4. Identitäts- und Zuordnungsregeln (fachliche Constraints)
 
-### 4.1 Bienenvolk und Stand
+### 4.1 Bienenvolk, physische Beute und Stand
+
+**[BESTÄTIGT – 12.10.2026]** Die physische **Beute besitzt eine eigene, dauerhafte Identität und Historie**. Die im ursprünglichen ER-0.1 gezeichnete direkte `colony_placements`-Beziehung bleibt als **historischer Entwurfsstand** sichtbar und ist **nicht mehr als einziges fachliches Standortmodell geeignet**. Neue vorrangige fachliche Beziehungskette: `colony ↔ (zeitlich) hive ↔ (zeitlich) apiary`. Direkte Volk–Stand-Nachweise bei unbekannter Beute und ihre Priorität sind offen. Siehe [Beute–Volk–Stand: Entwurf 0.1](beute-volk-stand-beziehungen-v01.md).
 
 - `colonies.id` ist eine **stabile interne ID**, keine beelogger-/BEEP-ID.
 - `colony_placements(colony_id, apiary_id, valid_from, valid_to)` dokumentiert die historische Bienenstandzuordnung.
@@ -141,7 +143,7 @@ erDiagram
 
 **[BESTÄTIGT]** Die Modellierung startet bei **Gewicht, Temperatur, Feuchte und Schall**, nicht bei einem bestimmten Gerät, Kanalnamen oder beelogger-Verzeichnis. Ein einzelner beelogger ist **keine** Referenzhardware und keine Voraussetzung für die fachliche Schemaentwicklung. Siehe [biologisch relevante Messgrößen](messgroessen-am-bienenvolk.md).
 
-**[VORSCHLAG]** Neben `colonies` eine physische `hives`-Identität und `colony_hive_assignments` prüfen: Die Stockwaage erfasst **Beutenmasse**, nicht unmittelbar Futter- oder Bienenmasse. Sensoren können an Beute/Brutbereich/Deckel befestigt sein, während das biologische Volk weiterhin separat identifiziert wird. Zeitgültige Beziehungen verhindern, dass ein Beutenwechsel einen falschen biologischen Gewichtssprung suggeriert.
+**[BESTÄTIGT]** Neben `colonies` eine **dauerhaft identifizierte physische Beute** als eigene fachliche Entität führen; **[VORSCHLAG]** sind `hives` als Tabellenname und `colony_hive_assignments` als Historienbeziehung: Die Stockwaage erfasst **Beutenmasse**, nicht unmittelbar Futter- oder Bienenmasse. Sensoren können an Beute/Brutbereich/Deckel befestigt sein, während das biologische Volk weiterhin separat identifiziert wird. Zeitgültige Beziehungen verhindern, dass ein Beutenwechsel einen falschen biologischen Gewichtssprung suggeriert.
 
 **[VORSCHLAG]** Für eine Messung ist primär `measurement_quantity + physical_context + observation_time/window` fachlich bedeutsam. `device_channel` und `channel_mapping` dienen der **Herkunft und Integration**, nicht der Definition einer biologischen Größe.
 
@@ -270,7 +272,7 @@ Dasselbe Volk kann morgen in einem anderen Cluster liegen; dieselbe Clusterziffe
 
 1. **Identitäten und Target-FKs:** Sollen `measurement_positions` getrennte Typen (Kolonie/Stand) erhalten, um referenzielle Integrität ohne polymorphe Fremdschlüssel sicherzustellen?
 2. **Zeitvalidität:** Stände, Geräte/Einheiten, Sensortausch, Kanalinterpretation und Firmware-/Decoderprofile müssen klar definierte Priorität und nachvollziehbare Konfigurationsänderungen erhalten.
-3. **Biologische Messgrößen und Signale:** zuerst die gemeinsamen Begriffe für Stockgewicht, mehrpunktige Temperatur, Feuchte, Luftschall und Vibration sowie deren unterschiedliche Datenformen festlegen; außerdem prüfen, ob die physische **Beute** als von der Volk-ID getrennte Entität notwendig ist. Die tatsächliche Zuordnung von `beelogger1` und anderen Geräten bleibt **nachgeordnete Integrationsarbeit**, für die eine [optionale read-only Inventur](../../server/diagnose/README.md) existiert; sie wurde nicht auf der ThinkStation durchgeführt.
+3. **Biologische Messgrößen und Signale:** gemeinsame Begriffe für Stockgewicht, mehrpunktige Temperatur, Feuchte, Luftschall und Vibration sowie deren unterschiedliche Datenformen festlegen; die physische **Beute als eigenständige Entität ist inzwischen BESTÄTIGT** und ihre Historienbeziehungen werden im [Beuten-Fachentwurf](beute-volk-stand-beziehungen-v01.md) konkretisiert. Die tatsächliche Zuordnung von `beelogger1` und anderen Geräten bleibt **nachgeordnete Integrationsarbeit**, für die eine [optionale read-only Inventur](../../server/diagnose/README.md) existiert; sie wurde nicht auf der ThinkStation durchgeführt.
 4. **BEEP-Base-Import:** Zuerst echte, autorisierte Schnittstellen-/Exportstruktur prüfen; keine angenommene Feldliste.
 5. **Beobachtungsrevisionen:** Entscheidung, wie unveränderliche Ursprungsdaten, fachliche Neubewertungen und DB-Snapshots revisionssicher verbunden werden.
 6. **Aggregationsregeln:** Für Regen `rain_mm` insbesondere die Reset- und Bezugszeit recherchieren und ggf. mit echten Daten validieren.
@@ -286,6 +288,7 @@ PostgreSQL wird hier **nicht installiert**, und es werden **keine produktiven Ta
 - **[Biologisch relevante Messgrößen am/im Bienenvolk](messgroessen-am-bienenvolk.md) – vorrangige fachliche Quelle für die Definition der Datenobjekte.**
 
 - [Bestätigte Anforderungen und Statusregeln](anforderungen-datenplattform.md)
+- **[Beute–Volk–Stand: bestätigte Identität, vorgeschlagene Kardinalitäten](beute-volk-stand-beziehungen-v01.md)**
 - [Sensor- und Messkanalentwurf](sensoren-messkanaele-entwurf.md)
 - [Messgrößen- und Kanalkatalog](messgroessen-kanalinventar.md)
 - [Ist-Inventur beelogger1](ist-inventur-beelogger1.md)
