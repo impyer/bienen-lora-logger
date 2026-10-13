@@ -1,5 +1,9 @@
 # Änderungen
 
+## 2026-10-13 – Fanout GND/+3V3 zu den Innenlagen
+
+- Neu `hardware/kicad/werkzeug/platine_fanout.py`: jedes SMD-Pad an GND und an +3V3 (über der +3V3-Fläche) mit kurzer Leiterbahn und eigener Via an L2/L3; kein Via unter fremden Bauteilen oder in den Lochsperren. 120 Anbindungen, DRC 0, Schaltplanabgleich 0, offene Verbindungen 322 → 202. Bericht: `docs/testberichte/2026-10-13-platine-fanout.md`.
+
 ## 2026-10-13 – Versorgungslage L3
 
 - Neu `hardware/kicad/werkzeug/platine_lagen.py`: auf L3 eine +3V3-Fläche über Mikrocontroller, Funkmodul, Flash und Bedienteilen mit Arm zu den Reglern U202/U203, darunter GND-Füllung über die übrige Platine (Lastenheft M8, A3). DRC 0 Verstöße, Schaltplanabgleich 0. Bericht: `docs/testberichte/2026-10-13-platine-lage-l3.md`.
