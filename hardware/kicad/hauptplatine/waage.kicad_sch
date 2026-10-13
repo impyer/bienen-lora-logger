@@ -4839,7 +4839,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm"
 			(at 86.36 124.46 0)
 			(hide yes)
 			(show_name no)
@@ -5334,7 +5334,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_SON:USON-10_2.5x1.0mm_P0.5mm"
 			(at 78.74 215.9 0)
 			(hide yes)
 			(show_name no)
@@ -5450,7 +5450,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
 			(at 226.06 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -5545,7 +5545,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm"
 			(at 264.16 157.48 0)
 			(hide yes)
 			(show_name no)

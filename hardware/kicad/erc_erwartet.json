@@ -5,6 +5,11 @@
       "type": "footprint_link_issues",
       "item": "Symbol U201 [BQ25185]",
       "grund": "Footprint BQ25185 DLH0010A (2,2 x 2 mm) wird vor dem Layout in der Bibliothek 'Bienen' angelegt"
+    },
+    {
+      "type": "footprint_link_issues",
+      "item": "Symbol U401 [Ra-01SH]",
+      "grund": "Footprint Ai-Thinker Ra-01SH (16 Stempellöcher) wird vor dem Layout in der Bibliothek 'Bienen' angelegt (REG26-08)"
     }
   ],
   "akku-platine/akku.kicad_sch": []

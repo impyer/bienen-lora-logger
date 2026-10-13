@@ -27,6 +27,7 @@ Stand 13.10.2026: **Akku-Platine** und alle Blätter der Hauptplatine (**Versorg
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
 4. `werkzeug/netz_tests.py`: 178 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon: Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA, symmetrische Vorspannung, ESD direkt an der Klemme, **Hochpass, Sallen-Key-Grenzfrequenz und -Güte sowie RC vor PA1 aus den Bauteilwerten** (mit Gegenprobe vertauschter Kondensatoren), Spannungsfolger-Beschaltung, J5/J601 gegen `anschluesse.md`; Blatt Anschlüsse: 1-Wire- und I²C-Netze, **Pull-ups nur an 3V3_SW** (HW26-04, mit Gegenprobe), ESD-Arrays, J8-Pin 6 frei, eigene Polzahl je Sensorklemme, Masse an Pin 1, J6/J7/J8/J11 gegen `anschluesse.md`
+5. `werkzeug/pin_footprint.py` (REG26-08): für jedes Bauteil Footprint vorhanden, **Symbol-Pins = Footprint-Pads** und **Symbol-Pinnamen = Pinbelegung laut Datenblatt** (Tabelle mit Quelle und Status [V]/[V*]/[A]/[P] im Skript); schreibt [`pin_footprint.md`](pin_footprint.md), Exit 1 bei Abweichung. Offen: eigene Footprints U201 (BQ25185 DLH), U401 (Ra-01SH), SW304 (Reedkontakt)
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
 
@@ -35,7 +36,7 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|
 | Akku-Platine | 0 | |
-| Hauptplatine | 1 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH); alle globalen Netze haben ihre Gegenstelle |
+| Hauptplatine | 2 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH, Ra-01SH); alle globalen Netze haben ihre Gegenstelle |
 
 ## Board-Kennung und Umgebung (REG26-10)
 
@@ -67,7 +68,8 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 
 ## Offene Punkte [P]
 
-- Footprints selbst anlegen: BQ25185 (DLH0010A, 2,2 × 2 mm), Akkuhalter Keystone 1043 (SMD; Platzhalter 1042).
+- Footprints selbst anlegen: BQ25185 (DLH0010A, 2,2 × 2 mm), Ra-01SH (16 Stempellöcher), Akkuhalter Keystone 1043 (SMD; Platzhalter 1042); Reedkontakt wählen. Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
+- Datenblatt-Pinbelegung noch nicht gelesen ([A]/[P] in `pin_footprint.md`): USBLC6-2SC6, SPI-Flash (je gewähltem Typ), AO3400A, S8550 (C397181), Quarz Y301, Side-View-LED, TVS D401. HY2111, FS8205, RT9080, Ra-01SH nur aus früherer Sitzung ([V*]) – beim Footprint-Anlegen erneut lesen.
 - Blatt MCU: Reedkontakt SW304 (Teil und Footprint), Side-View-LED D301 (Platzhalter 0603), Ferrit FB301 (LCSC-Nummer).
 - Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.
 - Blatt Waage: Footprint WSON-6 2 × 2 (KiCad) mit TI DRV0006A vergleichen (U501); Spule L501 1 µH mit Isat ≥ 0,7 A wählen; Ferrite FB501 (600 Ω) und FB502 (Gleichstromwiderstand ≤ 0,1 Ω) wählen; Pinfolge des gelieferten S8550 (Q501) mit 1 B, 2 E, 3 C vergleichen; R507 (Kanal B an INA−) am Muster bewerten.

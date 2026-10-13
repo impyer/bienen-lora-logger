@@ -65,3 +65,5 @@ for f in $WURZELN; do
 done
 echo "PDF und Netzlisten aktualisiert"
 python3 werkzeug/netz_tests.py
+# REG26-08: Pin-/Footprint-Abgleich (schreibt pin_footprint.md, Exit 1 bei Abweichung)
+python3 werkzeug/pin_footprint.py

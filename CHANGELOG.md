@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-13 – Pin-/Footprint-Abgleich (REG26-08)
+
+- Neu `hardware/kicad/werkzeug/pin_footprint.py` (in `pruefen.sh`): je Bauteil Footprint vorhanden, Symbol-Pins = Footprint-Pads und Symbol-Pinnamen = Pinbelegung laut Datenblatt (Tabelle mit Quelle und Status). Erzeugt `hardware/kicad/pin_footprint.md`; Exit 1 bei Abweichung, Gegenprobe bestanden.
+- Funde behoben: Footprints für U401, U501 (WSON-6), U502 (SOIC-16, laut HX711-Datenblatt), Q501 (SOT-23), D501 (USON-10) eingetragen; **TVS D401 gedreht** (Pad 1 an +3V3, sonst Kurzschluss mit einer unidirektionalen TVS).
+- Ergebnis: 161 Bauteile, 0 Abweichungen; offen: eigene Footprints U201 (BQ25185 DLH), U401 (Ra-01SH), Reedkontakt SW304 sowie Datenblätter mit [A]/[P]. ERC Hauptplatine 2 erwartete Meldungen (fehlende Footprints U201, U401). Netzprüfung 178/178. Bericht: `docs/testberichte/2026-10-13-reg26-08-pin-footprint.md`.
+
 ## 2026-10-13 – Schaltplanblatt Anschlüsse, Schaltplan vollständig (SCH26-07)
 
 - **Neues Blatt „Anschlüsse“** (`hauptplatine/anschluesse.kicad_sch`, Teile 7xx): DS18B20-Klemmen J701/J702 (= J6/J7) am gemeinsamen 1-Wire-Bus PA8 mit 4,7 kΩ an 3V3_SW und ESDS304; BME280-Klemme J703 (= J8, 6-polig, Pin 6 frei) mit 1,8-kΩ-Pull-ups an 3V3_SW und ESDS304; Erweiterungsleiste J704 (= J11, 2 × 6). Damit sind alle Blätter der Hauptplatine im Entwurf; SCH26-07 im Entwurf behoben.

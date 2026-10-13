@@ -364,7 +364,7 @@ def zeichne_mcu(b, T):
 def funk(p):
     """Blatt Funk + Flash (mcu-funk.md 2, 3.1, 3.2): Ra-01SH an SPI1, SPI-Flash 64 Mbit am selben Bus."""
     b = p.blatt("Funk + Flash", "funk.kicad_sch", titel="Funk + Flash: Ra-01SH (SX1262/LLCC68), SPI-NOR-Flash 64 Mbit")
-    b.teil("Bienen:Ra-01SH", "U401", "Ra-01SH", lcsc="C2764087",
+    b.teil("Bienen:Ra-01SH", "U401", "Ra-01SH", fp="Bienen:Ai-Thinker_Ra-01SH", lcsc="C2764087",
            netze={"3.3V": "+3V3", "RESET": "LORA_RST", "NSS": "RF_NSS", "SCK": "RF_SCK", "MOSI": "RF_MOSI", "MISO": "RF_MISO",
                   "BUSY": "LORA_BUSY", "DIO1": "LORA_DIO1", "ANT": "NC", "TXEN": "TXEN_MOD", "RXEN": "RXEN_MOD",
                   "DIO2": "NC", "DIO3": "NC", "GND": "GND"},
@@ -373,8 +373,8 @@ def funk(p):
            info="Puffer für Sendestromspitzen > 200 mA (mcu-funk.md 2.2) [A]")
     b.teil("Device:C", "C402", "10µ 10V X5R", fp=C0805, netze={"1": "+3V3", "2": "GND"})
     b.teil("Device:C", "C403", "100n", fp=C0603, netze={"1": "+3V3", "2": "GND"}, info="direkt an Pin 3")
-    b.teil("Device:D_TVS", "D401", "TVS 3,3V", fp="Diode_SMD:D_SOD-523", netze={"1": "GND", "2": "+3V3"},
-           info="ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Teil wählen [P]")
+    b.teil("Device:D_TVS", "D401", "TVS 3,3V", fp="Diode_SMD:D_SOD-523", netze={"1": "+3V3", "2": "GND"},
+           info="ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Pad 1 an +3V3, damit auch eine unidirektionale TVS (Kathode = Pad 1) richtig sitzt; Teil wählen [P]")
     for ref, mod, mcu_ in (("R401", "RF_SCK", "SPI_SCK"), ("R402", "RF_MISO", "SPI_MISO"), ("R403", "RF_MOSI", "SPI_MOSI"),
                            ("R404", "RF_NSS", "LORA_NSS")):
         b.teil("Device:R", ref, "33", fp=R0603, netze={"1": mcu_, "2": mod}, info="Reihenwiderstand 10–100 Ω laut Datenblatt")
@@ -411,9 +411,9 @@ def zeichne_funk(b, T):
     D(M.p("3.3V"), (176.53, M.p("3.3V")[1]), (176.53, y_r), (109.22, y_r))
     b.versorgung("+3V3", 109.22, y_r, "oben")
     for ref, x in (("C401", 116.84), ("C402", 132.08), ("C403", 147.32), ("D401", 162.56)):
-        rot = 90 if ref == "D401" else 0
-        S(T[ref], x, 82.55 if ref != "D401" else 82.55, rot=rot)
-        pin = "2" if ref == "D401" else "1"
+        rot = 270 if ref == "D401" else 0     # Pad 1 (Kathodenseite bei unidirektionaler TVS) an +3V3 (REG26-08)
+        S(T[ref], x, 82.55, rot=rot)
+        pin = "1"
         D(T[ref].p(pin), (x, y_r))
     # --- RESET, SPI, BUSY, DIO1 ---------------------------------------------
     x_l = 86.36
@@ -467,7 +467,7 @@ def waage(p):
     [P] am Muster bzw. vor der Bestellung prüfen."""
     b = p.blatt("Waage", "waage.kicad_sch", titel="Waage: 5-V-Wandler TPS61240, HX711, Wägezelle H40A")
     # --- 1 5-V-Wandler (waage.md 2) ------------------------------------------
-    b.teil("Bienen:TPS61240", "U501", "TPS61240DRVR", lcsc="C59567",
+    b.teil("Bienen:TPS61240", "U501", "TPS61240DRVR", fp="Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm", lcsc="C59567",
            netze={"VIN": "SYS", "L": "L_5V", "EN": "WAAGE_EIN", "VOUT": "5V_WAAGE", "FB": "5V_WAAGE", "GND": "GND", "EP": "GND"},
            info="fest 5,0 V ±2 %, Lasttrennung im Aus [V]; Footprint KiCad WSON-6 2×2 mit TI DRV0006A vergleichen [P]")
     b.teil("Device:C", "C501", "4,7µ 16V X5R", fp=C0805, netze={"1": "SYS", "2": "GND"},
@@ -486,12 +486,12 @@ def waage(p):
     b.teil("Device:C", "C504", "100n", fp=C0603, netze={"1": "VSUP_HX", "2": "GND"}, info="direkt an VSUP (Pin 1)")
     b.teil("power:PWR_FLAG", "#FLG501", "PWR_FLAG", netze={"1": "VSUP_HX"}, info="VSUP aus 5V_WAAGE über FB501 (Ferrit ist für den ERC kein Treiber)")
     # --- 2 HX711 mit Analogregler (waage.md 3) --------------------------------
-    b.teil("Analog_ADC:HX711", "U502", "HX711", lcsc="C43656",
+    b.teil("Analog_ADC:HX711", "U502", "HX711", fp="Package_SO:SOIC-16_3.9x9.9mm_P1.27mm", lcsc="C43656",
            netze={"VSUP": "VSUP_HX", "BASE": "HX_BASE", "AVDD": "HX_AVDD", "VFB": "HX_VFB", "AGND": "GND", "VBG": "HX_VBG",
                   "INA-": "HX_INN", "INA+": "HX_INP", "INB-": "HX_INB", "INB+": "HX_INB", "PD_SCK": "HX_PD_SCK",
                   "DOUT": "HX_DOUT_IC", "XO": "NC", "XI": "GND", "RATE": "GND", "DVDD": "3V3_SW"},
            info="Kanal A, Verstärkung 128; RATE an GND = 10 Werte/s; XI an GND = interner Takt [V]")
-    b.teil("Transistor_BJT:SS8550", "Q501", "S8550", lcsc="C397181",
+    b.teil("Transistor_BJT:SS8550", "Q501", "S8550", fp="Package_TO_SOT_SMD:SOT-23", lcsc="C397181",
            netze={"B": "HX_BASE", "E": "VSUP_HX", "C": "HX_AVDD"},
            info="PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
     b.teil("Device:R", "R503", "20k 1%", fp=R0603, netze={"1": "HX_AVDD", "2": "HX_VFB"},
@@ -511,7 +511,7 @@ def waage(p):
     b.teil("Connector_Generic:Conn_01x05", "J501", "Wägezelle", fp=KLEMME % (5, 5),
            netze={"1": "GND", "2": "GND", "3": "ZELLE_SN", "4": "ZELLE_SP", "5": "ZELLE_EP"},
            info="= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRHC-3.5 5-polig (Platzhalter Phoenix MC) [P]; Schirm nur hier an Masse")
-    b.teil("Power_Protection:TPD4E05U06DQA", "D501", "TPD4E05U06DQAR", lcsc="C138714",
+    b.teil("Power_Protection:TPD4E05U06DQA", "D501", "TPD4E05U06DQAR", fp="Package_SON:USON-10_2.5x1.0mm_P0.5mm", lcsc="C138714",
            netze={"D1+": "ZELLE_EP", "D1-": "ZELLE_SP", "D2+": "ZELLE_SN", "D2-": "NC", "6": "NC", "7": "NC", "9": "NC",
                   "10": "NC", "GND": "GND"},
            info="5,5 V, Leckstrom 0,01 nA typ./10 nA max. (anschluesse.md 2) [V]; direkt hinter J501; 4. Kanal frei")

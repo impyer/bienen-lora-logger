@@ -2605,7 +2605,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Bienen:Ai-Thinker_Ra-01SH"
 			(at 190.5 127 0)
 			(hide yes)
 			(show_name no)
@@ -4595,7 +4595,7 @@
 	)
 	(symbol
 		(lib_id "Device:D_TVS")
-		(at 162.56 82.55 90)
+		(at 162.56 82.55 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4612,7 +4612,7 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
 		(property "Value" "TVS 3,3V"
@@ -4623,7 +4623,7 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Diode_SMD:D_SOD-523"
@@ -4648,7 +4648,7 @@
 				)
 			)
 		)
-		(property "Description" "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Teil wählen [P]"
+		(property "Description" "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Pad 1 an +3V3, damit auch eine unidirektionale TVS (Kathode = Pad 1) richtig sitzt; Teil wählen [P]"
 			(at 162.56 82.55 0)
 			(hide yes)
 			(show_name no)

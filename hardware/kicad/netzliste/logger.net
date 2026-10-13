@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-13T04:29:31")
+		(date "2026-10-13T04:55:25")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -4347,7 +4347,7 @@
 			(ref "D401")
 			(value "TVS 3,3V")
 			(footprint "Diode_SMD:D_SOD-523")
-			(description "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Teil wählen [P]")
+			(description "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Pad 1 an +3V3, damit auch eine unidirektionale TVS (Kathode = Pad 1) richtig sitzt; Teil wählen [P]")
 			(fields
 				(field
 					(name "Footprint") "Diode_SMD:D_SOD-523")
@@ -4355,7 +4355,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Teil wählen [P]")
+					(name "Description") "ESD-Schutz am 3,3-V-Eingang des Moduls (Datenblatt-Empfehlung); Pad 1 an +3V3, damit auch eine unidirektionale TVS (Kathode = Pad 1) richtig sitzt; Teil wählen [P]")
 			)
 			(libsource
 				(lib "Device")
@@ -4940,13 +4940,13 @@
 		(comp
 			(ref "U401")
 			(value "Ra-01SH")
+			(footprint "Bienen:Ai-Thinker_Ra-01SH")
 			(description "Antenne über IPEX; Pin ANT ohne Leiterbahn, liegt im Modul parallel zur IPEX (mcu-funk.md 2.3); DIO2 schaltet HF-Schalter, DIO3 offen (kein TCXO)")
 			(fields
 				(field
 					(name "LCSC") "C2764087")
 				(field
-					(name "Footprint")
-				)
+					(name "Footprint") "Bienen:Ai-Thinker_Ra-01SH")
 				(field
 					(name "Datasheet")
 				)
@@ -5700,13 +5700,13 @@
 		(comp
 			(ref "D501")
 			(value "TPD4E05U06DQAR")
+			(footprint "Package_SON:USON-10_2.5x1.0mm_P0.5mm")
 			(description "5,5 V, Leckstrom 0,01 nA typ./10 nA max. (anschluesse.md 2) [V]; direkt hinter J501; 4. Kanal frei")
 			(fields
 				(field
 					(name "LCSC") "C138714")
 				(field
-					(name "Footprint")
-				)
+					(name "Footprint") "Package_SON:USON-10_2.5x1.0mm_P0.5mm")
 				(field
 					(name "Datasheet")
 				)
@@ -6009,13 +6009,13 @@
 		(comp
 			(ref "Q501")
 			(value "S8550")
+			(footprint "Package_TO_SOT_SMD:SOT-23")
 			(description "PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
 			(fields
 				(field
 					(name "LCSC") "C397181")
 				(field
-					(name "Footprint")
-				)
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
 				(field
 					(name "Datasheet")
 				)
@@ -6558,13 +6558,13 @@
 		(comp
 			(ref "U501")
 			(value "TPS61240DRVR")
+			(footprint "Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm")
 			(description "fest 5,0 V ±2 %, Lasttrennung im Aus [V]; Footprint KiCad WSON-6 2×2 mit TI DRV0006A vergleichen [P]")
 			(fields
 				(field
 					(name "LCSC") "C59567")
 				(field
-					(name "Footprint")
-				)
+					(name "Footprint") "Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm")
 				(field
 					(name "Datasheet")
 				)
@@ -6625,13 +6625,13 @@
 		(comp
 			(ref "U502")
 			(value "HX711")
+			(footprint "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm")
 			(description "Kanal A, Verstärkung 128; RATE an GND = 10 Werte/s; XI an GND = interner Takt [V]")
 			(fields
 				(field
 					(name "LCSC") "C43656")
 				(field
-					(name "Footprint")
-				)
+					(name "Footprint") "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm")
 				(field
 					(name "Datasheet")
 				)
@@ -10544,8 +10544,8 @@
 			)
 			(node
 				(ref "D401")
-				(pin "2")
-				(pinfunction "A2_2")
+				(pin "1")
+				(pinfunction "A1_1")
 				(pintype "passive")
 			)
 			(node
@@ -12513,8 +12513,8 @@
 			)
 			(node
 				(ref "D401")
-				(pin "1")
-				(pinfunction "A1_1")
+				(pin "2")
+				(pinfunction "A2_2")
 				(pintype "passive")
 			)
 			(node
