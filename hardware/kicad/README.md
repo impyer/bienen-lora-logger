@@ -1,11 +1,11 @@
 # KiCad-Projekte (KiCad 10)
 
-Stand 10.10.2026: **Akku-Platine** und die Blätter **Versorgung**, **MCU**, **Funk + Flash** und **Waage** der Hauptplatine. Die Blätter Mikrofon und Anschlüsse folgen (SCH26-07). **Entwurf, keine Fertigungsfreigabe.**
+Stand 13.10.2026: **Akku-Platine** und die Blätter **Versorgung**, **MCU**, **Funk + Flash**, **Waage** und **Mikrofon** der Hauptplatine. Das Blatt Anschlüsse folgt (SCH26-07). **Entwurf, keine Fertigungsfreigabe.**
 
 | Ordner/Datei | Inhalt |
 |---|---|
 | `akku-platine/` | Projekt `akku.kicad_pro`: Zelle, HY2111 + FS8205, Messbrücke, Ladesperre 2 × TMP390 (Stufe 1 → CE, Stufe 2 → NTC-Kreis), NTC, JST PH 5 |
-| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch` |
+| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch`, `mikrofon.kicad_sch` |
 | `bienen.kicad_sym` | Projektsymbole (BQ25185, TMP390, HY2111-GB, FS8205, RT9080, TPS70933, Ra-01SH, TPS61240), Pinbelegungen mit Datenblattquelle in `werkzeug/symbole.py` |
 | `erc_erwartet.json` | begründete ERC-Warnungen; jede andere Meldung lässt die Prüfung scheitern |
 | `pdf/`, `netzliste/` | Ausdrucke und KiCad-Netzlisten (zum Prüfen ohne KiCad; enthalten ein Datum, daher vom CI-Diff ausgenommen) |
@@ -26,16 +26,16 @@ Stand 10.10.2026: **Akku-Platine** und die Blätter **Versorgung**, **MCU**, **F
 1. zweimal erzeugen, Prüfsummen **aller** erzeugten Blätter und der Symbolbibliothek vergleichen (reproduzierbar). Die Liste entsteht aus den Ordnern; jedes von einem Wurzelblatt verwiesene Blatt muss darin stehen, verwaiste `.kicad_sch` lassen die Prüfung scheitern (SCH26-12). `bash pruefen.sh --gegenprobe` erzeugt absichtlich mit Zufalls-UUIDs und zeigt, dass jede Blattdatei als abweichend erkannt wird.
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
-4. `werkzeug/netz_tests.py`: 114 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07)
+4. `werkzeug/netz_tests.py`: 139 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon: Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA, symmetrische Vorspannung, ESD direkt an der Klemme, **Hochpass, Sallen-Key-Grenzfrequenz und -Güte sowie RC vor PA1 aus den Bauteilwerten** (mit Gegenprobe vertauschter Kondensatoren), Spannungsfolger-Beschaltung, J5/J601 gegen `anschluesse.md`
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
 
-## ERC-Stand (KiCad 10.0.6 in der CI, 10.0.7 lokal am 10.10.2026; alle Schweregrade)
+## ERC-Stand (KiCad 10.0.6 in der CI und lokal am 13.10.2026; alle Schweregrade)
 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|
 | Akku-Platine | 0 | |
-| Hauptplatine | 8 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH); 7 globale Netze vom Blatt MCU haben ihre Gegenstelle erst auf den Blättern Mikrofon und Anschlüsse |
+| Hauptplatine | 7 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH); 6 globale Netze vom Blatt MCU haben ihre Gegenstelle erst auf dem Blatt Anschlüsse |
 
 ## Board-Kennung und Umgebung (REG26-10)
 
@@ -61,6 +61,7 @@ Ein `PWR_FLAG` sagt dem ERC: „Hier speist eine Quelle ein, die KiCad nicht als
 | Hauptplatine | VDDA | +3V3 über Ferrit FB301 (Ferrit kein Treiber im ERC) |
 | Hauptplatine | VSUP_HX | 5-V-Wandler U501 über Ferrit FB501 |
 | Hauptplatine | HX_AVDD | Kollektor des PNP Q501 (HX711-AVDD-Regler) |
+| Hauptplatine | 3V3_ANA | 3V3_SW über Ferrit FB601 und 47 Ω R602 (passive Bauteile kein Treiber im ERC) |
 
 Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz, das schon einen Ausgang hat (z. B. TMP_VCC auf der Hauptplatine), verdeckt Fehler und ist unzulässig.
 
@@ -70,12 +71,13 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 - Blatt MCU: Reedkontakt SW304 (Teil und Footprint), Side-View-LED D301 (Platzhalter 0603), Ferrit FB301 (LCSC-Nummer).
 - Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.
 - Blatt Waage: Footprint WSON-6 2 × 2 (KiCad) mit TI DRV0006A vergleichen (U501); Spule L501 1 µH mit Isat ≥ 0,7 A wählen; Ferrite FB501 (600 Ω) und FB502 (Gleichstromwiderstand ≤ 0,1 Ω) wählen; Pinfolge des gelieferten S8550 (Q501) mit 1 B, 2 E, 3 C vergleichen; R507 (Kanal B an INA−) am Muster bewerten.
+- Blatt Mikrofon: Operationsverstärker **TLV9001IDBVR** (C398363) statt LMV321TP (C90297 laut LCSC-Seite am 13.10.2026 nicht lieferbar; TLV9001IDBVR dort 39.765 Stück); JLCPCB-Bestand vor der Bestellung erneut prüfen; **nicht TLV9001U** (andere Pinfolge). LCSC-Nummer ESDS304DBVR; Ferrit FB601 wählen; Frequenzgang und Schwingneigung mit 2 m Kabel am Muster messen (`../mikrofon.md` 7).
 - Klemmen: Platzhalter Phoenix MC 1,5 / 3,5 mm für DEGSON 15EDGRHC-3.5 – Maße vergleichen.
 - LCSC-Nummern ergänzen (BQ25185, TMP390, TPS70933, SS34, SMAJ12A, Klemmen, JST).
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
 - Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
-## Stückliste (bisher, 132 Teile; erzeugt aus den Generatoren)
+## Stückliste (bisher, 152 Teile; erzeugt aus den Generatoren)
 
 | Ref. | Wert | Symbol | Footprint | LCSC | Blatt |
 |---|---|---|---|---|---|
@@ -141,6 +143,14 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | C510 | 100n | Device:C | C_0603_1608Metric |  | Waage |
 | C511 | 10n C0G | Device:C | C_0603_1608Metric |  | Waage |
 | C512 | 10n C0G | Device:C | C_0603_1608Metric |  | Waage |
+| C601 | 22µ 10V X5R | Device:C | C_0805_2012Metric |  | Mikrofon |
+| C602 | 100n | Device:C | C_0603_1608Metric |  | Mikrofon |
+| C603 | 1µ | Device:C | C_0603_1608Metric |  | Mikrofon |
+| C604 | 220n X7R | Device:C | C_0603_1608Metric |  | Mikrofon |
+| C605 | 22n C0G | Device:C | C_0603_1608Metric |  | Mikrofon |
+| C606 | 10n C0G | Device:C | C_0603_1608Metric |  | Mikrofon |
+| C607 | 100n | Device:C | C_0603_1608Metric |  | Mikrofon |
+| C608 | 10n C0G | Device:C | C_0603_1608Metric |  | Mikrofon |
 | D201 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D202 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D203 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
@@ -148,15 +158,18 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | D301 | Side-View | Device:LED | LED_0603_1608Metric |  | MCU |
 | D401 | TVS 3,3V | Device:D_TVS | D_SOD-523 |  | Funk + Flash |
 | D501 | TPD4E05U06DQAR | Power_Protection:TPD4E05U06DQA | – | C138714 | Waage |
+| D601 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Mikrofon |
 | FB301 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | MCU |
 | FB501 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
 | FB502 | Ferrit ≤ 0,1 Ω | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
+| FB601 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Mikrofon |
 | J201 | Solar 1 | Connector_Generic:Conn_01x02 | PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal |  | Versorgung |
 | J202 | Solar 2 | Connector_Generic:Conn_01x02 | PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal |  | Versorgung |
 | J203 | Akku (JST PH 5) | Connector_Generic:Conn_01x05 | JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical |  | Versorgung |
 | J301 | USB-C | Connector:USB_C_Receptacle_USB2.0_16P | USB_C_Receptacle_HRO_TYPE-C-31-M-12 | C165948 | MCU |
 | J302 | Debug (SWD + Serial1) | Connector_Generic:Conn_01x07 | PinHeader_1x07_P2.54mm_Vertical |  | MCU |
 | J501 | Wägezelle | Connector_Generic:Conn_01x05 | PhoenixContact_MC_1,5_5-G-3.5_1x05_P3.50mm_Horizontal |  | Waage |
+| J601 | Mikrofon | Connector_Generic:Conn_01x04 | PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal |  | Mikrofon |
 | JP401 | TXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | JP402 | RXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | L501 | 1µ | Device:L | L_0805_2012Metric |  | Waage |
@@ -193,6 +206,14 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R507 | 0 | Device:R | R_0603_1608Metric |  | Waage |
 | R508 | 1k | Device:R | R_0603_1608Metric |  | Waage |
 | R509 | 1k | Device:R | R_0603_1608Metric |  | Waage |
+| R601 | 100 | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R602 | 47 | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R603 | 47k | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R604 | 47k | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R605 | 33k | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R606 | 9,1k 1% | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R607 | 9,1k 1% | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R608 | 3,3k | Device:R | R_0603_1608Metric |  | Mikrofon |
 | SW301 | Reset | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW302 | BOOT | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW303 | Service | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
@@ -209,5 +230,6 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | U402 | 64 Mbit SOIC-8 208 mil | Memory_Flash:W25Q32JVSS | SOIC-8_5.3x5.3mm_P1.27mm |  | Funk + Flash |
 | U501 | TPS61240DRVR | Bienen:TPS61240 | – | C59567 | Waage |
 | U502 | HX711 | Analog_ADC:HX711 | – | C43656 | Waage |
+| U601 | TLV9001IDBVR | Amplifier_Operational:MCP6001-OT | SOT-23-5 | C398363 | Mikrofon |
 | Y301 | 25MHz 12pF | Device:Crystal_GND24 | Crystal_SMD_3225-4Pin_3.2x2.5mm | C9006 | MCU |
 | Y302 | 32,768k 7pF | Device:Crystal | Crystal_SMD_3215-2Pin_3.2x1.5mm | C97604 | MCU |

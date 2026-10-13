@@ -1,5 +1,12 @@
 # Änderungen
 
+## 2026-10-13 – Schaltplanblatt Mikrofon (SCH26-07, Teil Mikrofon)
+
+- **Neues Blatt „Mikrofon“** auf der Hauptplatine (`hauptplatine/mikrofon.kicad_sch`, Teile 6xx): Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA (22 µF + 100 nF), Vorspannung 1,65 V (2 × 47 kΩ, 1 µF), Klemme J601 (= J5) mit ESDS304 direkt an OUT und VCC, 100 Ω, Hochpass 22 Hz, Sallen-Key 1179 Hz / Q 0,74 als Spannungsfolger, RC 4,8 kHz vor PA1 (MIC_ADC).
+- **Operationsverstärker TLV9001IDBVR** (C398363) statt LMV321TP (C90297 laut LCSC am 13.10.2026 nicht lieferbar, TLV9001IDBVR dort 39.765 Stück; Pinfolge der 3PEAK-Variante nicht bestätigt). Pinfolge DBV nach TI-Datenblatt; TLV9001U passt nicht. ESD-Lage an die Regel „direkt hinter der Klemme“ angeglichen. `mikrofon.md` (2.1, Skizze, 7, neuer Abschnitt 8), `anschluesse.md` J5 (Platine: J601).
+- Prüfwerkzeug: `netz_tests.py` prüft das Blatt Mikrofon (Siebung, VREF, ESD-Lage, Hochpass, Sallen-Key-f0/Q und RC aus den Bauteilwerten mit Gegenprobe, Spannungsfolger, J5/J601 gegen `anschluesse.md`), 114 → 139 Prüfungen.
+- ERC Hauptplatine 8 → 7 erwartete Meldungen (MIC_ADC hat jetzt seine Gegenstelle). Prüfung lokal mit KiCad 10.0.6: reproduzierbar, 139/139, Gegenproben bestanden; ältere Blätter unverändert; CI und Muster offen. Stückliste 152 Teile. Bericht: `docs/testberichte/2026-10-13-sch26-07-mikrofon.md`.
+
 ## 2026-10-10 – Schaltplanblatt Waage (SCH26-07, Teil Waage)
 
 - **Neues Blatt „Waage“** auf der Hauptplatine (`hauptplatine/waage.kicad_sch`, Teile 5xx): 5-V-Wandler TPS61240 an SYS (EN = PB10 mit 100 kΩ nach GND, 1 µH, Ferrit zu VSUP), HX711 mit AVDD 4,30 V über S8550 und 20 k/8,2 k, DVDD an 3V3_SW, je 1 kΩ zu PB8/PB9, Wägezellenklemme J501 (= J4) mit TPD4E05U06, 100 Ω, 100 nF und 2 × 10 nF C0G. Kanal B über 0 Ω an INA− [A].

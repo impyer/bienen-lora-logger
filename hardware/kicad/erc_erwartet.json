@@ -35,11 +35,6 @@
       "type": "isolated_pin_label",
       "item": "Global Label 'EXT_PB13'",
       "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (Erweiterung) (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'MIC_ADC'",
-      "grund": "Gegenstelle kommt mit dem Blatt Mikrofon (SCH26-07)"
     }
   ],
   "akku-platine/akku.kicad_sch": []

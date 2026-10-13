@@ -1,4 +1,4 @@
-# Block Mikrofon (Lastenheft 0.4, F6 und 2.2 – Entwurf, 08.10.2026)
+# Block Mikrofon (Lastenheft 0.4, F6 und 2.2 – Entwurf, 08.10.2026, geändert 13.10.2026)
 
 Kennzeichnung:
 - **[V]** im Datenblatt gelesen
@@ -22,9 +22,9 @@ Die Firmware tastet mit 8192 Hz ab. Töne über 4096 Hz werden dabei gespiegelt.
 
 ```
 GY-MAX4466 (im Stock) ─ 1 kΩ (am Modul) ──Kabel ≤ 2 m, abgeschirmt──► Klemme
-                                               │ OUT ─ 100 Ω ─┬─ ESD ─ GND
-                                               │              └─ 220 nF ─┬─ 33 kΩ ─ VREF (1,65 V)
-                                               │                         └─ Sallen-Key 2. Ordnung (LMV321) ─ 3,3 kΩ ─┬─ PA1 (ADC1_IN1)
+                                               │ OUT ─┬─ ESD ─ GND (direkt an der Klemme, anschluesse.md 3)
+                                               │      └─ 100 Ω ─ 220 nF ─┬─ 33 kΩ ─ VREF (1,65 V)
+                                               │                         └─ Sallen-Key 2. Ordnung (TLV9001) ─ 3,3 kΩ ─┬─ PA1 (ADC1_IN1)
                                                │                                                                     └─ 10 nF ─ GND
                                                │ VCC ◄── 3V3_ANA ◄─ 47 Ω ◄─ Ferrit ◄─ geschaltete 3,3-V-Schiene
                                                │                     └─ 22 µF + 100 nF
@@ -42,11 +42,11 @@ VREF: 3V3_ANA ─ 47 kΩ ─┬─ 47 kΩ ─ GND, 1 µF nach GND
 | Vorspannung VREF | 2 × 47 kΩ + 1 µF | 1,65 V = Mitte des ADC-Bereichs; Zeitkonstante 24 ms | [A] |
 | Hochpass | 220 nF in Reihe, 33 kΩ nach VREF | ca. 22–25 Hz (mit der Eingangsimpedanz des Filters) | [A], Lastenheft A2 |
 | Tiefpass | Sallen-Key, Verstärkung 1: R1 = R2 = 9,1 kΩ, C1 = 22 nF (Rückkopplung), C2 = 10 nF (nach Masse) | **1179 Hz, Q = 0,74** (nahe Butterworth) | gerechnet, `mikrofon_filter.py` |
-| Operationsverstärker | **LMV321TP-TR** (3PEAK), Rail-to-Rail Ein/Aus, 1,27 MHz, 45 µA, 2,1–6 V, SOT-23-5, LCSC C90297 (Extended) | | [V: JLCPCB-Teileseite] |
+| Operationsverstärker | **TLV9001IDBVR** (TI), Rail-to-Rail Ein/Aus, 1 MHz, 60 µA, 1,8–5,5 V, SOT-23-5, LCSC C398363 (Extended). **Pinfolge DBV: 1 OUT, 2 V−, 3 IN+, 4 IN−, 5 V+**; die Variante TLV9001**U** hat eine andere Pinfolge und passt nicht. Bisher LMV321TP-TR (3PEAK, C90297): laut LCSC-Seite am 13.10.2026 nicht lieferbar, Pinfolge nicht nachprüfbar. | [V: TI SBOS833R Tab. 6-1; Strom und GBW aus dem TI-Datenblatt, nicht erneut nachgelesen [A]]; Bestand LCSC am 13.10.2026: **39.765 Stück** (LMV321TP: „Not available now“) [V: LCSC-Teileseiten]; JLCPCB-Bestand für die Bestückung vor der Bestellung erneut prüfen **[P]** |
 | RC vor dem ADC | 3,3 kΩ + 10 nF C0G | 4,8 kHz; der 10-nF-Kondensator lädt zugleich den Abtastkondensator des ADC (≈ 4 pF) | [A] |
-| Schutz am Eingang | 100 Ω in Reihe, ESD-Diode an OUT und VCC der Klemme | **[P]** Teil wählen (kleine Kapazität, 3,3 V) | [A] |
+| Schutz am Eingang | ESD-Array **ESDS304** direkt an OUT und VCC der Klemme (vor dem 100 Ω), danach 100 Ω in Reihe | 3,6 V, 2,3 pF, Leckstrom ≤ 50 nA; Pins 1/3/4/5 I/O, 2 GND | [V: TI-Datenblatt Tab. 4-2]; LCSC-Nummer **[P]** |
 
-Ersatz für den Operationsverstärker: TLV9001 oder MCP6001. Der MCP6001 (LCSC C116490) ist am 08.10.2026 bei LCSC nicht lieferbar [V].
+Ersatz für den Operationsverstärker: MCP6001T-I/OT (gleiche Pinfolge wie TLV9001 DBV). Der MCP6001 (LCSC C116490) war am 08.10.2026 bei LCSC nicht lieferbar [V]. Beim Wechsel immer die Pinfolge der SOT-23-5-Variante prüfen: Es gibt Einzel-OPV mit IN+ an Pin 1.
 
 ### 2.2 Frequenzgang (Rechnung)
 
@@ -106,6 +106,24 @@ Modul (ca. 0,3 mA, geschätzt) + LMV321 (45 µA) + VREF (35 µA) ≈ 0,4 mA für
 1. GY-MAX4466: Gleichspannung am Ausgang, Ausgangswiderstand, Stromaufnahme und Einschwingzeit messen. Das Modul hat kein offizielles Schaltbild.
 2. Mikrofon mit 1-kΩ-Trennwiderstand und 2 m Kabel am Oszilloskop auf Schwingen prüfen (Rechteck- oder Sinuston, höchste Poti-Stellung)
 3. Frequenzgang des Filters am Muster messen (Tongenerator oder Handy-App, 20 Hz–10 kHz)
-4. ESD-Diode für die Mikrofonklemme wählen
+4. ~~ESD-Diode wählen~~: ESDS304 (13.10.2026); LCSC-Nummer offen
 5. RM0383 Tab. 42 und 28 (ADC-Auslöser und DMA) bestätigen
 6. Zwei Logger mit demselben Prüfton vergleichen (HW26-05)
+7. TLV9001IDBVR: LCSC 39.765 Stück am 13.10.2026; Bestand bei JLCPCB kurz vor der Bestellung erneut prüfen; bei Ersatz Pinfolge vergleichen
+
+## 8. Schaltplan (13.10.2026)
+
+Blatt `hardware/kicad/hauptplatine/mikrofon.kicad_sch`, Teile 6xx, Quelle `hardware/kicad/hauptplatine.py` (`mikrofon()`).
+
+| Ref. | Funktion |
+|---|---|
+| J601 (= J5) | Klemme 4-polig: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA) |
+| D601 | ESDS304 an OUT (MIC_OUT_K) und 3V3_ANA, direkt hinter J601 |
+| FB601, R602, C601, C602 | Siebung 3V3_SW → 3V3_ANA (Lastenheft A1) |
+| R603, R604, C603 | MIC_VREF = 1,65 V |
+| R601, C604, R605 | 100 Ω, Hochpass 22 Hz gegen MIC_VREF |
+| R606, R607, C605, C606, U601 | Sallen-Key 1179 Hz, Q 0,74, Spannungsfolger TLV9001 |
+| R608, C608 | RC 4,8 kHz → MIC_ADC (PA1) |
+
+Geprüft (T3, lokal mit KiCad 10.0.6): `netz_tests.py` rechnet Hochpass, Sallen-Key (f0, Q) und RC aus den Werten der Netzliste nach und prüft die Beschaltung sowie J5/J601 gegen `anschluesse.md`. Frequenzgang am Muster (T4) bleibt offen (Prüfpunkte 2 und 3).
+

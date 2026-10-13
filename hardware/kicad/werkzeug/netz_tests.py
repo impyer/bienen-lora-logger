@@ -8,6 +8,7 @@ gegen die Netzliste, mit Gegenprobe (vertauschter Pin muss auffallen).
 Seit SCH26-07 (Blatt Waage): Wandler-Ansteuerung, HX711-Versorgung, AVDD aus dem Teiler, Zellenleitungen.
 Aufruf (nach pruefen.sh): python3 werkzeug/netz_tests.py
 """
+import math
 import os
 import re
 import sys
@@ -28,6 +29,7 @@ STECKER_DOKU = {
     "J10": ("J302", {"3V3": "+3V3", "SWDIO": "SWDIO", "SWCLK": "SWCLK", "NRST": "NRST", "GND": "GND",
                      "TX1": "DBG_TX", "RX1": "DBG_RX"}),
     "J4": ("J501", {"Schirm": "GND", "E−": "GND", "S−": "ZELLE_SN", "S+": "ZELLE_SP", "E+": "ZELLE_EP"}),
+    "J5": ("J601", {"Schirm": "GND", "GND": "GND", "OUT": "MIC_OUT_K", "VCC": "3V3_ANA"}),
 }
 VBG_HX711 = 1.25        # V, Bandgap-Referenz des AVDD-Reglers (HX711-Datenblatt, waage.md 3)
 VSUP_MIN = 4.9          # V, TPS61240 5,0 V −2 % (waage.md 2)
@@ -170,6 +172,60 @@ def waage(h, h_pin, h_wert):
     pruefe("ESD D501 ist TPD4E05U06 (≤ 10 nA)", h_wert.get("D501", "").startswith("TPD4E05U06"), h_wert.get("D501"))
 
 
+def farad(wert):
+    """Kapazität aus dem Wertfeld, z. B. „22n C0G“ → 22e-9."""
+    zahl = wert.split()[0].replace(",", ".").replace("µ", "u")
+    return float(zahl[:-1]) * {"p": 1e-12, "n": 1e-9, "u": 1e-6}[zahl[-1]]
+
+
+def sallen_key(r1, r2, c_rueck, c_masse):
+    """Tiefpass 2. Ordnung, Verstärkung 1: Grenzfrequenz f0 und Güte Q (C_rück vom Mittelknoten zum Ausgang)."""
+    f0 = 1 / (2 * math.pi * math.sqrt(r1 * r2 * c_rueck * c_masse))
+    q = math.sqrt(r1 * r2 * c_rueck * c_masse) / (c_masse * (r1 + r2))
+    return f0, q
+
+
+def sk_ok(f0, q):
+    """Soll aus mikrofon.md 2.1: 1179 Hz ± 5 %, Q 0,6–0,9 (nahe Butterworth 0,707)."""
+    return abs(f0 - 1179) <= 0.05 * 1179 and 0.6 <= q <= 0.9
+
+
+def mikrofon(h, h_pin, h_wert):
+    """SCH26-07: Blatt Mikrofon gegen mikrofon.md 2 und Lastenheft A1–A2."""
+    # Versorgung: 3V3_SW → Ferrit → 47 Ω → 3V3_ANA (A1)
+    pruefe("FB601 zwischen 3V3_SW und MIC_FB", {h_pin.get(("FB601", "1")), h_pin.get(("FB601", "2"))} == {"3V3_SW", "MIC_FB"})
+    pruefe("R602 47 Ω zwischen MIC_FB und 3V3_ANA",
+           {h_pin.get(("R602", "1")), h_pin.get(("R602", "2"))} == {"MIC_FB", "3V3_ANA"} and h_wert.get("R602") == "47")
+    enthaelt(h, "3V3_ANA", {("C601", "1"), ("U601", "5"), ("R603", "1"), ("J601", "4"), ("D601", "3")})
+    # Vorspannung 1,65 V
+    genau(h, "MIC_VREF", {("R603", "2"), ("R604", "1"), ("C603", "1"), ("R605", "1")})
+    pruefe("VREF-Teiler symmetrisch (R603 = R604)", h_wert.get("R603") == h_wert.get("R604"), (h_wert.get("R603"), h_wert.get("R604")))
+    # Eingang: ESD direkt an der Klemme, dann 100 Ω, Hochpass
+    genau(h, "MIC_OUT_K", {("J601", "3"), ("D601", "1"), ("R601", "1")})
+    genau(h, "MIC_IN", {("R601", "2"), ("C604", "1")})
+    genau(h, "MIC_HP", {("C604", "2"), ("R605", "2"), ("R606", "1")})
+    fh = 1 / (2 * math.pi * ohm(h_wert.get("R605", "1")) * farad(h_wert.get("C604", "1n")))
+    pruefe(("Hochpass R605/C604 = %.1f Hz (Lastenheft A2: 20–25 Hz)" % fh).replace(".", ","), 20 <= fh <= 25)
+    pruefe("ESD D601 ist ESDS304 (3,6 V reicht für 3,3 V)", h_wert.get("D601", "").startswith("ESDS304"), h_wert.get("D601"))
+    pruefe("ESD D601 GND an Pin 2", h_pin.get(("D601", "2")) == "GND", h_pin.get(("D601", "2")))
+    # Sallen-Key mit Spannungsfolger
+    genau(h, "MIC_SK1", {("R606", "2"), ("R607", "1"), ("C605", "2")})
+    genau(h, "MIC_SK2", {("R607", "2"), ("C606", "1"), ("U601", "3")})
+    genau(h, "MIC_OP", {("U601", "1"), ("U601", "4"), ("C605", "1"), ("R608", "1")})
+    pruefe("C606 nach GND", h_pin.get(("C606", "2")) == "GND", h_pin.get(("C606", "2")))
+    pruefe("OPV V− an GND", h_pin.get(("U601", "2")) == "GND", h_pin.get(("U601", "2")))
+    pruefe("OPV ist TLV9001IDBVR (nicht TLV9001U: andere Pinfolge)", h_wert.get("U601") == "TLV9001IDBVR", h_wert.get("U601"))
+    f0, q = sallen_key(ohm(h_wert.get("R606", "1")), ohm(h_wert.get("R607", "1")),
+                       farad(h_wert.get("C605", "1n")), farad(h_wert.get("C606", "1n")))
+    pruefe(("Sallen-Key f0 = %.0f Hz, Q = %.2f (Soll 1179 Hz ± 5 %%, Q 0,6–0,9)" % (f0, q)).replace(".", ","), sk_ok(f0, q))
+    f0g, qg = sallen_key(9.1e3, 9.1e3, 10e-9, 22e-9)
+    pruefe(("Gegenprobe: vertauschte Kondensatoren (Q = %.2f) werden erkannt" % qg).replace(".", ","), not sk_ok(f0g, qg))
+    # RC vor dem ADC
+    genau(h, "MIC_ADC", {("R608", "2"), ("C608", "1"), ("U301", "11")})   # PA1
+    frc = 1 / (2 * math.pi * ohm(h_wert.get("R608", "1")) * farad(h_wert.get("C608", "1n")))
+    pruefe(("RC vor PA1 = %.1f kHz (mikrofon.md: 4,8 kHz)" % (frc / 1000)).replace(".", ","), 4.0e3 <= frc <= 5.5e3)
+
+
 def modell_netze(modul):
     """Netze laut Generator-Beschreibung (Quelle der Wahrheit) als {Name: {(Ref, Pin)}}."""
     sys.path.insert(0, HIER)
@@ -251,6 +307,8 @@ def main():
     pruefe("Ra-01SH DIO2 ohne Verbindung", h_pin.get(("U401", "7"), "unconnected").startswith("unconnected"), h_pin.get(("U401", "7")))
     # --- Waage (SCH26-07) ---
     waage(h, h_pin, h_wert)
+    # --- Mikrofon (SCH26-07) ---
+    mikrofon(h, h_pin, h_wert)
     # --- Stecker: anschluesse.md ↔ Netzliste ---
     stecker_gegen_doku(h_pin)
 

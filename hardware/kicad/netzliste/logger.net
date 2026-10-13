@@ -1,9 +1,9 @@
 (export
 	(version "E")
 	(design
-		(source "/tmp/claude-0/-home-claude/a624e0f4-7383-5bcd-bcf1-0ca93634bae0/scratchpad/repo/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-11T04:31:47")
-		(tool "Eeschema 10.0.7-10.0.7~ubuntu24.04.1")
+		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
+		(date "2026-10-13T04:13:54")
+		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
 			(name "/")
@@ -206,6 +206,54 @@
 				(rev "0.1 Entwurf")
 				(date "2026-10-09")
 				(source "waage.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
+				)
+				(comment
+					(number "3")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "6")
+			(name "/Mikrofon/")
+			(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			(title_block
+				(title "Mikrofon: 3V3_ANA, Hochpass, Sallen-Key 1,18 kHz, ADC-Eingang PA1")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "mikrofon.kicad_sch")
 				(comment
 					(number "1")
 					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
@@ -6628,10 +6676,1168 @@
 				)
 			)
 		)
+		(comp
+			(ref "C601")
+			(value "22µ 10V X5R")
+			(footprint "Capacitor_SMD:C_0805_2012Metric")
+			(description "wirksam bei 3,3 V geringer (DC-Bias); für die Siebung unkritisch [A]")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0805_2012Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "wirksam bei 3,3 V geringer (DC-Bias); für die Siebung unkritisch [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "4ccee3f4-6d47-587f-81f1-e5f067b32745")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C602")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "e00e93ab-68c2-5536-a5e9-a8a3f75414c5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C603")
+			(value "1µ")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Zeitkonstante 24 ms (mikrofon.md 4.2)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Zeitkonstante 24 ms (mikrofon.md 4.2)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "3801e995-c658-5a80-9db8-b9b360b1172e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C604")
+			(value "220n X7R")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Hochpass mit R605: 1/(2π·33k·220n) = 22 Hz (Lastenheft A2)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Hochpass mit R605: 1/(2π·33k·220n) = 22 Hz (Lastenheft A2)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "69c56d94-70e0-5c85-9c53-44a2fb9d8aa9")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C605")
+			(value "22n C0G")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Rückkopplung; f = 1179 Hz, Q = 0,74 (mikrofon_filter.py)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Rückkopplung; f = 1179 Hz, Q = 0,74 (mikrofon_filter.py)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "6e44c655-65b5-5394-9f70-b6cce4177a49")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C606")
+			(value "10n C0G")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "31ec2b8c-cf3c-560d-b157-4ba7ec307489")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C607")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "direkt an V+ (Pin 5)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "direkt an V+ (Pin 5)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "d5bc075b-5470-5d67-b86a-aeab429bb1ec")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C608")
+			(value "10n C0G")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "nahe PA1; lädt den Abtastkondensator des ADC (mikrofon.md 2.1)")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "nahe PA1; lädt den Abtastkondensator des ADC (mikrofon.md 2.1)")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "dbc0b038-d8b4-5bb5-ae52-3168a79c455a")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D601")
+			(value "ESDS304DBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(description "3,6 V, 2,3 pF, Leckstrom 50 nA max. [V: TI SLVSE24]; direkt hinter J601 (anschluesse.md 3); LCSC [P]")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "3,6 V, 2,3 pF, Leckstrom 50 nA max. [V: TI SLVSE24]; direkt hinter J601 (anschluesse.md 3); LCSC [P]")
+			)
+			(libsource
+				(lib "Power_Protection")
+				(part "ESDS304")
+				(description "4-channel 1Gbps TVS Diode Array, 2.3pF, 4.5V breakdown, 30kV contact & air gap, SOT-23-5")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "usb ethernet esd protection suppression transient transient-voltage low-capacitance texas")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "232c78d1-c292-54bf-a70c-c20107d5148c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "FB601")
+			(value "600R@100MHz")
+			(footprint "Inductor_SMD:L_0603_1608Metric")
+			(description "wie FB301; Teil wählen [P]")
+			(fields
+				(field
+					(name "Footprint") "Inductor_SMD:L_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "wie FB301; Teil wählen [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "FerriteBead_Small")
+				(description "Ferrite bead, small symbol")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "L ferrite bead inductor filter")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Inductor_* L_* *Ferrite*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "790c70e3-2295-593d-99f5-7dc59e668ca9")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J601")
+			(value "Mikrofon")
+			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal")
+			(description "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRHC-3.5 4-polig C7603445 (Platzhalter-Footprint Phoenix MC) [P]; Schirm nur hier an Masse")
+			(fields
+				(field
+					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRHC-3.5 4-polig C7603445 (Platzhalter-Footprint Phoenix MC) [P]; Schirm nur hier an Masse")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x04")
+				(description "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "5cbfd0d2-e114-5919-b3a8-c2a45b093f87")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R601")
+			(value "100")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Schutzwiderstand; 1 kΩ Trennwiderstand sitzt am Mikrofonmodul, nicht auf der Platine (mikrofon.md 2.1)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Schutzwiderstand; 1 kΩ Trennwiderstand sitzt am Mikrofonmodul, nicht auf der Platine (mikrofon.md 2.1)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "c614ae77-f842-57f6-a62d-af4266e59ad3")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R602")
+			(value "47")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "mit C601 RC-Tiefpass ca. 150 Hz; Abfall ca. 25 mV bei 0,5 mA (mikrofon.md 2.1) [A]")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "mit C601 RC-Tiefpass ca. 150 Hz; Abfall ca. 25 mV bei 0,5 mA (mikrofon.md 2.1) [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "ccf913bb-416b-5311-bbd9-65dde543568c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R603")
+			(value "47k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "8d2795a0-a274-54b5-ae37-28c8a1ec9c21")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R604")
+			(value "47k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "7f6788c1-26f8-562e-ab12-8f3a48a2193c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R605")
+			(value "33k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "5bb1e834-981e-5abb-9bd2-c012087f6543")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R606")
+			(value "9,1k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "723e3b8f-d115-5263-b8f5-892ea8e48ab8")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R607")
+			(value "9,1k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "aeedd2c9-9440-5ab5-b0df-b900a3a1c5d0")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R608")
+			(value "3,3k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "mit C608 4,8 kHz")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "mit C608 4,8 kHz")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "a20930e0-1fbf-5323-8bb8-5003e64df6d5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U601")
+			(value "TLV9001IDBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(description "Spannungsfolger; Pinfolge DBV 1 OUT, 2 V−, 3 IN+, 4 IN−, 5 V+ [V: TI SBOS833R Tab. 6-1]; NICHT TLV9001U (andere Pinfolge); ersetzt LMV321TP (C90297 laut LCSC 13.10.2026 nicht lieferbar)")
+			(fields
+				(field
+					(name "LCSC") "C398363")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Spannungsfolger; Pinfolge DBV 1 OUT, 2 V−, 3 IN+, 4 IN−, 5 V+ [V: TI SBOS833R Tab. 6-1]; NICHT TLV9001U (andere Pinfolge); ersetzt LMV321TP (C90297 laut LCSC 13.10.2026 nicht lieferbar)")
+			)
+			(libsource
+				(lib "Amplifier_Operational")
+				(part "MCP6001-OT")
+				(description "1MHz, Low-Power Op Amp, SOT-23-5")
+			)
+			(property
+				(name "LCSC")
+				(value "C398363")
+			)
+			(property
+				(name "Sheetname")
+				(value "Mikrofon")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mikrofon.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "single opamp")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Mikrofon/")
+				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
+			)
+			(tstamps "e163b624-5e00-59c8-b938-aba0dc65a4ac")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "1")
+						)
+					)
+				)
+			)
+		)
 	)
 	(groups)
 	(variants)
 	(libparts
+		(libpart
+			(lib "Amplifier_Operational")
+			(part "MCP6001-OT")
+			(description "1MHz, Low-Power Op Amp, SOT-23-5")
+			(docs "https://ww1.microchip.com/downloads/en/DeviceDoc/MCP6001-1R-1U-2-4-1-MHz-Low-Power-Op-Amp-DS20001733L.pdf")
+			(footprints
+				(fp "SOT?23*")
+			)
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "MCP6001-OT")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet") "https://ww1.microchip.com/downloads/en/DeviceDoc/MCP6001-1R-1U-2-4-1-MHz-Low-Power-Op-Amp-DS20001733L.pdf")
+				(field
+					(name "Description") "1MHz, Low-Power Op Amp, SOT-23-5")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "output")
+				)
+				(pin
+					(num "2")
+					(name "V-")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "+")
+					(type "input")
+				)
+				(pin
+					(num "4")
+					(name "-")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "V+")
+					(type "power_in")
+				)
+			)
+		)
 		(libpart
 			(lib "Analog_ADC")
 			(part "HX711")
@@ -7224,6 +8430,50 @@
 				(pin
 					(num "2")
 					(name "Pin_2")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
+			(part "Conn_01x04")
+			(description "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_1x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x04")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "Pin_3")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "Pin_4")
 					(type "passive")
 				)
 			)
@@ -8120,6 +9370,54 @@
 		)
 		(libpart
 			(lib "Power_Protection")
+			(part "ESDS304")
+			(description "4-channel 1Gbps TVS Diode Array, 2.3pF, 4.5V breakdown, 30kV contact & air gap, SOT-23-5")
+			(docs "https://www.ti.com/lit/ds/symlink/esds304.pdf")
+			(footprints
+				(fp "SOT?23*")
+			)
+			(fields
+				(field
+					(name "Reference") "D")
+				(field
+					(name "Value") "ESDS304")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/esds304.pdf")
+				(field
+					(name "Description") "4-channel 1Gbps TVS Diode Array, 2.3pF, 4.5V breakdown, 30kV contact & air gap, SOT-23-5")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "K")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "A")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "K")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "K")
+					(type "passive")
+				)
+				(pin
+					(num "5")
+					(name "K")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Power_Protection")
 			(part "TPD4E05U06DQA")
 			(description "4-Channel ESD Protection for Super-Speed USB 3.0 Interface, USON-10")
 			(docs "https://www.ti.com/lit/ds/symlink/tpd4e05u06.pdf")
@@ -8350,6 +9648,10 @@
 		)
 	)
 	(libraries
+		(library
+			(logical "Amplifier_Operational")
+			(uri "${KICAD10_SYMBOL_DIR}/Amplifier_Operational.kicad_sym")
+		)
 		(library
 			(logical "Analog_ADC")
 			(uri "${KICAD10_SYMBOL_DIR}/Analog_ADC.kicad_sym")
@@ -9131,6 +10433,218 @@
 		)
 		(net
 			(code "30")
+			(name "/Mikrofon/3V3_ANA")
+			(class "Default")
+			(node
+				(ref "C601")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C602")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C607")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "D601")
+				(pin "3")
+				(pinfunction "K_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "J601")
+				(pin "4")
+				(pinfunction "Pin_4_4")
+				(pintype "passive")
+			)
+			(node
+				(ref "R602")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R603")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U601")
+				(pin "5")
+				(pinfunction "V+_5")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "31")
+			(name "/Mikrofon/MIC_FB")
+			(class "Default")
+			(node
+				(ref "FB601")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R602")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "32")
+			(name "/Mikrofon/MIC_HP")
+			(class "Default")
+			(node
+				(ref "C604")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R605")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R606")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "33")
+			(name "/Mikrofon/MIC_IN")
+			(class "Default")
+			(node
+				(ref "C604")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R601")
+				(pin "2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "34")
+			(name "/Mikrofon/MIC_OP")
+			(class "Default")
+			(node
+				(ref "C605")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R608")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U601")
+				(pin "1")
+				(pintype "output")
+			)
+			(node
+				(ref "U601")
+				(pin "4")
+				(pinfunction "-_4")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "35")
+			(name "/Mikrofon/MIC_OUT_K")
+			(class "Default")
+			(node
+				(ref "D601")
+				(pin "1")
+				(pinfunction "K_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J601")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "R601")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "36")
+			(name "/Mikrofon/MIC_SK1")
+			(class "Default")
+			(node
+				(ref "C605")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R606")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R607")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "37")
+			(name "/Mikrofon/MIC_SK2")
+			(class "Default")
+			(node
+				(ref "C606")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R607")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U601")
+				(pin "3")
+				(pinfunction "+_3")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "38")
+			(name "/Mikrofon/MIC_VREF")
+			(class "Default")
+			(node
+				(ref "C603")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R603")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R604")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R605")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "39")
 			(name "/Versorgung/CE_LADEN")
 			(class "Default")
 			(node
@@ -9157,7 +10671,7 @@
 			)
 		)
 		(net
-			(code "31")
+			(code "40")
 			(name "/Versorgung/ILIM")
 			(class "Default")
 			(node
@@ -9173,7 +10687,7 @@
 			)
 		)
 		(net
-			(code "32")
+			(code "41")
 			(name "/Versorgung/ISET")
 			(class "Default")
 			(node
@@ -9189,7 +10703,7 @@
 			)
 		)
 		(net
-			(code "33")
+			(code "42")
 			(name "/Versorgung/LADE_STAT1")
 			(class "Default")
 			(node
@@ -9206,7 +10720,7 @@
 			)
 		)
 		(net
-			(code "34")
+			(code "43")
 			(name "/Versorgung/LADE_STAT2")
 			(class "Default")
 			(node
@@ -9223,7 +10737,7 @@
 			)
 		)
 		(net
-			(code "35")
+			(code "44")
 			(name "/Versorgung/NTC")
 			(class "Default")
 			(node
@@ -9240,7 +10754,7 @@
 			)
 		)
 		(net
-			(code "36")
+			(code "45")
 			(name "/Versorgung/PV1")
 			(class "Default")
 			(node
@@ -9257,7 +10771,7 @@
 			)
 		)
 		(net
-			(code "37")
+			(code "46")
 			(name "/Versorgung/PV2")
 			(class "Default")
 			(node
@@ -9274,7 +10788,7 @@
 			)
 		)
 		(net
-			(code "38")
+			(code "47")
 			(name "/Versorgung/SW_CT")
 			(class "Default")
 			(node
@@ -9290,7 +10804,7 @@
 			)
 		)
 		(net
-			(code "39")
+			(code "48")
 			(name "/Versorgung/SW_QOD")
 			(class "Default")
 			(node
@@ -9306,7 +10820,7 @@
 			)
 		)
 		(net
-			(code "40")
+			(code "49")
 			(name "/Versorgung/TMP_VCC")
 			(class "Default")
 			(node
@@ -9328,7 +10842,7 @@
 			)
 		)
 		(net
-			(code "41")
+			(code "50")
 			(name "/Versorgung/VBAT")
 			(class "Default")
 			(node
@@ -9355,7 +10869,7 @@
 			)
 		)
 		(net
-			(code "42")
+			(code "51")
 			(name "/Versorgung/VIN_LADER")
 			(class "Default")
 			(node
@@ -9411,7 +10925,7 @@
 			)
 		)
 		(net
-			(code "43")
+			(code "52")
 			(name "/Waage/5V_WAAGE")
 			(class "Default")
 			(node
@@ -9443,7 +10957,7 @@
 			)
 		)
 		(net
-			(code "44")
+			(code "53")
 			(name "/Waage/HX_AVDD")
 			(class "Default")
 			(node
@@ -9480,7 +10994,7 @@
 			)
 		)
 		(net
-			(code "45")
+			(code "54")
 			(name "/Waage/HX_BASE")
 			(class "Default")
 			(node
@@ -9497,7 +11011,7 @@
 			)
 		)
 		(net
-			(code "46")
+			(code "55")
 			(name "/Waage/HX_DOUT_IC")
 			(class "Default")
 			(node
@@ -9513,7 +11027,7 @@
 			)
 		)
 		(net
-			(code "47")
+			(code "56")
 			(name "/Waage/HX_INB")
 			(class "Default")
 			(node
@@ -9535,7 +11049,7 @@
 			)
 		)
 		(net
-			(code "48")
+			(code "57")
 			(name "/Waage/HX_INN")
 			(class "Default")
 			(node
@@ -9566,7 +11080,7 @@
 			)
 		)
 		(net
-			(code "49")
+			(code "58")
 			(name "/Waage/HX_INP")
 			(class "Default")
 			(node
@@ -9592,7 +11106,7 @@
 			)
 		)
 		(net
-			(code "50")
+			(code "59")
 			(name "/Waage/HX_PD_SCK")
 			(class "Default")
 			(node
@@ -9608,7 +11122,7 @@
 			)
 		)
 		(net
-			(code "51")
+			(code "60")
 			(name "/Waage/HX_VBG")
 			(class "Default")
 			(node
@@ -9624,7 +11138,7 @@
 			)
 		)
 		(net
-			(code "52")
+			(code "61")
 			(name "/Waage/HX_VFB")
 			(class "Default")
 			(node
@@ -9645,7 +11159,7 @@
 			)
 		)
 		(net
-			(code "53")
+			(code "62")
 			(name "/Waage/L_5V")
 			(class "Default")
 			(node
@@ -9662,7 +11176,7 @@
 			)
 		)
 		(net
-			(code "54")
+			(code "63")
 			(name "/Waage/VSUP_HX")
 			(class "Default")
 			(node
@@ -9694,7 +11208,7 @@
 			)
 		)
 		(net
-			(code "55")
+			(code "64")
 			(name "/Waage/ZELLE_EP")
 			(class "Default")
 			(node
@@ -9716,7 +11230,7 @@
 			)
 		)
 		(net
-			(code "56")
+			(code "65")
 			(name "/Waage/ZELLE_SN")
 			(class "Default")
 			(node
@@ -9738,7 +11252,7 @@
 			)
 		)
 		(net
-			(code "57")
+			(code "66")
 			(name "/Waage/ZELLE_SP")
 			(class "Default")
 			(node
@@ -9760,7 +11274,7 @@
 			)
 		)
 		(net
-			(code "58")
+			(code "67")
 			(name "3V3_SW")
 			(class "Default")
 			(node
@@ -9770,6 +11284,11 @@
 			)
 			(node
 				(ref "C508")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "FB601")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -9792,7 +11311,7 @@
 			)
 		)
 		(net
-			(code "59")
+			(code "68")
 			(name "ADC_AKKU")
 			(class "Default")
 			(node
@@ -9818,7 +11337,7 @@
 			)
 		)
 		(net
-			(code "60")
+			(code "69")
 			(name "ADC_SOLAR")
 			(class "Default")
 			(node
@@ -9844,7 +11363,7 @@
 			)
 		)
 		(net
-			(code "61")
+			(code "70")
 			(name "EXT_PA15")
 			(class "Default")
 			(node
@@ -9855,7 +11374,7 @@
 			)
 		)
 		(net
-			(code "62")
+			(code "71")
 			(name "EXT_PB12")
 			(class "Default")
 			(node
@@ -9866,7 +11385,7 @@
 			)
 		)
 		(net
-			(code "63")
+			(code "72")
 			(name "EXT_PB13")
 			(class "Default")
 			(node
@@ -9877,7 +11396,7 @@
 			)
 		)
 		(net
-			(code "64")
+			(code "73")
 			(name "FLASH_CS")
 			(class "Default")
 			(node
@@ -9899,7 +11418,7 @@
 			)
 		)
 		(net
-			(code "65")
+			(code "74")
 			(name "GND")
 			(class "Default")
 			(node
@@ -10093,6 +11612,36 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "C601")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C602")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C603")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C606")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C607")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C608")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
 				(ref "D204")
 				(pin "2")
 				(pinfunction "A2_2")
@@ -10114,6 +11663,12 @@
 				(ref "D501")
 				(pin "8")
 				(pinfunction "GND_8")
+				(pintype "passive")
+			)
+			(node
+				(ref "D601")
+				(pin "2")
+				(pinfunction "A_2")
 				(pintype "passive")
 			)
 			(node
@@ -10183,6 +11738,18 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "J601")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J601")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
 				(ref "R202")
 				(pin "2")
 				(pintype "passive")
@@ -10244,6 +11811,11 @@
 			)
 			(node
 				(ref "R504")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R604")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -10374,6 +11946,12 @@
 				(pintype "power_in")
 			)
 			(node
+				(ref "U601")
+				(pin "2")
+				(pinfunction "V-_2")
+				(pintype "power_in")
+			)
+			(node
 				(ref "Y301")
 				(pin "2")
 				(pinfunction "G_2")
@@ -10387,7 +11965,7 @@
 			)
 		)
 		(net
-			(code "66")
+			(code "75")
 			(name "HX_DOUT")
 			(class "Default")
 			(node
@@ -10403,7 +11981,7 @@
 			)
 		)
 		(net
-			(code "67")
+			(code "76")
 			(name "HX_SCK")
 			(class "Default")
 			(node
@@ -10419,7 +11997,7 @@
 			)
 		)
 		(net
-			(code "68")
+			(code "77")
 			(name "I2C_SCL")
 			(class "Default")
 			(node
@@ -10430,7 +12008,7 @@
 			)
 		)
 		(net
-			(code "69")
+			(code "78")
 			(name "I2C_SDA")
 			(class "Default")
 			(node
@@ -10441,7 +12019,7 @@
 			)
 		)
 		(net
-			(code "70")
+			(code "79")
 			(name "LORA_BUSY")
 			(class "Default")
 			(node
@@ -10458,7 +12036,7 @@
 			)
 		)
 		(net
-			(code "71")
+			(code "80")
 			(name "LORA_DIO1")
 			(class "Default")
 			(node
@@ -10475,7 +12053,7 @@
 			)
 		)
 		(net
-			(code "72")
+			(code "81")
 			(name "LORA_NSS")
 			(class "Default")
 			(node
@@ -10496,7 +12074,7 @@
 			)
 		)
 		(net
-			(code "73")
+			(code "82")
 			(name "LORA_RST")
 			(class "Default")
 			(node
@@ -10513,7 +12091,7 @@
 			)
 		)
 		(net
-			(code "74")
+			(code "83")
 			(name "LORA_RXEN")
 			(class "Default")
 			(node
@@ -10530,7 +12108,7 @@
 			)
 		)
 		(net
-			(code "75")
+			(code "84")
 			(name "LORA_TXEN")
 			(class "Default")
 			(node
@@ -10547,9 +12125,19 @@
 			)
 		)
 		(net
-			(code "76")
+			(code "85")
 			(name "MIC_ADC")
 			(class "Default")
+			(node
+				(ref "C608")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R608")
+				(pin "2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "11")
@@ -10558,7 +12146,7 @@
 			)
 		)
 		(net
-			(code "77")
+			(code "86")
 			(name "ONEWIRE")
 			(class "Default")
 			(node
@@ -10569,7 +12157,7 @@
 			)
 		)
 		(net
-			(code "78")
+			(code "87")
 			(name "SENSOR_EIN")
 			(class "Default")
 			(node
@@ -10591,7 +12179,7 @@
 			)
 		)
 		(net
-			(code "79")
+			(code "88")
 			(name "SPI_MISO")
 			(class "Default")
 			(node
@@ -10613,7 +12201,7 @@
 			)
 		)
 		(net
-			(code "80")
+			(code "89")
 			(name "SPI_MOSI")
 			(class "Default")
 			(node
@@ -10635,7 +12223,7 @@
 			)
 		)
 		(net
-			(code "81")
+			(code "90")
 			(name "SPI_SCK")
 			(class "Default")
 			(node
@@ -10657,7 +12245,7 @@
 			)
 		)
 		(net
-			(code "82")
+			(code "91")
 			(name "SYS")
 			(class "Default")
 			(node
@@ -10712,7 +12300,7 @@
 			)
 		)
 		(net
-			(code "83")
+			(code "92")
 			(name "VBUS")
 			(class "Default")
 			(node
@@ -10753,7 +12341,7 @@
 			)
 		)
 		(net
-			(code "84")
+			(code "93")
 			(name "WAAGE_EIN")
 			(class "Default")
 			(node
@@ -10775,7 +12363,7 @@
 			)
 		)
 		(net
-			(code "85")
+			(code "94")
 			(name "unconnected-(D501-D2--Pad5)")
 			(class "Default")
 			(node
@@ -10786,7 +12374,7 @@
 			)
 		)
 		(net
-			(code "86")
+			(code "95")
 			(name "unconnected-(D501-NC-Pad6)")
 			(class "Default")
 			(node
@@ -10797,7 +12385,7 @@
 			)
 		)
 		(net
-			(code "87")
+			(code "96")
 			(name "unconnected-(D501-NC-Pad7)")
 			(class "Default")
 			(node
@@ -10808,7 +12396,7 @@
 			)
 		)
 		(net
-			(code "88")
+			(code "97")
 			(name "unconnected-(D501-NC-Pad9)")
 			(class "Default")
 			(node
@@ -10819,7 +12407,7 @@
 			)
 		)
 		(net
-			(code "89")
+			(code "98")
 			(name "unconnected-(D501-NC-Pad10)")
 			(class "Default")
 			(node
@@ -10830,7 +12418,29 @@
 			)
 		)
 		(net
-			(code "90")
+			(code "99")
+			(name "unconnected-(D601-K-Pad4)")
+			(class "Default")
+			(node
+				(ref "D601")
+				(pin "4")
+				(pinfunction "K_4")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "100")
+			(name "unconnected-(D601-K-Pad5)")
+			(class "Default")
+			(node
+				(ref "D601")
+				(pin "5")
+				(pinfunction "K_5")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "101")
 			(name "unconnected-(J301-SBU1-PadA8)")
 			(class "Default")
 			(node
@@ -10841,7 +12451,7 @@
 			)
 		)
 		(net
-			(code "91")
+			(code "102")
 			(name "unconnected-(J301-SBU2-PadB8)")
 			(class "Default")
 			(node
@@ -10852,7 +12462,7 @@
 			)
 		)
 		(net
-			(code "92")
+			(code "103")
 			(name "unconnected-(U202-NC-Pad4)")
 			(class "Default")
 			(node
@@ -10863,7 +12473,7 @@
 			)
 		)
 		(net
-			(code "93")
+			(code "104")
 			(name "unconnected-(U204-EN-Pad3)")
 			(class "Default")
 			(node
@@ -10874,7 +12484,7 @@
 			)
 		)
 		(net
-			(code "94")
+			(code "105")
 			(name "unconnected-(U204-NC-Pad4)")
 			(class "Default")
 			(node
@@ -10885,7 +12495,7 @@
 			)
 		)
 		(net
-			(code "95")
+			(code "106")
 			(name "unconnected-(U401-ANT-Pad1)")
 			(class "Default")
 			(node
@@ -10896,7 +12506,7 @@
 			)
 		)
 		(net
-			(code "96")
+			(code "107")
 			(name "unconnected-(U401-DIO2-Pad7)")
 			(class "Default")
 			(node
@@ -10907,7 +12517,7 @@
 			)
 		)
 		(net
-			(code "97")
+			(code "108")
 			(name "unconnected-(U401-DIO3-Pad8)")
 			(class "Default")
 			(node
@@ -10918,7 +12528,7 @@
 			)
 		)
 		(net
-			(code "98")
+			(code "109")
 			(name "unconnected-(U502-XO-Pad13)")
 			(class "Default")
 			(node

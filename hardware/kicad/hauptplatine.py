@@ -3,10 +3,10 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
-Stand 10.10.2026: Blätter „Versorgung“, „MCU“, „Funk + Flash“ und „Waage“. Weitere Blätter (Mikrofon,
-Anschlüsse) folgen; Netze zu diesen Blättern sind als Schnittstellen (globale Labels) angelegt.
+Stand 13.10.2026: Blätter „Versorgung“, „MCU“, „Funk + Flash“, „Waage“ und „Mikrofon“. Das Blatt Anschlüsse
+folgt; Netze zu diesen Blättern sind als Schnittstellen (globale Labels) angelegt.
 
-Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7, mcu-funk.md, waage.md.
+Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7, mcu-funk.md, waage.md, mikrofon.md.
 Aufruf: python3 hardware/kicad/hauptplatine.py
 Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 """
@@ -641,6 +641,145 @@ def zeichne_waage(b, T):
         stub(b, E, pin, 7.62)
 
 
+OPV_SYMBOL = "Amplifier_Operational:MCP6001-OT"   # Pinfolge 1 OUT, 2 V−, 3 IN+, 4 IN−, 5 V+ = TLV9001 DBV
+
+
+def mikrofon(p):
+    """Blatt Mikrofon (mikrofon.md 2, anschluesse.md J5, Lastenheft A1–A5): gesiebte Versorgung 3V3_ANA, Vorspannung
+    1,65 V, Hochpass, Sallen-Key-Tiefpass 2. Ordnung mit TLV9001, RC vor PA1 und Mikrofonklemme J601 (= J5) mit ESD.
+    Kennzeichnung: [V] Datenblatt, [A] Annahme/Rechnung, [P] am Muster bzw. vor der Bestellung prüfen."""
+    b = p.blatt("Mikrofon", "mikrofon.kicad_sch", titel="Mikrofon: 3V3_ANA, Hochpass, Sallen-Key 1,18 kHz, ADC-Eingang PA1")
+    # --- 1 Versorgung 3V3_ANA (Lastenheft A1) ---------------------------------
+    b.teil("Device:FerriteBead_Small", "FB601", "600R@100MHz", fp="Inductor_SMD:L_0603_1608Metric",
+           netze={"1": "3V3_SW", "2": "MIC_FB"}, info="wie FB301; Teil wählen [P]")
+    b.teil("Device:R", "R602", "47", fp=R0603, netze={"1": "MIC_FB", "2": "3V3_ANA"},
+           info="mit C601 RC-Tiefpass ca. 150 Hz; Abfall ca. 25 mV bei 0,5 mA (mikrofon.md 2.1) [A]")
+    b.teil("Device:C", "C601", "22µ 10V X5R", fp=C0805, netze={"1": "3V3_ANA", "2": "GND"},
+           info="wirksam bei 3,3 V geringer (DC-Bias); für die Siebung unkritisch [A]")
+    b.teil("Device:C", "C602", "100n", fp=C0603, netze={"1": "3V3_ANA", "2": "GND"})
+    b.teil("power:PWR_FLAG", "#FLG601", "PWR_FLAG", netze={"1": "3V3_ANA"},
+           info="3V3_ANA aus 3V3_SW über FB601 und R602 (passive Bauteile sind für den ERC kein Treiber)")
+    # --- 2 Vorspannung VREF = 1,65 V ------------------------------------------
+    b.teil("Device:R", "R603", "47k", fp=R0603, netze={"1": "3V3_ANA", "2": "MIC_VREF"})
+    b.teil("Device:R", "R604", "47k", fp=R0603, netze={"1": "MIC_VREF", "2": "GND"})
+    b.teil("Device:C", "C603", "1µ", fp=C0603, netze={"1": "MIC_VREF", "2": "GND"}, info="Zeitkonstante 24 ms (mikrofon.md 4.2)")
+    # --- 3 Eingang: ESD, 100 Ω, Hochpass ---------------------------------------
+    b.teil("Connector_Generic:Conn_01x04", "J601", "Mikrofon", fp=KLEMME % (4, 4),
+           netze={"1": "GND", "2": "GND", "3": "MIC_OUT_K", "4": "3V3_ANA"},
+           info="= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRHC-3.5 4-polig C7603445 "
+                "(Platzhalter-Footprint Phoenix MC) [P]; Schirm nur hier an Masse")
+    b.teil("Power_Protection:ESDS304", "D601", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
+           netze={"1": "MIC_OUT_K", "3": "3V3_ANA", "4": "NC", "5": "NC", "2": "GND"},
+           info="3,6 V, 2,3 pF, Leckstrom 50 nA max. [V: TI SLVSE24]; direkt hinter J601 (anschluesse.md 3); LCSC [P]")
+    b.teil("Device:R", "R601", "100", fp=R0603, netze={"1": "MIC_OUT_K", "2": "MIC_IN"},
+           info="Schutzwiderstand; 1 kΩ Trennwiderstand sitzt am Mikrofonmodul, nicht auf der Platine (mikrofon.md 2.1)")
+    b.teil("Device:C", "C604", "220n X7R", fp=C0603, netze={"1": "MIC_IN", "2": "MIC_HP"},
+           info="Hochpass mit R605: 1/(2π·33k·220n) = 22 Hz (Lastenheft A2)")
+    b.teil("Device:R", "R605", "33k", fp=R0603, netze={"1": "MIC_VREF", "2": "MIC_HP"})
+    # --- 4 Sallen-Key-Tiefpass, Verstärkung 1 ------------------------------------
+    b.teil("Device:R", "R606", "9,1k 1%", fp=R0603, netze={"1": "MIC_HP", "2": "MIC_SK1"})
+    b.teil("Device:R", "R607", "9,1k 1%", fp=R0603, netze={"1": "MIC_SK1", "2": "MIC_SK2"})
+    b.teil("Device:C", "C605", "22n C0G", fp=C0603, netze={"1": "MIC_OP", "2": "MIC_SK1"},
+           info="Rückkopplung; f = 1179 Hz, Q = 0,74 (mikrofon_filter.py)")
+    b.teil("Device:C", "C606", "10n C0G", fp=C0603, netze={"1": "MIC_SK2", "2": "GND"})
+    b.teil(OPV_SYMBOL, "U601", "TLV9001IDBVR", fp="Package_TO_SOT_SMD:SOT-23-5", lcsc="C398363",
+           netze={"1": "MIC_OP", "2": "GND", "3": "MIC_SK2", "4": "MIC_OP", "5": "3V3_ANA"},
+           info="Spannungsfolger; Pinfolge DBV 1 OUT, 2 V−, 3 IN+, 4 IN−, 5 V+ [V: TI SBOS833R Tab. 6-1]; "
+                "NICHT TLV9001U (andere Pinfolge); ersetzt LMV321TP (C90297 laut LCSC 13.10.2026 nicht lieferbar)")
+    b.teil("Device:C", "C607", "100n", fp=C0603, netze={"1": "3V3_ANA", "2": "GND"}, info="direkt an V+ (Pin 5)")
+    # --- 5 RC vor dem ADC ----------------------------------------------------------
+    b.teil("Device:R", "R608", "3,3k", fp=R0603, netze={"1": "MIC_OP", "2": "MIC_ADC"}, info="mit C608 4,8 kHz")
+    b.teil("Device:C", "C608", "10n C0G", fp=C0603, netze={"1": "MIC_ADC", "2": "GND"},
+           info="nahe PA1; lädt den Abtastkondensator des ADC (mikrofon.md 2.1)")
+    zeichne_mikrofon(b, {t.ref: t for t in b.teile})
+    return b
+
+
+def zeichne_mikrofon(b, T):
+    """Signalfluss von links nach rechts: Klemme J601 → ESD → 100 Ω → Hochpass → Sallen-Key → RC → MIC_ADC (PA1).
+    Oben die Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA mit der Vorspannung MIC_VREF."""
+    S, D, L = b.setze, b.draht, b.label
+    yv = 83.82                        # Schiene 3V3_ANA
+    yr = 99.06                        # MIC_VREF
+    ys = 129.54                       # Signalzeile
+    b.text("1  Versorgung 3V3_ANA: 3V3_SW → Ferrit → 47 Ω → 22 µF (Lastenheft A1)", 30.48, 71.12, 2.0)
+    b.text("2  Vorspannung 1,65 V", 119.38, 76.2, 2.0)
+    b.text("3  Klemme J601 (= J5), ESD direkt dahinter, 100 Ω, Hochpass 22 Hz", 30.48, 172.72, 2.0)
+    b.text("4  Sallen-Key 2. Ordnung, Verstärkung 1: 1179 Hz, Q 0,74", 116.84, 160.02, 2.0)
+    b.text("5  RC 4,8 kHz vor PA1", 193.04, 121.92, 2.0)
+    b.text("Mikrofonmodul GY-MAX4466 im Stock: 1 kΩ in Reihe am Modulausgang (Kabelende), sonst kann der MAX4466 "
+           "am Kabel schwingen (mikrofon.md 2.1). Kabel LiYCY ≤ 2 m, Schirm nur hier an Masse.", 30.48, 228.6, 1.5)
+    b.text("Regeln (mikrofon.md 4/5): während der Messung kein Funk und kein 5-V-Wandler; ≥ 150 ms nach 3V3_SW warten; "
+           "Filter nahe PA1, weit weg von Funk, SPI und 5-V-Wandler.", 30.48, 233.68, 1.5)
+
+    # --- 1 Versorgung --------------------------------------------------------------
+    F = S(T["FB601"], 40.64, yv, rot=90, text="oben")
+    R2 = S(T["R602"], 55.88, yv, rot=90, text="oben")
+    D((30.48, yv), F.p("1"))
+    L("3V3_SW", 30.48, yv, 180)
+    D(F.p("2"), R2.p("1"))
+    L("MIC_FB", F.p("2")[0] + 1.27, yv)
+    D(R2.p("2"), (127.0, yv))
+    L("3V3_ANA", 101.6, yv)
+    S(T["C601"], 66.04, 87.63)
+    S(T["C602"], 83.82, 87.63)
+    S(T["#FLG601"], 93.98, yv, text="oben")
+    # --- 2 VREF ----------------------------------------------------------------------
+    S(T["R603"], 127.0, 90.17, text="links")
+    D(T["R603"].p("1"), (127.0, yv))
+    D(T["R603"].p("2"), (127.0, yr))
+    S(T["R604"], 127.0, 105.41, text="links")
+    D((111.76, yr), (137.16, yr))
+    D(T["R604"].p("1"), (127.0, yr))
+    S(T["C603"], 137.16, 102.87)
+    L("MIC_VREF", 114.3, yr)
+    # --- 3 Klemme, ESD, Hochpass --------------------------------------------------
+    J = S(T["J601"], 38.1, ys + 2.54, rot=180, text="links")
+    D(J.p("4"), (60.96, J.p("4")[1]), (60.96, yv))
+    D(J.p("1"), (45.72, J.p("1")[1]), (45.72, J.p("2")[1]), J.p("2"))
+    b.versorgung("GND", 45.72, J.p("1")[1], "unten")
+    E = S(T["D601"], 68.58, 147.32, text=(76.2, 154.94))
+    R1 = S(T["R601"], 81.28, ys, rot=90, text="oben")
+    D(J.p("3"), R1.p("1"))
+    D(E.p("1"), (E.p("1")[0], ys))
+    stub(b, E, "3", 5.08)
+    L("MIC_OUT_K", 48.26, ys)
+    C4 = S(T["C604"], 99.06, ys, rot=90, text="oben")
+    D(R1.p("2"), C4.p("1"))
+    L("MIC_IN", 86.36, ys)
+    S(T["R605"], 111.76, 121.92, text="links")
+    D(T["R605"].p("1"), (111.76, yr))
+    D(T["R605"].p("2"), (111.76, ys))
+    # --- 4 Sallen-Key ---------------------------------------------------------------
+    R6 = S(T["R606"], 124.46, ys, rot=90, text="unten")
+    D(C4.p("2"), R6.p("1"))
+    L("MIC_HP", 104.14, ys)
+    R7 = S(T["R607"], 144.78, ys, rot=90, text="unten")
+    D(R6.p("2"), R7.p("1"))
+    L("MIC_SK1", 129.54, ys)
+    U = S(T["U601"], 167.64, ys + 2.54, text=(172.72, 142.24))
+    D(R7.p("2"), U.p("3"))
+    L("MIC_SK2", 149.86, ys)
+    S(T["C606"], 152.4, 138.43, text="links")
+    D(T["C606"].p("1"), (152.4, ys))
+    C5 = S(T["C605"], 134.62, 121.92, text="links")
+    D(C5.p("2"), (134.62, ys))
+    xo = 185.42
+    D(C5.p("1"), (134.62, 114.3), (xo, 114.3), (xo, U.p("1")[1]))
+    D(U.p("4"), (157.48, U.p("4")[1]), (157.48, 149.86), (182.88, 149.86), (182.88, U.p("1")[1]))
+    # V+ mit Abblockkondensator, Anschluss über Netzname 3V3_ANA
+    D(U.p("5"), (U.p("5")[0], 119.38), (177.8, 119.38))
+    S(T["C607"], 177.8, 123.19)
+    L("3V3_ANA", U.p("5")[0], 119.38, 90)
+    # --- 5 RC vor dem ADC -------------------------------------------------------------
+    R8 = S(T["R608"], 198.12, U.p("1")[1], rot=90, text="oben")
+    D(U.p("1"), R8.p("1"))
+    L("MIC_OP", 186.69, U.p("1")[1])
+    S(T["C608"], 210.82, U.p("1")[1] + 3.81)
+    D(R8.p("2"), (223.52, U.p("1")[1]))
+    L("MIC_ADC", 223.52, U.p("1")[1])
+
+
 def pins_von_lib(lib_id):
     from kicad_gen import lib_symbol, pins_von
     return pins_von(lib_symbol(lib_id))
@@ -735,11 +874,12 @@ def baue():
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)
     w = p.blatt("Bienenlogger Hauptplatine", "logger.kicad_sch", titel="Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
-    w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage (fertig). Folgen: Mikrofon, Anschlüsse.", 30, 25, 2.0)
+    w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon (fertig). Folgt: Anschlüsse.", 30, 25, 2.0)
     versorgung(p)
     mcu(p)
     funk(p)
     waage(p)
+    mikrofon(p)
     return p
 
 
