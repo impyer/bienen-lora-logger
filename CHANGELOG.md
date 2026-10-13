@@ -1,5 +1,9 @@
 # Änderungen
 
+## 2026-10-13 – Versorgungslage L3
+
+- Neu `hardware/kicad/werkzeug/platine_lagen.py`: auf L3 eine +3V3-Fläche über Mikrocontroller, Funkmodul, Flash und Bedienteilen mit Arm zu den Reglern U202/U203, darunter GND-Füllung über die übrige Platine (Lastenheft M8, A3). DRC 0 Verstöße, Schaltplanabgleich 0. Bericht: `docs/testberichte/2026-10-13-platine-lage-l3.md`.
+
 ## 2026-10-13 – Feinplatzierung der kritischen Gruppen, Massefläche L2
 
 - Neu `hardware/kicad/werkzeug/platine_fein.py`: 100-nF-Kondensatoren 1,7–2,0 mm an jedem VDD-Pin des STM32, VCAP/VDDA, Quarze direkt am Gehäuse; 100 nF + TVS + 10 µF + 100 µF an Pin 3 des Ra-01SH, SPI-Reihenwiderstände auf Pinhöhe; kurze Schleife am TPS61240; 13 Masse-Vias in den Thermal-Pads (U201, U301, U501); durchgehende GND-Fläche auf L2.
