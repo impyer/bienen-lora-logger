@@ -1,5 +1,9 @@
 # Änderungen
 
+## 2026-10-13 – Mikrocontroller-Auswahl bestätigt (HW-04)
+
+- **HW-04 (Philipp):** STM32F411CEU6 bleibt; kein FPGA, kein externer RAM. Vergleich mit STM32L433, F401, APM32F411, AT32F403A, GD32F303, CH32V203 und STM32WLE5 (Preise/Lager JLCPCB 13.10.2026), Energie- und RAM-Abschätzung in `hardware/mcu-funk.md` 1.5; STM32L433CCU6 als Ausweichoption bei Lieferproblemen.
+
 ## 2026-10-13 – Gehäuse mit STEP-Modell geprüft
 
 - STEP-Modell CBHUB_02 -01.1 von Camdenboss ausgewertet (nur lokal, nicht im Repo): Lochbild 110,2 × 110,2 mm bestätigt, Platine 121 × 121 mm ohne Kollision; Dom 9,1 mm hoch; mit 10-mm-Hülsen (HW-03) Freiraum unter der Platine ≥ 13 mm, darüber ≥ 44,3 mm (Deckelpfosten an den Ecken), sonst 53,8 mm → 40-mm-Grenze mit Reserve erfüllt.

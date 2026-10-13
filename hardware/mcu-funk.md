@@ -53,6 +53,29 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 - Stiftleiste 2,54 mm 1 × 7 (J10, im Schaltplan J302): 1 3V3, 2 SWDIO (PA13), 3 SWCLK (PA14), 4 NRST, 5 GND, 6 TX1 (PA9), 7 RX1 (PA10). Führend ist die Tabelle in `anschluesse.md` 1.2; die Netzprüfung vergleicht sie mit dem Schaltplan (SCH26-09).
 - Firmware stellt auf „nur SWD“: Dann sind PA15, PB3, PB4 als normale Pins frei [A].
 
+### 1.5 Auswahlprüfung: Alternativen, FPGA, externer RAM (13.10.2026, Entscheidung HW-04)
+
+Anlass: Frage von Philipp, ob ein günstiger FPGA oder ein Mikrocontroller mit besserem Preis-Leistungs-Verhältnis sinnvoll wäre. Ergebnis: **STM32F411CEU6 bleibt, kein FPGA, kein externer RAM.**
+
+**Bedarf** (aus `docs/fft-konzept.md`, `hardware/energiebilanz.py`): ADC 8192 Hz, FFT N = 512 mit Welch-Mittelung, ca. 41 KB RAM mit Mikrofon; dazu LoRaWAN-Stack (RadioLib), HX711, 1-Wire, I²C, SPI-Flash, USB-DFU (HW-01), RTC mit LSE. Genauen RAM-/Flash-Bedarf des Gesamtprogramms nach dem ersten Build der Platinenfirmware nachtragen [P].
+
+Preise JLCPCB/LCSC am 13.10.2026, 10 Stück, in US-Dollar [V: JLCPCB-Teilesuche]:
+
+| MCU | Preis | Lager | Flash / RAM | Bewertung |
+|---|---|---|---|---|
+| **STM32F411CEU6 (gewählt)** | 4,96 | 474 | 512 K / 128 K | gleicher Chip wie BlackPill (Firmware dort entwickelbar), RAM-Reserve ca. 3 × |
+| STM32L433CCU6 | 4,81 | 1619 | 256 K / 64 K | Standby mit RTC 280 nA [V: ST-Datenblatt], USB ohne HSE-Quarz; aber anderes Pinout, RAM knapp. **Ausweichoption bei Lieferproblemen** |
+| STM32F401CCU6 | 7,39 | 1644 | 256 K / 64 K | teurer und schwächer |
+| APM32F411CEU6 (Geehy) | 2,03 | 0 | 512 K / 128 K | als F411-Ersatz beworben, nicht lieferbar |
+| AT32F403ACGU7 (Artery) | 2,68 | 1923 | 1 M / 224 K | andere Peripherie, schwächere Arduino-Unterstützung |
+| GD32F303CCT6, CH32V203C8T6 | 1,22 / 0,72 | viel | ≤ 256 K / ≤ 48 K | DFU-Bootloader und Ruhestrom ungeprüft |
+| STM32WLE5 (z. B. Wio-E5-Modul) | 7,58 | 6 | 256 K / 64 K | ersetzt MCU + Ra-01SH (zusammen ca. 8,90), aber **kein USB** (HW-01 entfiele), nach unserem Wissen ohne FPU [A], Neuentwurf → frühestens Version 2 |
+
+- **Energie:** Der L433 spart im Ruhezustand ca. 2,3 µA ≈ 0,055 mAh/Tag, das sind 2 % der Last (2,81 mAh/Tag, Szenario B) und wenig gegenüber der Selbstentladung (2,2–5,6 mAh/Tag). Kein Grund zum Wechsel.
+- **FPGA:** Keine Aufgabe braucht hohe Datenraten oder parallele Kanäle; die FFT läuft auf dem M4F in Bruchteilen einer Sekunde. Günstigster Kandidat iCE40UP5K-SG48I 9,38 $ (doppelt so teuer wie die MCU) plus 1,2-V-Versorgung, Konfigurationsspeicher, zweite Toolchain und zusätzlicher Ruhestrom. Sinnvoll erst bei z. B. 4–8 synchron abgetasteten Mikrofonen (Schallortung), nicht im Lastenheft.
+- **Externer RAM (SPI-PSRAM):** Der F411 im 48-Pin-Gehäuse hat kein QSPI/FSMC [A], PSRAM wäre nur per SPI-Befehlen nutzbar, zu langsam für die FFT und flüchtig (im Ruhezustand abschalten = Daten weg). Dauerhafte Daten liegen bereits im SPI-Flash U402 (8 MB). Wird RAM knapp, zuerst in der Firmware sparen: FFT in q15 statt float (halbe Puffer), blockweise Welch-Mittelung per DMA, ggf. N = 256.
+- **Beschaffung:** F411 bei der JLCPCB-Bestellung reservieren (Lager 474).
+
 ## 2. Funk Ai-Thinker Ra-01SH
 
 ### 2.1 Pinbelegung des Moduls [V: Ai-Thinker Ra-01SH Specification 2020-08-18, S. 11]
