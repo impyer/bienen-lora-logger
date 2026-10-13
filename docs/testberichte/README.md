@@ -8,6 +8,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Platine: Feinplatzierung, Masse L2](2026-10-13-platine-feinplatzierung.md)** | **13.10.2026, Basis `751de0f`** | **34 Bauteile an STM32, Ra-01SH und TPS61240 gesetzt (Abblock-C 1,7–2,4 mm am Pin), 13 Thermal-Vias, GND-Fläche L2; DRC 0 Verstöße, Schaltplanabgleich 0; offen: Via-Füllung [P], Routing** |
 | **[Gehäuse CBHUB-02: STEP-Kontrolle](2026-10-13-gehaeuse-step.md)** | **13.10.2026, Basis `4fe34a6` + Grobplatzierung** | **Lochbild 110,2 mm bestätigt, keine Kollision; Freiraum über der Platine ≥ 44,3 mm (HW-03 erfüllt), darunter ≥ 13 mm; Fund: Dombohrung Ø 2,4 mm statt 3,6 mm; Lichtleiter ca. 19,4 mm, Bohrungsmitte ca. 22,7 mm vom Boden** |
 | **[Platine: Grobplatzierung](2026-10-13-platine-grobplatzierung.md)** | **13.10.2026, Basis `4fe34a6`** | **139 Bauteile per `platine_bestuecken.py` auf logger.kicad_pcb, Regeln M5/A3; Schaltplanabgleich 0, DRC ohne Kupfer-/Courtyard-Verstöße; Funde: Testpunkte/Lötbrücken nicht in Stückliste, Klemmenreihe knapp [P]** |
 | **[Projektfootprints BQ25185 / Ra-01SH](2026-10-13-footprints-bienen.md)** | **13.10.2026, Basis `675f6c1`** | **Bienen.pretty: DLH0010A nach TI, Ra-01SH nach Ai-Thinker; ERC 0; Funde: Vias BQ25185, Keystone 1042 (SMD) ≠ 1043 (THT), SCH26-13 Klemmen zweireihig** |

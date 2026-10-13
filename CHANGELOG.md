@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2026-10-13 – Feinplatzierung der kritischen Gruppen, Massefläche L2
+
+- Neu `hardware/kicad/werkzeug/platine_fein.py`: 100-nF-Kondensatoren 1,7–2,0 mm an jedem VDD-Pin des STM32, VCAP/VDDA, Quarze direkt am Gehäuse; 100 nF + TVS + 10 µF + 100 µF an Pin 3 des Ra-01SH, SPI-Reihenwiderstände auf Pinhöhe; kurze Schleife am TPS61240; 13 Masse-Vias in den Thermal-Pads (U201, U301, U501); durchgehende GND-Fläche auf L2.
+- DRC: 0 Verstöße (nur Bestückungsdruck-Warnungen), Schaltplanabgleich 0, offene Verbindungen 323. Offen: Via-Füllung bei JLCPCB [P], Routing. Bericht: `docs/testberichte/2026-10-13-platine-feinplatzierung.md`.
+
 ## 2026-10-13 – Mikrocontroller-Auswahl bestätigt (HW-04)
 
 - **HW-04 (Philipp):** STM32F411CEU6 bleibt; kein FPGA, kein externer RAM. Vergleich mit STM32L433, F401, APM32F411, AT32F403A, GD32F303, CH32V203 und STM32WLE5 (Preise/Lager JLCPCB 13.10.2026), Energie- und RAM-Abschätzung in `hardware/mcu-funk.md` 1.5; STM32L433CCU6 als Ausweichoption bei Lieferproblemen.
