@@ -386,9 +386,9 @@ def funk(p):
                            ("R404", "RF_NSS", "LORA_NSS")):
         b.teil("Device:R", ref, "33", fp=R0603, netze={"1": mcu_, "2": mod}, info="Reihenwiderstand 10–100 Ω laut Datenblatt")
     b.teil("Device:R", "R405", "100k", fp=R0603, netze={"1": "+3V3", "2": "LORA_NSS"}, info="NSS nicht ausgewählt, solange PA4 im Standby hochohmig ist")
-    b.teil("Jumper:SolderJumper_2_Open", "JP401", "TXEN", fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+    b.teil("Jumper:SolderJumper_2_Open", "JP401", "TXEN", bom=False, fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
            netze={"A": "TXEN_MOD", "B": "LORA_TXEN"}, info="offen lassen: TXEN ist im Modul DIO2 (R8 0 Ω); geschlossen PB14 nur als Eingang (SCH26-11, mcu-funk.md 2.1)")
-    b.teil("Jumper:SolderJumper_2_Open", "JP402", "RXEN", fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+    b.teil("Jumper:SolderJumper_2_Open", "JP402", "RXEN", bom=False, fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
            netze={"A": "RXEN_MOD", "B": "LORA_RXEN"}, info="offen lassen: RXEN im Modul über R1 (NC) nicht verbunden; PB15 nur Eingang (SCH26-11)")
     b.teil("Memory_Flash:W25Q32JVSS", "U402", "64 Mbit SOIC-8 208 mil", fp="Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
            netze={"1": "FLASH_CS", "6": "SPI_SCK", "5": "SPI_MOSI", "2": "SPI_MISO", "3": "FLASH_WP", "7": "FLASH_HOLD",
@@ -943,8 +943,8 @@ def versorgung(p):
                info="TMP_VCC für die Ladesperre auf der Akku-Platine, nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)"),
         b.teil("Device:C", "C212", "4,7µ 16V X7R", fp=C0805, netze={"1": "TMP_VCC", "2": "GND"},
                info="Datenblatt verlangt ≥ 2,2 µF am Ausgang; 4,7 µF/0805 hält das bei 3,3 V trotz DC-Bias (REG26-11)"),
-        b.teil("Connector:TestPoint", "TP201", "STAT1", fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT1"}),
-        b.teil("Connector:TestPoint", "TP202", "STAT2", fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT2"}),
+        b.teil("Connector:TestPoint", "TP201", "STAT1", bom=False, fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT1"}),
+        b.teil("Connector:TestPoint", "TP202", "STAT2", bom=False, fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT2"}),
         b.teil("Connector_Generic:Conn_01x05", "J203", "Akku (JST PH 5)", fp="Connector_JST:JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical",
                netze={"1": "GND", "2": "NTC", "3": "CE_LADEN", "4": "TMP_VCC", "5": "VBAT"},
                info="Kabel 1:1 zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+"),

@@ -110,14 +110,28 @@ Die PDF liegt wegen des Herstellercopyrights nicht im Repo, sondern lokal unter 
 | Führungsschlitze am Rand | 2 mm breit, bis auf 138 mm Breite, bei 0 und ± 40 mm (80 mm Abstand) | 5 |
 | Eingeschränkte Bauhöhe **unter** der Platine | 2 Felder je 50,5 mm breit, mittig, von ± 28 mm (Abstand 56 mm) bis zum Rand; an ihrer Innenkante je eine Rundung Ø 6,5 mm bis ± 26,75 mm (Abstand 53,5 mm). Vermutlich die Wandhalter-Aufnahmen. | 5 |
 | **Platine im Deckel** (Alternative) | bis 146,8 × 146,8 mm, Lochabstand 108 × 108 mm, Ø 3,4 mm, Dom Ø 6 mm; Kerbe 7 mm für den Angusspunkt | 6 |
-| Dombohrung Unterteil | Ø 3,6 mm (vermutlich für selbstformende Schrauben) | 4 |
+| Dombohrung Unterteil | **Ø 2,4 mm**, 10,1 mm tief (STEP: 2,4 → 2,3 mm konisch); früher hier fälschlich Ø 3,6 mm gelesen (Ø 3,6 steht auf Blatt 3) | 4, STEP |
+
+### 4.1a Maße aus dem STEP-Modell (CBHUB_02 -01.1, Camdenboss, erhalten 13.10.2026)
+
+Ausgewertet mit OpenCascade (Strahlschnitte im 1-mm-Raster und Einzelschnitte); Bericht `docs/testberichte/2026-10-13-gehaeuse-step.md`. Das STEP-Modell liegt nur lokal (Herstellerdatei, nicht im Repo).
+
+| Maß | Wert |
+|---|---|
+| Referenzplatine Unterteil im STEP | 152,5 × 152,5 × 1,6 mm, Löcher Ø 3,4 mm auf **110,2 × 110,2 mm**, Auflage Ø 6 mm – bestätigt M1 |
+| Dom | Außen-Ø 5,9 mm, Spitze **9,1 mm über dem Innenboden**; Boden 2,5 mm |
+| Innenwand auf Platinenhöhe (HW-03) | ± 76,7 mm von der Mitte (Formschräge ca. 1°), Wand 2,5 mm → **16,2 mm** von der Platinenkante zur Innenwand |
+| Freiraum unter der Platine (HW-03) | Unterseite 19,1 mm über dem Innenboden; mindestens **13,0 mm** über den erhöhten Feldern (Wandhalter-Aufnahmen) |
+| Freiraum über der Platinenoberseite | **53,8 mm** bis zur Deckel-Innenfläche; **45,8 mm** unter den Deckeldomen (Ø 6, 108 mm, direkt neben unseren Löchern); **44,3 mm** unter den Deckelpfosten an den Platinenecken |
+| Ecksäulen (Deckelschrauben) | Abstand zur Platinenecke ca. 3–4 mm (Raster 1 mm) |
+| Kollision Gehäuse ↔ Platine 121 × 121 mm | keine |
 
 ### 4.2 Anforderungen
 
 | Nr. | Anforderung |
 |---|---|
 | M1 [M] | **Hauptplatine 121 × 121 mm**, quadratisch, Ecken gerundet, 4 Bohrungen Ø 3,4 mm auf **110,2 × 110,2 mm** (mittig). Sie liegt ganz innerhalb der erlaubten Kontur und lässt am Rand Platz für die Kabel. |
-| M2 [M] | Auf der **Unterseite** keine Bauteile. **Platine auf glatten Distanzhülsen 10 mm über den Domen** (HW-03, 13.10.2026), selbstformende Schrauben durch Platine und Hülse in die Dombohrung Ø 3,6 mm; damit genug Freiraum unter der Platine auch in den eingeschränkten Feldern, THT-Lötstellen müssen nicht gekürzt werden [A]. **Bauhöhe über der Platine höchstens 40 mm** (inkl. gesteckter Klemmenstecker und Akku-Platine, M3). Höhe der Lichtleiter-Bohrung (F7) am ersten Muster messen. STEP-Modell ist angefragt (Kontrolle). |
+| M2 [M] | Auf der **Unterseite** keine Bauteile. **Platine auf glatten Distanzhülsen 10 mm über den Domen** (HW-03, 13.10.2026), selbstformende Schrauben durch Platine und Hülse in die Dombohrung Ø 2,4 mm (Blatt 4, STEP; Schraube Ø 3 mm für Kunststoff); damit genug Freiraum unter der Platine auch in den eingeschränkten Feldern, THT-Lötstellen müssen nicht gekürzt werden [A]. **Bauhöhe über der Platine höchstens 40 mm** (inkl. gesteckter Klemmenstecker und Akku-Platine, M3). Höhe der Lichtleiter-Bohrung (F7) aus dem STEP berechnet (4.1a, `mcu-funk.md` 3.3), am ersten Muster bestätigen. **STEP-Kontrolle (13.10.2026): bestanden**, mindestens 4,3 mm Reserve über den 40 mm. |
 | M3 [S] | **Akkuhalter** auf einer Trägerplatte an den Deckeldomen (108 × 108 mm) oder seitlich neben der Hauptplatine. Bauhöhe 18650 im Halter (ca. 21 mm [A]) liegt innerhalb der 40 mm über der Hauptplatine (M2/HW-03); am Muster prüfen [P]. |
 | M4 [M] | Innen **steckbare Schraubklemmen**, Raster **3,5 mm** (**DEGSON 15EDGRC-3.5**, einreihig; Teilenummern je Polzahl in `anschluesse.md` 2; SCH26-13), damit jeder Sensor ohne Löten getauscht werden kann. Masse/Schirm immer Pin 1; Aufdruck an jeder Klemme; Jede Sensorklemme eigene Polzahl: **J8 (BME280) 6-polig**, J4 (Wägezelle) 5-polig, dazu Steckerfarbe (09.10.2026). Belegung J1–J11: [`anschluesse.md`](anschluesse.md). |
 | M5 [S] | **Alle Außenklemmen an einer Platinenkante** (Solar – BME280 – DS18B20 – Mikrofon – Wägezelle), ESD direkt hinter der Klemme; Funkmodul an der gegenüberliegenden Kante. Rund ein Drittel der Fläche frei für Erweiterungen. [`anschluesse.md`](anschluesse.md) 4. |
@@ -168,4 +182,4 @@ Offen:
 
 - Webserver-Skripte prüfen: Felder für Mikrofon und Deckeltemperatur (S4, `docs/datenformat.md`)
 - Prüfpunkte der Versorgung, `versorgung.md` Abschnitt 7 (u. a. Panel-Messung, BQ25185-Eingangsbereich, HY2111-Variante)
-- Domhöhe und Freiraum (STEP-Modell), Lage des Akkuhalters (M2, M3)
+- ~~Domhöhe und Freiraum (STEP-Modell)~~ (13.10.2026, 4.1a); Lage des Akkuhalters (M2, M3)

@@ -72,6 +72,7 @@ def befestigungsloch(board, nr, x, y):
     fp.SetReference("H%d" % nr)
     fp.Reference().SetVisible(False)
     fp.Value().SetVisible(False)
+    fp.SetBoardOnly(True)                        # kein Schaltplansymbol (Abgleich Platine ↔ Schaltplan)
     fp.SetPosition(punkt(x, y))
     board.Add(fp)
     # Kupfersperrfläche auf allen Lagen (Schraubenkopf/Hülse, kein Kupfer)

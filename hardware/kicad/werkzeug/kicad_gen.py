@@ -217,9 +217,10 @@ def _txt(at, groesse=1.27, verbergen=False, justify=None):
 
 
 class Teil:
-    def __init__(self, blatt, lib_id, ref, wert, fp="", lcsc="", netze=None, ds="", info="", dnp=False):
+    def __init__(self, blatt, lib_id, ref, wert, fp="", lcsc="", netze=None, ds="", info="", dnp=False, bom=True):
         self.blatt, self.lib_id, self.ref, self.wert = blatt, lib_id, ref, wert
         self.fp, self.lcsc, self.ds, self.info, self.dnp = fp, lcsc, ds, info, dnp
+        self.bom = bom                          # False: Testpunkte, Lötbrücken (kein Bestückteil)
         self.netze = dict(netze or {})
         self.symdef = lib_symbol(lib_id, blatt.projekt.eigene_bibs)
         self.pins = pins_von(self.symdef)
@@ -471,8 +472,8 @@ class Blatt:
                 refpos = self._ref_pos(t, x, y, x0, y0, x1, y1, True)
                 wertpos = self._ref_pos(t, x, y, x0, y0, x1, y1, False)
             sym = S("symbol", S("lib_id", t.lib_id), S("at", x, y, t.rot), S("unit", 1),
-                    S("exclude_from_sim", Sym("no")), S("in_bom", Sym("yes")), S("on_board", Sym("yes")),
-                    S("dnp", Sym("yes" if t.dnp else "no")), S("uuid", u),
+                    S("exclude_from_sim", Sym("no")), S("in_bom", Sym("yes" if t.bom else "no")),
+                    S("on_board", Sym("yes")), S("dnp", Sym("yes" if t.dnp else "no")), S("uuid", u),
                     S("property", "Reference", t.ref, *(refpos if not t.ref.startswith("#") else
                                                          [S("at", x, y, 0), _txt(None, verbergen=True)])),
                     S("property", "Value", t.wert, *wertpos),
@@ -705,5 +706,6 @@ class Projekt:
         zeilen = []
         for b in [self.wurzel] + self.blaetter:
             for t in b.teile:
-                zeilen.append((t.ref, t.wert, t.lib_id, t.fp, t.lcsc, b.name, "DNP" if t.dnp else ""))
+                zeilen.append((t.ref, t.wert, t.lib_id, t.fp, t.lcsc, b.name,
+                                "DNP" if t.dnp else ("kein Bestückteil" if not t.bom else "")))
         return sorted(zeilen, key=lambda z: (re.sub(r"\d+", "", z[0]), int(re.sub(r"\D", "", z[0]) or 0)))

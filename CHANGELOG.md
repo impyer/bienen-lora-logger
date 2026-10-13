@@ -1,5 +1,18 @@
 # Änderungen
 
+## 2026-10-13 – Gehäuse mit STEP-Modell geprüft
+
+- STEP-Modell CBHUB_02 -01.1 von Camdenboss ausgewertet (nur lokal, nicht im Repo): Lochbild 110,2 × 110,2 mm bestätigt, Platine 121 × 121 mm ohne Kollision; Dom 9,1 mm hoch; mit 10-mm-Hülsen (HW-03) Freiraum unter der Platine ≥ 13 mm, darüber ≥ 44,3 mm (Deckelpfosten an den Ecken), sonst 53,8 mm → 40-mm-Grenze mit Reserve erfüllt.
+- **Korrektur:** Dombohrung Ø 2,4 mm, 10,1 mm tief (Zeichnung Blatt 4 und STEP), nicht Ø 3,6 mm → Schraube selbstformend Ø 3 mm, Länge 18–20 mm [A/P].
+- Lichtleiter: Länge LED bis außen ca. 19,4 mm, Bohrungsmitte ca. 22,7 mm von der Außenfläche des Bodens. Lastenheft 4.1/4.1a/M2, `mcu-funk.md` 3.3, `mechanik/README.md`, HW-03. Bericht: `docs/testberichte/2026-10-13-gehaeuse-step.md`.
+
+## 2026-10-13 – Alle Bauteile auf der Hauptplatine (Grobplatzierung)
+
+- Neu `hardware/kicad/werkzeug/platine_bestuecken.py`: übernimmt die 139 Bauteile aus der Netzliste auf `logger.kicad_pcb` (Footprint, Netze, LCSC, Verknüpfung zum Schaltplansymbol) und platziert sie grob nach Lastenheft M5/A3: Klemmen an der Unterkante mit ESD dahinter, Ra-01SH an der Oberkante, LED und Reedkontakt an der linken Kante, USB rechts, 5-V-Wandler fern vom Mikrofonzweig, links oben frei für Erweiterungen. Ergänzt nur Fehlendes, gleiche Platzierung bei jedem Lauf.
+- Schaltplanabgleich 0 Abweichungen; DRC ohne Kupfer-, Courtyard- und Randverstöße (nur Bestückungsdruck); 344 offene Verbindungen (noch keine Leiterbahnen).
+- Testpunkte TP201/TP202 und Lötbrücken JP401/JP402/JP1 sind kein Bestückteil (`in_bom no`, neuer Parameter `bom=False`); Befestigungslöcher „nur Platine“.
+- Hinweis: Klemmenreihe nutzt 102,7 von 103,2 mm zwischen den Lochsperren → mit Steckern am Muster prüfen [P]. Bericht: `docs/testberichte/2026-10-13-platine-grobplatzierung.md`.
+
 ## 2026-10-13 – Bauhöhe festgelegt (HW-03), Platinendatei angelegt
 
 - **HW-03 (Philipp):** Hauptplatine auf glatten Distanzhülsen 10 mm über den Gehäusedomen, selbstformende Schrauben in die Dombohrung Ø 3,6 mm; Bauhöhe über der Platine höchstens 40 mm. Das Layout hängt damit nicht mehr vom STEP-Modell ab (angefragt, nur zur Kontrolle). Lastenheft M2/M3, `mcu-funk.md` (Lichtleiter-Bohrung am Muster), `mechanik/README.md`, Entscheidungsregister.

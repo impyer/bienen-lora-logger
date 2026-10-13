@@ -132,6 +132,7 @@ Bewertung:
 - Das Funkmodul mit der IPEX-Buchse sitzt an der **gegenüberliegenden** Kante, die Antenne an der Wand daneben.
 - Der Akkustecker J3 und USB J9 sitzen innen, gut erreichbar beim Öffnen.
 - **Lichtleiter-LED und Reedkontakt** sitzen an einer Seitenkante (mcu-funk.md 3.3).
+- Grobplatzierung (13.10.2026, `werkzeug/platine_bestuecken.py`): Die 7 Klemmen füllen 102,7 der 103,2 mm zwischen den unteren Befestigungslöchern, Körperabstand 1,4 mm. **[P]** Mit gesteckten 15EDGK-Steckern am Muster prüfen, ob sie nebeneinander passen und sich lösen lassen.
 
 ## 5. Fertigung
 

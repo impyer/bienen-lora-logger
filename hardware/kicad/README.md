@@ -7,7 +7,7 @@ Stand 13.10.2026: **Akku-Platine** und alle Blätter der Hauptplatine (**Versorg
 | `akku-platine/` | Projekt `akku.kicad_pro`: Zelle, HY2111 + FS8205, Messbrücke, Ladesperre 2 × TMP390 (Stufe 1 → CE, Stufe 2 → NTC-Kreis), NTC, JST PH 5 |
 | `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch`, `mikrofon.kicad_sch`, `anschluesse.kicad_sch` |
 | `bienen.kicad_sym` | Projektsymbole (BQ25185, TMP390, HY2111-GB, FS8205, RT9080, TPS70933, Ra-01SH, TPS61240), Pinbelegungen mit Datenblattquelle in `werkzeug/symbole.py` |
-| `hauptplatine/logger.kicad_pcb` | **Platine (Layout), von Hand in KiCad bearbeitet** – angelegt am 13.10.2026 mit `werkzeug/platine_start.py`: 4 Lagen, 1,6 mm, Umriss 121 × 121 mm (Ecken R 3 [A]), 4 Löcher Ø 3,4 mm auf 110,2 mm mit Kupfersperre Ø 7 mm (Hülse 10 mm, HW-03), JLCPCB-Regeln (0,15/0,15 mm, Via 0,3/0,6 mm) [A], Hinweise auf User.1. Bauteile über „Platine aus Schaltplan aktualisieren“. Das Skript überschreibt nichts |
+| `hauptplatine/logger.kicad_pcb` | **Platine (Layout), von Hand in KiCad bearbeitet** – angelegt am 13.10.2026 mit `werkzeug/platine_start.py`: 4 Lagen, 1,6 mm, Umriss 121 × 121 mm (Ecken R 3 [A]), 4 Löcher Ø 3,4 mm auf 110,2 mm mit Kupfersperre Ø 7 mm (Hülse 10 mm, HW-03), JLCPCB-Regeln (0,15/0,15 mm, Via 0,3/0,6 mm) [A], Hinweise auf User.1. Das Skript überschreibt nichts. **Bauteile** übernommen und grob platziert mit `werkzeug/platine_bestuecken.py` (ergänzt nur fehlende Referenzen; Regeln M5/A3, siehe Prüfbericht 2026-10-13-platine-grobplatzierung); weitere Schaltplanänderungen danach über „Platine aus Schaltplan aktualisieren“ in KiCad |
 | `erc_erwartet.json` | begründete ERC-Warnungen; jede andere Meldung lässt die Prüfung scheitern |
 | `pdf/`, `netzliste/` | Ausdrucke und KiCad-Netzlisten (zum Prüfen ohne KiCad; enthalten ein Datum, daher vom CI-Diff ausgenommen) |
 | `werkzeug/` | Erzeuger `kicad_gen.py`, `symbole.py`, `erc_pruefen.py`, `netz_tests.py` |
@@ -91,7 +91,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | C3 | 100n | Device:C | C_0603_1608Metric |  | Akku-Platine |
 | J1 | JST PH 5-polig | Connector_Generic:Conn_01x05 | JST_PH_S5B-PH-K_1x05_P2.00mm_Horizontal |  | Akku-Platine |
 | J2 | Strommessung (DNP) | Connector_Generic:Conn_01x02 | PinHeader_1x02_P2.54mm_Vertical |  | Akku-Platine |
-| JP1 | Messbrücke B+ | Jumper:SolderJumper_2_Bridged | SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm |  | Akku-Platine |
+| JP1 | Messbrücke B+ (kein Bestückteil) | Jumper:SolderJumper_2_Bridged | SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm |  | Akku-Platine |
 | Q1 | FS8205 | Bienen:FS8205 | SOT-23-6 | C32254 | Akku-Platine |
 | Q2 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku-Platine |
 | Q3 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku-Platine |
@@ -180,8 +180,8 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | J702 | DS18B20 Nr. 2 | Connector_Generic:Conn_01x03 | DEGSON_15EDGRC-3.5-03P | C5160226 | Anschlüsse |
 | J703 | BME280 | Connector_Generic:Conn_01x06 | DEGSON_15EDGRC-3.5-06P | C49352918 | Anschlüsse |
 | J704 | Erweiterung | Connector_Generic:Conn_02x06_Odd_Even | PinHeader_2x06_P2.54mm_Vertical |  | Anschlüsse |
-| JP401 | TXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
-| JP402 | RXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
+| JP401 | TXEN (kein Bestückteil) | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
+| JP402 | RXEN (kein Bestückteil) | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | L501 | 1µ | Device:L | L_0805_2012Metric |  | Waage |
 | Q501 | S8550 | Transistor_BJT:SS8550 | SOT-23 | C397181 | Waage |
 | R201 | 3,3M | Device:R | R_0603_1608Metric |  | Versorgung |
@@ -231,8 +231,8 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | SW302 | BOOT | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW303 | Service | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW304 | MRS03-B-3 | Switch:SW_Reed | MiRelay_MRS03_J-Lead_8.5x2.1mm | C41432613 | MCU |
-| TP201 | STAT1 | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
-| TP202 | STAT2 | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
+| TP201 | STAT1 (kein Bestückteil) | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
+| TP202 | STAT2 (kein Bestückteil) | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
 | U201 | BQ25185DLHR | Bienen:BQ25185 | WSON-10-1EP_2.2x2mm_DLH0010A |  | Versorgung |
 | U202 | RT9080-33GJ5 | Bienen:RT9080-33GJ5 | TSOT-23-5 | C841192 | Versorgung |
 | U203 | TPS22917DBV | Power_Management:TPS22917DBV | SOT-23-6 | C2681320 | Versorgung |

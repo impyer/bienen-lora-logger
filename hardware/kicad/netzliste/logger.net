@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-13T11:47:46")
+		(date "2026-10-13T12:13:49")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -1903,6 +1903,9 @@
 				(value "versorgung.kicad_sch")
 			)
 			(property
+				(name "exclude_from_bom")
+			)
+			(property
 				(name "ki_keywords")
 				(value "test point tp")
 			)
@@ -1952,6 +1955,9 @@
 			(property
 				(name "Sheetfile")
 				(value "versorgung.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
 			)
 			(property
 				(name "ki_keywords")
@@ -4449,6 +4455,9 @@
 				(value "funk.kicad_sch")
 			)
 			(property
+				(name "exclude_from_bom")
+			)
+			(property
 				(name "ki_keywords")
 				(value "solder jumper SPST")
 			)
@@ -4501,6 +4510,9 @@
 			(property
 				(name "Sheetfile")
 				(value "funk.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
 			)
 			(property
 				(name "ki_keywords")

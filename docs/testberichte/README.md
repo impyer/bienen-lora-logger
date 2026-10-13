@@ -8,6 +8,8 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Gehäuse CBHUB-02: STEP-Kontrolle](2026-10-13-gehaeuse-step.md)** | **13.10.2026, Basis `4fe34a6` + Grobplatzierung** | **Lochbild 110,2 mm bestätigt, keine Kollision; Freiraum über der Platine ≥ 44,3 mm (HW-03 erfüllt), darunter ≥ 13 mm; Fund: Dombohrung Ø 2,4 mm statt 3,6 mm; Lichtleiter ca. 19,4 mm, Bohrungsmitte ca. 22,7 mm vom Boden** |
+| **[Platine: Grobplatzierung](2026-10-13-platine-grobplatzierung.md)** | **13.10.2026, Basis `4fe34a6`** | **139 Bauteile per `platine_bestuecken.py` auf logger.kicad_pcb, Regeln M5/A3; Schaltplanabgleich 0, DRC ohne Kupfer-/Courtyard-Verstöße; Funde: Testpunkte/Lötbrücken nicht in Stückliste, Klemmenreihe knapp [P]** |
 | **[Projektfootprints BQ25185 / Ra-01SH](2026-10-13-footprints-bienen.md)** | **13.10.2026, Basis `675f6c1`** | **Bienen.pretty: DLH0010A nach TI, Ra-01SH nach Ai-Thinker; ERC 0; Funde: Vias BQ25185, Keystone 1042 (SMD) ≠ 1043 (THT), SCH26-13 Klemmen zweireihig** |
 | **[Pin-/Footprint-Abgleich](2026-10-13-reg26-08-pin-footprint.md)** | **13.10.2026, Basis `ecce931`** | **REG26-08 im Entwurf behoben: `pin_footprint.py` in `pruefen.sh`, 161 Bauteile, 0 Abweichungen; Funde: 5 fehlende Footprint-Zuordnungen, Polung TVS D401; offen: Footprints U201/U401/SW304, [A]/[P]-Datenblätter** |
 | **[Schaltplanblatt Anschlüsse](2026-10-13-sch26-07-anschluesse.md)** | **13.10.2026, Basis `969339d`** | **SCH26-07 letztes Blatt: DS18B20 J701/J702, BME280 J703 (6-polig), Erweiterung J704, ESDS304, Pull-ups an 3V3_SW; T3 lokal 178/178, ERC nur Footprint U201; CI offen, kein Muster** |

@@ -164,13 +164,13 @@ Anordnung:
 - Die Platine liegt waagerecht im Unterteil, die Wand steht senkrecht. Deshalb eine **seitlich abstrahlende SMD-LED** direkt an der Platinenkante, Lichtaustritt zur Wand [A]. **Gewählt (13.10.2026): Lite-On LTST-S220KGKT** (grün, AlInGaP, 2,15 × 1,0 mm, LCSC C160469, Bestand 39.801) [V: Lite-On DS22-2000-075]; mit 1 kΩ ca. 1,3 mA – Sichtbarkeit durch den Lichtleiter am Muster prüfen, ggf. kleineren Widerstand [P].
 - **Lichtleiter waagerecht** von der LED durch die Bohrung nach außen.
 - **Fertiger Wand-Lichtleiter mit Dichtung** (Entscheidung 09.10.2026). Kandidat: **Bivar PLTR2** (Linse 3 mm), starr, gerade, **IP67 mit Dichtung** (schwarz oder weiß), von außen eingepresst mit Gewinde-Halterung, Polycarbonat UL94 V-0, Längen 6,4–72 mm [V: Mouser-Seite „BIVAR PLTR IP67-Rated Rigid Light Pipes“]. Alternativ PLTR5 (Linse 5 mm, heller sichtbar).
-  - Länge: Wand 3 mm + Abstand Wand bis Platinenkante ca. 15 mm (Platine 121 mm im Innenraum 152 mm) ≈ **18–20 mm** [A]; genau nach dem STEP-Modell.
-  - **[P]** im Datenblatt PLTR2-XXX-PRX: Bohrungsdurchmesser, zulässige Wanddicke (wir haben ca. 3 mm PC), Temperaturbereich, UV-Beständigkeit; Bezug (Mouser/DigiKey), Preis.
+  - Länge aus dem STEP (13.10.2026): LED-Front ca. 0,7 mm innerhalb der Platinenkante + 16,2 mm bis zur Innenwand + Wand 2,5 mm ≈ **19,4 mm** von der LED bis zur Außenfläche [V: STEP + Layout]; passende PLTR-Länge wählen [P].
+  - **[P]** im Datenblatt PLTR2-XXX-PRX: Bohrungsdurchmesser, zulässige Wanddicke (laut STEP 2,5 mm PC), Temperaturbereich, UV-Beständigkeit; Bezug (Mouser/DigiKey), Preis.
   - Nicht gewählt: Mentor 1292/1282/1293 (IP68). Diese sind nur für 1 mm Frontplatte und −20 bis +50 °C angegeben [V: Mentor-Datenblatt].
 - Kein Durchsteck-Lichtleiter mit Klebefuß auf der Platine: Die Platine ist verschraubt und die Toleranzen zur Wand sind zu groß [A].
 - **Reedkontakt** auf derselben Kante, 10–20 mm neben der LED; außen eine Markierung „Magnet hier“. **Gewählt (13.10.2026): MiRelay MRS03-B-3** (vergossen, SMD mit J-Anschlüssen, 8,5 × 2,1 × 2,4 mm, Empfindlichkeit 10–15 AT, LCSC C41432613, Bestand 2051) [V: MiRelay-Datenblatt]; Längsachse parallel zur Kante, Magnet längs der Kante führen. Lötprofil laut Datenblatt max. 260 °C / 5 s.
 - Schaltabstand Reedkontakt durch die Wand: **wird am Prototyp getestet** (Entscheidung 09.10.2026).
-- **Höhe der Bohrung** = Domhöhe + 10 mm Distanzhülse (HW-03) + 1,6 mm Platine + halbe LED-Höhe; am ersten Muster messen und übertragen. Die Domhöhe kommt aus dem **STEP-Modell**. Camdenboss gibt es nur auf Anfrage heraus („STEP drawing request“ auf der Produktseite, Formular mit Kontaktdaten und Captcha; Philipp stellt die Anfrage).
+- **Höhe der Bohrung** (STEP, 13.10.2026): Platinenoberseite 23,2 mm unter der Außenfläche des Bodens (Dom 9,1 + Hülse 10 + Platine 1,6 + Boden 2,5 mm). Mit der Lichtmitte der LED ca. 0,5 mm über der Platine [A] liegt die **Bohrungsmitte ca. 22,7 mm von der Außenfläche des Bodens** (bzw. ca. 44,6 mm von der offenen Kante des Unterteils). Seitlich: LED 8 mm links der Wandmitte, Reedkontakt 8 mm rechts davon (Grobplatzierung). Am ersten Muster bestätigen [P].
 
 | Vorgang | Lichtsignal (Vorschlag) |
 |---|---|
@@ -219,7 +219,7 @@ Frei für den Erweiterungsstecker (F9): PA15, PB12, PB13. PB11 gibt es beim UFQF
 
 1. Jeder VDD-Pin bekommt seinen 100-nF-Kondensator direkt am Pin; VCAP_1 4,7 µF mit kleinem ESR.
 2. LSE-Quarz mit **höchstens 7 pF** Lastkapazität.
-3. Funkmodul an den Platinenrand, IPEX-Buchse zur Gehäusewand hin, **keine Leiterbahn an ANT**. Unter dem Modul durchgehende Masse; laut Datenblatt dürfen die Pads größer sein als die Modulpads [V].
+3. Funkmodul an den Platinenrand, IPEX-Buchse zur Gehäusewand hin, **keine Leiterbahn an ANT**. Grobplatzierung: Oberkante mittig, Pin-1-Seite (ANT) zur Kante; dass die IPEX-Buchse nahe Pin 1 sitzt, ist angenommen **[A]**, am gelieferten Modul prüfen. Unter dem Modul durchgehende Masse; laut Datenblatt dürfen die Pads größer sein als die Modulpads [V].
 4. Mikrofoneingang PA1 und VDDA weit weg von Funkmodul und SPI (Lastenheft A3).
 5. Ungewisse Modulpins (TXEN/RXEN) über Lötbrücken an freie Pins führen, statt sich festzulegen. Die zugehörigen MCU-Pins (PB14/PB15) bleiben in der Firmware **Eingänge** (2.1).
 6. Alles, was am I²C-Bus hängt, an derselben (geschalteten) Schiene.

@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/neu/hardware/kicad/akku-platine/akku.kicad_sch")
-		(date "2026-10-13T05:24:06")
+		(date "2026-10-13T12:13:47")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -412,6 +412,9 @@
 			(property
 				(name "Sheetfile")
 				(value "akku.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
 			)
 			(property
 				(name "ki_keywords")
