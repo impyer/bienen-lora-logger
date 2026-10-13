@@ -68,13 +68,13 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 
 ## Offene Punkte [P]
 
-- Projektfootprints (`werkzeug/footprints.py` → `Bienen.pretty`, reproduzierbar, in `pruefen.sh`): BQ25185 DLH0010A nach TI 4226298/A und Ra-01SH nach Ai-Thinker-Datenblatt V1.1 S. 13 angelegt (13.10.2026). Offen: Reedkontakt wählen; Akkuhalter **Keystone 1042 (SMD)** festgelegt (HW-02, 13.10.2026), Footprint aus der KiCad-Bibliothek; **Klemmen: DEGSON 15EDGRHC ist zweireihig** (SCH26-13). Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
+- Projektfootprints (`werkzeug/footprints.py` → `Bienen.pretty`, reproduzierbar, in `pruefen.sh`): BQ25185 DLH0010A nach TI 4226298/A und Ra-01SH nach Ai-Thinker-Datenblatt V1.1 S. 13 angelegt (13.10.2026). Offen: Reedkontakt wählen; Akkuhalter **Keystone 1042 (SMD)** festgelegt (HW-02, 13.10.2026), Footprint aus der KiCad-Bibliothek; Klemmen auf einreihige DEGSON 15EDGRC-3.5 umgestellt (SCH26-13), 5 Footprints in `Bienen.pretty`. Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
 - Datenblatt-Pinbelegung noch nicht gelesen ([A]/[P] in `pin_footprint.md`): USBLC6-2SC6, SPI-Flash (je gewähltem Typ), AO3400A, S8550 (C397181), Quarz Y301, Side-View-LED, TVS D401. HY2111, FS8205, RT9080, Ra-01SH nur aus früherer Sitzung ([V*]) – beim Footprint-Anlegen erneut lesen.
 - Blatt MCU: Reedkontakt SW304 (Teil und Footprint), Side-View-LED D301 (Platzhalter 0603), Ferrit FB301 (LCSC-Nummer).
 - Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.
 - Blatt Waage: Footprint WSON-6 2 × 2 (KiCad) mit TI DRV0006A vergleichen (U501); Spule L501 1 µH mit Isat ≥ 0,7 A wählen; Ferrite FB501 (600 Ω) und FB502 (Gleichstromwiderstand ≤ 0,1 Ω) wählen; Pinfolge des gelieferten S8550 (Q501) mit 1 B, 2 E, 3 C vergleichen; R507 (Kanal B an INA−) am Muster bewerten.
 - Blatt Mikrofon: Operationsverstärker **TLV9001IDBVR** (C398363) statt LMV321TP (C90297 laut LCSC-Seite am 13.10.2026 nicht lieferbar; TLV9001IDBVR dort 39.765 Stück); JLCPCB-Bestand vor der Bestellung erneut prüfen; **nicht TLV9001U** (andere Pinfolge). LCSC-Nummer ESDS304DBVR; Ferrit FB601 wählen; Frequenzgang und Schwingneigung mit 2 m Kabel am Muster messen (`../mikrofon.md` 7).
-- Klemmen: Platzhalter Phoenix MC 1,5 / 3,5 mm für DEGSON 15EDGRHC-3.5 – Maße vergleichen.
+- Klemmen: DEGSON 15EDGRC-3.5 (einreihig, SCH26-13) mit Footprints `Bienen:DEGSON_15EDGRC-3.5-0nP` nach EasyEDA/LCSC-Geometrie – gegen die DEGSON-Zeichnung prüfen [P].
 - Blatt Anschlüsse: LCSC-Nummer ESDS304DBVR (D701, D702); DEGSON-Teilenummern 3- und 6-polig; Kapazität des gekauften Netzwerkkabels messen (`../anschluesse.md` 3.1).
 - LCSC-Nummern ergänzen (BQ25185, TMP390, TPS70933, SS34, SMAJ12A, Klemmen, JST).
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
@@ -160,7 +160,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | D204 | SMAJ12A | Diode:SMAJ12A | D_SMA |  | Versorgung |
 | D301 | Side-View | Device:LED | LED_0603_1608Metric |  | MCU |
 | D401 | TVS 3,3V | Device:D_TVS | D_SOD-523 |  | Funk + Flash |
-| D501 | TPD4E05U06DQAR | Power_Protection:TPD4E05U06DQA | – | C138714 | Waage |
+| D501 | TPD4E05U06DQAR | Power_Protection:TPD4E05U06DQA | USON-10_2.5x1.0mm_P0.5mm | C138714 | Waage |
 | D601 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Mikrofon |
 | D701 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Anschlüsse |
 | D702 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Anschlüsse |
@@ -168,21 +168,21 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | FB501 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
 | FB502 | Ferrit ≤ 0,1 Ω | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
 | FB601 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Mikrofon |
-| J201 | Solar 1 | Connector_Generic:Conn_01x02 | PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal |  | Versorgung |
-| J202 | Solar 2 | Connector_Generic:Conn_01x02 | PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal |  | Versorgung |
+| J201 | Solar 1 | Connector_Generic:Conn_01x02 | DEGSON_15EDGRC-3.5-02P | C5160225 | Versorgung |
+| J202 | Solar 2 | Connector_Generic:Conn_01x02 | DEGSON_15EDGRC-3.5-02P | C5160225 | Versorgung |
 | J203 | Akku (JST PH 5) | Connector_Generic:Conn_01x05 | JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical |  | Versorgung |
 | J301 | USB-C | Connector:USB_C_Receptacle_USB2.0_16P | USB_C_Receptacle_HRO_TYPE-C-31-M-12 | C165948 | MCU |
 | J302 | Debug (SWD + Serial1) | Connector_Generic:Conn_01x07 | PinHeader_1x07_P2.54mm_Vertical |  | MCU |
-| J501 | Wägezelle | Connector_Generic:Conn_01x05 | PhoenixContact_MC_1,5_5-G-3.5_1x05_P3.50mm_Horizontal |  | Waage |
-| J601 | Mikrofon | Connector_Generic:Conn_01x04 | PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal |  | Mikrofon |
-| J701 | DS18B20 Nr. 1 | Connector_Generic:Conn_01x03 | PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal |  | Anschlüsse |
-| J702 | DS18B20 Nr. 2 | Connector_Generic:Conn_01x03 | PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal |  | Anschlüsse |
-| J703 | BME280 | Connector_Generic:Conn_01x06 | PhoenixContact_MC_1,5_6-G-3.5_1x06_P3.50mm_Horizontal |  | Anschlüsse |
+| J501 | Wägezelle | Connector_Generic:Conn_01x05 | DEGSON_15EDGRC-3.5-05P | C7603439 | Waage |
+| J601 | Mikrofon | Connector_Generic:Conn_01x04 | DEGSON_15EDGRC-3.5-04P | C7603438 | Mikrofon |
+| J701 | DS18B20 Nr. 1 | Connector_Generic:Conn_01x03 | DEGSON_15EDGRC-3.5-03P | C5160226 | Anschlüsse |
+| J702 | DS18B20 Nr. 2 | Connector_Generic:Conn_01x03 | DEGSON_15EDGRC-3.5-03P | C5160226 | Anschlüsse |
+| J703 | BME280 | Connector_Generic:Conn_01x06 | DEGSON_15EDGRC-3.5-06P | C49352918 | Anschlüsse |
 | J704 | Erweiterung | Connector_Generic:Conn_02x06_Odd_Even | PinHeader_2x06_P2.54mm_Vertical |  | Anschlüsse |
 | JP401 | TXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | JP402 | RXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | L501 | 1µ | Device:L | L_0805_2012Metric |  | Waage |
-| Q501 | S8550 | Transistor_BJT:SS8550 | – | C397181 | Waage |
+| Q501 | S8550 | Transistor_BJT:SS8550 | SOT-23 | C397181 | Waage |
 | R201 | 3,3M | Device:R | R_0603_1608Metric |  | Versorgung |
 | R202 | 470k | Device:R | R_0603_1608Metric |  | Versorgung |
 | R203 | 2,0k 1% | Device:R | R_0603_1608Metric |  | Versorgung |
@@ -238,10 +238,10 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | U204 | TPS70933DBV | Bienen:TPS70933DBV | SOT-23-5 |  | Versorgung |
 | U301 | STM32F411CEU6 | MCU_ST_STM32F4:STM32F411CEUx | QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm |  | MCU |
 | U302 | USBLC6-2SC6 | Power_Protection:USBLC6-2SC6 | SOT-23-6 | C7519 | MCU |
-| U401 | Ra-01SH | Bienen:Ra-01SH | – | C2764087 | Funk + Flash |
+| U401 | Ra-01SH | Bienen:Ra-01SH | Ai-Thinker_Ra-01SH | C2764087 | Funk + Flash |
 | U402 | 64 Mbit SOIC-8 208 mil | Memory_Flash:W25Q32JVSS | SOIC-8_5.3x5.3mm_P1.27mm |  | Funk + Flash |
-| U501 | TPS61240DRVR | Bienen:TPS61240 | – | C59567 | Waage |
-| U502 | HX711 | Analog_ADC:HX711 | – | C43656 | Waage |
+| U501 | TPS61240DRVR | Bienen:TPS61240 | WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm | C59567 | Waage |
+| U502 | HX711 | Analog_ADC:HX711 | SOIC-16_3.9x9.9mm_P1.27mm | C43656 | Waage |
 | U601 | TLV9001IDBVR | Amplifier_Operational:MCP6001-OT | SOT-23-5 | C398363 | Mikrofon |
 | Y301 | 25MHz 12pF | Device:Crystal_GND24 | Crystal_SMD_3225-4Pin_3.2x2.5mm | C9006 | MCU |
 | Y302 | 32,768k 7pF | Device:Crystal | Crystal_SMD_3215-2Pin_3.2x1.5mm | C97604 | MCU |

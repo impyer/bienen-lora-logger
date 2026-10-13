@@ -1,0 +1,130 @@
+(footprint "DEGSON_15EDGRC-3.5-04P"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "DEGSON 15EDGRC-3.5 pluggable terminal block header 1x04 P3.50mm right angle closed, drill 1.4mm (EasyEDA C7603438 geometry)")
+	(tags "terminal block pluggable DEGSON 15EDGRC 3.5mm")
+	(property "Reference" "REF**"
+		(at 0 -2.6 0)
+		(layer "F.SilkS")
+		(uuid "ae317f22-1a60-5bc6-bbf1-f77b17040b66")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "DEGSON_15EDGRC-3.5-04P"
+		(at 0 9.4 0)
+		(layer "F.Fab")
+		(uuid "3ed9b0d4-c4c2-5655-9b1c-212a1be206a8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "604afb23-6280-5cbd-85d5-5795c0127ec9")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a27738e0-8aec-5465-a854-7c4575338ceb")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -2.27 -1.32)
+		(end 12.77 8.12)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "1038c94b-337d-50d7-9505-405b95457433")
+	)
+	(fp_rect
+		(start -2.55 -1.6)
+		(end 13.05 8.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "f31afe88-ec00-54e0-aafc-e0e5220cfe29")
+	)
+	(fp_line
+		(start -2.15 6)
+		(end 12.65 6)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "8ccfa22c-f457-5efa-ae31-144d3d995e94")
+	)
+	(fp_rect
+		(start -2.15 -1.2)
+		(end 12.65 8)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "2baacc06-0847-5da0-95c2-64bf7eeb5190")
+	)
+	(pad "1" thru_hole rect
+		(at 0 0)
+		(size 2 2)
+		(drill 1.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "0d6c1dae-6b70-5e9b-aceb-291e1b8bf4f9")
+	)
+	(pad "2" thru_hole circle
+		(at 3.5 0)
+		(size 2 2)
+		(drill 1.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "506b8557-9120-5c4e-89ba-4f70a2b48342")
+	)
+	(pad "3" thru_hole circle
+		(at 7 0)
+		(size 2 2)
+		(drill 1.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "06f2255f-08c8-559a-b4a5-4c78376e3eab")
+	)
+	(pad "4" thru_hole circle
+		(at 10.5 0)
+		(size 2 2)
+		(drill 1.4)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "2273af79-ab26-5689-bce3-e508ba8009c9")
+	)
+	(embedded_fonts no)
+)

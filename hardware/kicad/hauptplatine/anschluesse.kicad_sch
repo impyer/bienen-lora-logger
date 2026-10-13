@@ -2898,7 +2898,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal"
+		(property "Footprint" "Bienen:DEGSON_15EDGRC-3.5-03P"
 			(at 40.64 91.44 0)
 			(hide yes)
 			(show_name no)
@@ -2920,7 +2920,18 @@
 				)
 			)
 		)
-		(property "Description" "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]"
+		(property "Description" "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRC-3.5-03P"
+			(at 40.64 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5160226"
 			(at 40.64 91.44 0)
 			(hide yes)
 			(show_name no)
@@ -3614,7 +3625,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Phoenix_MC:PhoenixContact_MC_1,5_6-G-3.5_1x06_P3.50mm_Horizontal"
+		(property "Footprint" "Bienen:DEGSON_15EDGRC-3.5-06P"
 			(at 40.64 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -3636,7 +3647,18 @@
 				)
 			)
 		)
-		(property "Description" "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRHC-3.5 6-polig (Platzhalter-Footprint Phoenix MC) [P]"
+		(property "Description" "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRC-3.5-06P"
+			(at 40.64 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C49352918"
 			(at 40.64 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -3897,7 +3919,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal"
+		(property "Footprint" "Bienen:DEGSON_15EDGRC-3.5-03P"
 			(at 40.64 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -3919,7 +3941,18 @@
 				)
 			)
 		)
-		(property "Description" "= J7 (TempIn2), selber Bus; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]"
+		(property "Description" "= J7 (TempIn2), selber Bus; DEGSON 15EDGRC-3.5-03P"
+			(at 40.64 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5160226"
 			(at 40.64 116.84 0)
 			(hide yes)
 			(show_name no)

@@ -4,7 +4,7 @@
 
 - Neu `hardware/kicad/werkzeug/footprints.py` → `hardware/kicad/Bienen.pretty/`: **WSON-10 DLH0010A** (BQ25185) nach TI-Gehäusezeichnung 4226298/A und **Ai-Thinker Ra-01SH** nach Herstellerdatenblatt V1.1 (empfohlenes Pad-Layout). Reproduzierbar (feste UUIDs), in `pruefen.sh`; `kicad_gen.py` schreibt `fp-lib-table`.
 - ERC Hauptplatine jetzt **0 Meldungen**; Pin-/Footprint-Abgleich 161 Bauteile, 0 Abweichungen (offen nur Reedkontakt SW304). Netzprüfung 178/178.
-- Funde: Thermal-Pad BQ25185 trägt 2 Vias (nicht 6–9, `versorgung.md` korrigiert); **Akkuhalter Keystone 1042 (SMD) festgelegt** (HW-02, Philipp; 1043 wäre Durchsteck); **SCH26-13: DEGSON 15EDGRHC ist zweireihig** – einreihige 15EDGRC prüfen. Bericht: `docs/testberichte/2026-10-13-footprints-bienen.md`.
+- Funde: Thermal-Pad BQ25185 trägt 2 Vias (nicht 6–9, `versorgung.md` korrigiert); **Akkuhalter Keystone 1042 (SMD) festgelegt** (HW-02, Philipp; 1043 wäre Durchsteck); **SCH26-13: DEGSON 15EDGRHC ist zweireihig** → auf Wunsch Philipp **einreihige DEGSON 15EDGRC-3.5** mit LCSC-Nummern je Polzahl (alle lieferbar) und 5 eigenen Klemmen-Footprints. Bericht: `docs/testberichte/2026-10-13-footprints-bienen.md`.
 
 ## 2026-10-13 – Pin-/Footprint-Abgleich (REG26-08)
 

@@ -33,10 +33,9 @@ OFFEN = {
 # Footprints, die nur Platzhalter sind (Pads passen, Teil/Maße weichen ab)
 PLATZHALTER = {
     "D301": "LED 0603 statt seitlich abstrahlender LED – Teil wählen",
-    "J201": "Phoenix MC 3,5 mm statt DEGSON 15EDGRHC-3.5 – Maße vergleichen",
 }
-for _r in ("J202", "J501", "J601", "J701", "J702", "J703"):
-    PLATZHALTER[_r] = PLATZHALTER["J201"]
+for _r in ("J201", "J202", "J501", "J601", "J701", "J702", "J703"):
+    PLATZHALTER[_r] = "DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P]"
 # Pads ohne Symbol-Pin, die gewollt sind (Ref-Präfix oder Ref → erlaubte Pads, Grund)
 PAD_AUSNAHMEN = {}
 

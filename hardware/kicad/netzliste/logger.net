@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-13T05:16:26")
+		(date "2026-10-13T05:24:07")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -1209,21 +1209,27 @@
 		(comp
 			(ref "J201")
 			(value "Solar 1")
-			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
-			(description "DEGSON 15EDGRHC-3.5 (Platzhalter-Footprint Phoenix MC 3,5 mm) [P]")
+			(footprint "Bienen:DEGSON_15EDGRC-3.5-02P")
+			(description "DEGSON 15EDGRC-3.5-02P (einreihig, SCH26-13)")
 			(fields
 				(field
-					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
+					(name "LCSC") "C5160225")
+				(field
+					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-02P")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "DEGSON 15EDGRHC-3.5 (Platzhalter-Footprint Phoenix MC 3,5 mm) [P]")
+					(name "Description") "DEGSON 15EDGRC-3.5-02P (einreihig, SCH26-13)")
 			)
 			(libsource
 				(lib "Connector_Generic")
 				(part "Conn_01x02")
 				(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "LCSC")
+				(value "C5160225")
 			)
 			(property
 				(name "Sheetname")
@@ -1263,11 +1269,13 @@
 		(comp
 			(ref "J202")
 			(value "Solar 2")
-			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
+			(footprint "Bienen:DEGSON_15EDGRC-3.5-02P")
 			(description "wie J201")
 			(fields
 				(field
-					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_2-G-3.5_1x02_P3.50mm_Horizontal")
+					(name "LCSC") "C5160225")
+				(field
+					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-02P")
 				(field
 					(name "Datasheet")
 				)
@@ -1278,6 +1286,10 @@
 				(lib "Connector_Generic")
 				(part "Conn_01x02")
 				(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "LCSC")
+				(value "C5160225")
 			)
 			(property
 				(name "Sheetname")
@@ -5892,21 +5904,27 @@
 		(comp
 			(ref "J501")
 			(value "Wägezelle")
-			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_5-G-3.5_1x05_P3.50mm_Horizontal")
-			(description "= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRHC-3.5 5-polig (Platzhalter Phoenix MC) [P]; Schirm nur hier an Masse")
+			(footprint "Bienen:DEGSON_15EDGRC-3.5-05P")
+			(description "= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRC-3.5-05P; Schirm nur hier an Masse")
 			(fields
 				(field
-					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_5-G-3.5_1x05_P3.50mm_Horizontal")
+					(name "LCSC") "C7603439")
+				(field
+					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-05P")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRHC-3.5 5-polig (Platzhalter Phoenix MC) [P]; Schirm nur hier an Masse")
+					(name "Description") "= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRC-3.5-05P; Schirm nur hier an Masse")
 			)
 			(libsource
 				(lib "Connector_Generic")
 				(part "Conn_01x05")
 				(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "LCSC")
+				(value "C7603439")
 			)
 			(property
 				(name "Sheetname")
@@ -7276,21 +7294,27 @@
 		(comp
 			(ref "J601")
 			(value "Mikrofon")
-			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal")
-			(description "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRHC-3.5 4-polig C7603445 (Platzhalter-Footprint Phoenix MC) [P]; Schirm nur hier an Masse")
+			(footprint "Bienen:DEGSON_15EDGRC-3.5-04P")
+			(description "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRC-3.5-04P; Schirm nur hier an Masse")
 			(fields
 				(field
-					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal")
+					(name "LCSC") "C7603438")
+				(field
+					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-04P")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRHC-3.5 4-polig C7603445 (Platzhalter-Footprint Phoenix MC) [P]; Schirm nur hier an Masse")
+					(name "Description") "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRC-3.5-04P; Schirm nur hier an Masse")
 			)
 			(libsource
 				(lib "Connector_Generic")
 				(part "Conn_01x04")
 				(description "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "LCSC")
+				(value "C7603438")
 			)
 			(property
 				(name "Sheetname")
@@ -7963,21 +7987,27 @@
 		(comp
 			(ref "J701")
 			(value "DS18B20 Nr. 1")
-			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
-			(description "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			(footprint "Bienen:DEGSON_15EDGRC-3.5-03P")
+			(description "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRC-3.5-03P")
 			(fields
 				(field
-					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
+					(name "LCSC") "C5160226")
+				(field
+					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-03P")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+					(name "Description") "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRC-3.5-03P")
 			)
 			(libsource
 				(lib "Connector_Generic")
 				(part "Conn_01x03")
 				(description "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "LCSC")
+				(value "C5160226")
 			)
 			(property
 				(name "Sheetname")
@@ -8020,21 +8050,27 @@
 		(comp
 			(ref "J702")
 			(value "DS18B20 Nr. 2")
-			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
-			(description "= J7 (TempIn2), selber Bus; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			(footprint "Bienen:DEGSON_15EDGRC-3.5-03P")
+			(description "= J7 (TempIn2), selber Bus; DEGSON 15EDGRC-3.5-03P")
 			(fields
 				(field
-					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
+					(name "LCSC") "C5160226")
+				(field
+					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-03P")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J7 (TempIn2), selber Bus; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+					(name "Description") "= J7 (TempIn2), selber Bus; DEGSON 15EDGRC-3.5-03P")
 			)
 			(libsource
 				(lib "Connector_Generic")
 				(part "Conn_01x03")
 				(description "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "LCSC")
+				(value "C5160226")
 			)
 			(property
 				(name "Sheetname")
@@ -8077,21 +8113,27 @@
 		(comp
 			(ref "J703")
 			(value "BME280")
-			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_6-G-3.5_1x06_P3.50mm_Horizontal")
-			(description "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRHC-3.5 6-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			(footprint "Bienen:DEGSON_15EDGRC-3.5-06P")
+			(description "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRC-3.5-06P")
 			(fields
 				(field
-					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_6-G-3.5_1x06_P3.50mm_Horizontal")
+					(name "LCSC") "C49352918")
+				(field
+					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-06P")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRHC-3.5 6-polig (Platzhalter-Footprint Phoenix MC) [P]")
+					(name "Description") "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRC-3.5-06P")
 			)
 			(libsource
 				(lib "Connector_Generic")
 				(part "Conn_01x06")
 				(description "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "LCSC")
+				(value "C49352918")
 			)
 			(property
 				(name "Sheetname")

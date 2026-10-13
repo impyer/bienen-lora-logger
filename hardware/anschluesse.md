@@ -74,8 +74,8 @@ Die Klemmen-Pinbelegung folgt drei Regeln:
 
 | Teil | Wahl | Quelle | Status |
 |---|---|---|---|
-| Klemme Platine | **Achtung SCH26-13 (13.10.2026): 15EDGRHC ist laut DEGSON-Datenblatt zweireihig („double rows“, 04P = 2 × 2); für einreihige Klemmen 15EDGRC-3.5 (+ Stecker 15EDGK-3.5) prüfen [P].** Bisher: **DEGSON 15EDGRHC-3.5**, steckbar, gewinkelt, Durchsteckmontage, 3,5 mm, 8 A / 150 V, −30 … +120 °C; 4-polig = JLCPCB C7603445 (Extended) | JLCPCB-Teileseite | [V]; 2-, 3-, 5- und 6-polig **[P]** Teilenummern |
-| Gegenstecker | DEGSON 15EDGK-3.5 (Schraubstecker) passend zur Polzahl | – | [A] Bezeichnung prüfen; Stecker werden lose mitbestellt |
+| Klemme Platine | **DEGSON 15EDGRC-3.5-0nP-14-00A(H)**, steckbar, **einreihig**, geschlossen, gewinkelt, Durchsteckmontage, Raster 3,5 mm (Entscheidung Philipp 13.10.2026, SCH26-13). JLCPCB/LCSC (Extended), Bestand am 13.10.2026: **2-polig C5160225** (4604), **3-polig C5160226** (3961), **4-polig C7603438** (8720), **5-polig C7603439** (1234), **6-polig C49352918** (1003). Vorher gewählt 15EDGRHC: zweireihig, passte nicht | JLCPCB-Teilesuche 13.10.2026 [V]; Footprint `Bienen:DEGSON_15EDGRC-3.5-0nP` nach EasyEDA/LCSC-Geometrie (Bohrung 1,4 mm) [A] | Zeichnung des Herstellers prüfen [P]; Bohrung laut LCSC je Polzahl 1,3–1,4 mm |
+| Gegenstecker | **DEGSON 15EDGK-3.5-0nP-14-00A(H)** (Schraubstecker) passend zur Polzahl: 2-polig C5632692 (3771), 3-polig C7603431 (**0**), 4-polig C7603432 (890), 5-polig C7603433 (800), 6-polig bei JLCPCB nicht gefunden | JLCPCB-Teilesuche 13.10.2026 [V] | Stecker werden lose bestellt (nicht bestückt); 3- und 6-polig bei LCSC/Mouser beschaffen [P] |
 | ESD 3,6 V | **TI ESDS304DBVR**, 4 Kanäle, SOT-23-5. VRWM 3,6 V, ±30 kV, **Leckstrom 3 nA typ., 50 nA max.** bei 3,6 V und 25 °C, 2,3 pF | TI-Datenblatt | [V]; LCSC-Nummer **[P]** |
 | ESD 5,5 V (Wägezelle) | **TI TPD4E05U06DQAR**, 4 Kanäle, USON-10. VRWM 5,5 V, **Leckstrom 0,01 nA typ., 10 nA max.** (bei 2,5 V), 0,5 pF, ±12 kV Kontakt | TI-Datenblatt; LCSC/JLCPCB **C138714** (Extended) | [V] |
 | Akku-Stecker | JST PH **5-polig**, Akku-Platine gewinkelt (S5B-PH-K-S), Hauptplatine stehend (B5B-PH-K-S) | – | **[P]** LCSC-Nummern (2-polig gewinkelt ist C265016) |
@@ -145,7 +145,7 @@ Bewertung:
 
 ## 6. Offene Prüfpunkte
 
-1. LCSC-Nummern: ESDS304DBVR, DEGSON 15EDGRHC-3.5 in 2-, 3-, 5- und 6-polig, Gegenstecker, JST PH 5-polig, TMP390A2DRL, AO3400A, TPS70933DBVR
+1. LCSC-Nummern: ESDS304DBVR, ~~Klemmen~~ (13.10.2026, Abschnitt 2), Gegenstecker 3- und 6-polig, JST PH 5-polig, TMP390A2DRL, AO3400A, TPS70933DBVR
 2. ~~Kodierung J4/J8~~: J8 6-polig plus Farbe (09.10.2026); Farbvariante bei LCSC suchen
 3. ~~Länge der BME280-Leitung~~: höchstens 1 m (09.10.2026); Anstiegszeit am Muster messen
 4. ~~Debug- und Erweiterungsleiste~~: J10 1 × 7, J11 2 × 6 (09.10.2026, HW26-13)

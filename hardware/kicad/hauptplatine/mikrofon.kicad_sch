@@ -3125,7 +3125,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_Phoenix_MC:PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal"
+		(property "Footprint" "Bienen:DEGSON_15EDGRC-3.5-04P"
 			(at 38.1 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -3147,7 +3147,18 @@
 				)
 			)
 		)
-		(property "Description" "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRHC-3.5 4-polig C7603445 (Platzhalter-Footprint Phoenix MC) [P]; Schirm nur hier an Masse"
+		(property "Description" "= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRC-3.5-04P; Schirm nur hier an Masse"
+			(at 38.1 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C7603438"
 			(at 38.1 132.08 0)
 			(hide yes)
 			(show_name no)

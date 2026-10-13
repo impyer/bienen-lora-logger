@@ -21,7 +21,12 @@ R0603 = "Resistor_SMD:R_0603_1608Metric"
 C0603 = "Capacitor_SMD:C_0603_1608Metric"
 C0805 = "Capacitor_SMD:C_0805_2012Metric"
 C1206 = "Capacitor_SMD:C_1206_3216Metric"
-KLEMME = "Connector_Phoenix_MC:PhoenixContact_MC_1,5_%d-G-3.5_1x0%d_P3.50mm_Horizontal"
+# Steckbare Klemmen DEGSON 15EDGRC-3.5 (einreihig, geschlossen, gewinkelt; SCH26-13): Footprint und LCSC-Nummer je Polzahl
+KLEMME_LCSC = {2: "C5160225", 3: "C5160226", 4: "C7603438", 5: "C7603439", 6: "C49352918"}
+
+
+def klemme(n):
+    return {"fp": "Bienen:DEGSON_15EDGRC-3.5-%02dP" % n, "lcsc": KLEMME_LCSC[n]}
 
 # Netze, die zu anderen (noch folgenden) Blättern gehen
 SCHNITTSTELLEN = {
@@ -508,9 +513,9 @@ def waage(p):
            info="begrenzt den Strom, wenn PB9 high ist und 3V3_SW aus (mcu-funk.md 4)")
     b.teil("Device:R", "R509", "1k", fp=R0603, netze={"1": "HX_DOUT_IC", "2": "HX_DOUT"})
     # --- 3 Wägezelle (waage.md 4, anschluesse.md J4) ---------------------------
-    b.teil("Connector_Generic:Conn_01x05", "J501", "Wägezelle", fp=KLEMME % (5, 5),
+    b.teil("Connector_Generic:Conn_01x05", "J501", "Wägezelle", **klemme(5),
            netze={"1": "GND", "2": "GND", "3": "ZELLE_SN", "4": "ZELLE_SP", "5": "ZELLE_EP"},
-           info="= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRHC-3.5 5-polig (Platzhalter Phoenix MC) [P]; Schirm nur hier an Masse")
+           info="= J4 in anschluesse.md: 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+; DEGSON 15EDGRC-3.5-05P; Schirm nur hier an Masse")
     b.teil("Power_Protection:TPD4E05U06DQA", "D501", "TPD4E05U06DQAR", fp="Package_SON:USON-10_2.5x1.0mm_P0.5mm", lcsc="C138714",
            netze={"D1+": "ZELLE_EP", "D1-": "ZELLE_SP", "D2+": "ZELLE_SN", "D2-": "NC", "6": "NC", "7": "NC", "9": "NC",
                   "10": "NC", "GND": "GND"},
@@ -663,10 +668,9 @@ def mikrofon(p):
     b.teil("Device:R", "R604", "47k", fp=R0603, netze={"1": "MIC_VREF", "2": "GND"})
     b.teil("Device:C", "C603", "1µ", fp=C0603, netze={"1": "MIC_VREF", "2": "GND"}, info="Zeitkonstante 24 ms (mikrofon.md 4.2)")
     # --- 3 Eingang: ESD, 100 Ω, Hochpass ---------------------------------------
-    b.teil("Connector_Generic:Conn_01x04", "J601", "Mikrofon", fp=KLEMME % (4, 4),
+    b.teil("Connector_Generic:Conn_01x04", "J601", "Mikrofon", **klemme(4),
            netze={"1": "GND", "2": "GND", "3": "MIC_OUT_K", "4": "3V3_ANA"},
-           info="= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRHC-3.5 4-polig C7603445 "
-                "(Platzhalter-Footprint Phoenix MC) [P]; Schirm nur hier an Masse")
+           info="= J5 in anschluesse.md: 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA); DEGSON 15EDGRC-3.5-04P; Schirm nur hier an Masse")
     b.teil("Power_Protection:ESDS304", "D601", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
            netze={"1": "MIC_OUT_K", "3": "3V3_ANA", "4": "NC", "5": "NC", "2": "GND"},
            info="3,6 V, 2,3 pF, Leckstrom 50 nA max. [V: TI SLVSE24]; direkt hinter J601 (anschluesse.md 3); LCSC [P]")
@@ -784,21 +788,21 @@ def anschluesse(p):
     und BME280 (J703 = J8) mit ESD-Arrays und Pull-ups an der geschalteten Schiene, Erweiterungsleiste J704 (= J11).
     Kennzeichnung: [V] Datenblatt, [A] Annahme/Rechnung, [P] vor der Bestellung bzw. am Muster prüfen."""
     b = p.blatt("Anschlüsse", "anschluesse.kicad_sch", titel="Anschlüsse: DS18B20, BME280, Erweiterungsleiste")
-    klemme = "DEGSON 15EDGRHC-3.5 %d-polig (Platzhalter-Footprint Phoenix MC) [P]"
+    klemme_text = "DEGSON 15EDGRC-3.5-%02dP"
     # --- 1 DS18B20 an 1-Wire (PA8) ------------------------------------------------
-    b.teil("Connector_Generic:Conn_01x03", "J701", "DS18B20 Nr. 1", fp=KLEMME % (3, 3),
-           netze={"1": "GND", "2": "ONEWIRE", "3": "3V3_SW"}, info="= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; " + klemme % 3)
-    b.teil("Connector_Generic:Conn_01x03", "J702", "DS18B20 Nr. 2", fp=KLEMME % (3, 3),
-           netze={"1": "GND", "2": "ONEWIRE", "3": "3V3_SW"}, info="= J7 (TempIn2), selber Bus; " + klemme % 3)
+    b.teil("Connector_Generic:Conn_01x03", "J701", "DS18B20 Nr. 1", **klemme(3),
+           netze={"1": "GND", "2": "ONEWIRE", "3": "3V3_SW"}, info="= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; " + klemme_text % 3)
+    b.teil("Connector_Generic:Conn_01x03", "J702", "DS18B20 Nr. 2", **klemme(3),
+           netze={"1": "GND", "2": "ONEWIRE", "3": "3V3_SW"}, info="= J7 (TempIn2), selber Bus; " + klemme_text % 3)
     b.teil("Device:R", "R701", "4,7k", fp=R0603, netze={"1": "3V3_SW", "2": "ONEWIRE"},
            info="1-Wire-Pull-up an der geschalteten Schiene (HW26-04: keine Rückspeisung im Standby); 3-adrig, nicht parasitär")
     b.teil("Power_Protection:ESDS304", "D701", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
            netze={"1": "ONEWIRE", "3": "3V3_SW", "4": "NC", "5": "NC", "2": "GND"},
            info="ein Array für J701 + J702 (anschluesse.md 1), zwischen beiden Klemmen; LCSC [P]")
     # --- 2 BME280 an I²C (PB6/PB7) ---------------------------------------------------
-    b.teil("Connector_Generic:Conn_01x06", "J703", "BME280", fp=KLEMME % (6, 6),
+    b.teil("Connector_Generic:Conn_01x06", "J703", "BME280", **klemme(6),
            netze={"1": "GND", "2": "GND", "3": "I2C_SDA", "4": "I2C_SCL", "5": "3V3_SW", "6": "NC"},
-           info="= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); " + klemme % 6)
+           info="= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); " + klemme_text % 6)
     b.teil("Device:R", "R702", "1,8k", fp=R0603, netze={"1": "I2C_SDA", "2": "3V3_SW"},
            info="1,8 kΩ: Anstiegszeit auch mit falschem Kabel ≤ 1000 ns (anschluesse.md 3.1, i2c_leitung.py)")
     b.teil("Device:R", "R703", "1,8k", fp=R0603, netze={"1": "3V3_SW", "2": "I2C_SCL"})
@@ -900,9 +904,9 @@ def versorgung(p):
     b = p.blatt("Versorgung", "versorgung.kicad_sch", titel="Versorgung: Solar, Lader, 3,3 V, Sensorschiene")
 
     eingang = [
-        b.teil("Connector_Generic:Conn_01x02", "J201", "Solar 1", fp=KLEMME % (2, 2),
-               netze={"1": "GND", "2": "PV1"}, info="DEGSON 15EDGRHC-3.5 (Platzhalter-Footprint Phoenix MC 3,5 mm) [P]"),
-        b.teil("Connector_Generic:Conn_01x02", "J202", "Solar 2", fp=KLEMME % (2, 2),
+        b.teil("Connector_Generic:Conn_01x02", "J201", "Solar 1", **klemme(2),
+               netze={"1": "GND", "2": "PV1"}, info="DEGSON 15EDGRC-3.5-02P (einreihig, SCH26-13)"),
+        b.teil("Connector_Generic:Conn_01x02", "J202", "Solar 2", **klemme(2),
                netze={"1": "GND", "2": "PV2"}, info="wie J201"),
         b.teil("Diode:SS34", "D201", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "PV1", "K": "VIN_LADER"}, info="je Panel eine Schottky"),
         b.teil("Diode:SS34", "D202", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "PV2", "K": "VIN_LADER"}),

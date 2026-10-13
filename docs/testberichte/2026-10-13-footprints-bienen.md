@@ -37,3 +37,11 @@ Vergleich Ra-01SH mit dem EasyEDA-Footprint (LCSC C2764087): gleiche Rasterung u
 
 - Padgeometrie gegen die Zeichnungen von Hand umgesetzt; kein DRC ohne Platine. Beim Layout DRC und Sichtprüfung im 3D-Viewer (kein 3D-Modell hinterlegt).
 - Datenblatt-Kopie DEGSON von einem Händler (chipdip.ru), nicht vom Hersteller direkt.
+
+## Nachtrag 13.10.2026 – Klemmen einreihig (SCH26-13), Akkuhalter (HW-02)
+
+- **Entscheidung Philipp:** einreihige Klemmen. Gewählt **DEGSON 15EDGRC-3.5-0nP-14-00A(H)**; JLCPCB-Teilesuche (API, 13.10.2026): 2P C5160225 (Bestand 4604), 3P C5160226 (3961), 4P C7603438 (8720), 5P C7603439 (1234), 6P C49352918 (1003), alle „Extended“.
+- **Footprints** `Bienen:DEGSON_15EDGRC-3.5-02P` … `-06P` in `footprints.py`: Raster 3,5 mm, Bohrung 1,4 mm, Pad Ø 2,0 mm, Körper 2,15 mm über die äußeren Pins, y −1,2 … +8,0 mm, Pin 1 im Ursprung. Geometrie aus den EasyEDA/LCSC-Footprints zu C7603438 (4P), stichprobenhaft verglichen mit C5160225 (2P: Bohrung 1,3 mm, Pad 2,1 mm) und C49352918 (6P: Bohrung 1,4 mm, Pad 2,3 mm) [A]. DEGSON-Zeichnung vor der Bestellung prüfen [P].
+- **Gegenstecker** 15EDGK-3.5: 2P C5632692, 3P C7603431 (Bestand 0), 4P C7603432, 5P C7603433; 6P bei JLCPCB nicht gefunden → lose über LCSC/Mouser [P].
+- **Akkuhalter:** Keystone 1042 (SMD) entschieden (HW-02).
+- Ergebnis: reproduzierbar, ERC 0, Pin-/Footprint-Abgleich 0 Abweichungen, Netzprüfung 178/178.

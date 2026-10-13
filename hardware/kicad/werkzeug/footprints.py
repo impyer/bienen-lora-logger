@@ -107,9 +107,31 @@ def ra01sh():
     fp.schreibe(-9.8, 9.8)
 
 
+def degson_15edgrc(n):
+    """DEGSON 15EDGRC-3.5-0nP-14-00A(H): steckbare Leiterplattenklemme, einreihig, geschlossen, gewinkelt, Raster 3,5 mm.
+    Quelle: EasyEDA/LCSC-Footprint zu C7603438 (4-polig) [A]: Bohrung 1,4 mm, Pad Ø 2,0 mm, Körper 2,15 mm über die
+    äußeren Pins, y −1,2 … +8,0 mm (Stecköffnung zur Seite +y, also zur Platinenkante). DEGSON-Zeichnung prüfen [P].
+    Ursprung Pin 1 (wie die KiCad-Footprints der Phoenix-MC-Bauform)."""
+    fp = Fp("DEGSON_15EDGRC-3.5-%02dP" % n, "DEGSON 15EDGRC-3.5 pluggable terminal block header 1x%02d P3.50mm right angle "
+            "closed, drill 1.4mm (EasyEDA C7603438 geometry)" % n, "terminal block pluggable DEGSON 15EDGRC 3.5mm",
+            attr="through_hole")
+    for i in range(n):
+        form = "rect" if i == 0 else "circle"
+        fp.teile.append('\t(pad "%d" thru_hole %s (at %s 0) (size 2 2) (drill 1.4) (layers "*.Cu" "*.Mask"))'
+                        % (i + 1, form, f(3.5 * i)))
+    x1, x2 = -2.15, 3.5 * (n - 1) + 2.15
+    fp.rechteck("F.Fab", x1, -1.2, x2, 8.0, 0.1)
+    fp.linie("F.Fab", x1, 6.0, x2, 6.0, 0.1)                       # Stecköffnung (Steckerseite)
+    fp.rechteck("F.SilkS", x1 - 0.12, -1.32, x2 + 0.12, 8.12, 0.12)
+    fp.rechteck("F.CrtYd", x1 - 0.4, -1.6, x2 + 0.4, 8.4, 0.05)
+    fp.schreibe(-2.6, 9.4)
+
+
 def main():
     bq25185_dlh()
     ra01sh()
+    for n in (2, 3, 4, 5, 6):
+        degson_15edgrc(n)
     import shutil
     import subprocess
     if shutil.which("kicad-cli"):        # in KiCads eigenes Format bringen (prüft zugleich die Syntax)
