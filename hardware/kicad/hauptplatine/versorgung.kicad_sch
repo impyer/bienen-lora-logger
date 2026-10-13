@@ -6752,7 +6752,7 @@
 				)
 			)
 		)
-		(property "Description" "Footprint DLH 2,2 × 2 mm selbst anlegen [P]; Thermal-Pad mit 6–9 Vias auf L2"
+		(property "Description" "Footprint Bienen.pretty nach TI 4226298/A; Thermal-Pad 0,9 × 1,5 mm mit 2 Vias Ø 0,2 mm nach TI-Beispiel (verfüllt/abgedeckt) auf L2"
 			(at 205.74 83.82 0)
 			(hide yes)
 			(show_name no)

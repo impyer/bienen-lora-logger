@@ -923,7 +923,7 @@ def versorgung(p):
                netze={"IN": "VIN_LADER", "SYS": "SYS", "BAT": "VBAT", "~{CE}": "CE_LADEN", "TS/~{MR}": "NTC",
                       "ISET": "ISET", "ILIM/VSET": "ILIM", "STAT1": "LADE_STAT1", "STAT2": "LADE_STAT2",
                       "GND": "GND", "EP": "GND"},
-               info="Footprint DLH 2,2 × 2 mm selbst anlegen [P]; Thermal-Pad mit 6–9 Vias auf L2"),
+               info="Footprint Bienen.pretty nach TI 4226298/A; Thermal-Pad 0,9 × 1,5 mm mit 2 Vias Ø 0,2 mm nach TI-Beispiel (verfüllt/abgedeckt) auf L2"),
         b.teil("Device:R", "R203", "2,0k 1%", fp=R0603, netze={"1": "ISET", "2": "GND"}, info="ICHG = 300 AΩ / 2 kΩ = 150 mA (HW26-11)"),
         b.teil("Device:R", "R204", "130k 1%", fp=R0603, netze={"1": "ILIM", "2": "GND"}, info="Tab. 6-1: VBATREG 4,1 V, ILIM 500 mA"),
         b.teil("Device:C", "C204", "22µ 25V X5R", fp=C1206, netze={"1": "SYS", "2": "GND"},
@@ -974,6 +974,7 @@ def baue():
                 kommentare=["Board-Kennung PCB-MAIN-0.1 (REG26-10)",
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)
+    p.eigene_fps = {"Bienen": os.path.join(HIER, "Bienen.pretty")}
     w = p.blatt("Bienenlogger Hauptplatine", "logger.kicad_sch", titel="Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
     w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse (Entwurf vollständig).", 30, 25, 2.0)
     versorgung(p)

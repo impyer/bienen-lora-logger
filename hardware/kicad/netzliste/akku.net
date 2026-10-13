@@ -1,8 +1,8 @@
 (export
 	(version "E")
 	(design
-		(source "/home/claude/repo/bienen-lora-logger/hardware/kicad/akku-platine/akku.kicad_sch")
-		(date "2026-10-10T04:53:53")
+		(source "/home/claude/neu/hardware/kicad/akku-platine/akku.kicad_sch")
+		(date "2026-10-13T05:17:08")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -58,7 +58,7 @@
 			(ref "BT1")
 			(value "18650 3,6 V")
 			(footprint "Battery:BatteryHolder_Keystone_1042_1x18650")
-			(description "Halter Keystone 1043 (SMD) vorgesehen; Footprint 1042 nur Platzhalter [P]")
+			(description "Keystone 1042 (SMD), Entscheidung HW-02; Pad 1 = Plus; LCSC-Nummer [P]")
 			(fields
 				(field
 					(name "Footprint") "Battery:BatteryHolder_Keystone_1042_1x18650")
@@ -66,7 +66,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "Halter Keystone 1043 (SMD) vorgesehen; Footprint 1042 nur Platzhalter [P]")
+					(name "Description") "Keystone 1042 (SMD), Entscheidung HW-02; Pad 1 = Plus; LCSC-Nummer [P]")
 			)
 			(libsource
 				(lib "Device")

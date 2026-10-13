@@ -20,6 +20,7 @@ Das Register trennt angenommene Verfahrensregeln von noch offenen Sachentscheidu
 | ID | Stand | Festlegung |
 |---|---|---|
 | **HW-01** | **ENTSCHIEDEN 10.10.2026** (Philipp) | **USB-C nur zum Laden und Aufspielen** (ROM-DFU über BOOT0 + Reset). Die Anwendungsfirmware schaltet die USB-Peripherie nie ein; Service-Konsole über Serial1 (J10/J302) und SWD. Damit ist keine VBUS-Erkennung nötig (Befund SCH26-10). Eine eigene USB-Funktion wäre eine neue Entscheidung mit VBUS-Teiler nach ST AN4879. Details: `hardware/mcu-funk.md` 1.3, Lastenheft K5. |
+| **HW-02** | **ENTSCHIEDEN 13.10.2026** (Philipp) | **Akkuhalter Keystone 1042 (SMD)** für die 18650-Zelle auf der Akku-Platine, statt 1043 (Durchsteck). Grund: Footprint `Battery:BatteryHolder_Keystone_1042_1x18650` liegt in der KiCad-Bibliothek; Lastenheft V1 und `versorgung.md` 3.3 angepasst. Polung laut Footprint: Pad 1 = Plus. Halterung mechanisch am Muster prüfen (Zelle im Gehäuse, Erschütterung) [P]. Details: `docs/testberichte/2026-10-13-footprints-bienen.md`. |
 
 ## Ausnahmen
 

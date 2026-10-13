@@ -4170,7 +4170,7 @@
 				)
 			)
 		)
-		(property "Description" "Halter Keystone 1043 (SMD) vorgesehen; Footprint 1042 nur Platzhalter [P]"
+		(property "Description" "Keystone 1042 (SMD), Entscheidung HW-02; Pad 1 = Plus; LCSC-Nummer [P]"
 			(at 50.8 76.2 0)
 			(hide yes)
 			(show_name no)

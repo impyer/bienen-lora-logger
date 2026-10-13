@@ -693,6 +693,13 @@ class Projekt:
                     rel = os.path.relpath(pfad, self.ordner).replace(os.sep, "/")
                     f.write('  (lib (name "%s")(type "KiCad")(uri "${KIPRJMOD}/%s")(options "")(descr "Projektsymbole Bienenlogger"))\n' % (name, rel))
                 f.write(")\n")
+        if getattr(self, "eigene_fps", None):
+            with open(os.path.join(self.ordner, "fp-lib-table"), "w", encoding="utf-8") as f:
+                f.write("(fp_lib_table\n  (version 7)\n")
+                for name, pfad in self.eigene_fps.items():
+                    rel = os.path.relpath(pfad, self.ordner).replace(os.sep, "/")
+                    f.write('  (lib (name "%s")(type "KiCad")(uri "${KIPRJMOD}/%s")(options "")(descr "Projektfootprints Bienenlogger"))\n' % (name, rel))
+                f.write(")\n")
 
     def stueckliste(self):
         zeilen = []

@@ -74,7 +74,7 @@ Die Klemmen-Pinbelegung folgt drei Regeln:
 
 | Teil | Wahl | Quelle | Status |
 |---|---|---|---|
-| Klemme Platine | **DEGSON 15EDGRHC-3.5**, steckbar, gewinkelt, Durchsteckmontage, 3,5 mm, 8 A / 150 V, −30 … +120 °C; 4-polig = JLCPCB C7603445 (Extended) | JLCPCB-Teileseite | [V]; 2-, 3-, 5- und 6-polig **[P]** Teilenummern |
+| Klemme Platine | **Achtung SCH26-13 (13.10.2026): 15EDGRHC ist laut DEGSON-Datenblatt zweireihig („double rows“, 04P = 2 × 2); für einreihige Klemmen 15EDGRC-3.5 (+ Stecker 15EDGK-3.5) prüfen [P].** Bisher: **DEGSON 15EDGRHC-3.5**, steckbar, gewinkelt, Durchsteckmontage, 3,5 mm, 8 A / 150 V, −30 … +120 °C; 4-polig = JLCPCB C7603445 (Extended) | JLCPCB-Teileseite | [V]; 2-, 3-, 5- und 6-polig **[P]** Teilenummern |
 | Gegenstecker | DEGSON 15EDGK-3.5 (Schraubstecker) passend zur Polzahl | – | [A] Bezeichnung prüfen; Stecker werden lose mitbestellt |
 | ESD 3,6 V | **TI ESDS304DBVR**, 4 Kanäle, SOT-23-5. VRWM 3,6 V, ±30 kV, **Leckstrom 3 nA typ., 50 nA max.** bei 3,6 V und 25 °C, 2,3 pF | TI-Datenblatt | [V]; LCSC-Nummer **[P]** |
 | ESD 5,5 V (Wägezelle) | **TI TPD4E05U06DQAR**, 4 Kanäle, USON-10. VRWM 5,5 V, **Leckstrom 0,01 nA typ., 10 nA max.** (bei 2,5 V), 0,5 pF, ±12 kV Kontakt | TI-Datenblatt; LCSC/JLCPCB **C138714** (Extended) | [V] |

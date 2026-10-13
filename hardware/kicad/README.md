@@ -36,7 +36,7 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|
 | Akku-Platine | 0 | |
-| Hauptplatine | 2 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH, Ra-01SH); alle globalen Netze haben ihre Gegenstelle |
+| Hauptplatine | 0 | Projektfootprints in `Bienen.pretty` (BQ25185 DLH, Ra-01SH) über `fp-lib-table`; alle globalen Netze haben ihre Gegenstelle |
 
 ## Board-Kennung und Umgebung (REG26-10)
 
@@ -68,7 +68,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 
 ## Offene Punkte [P]
 
-- Footprints selbst anlegen: BQ25185 (DLH0010A, 2,2 × 2 mm), Ra-01SH (16 Stempellöcher), Akkuhalter Keystone 1043 (SMD; Platzhalter 1042); Reedkontakt wählen. Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
+- Projektfootprints (`werkzeug/footprints.py` → `Bienen.pretty`, reproduzierbar, in `pruefen.sh`): BQ25185 DLH0010A nach TI 4226298/A und Ra-01SH nach Ai-Thinker-Datenblatt V1.1 S. 13 angelegt (13.10.2026). Offen: Reedkontakt wählen; Akkuhalter **Keystone 1042 (SMD)** festgelegt (HW-02, 13.10.2026), Footprint aus der KiCad-Bibliothek; **Klemmen: DEGSON 15EDGRHC ist zweireihig** (SCH26-13). Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
 - Datenblatt-Pinbelegung noch nicht gelesen ([A]/[P] in `pin_footprint.md`): USBLC6-2SC6, SPI-Flash (je gewähltem Typ), AO3400A, S8550 (C397181), Quarz Y301, Side-View-LED, TVS D401. HY2111, FS8205, RT9080, Ra-01SH nur aus früherer Sitzung ([V*]) – beim Footprint-Anlegen erneut lesen.
 - Blatt MCU: Reedkontakt SW304 (Teil und Footprint), Side-View-LED D301 (Platzhalter 0603), Ferrit FB301 (LCSC-Nummer).
 - Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.

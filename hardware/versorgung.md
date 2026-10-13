@@ -89,7 +89,7 @@ Bei **50 °C im Gehäuse** und 150 mA bleibt das „6-V“-Panel bei etwa 81 °C
 
 Regeln:
 - Ladestrom 150 mA.
-- Der Laderegler sitzt **nicht** neben der Zelle (Zelle auf der Akku-Platine), Thermal-Pad mit 6–9 Durchkontaktierungen auf L2.
+- Der Laderegler sitzt **nicht** neben der Zelle (Zelle auf der Akku-Platine), Thermal-Pad mit Durchkontaktierungen auf L2: Das Pad misst nur 0,9 × 1,5 mm; TI zeigt im Layoutbeispiel 2 Vias Ø 0,2 mm, verfüllt oder abgedeckt (DLH0010A, 4226298/A). Die früher genannten 6–9 Vias passen nicht auf das Pad (REG26-08, 13.10.2026). Bei 150 mA Ladestrom reicht das [A]; Via-in-Pad bei JLCPCB im Angebot prüfen [P].
 - **[P]** Am Muster bei Sonne die Gehäusetemperatur am IC messen.
 
 **Eingangsbereich geklärt:** Die TI-Produktseite nennt „3.0V to 18V input voltage operating range“, „25V tolerant input voltage“ und „solar input support“ [V, ti.com/product/BQ25185, 08.10.2026]. Die abweichende Zeile „2,7–5,5 V“ in der Empfehlungstabelle des Datenblatts widerspricht dem. Ich halte sie für einen Fehler im Datenblatt, belegt ist das nicht. Maßgeblich für uns sind die Betriebsdaten 3,6–18 V und die Produktseite.
@@ -171,7 +171,7 @@ Die Kältesperre steigt damit von +1,7 °C auf +5 °C. Im Winter lädt der Logge
 **Beobachtung:** Der Akku hängt per Kabel an der Hauptplatine. Liegt der Schutz auf der Hauptplatine, ist das Kabel zwischen Zelle und Schutz **ungeschützt**. Ein Kurzschluss im Kabel wird dann aus einer ungeschützten Zelle gespeist. Der beelogger umgeht das, indem er Zellen mit eingebauter Schutzschaltung vorschreibt.
 
 **Vorschlag:** eine kleine zweite Platine (im selben JLCPCB-Auftrag als Nutzen) mit:
-- Halter Keystone 1043 (für Leiterplattenmontage)
+- Halter **Keystone 1042** (SMD, Entscheidung HW-02 am 13.10.2026; die 1043 wäre die Durchsteck-Ausführung)
 - **HY2111-GB + Doppel-MOSFET 8205** direkt an der Zelle
 - NTC 10 k und **2 × TMP390** unter der Zelle (thermisch angekoppelt, 3.3)
 - Stecker JST PH **5-polig** zur Hauptplatine (P−, NTC, CE_FREI, TMP_VCC, P+), siehe anschluesse.md

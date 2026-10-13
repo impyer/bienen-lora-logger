@@ -28,13 +28,10 @@ ZIEL = os.path.join(KICAD, "pin_footprint.md")
 
 # Eigene Footprints, die vor dem Layout noch angelegt bzw. gewählt werden müssen (Ref → Grund)
 OFFEN = {
-    "U201": "BQ25185 DLH0010A (WSON-10, 2,2 × 2 mm) nach TI-Gehäusezeichnung anlegen",
-    "U401": "Ai-Thinker Ra-01SH, 16 Stempellöcher, nach Datenblatt V1.1 bzw. EasyEDA C2764087 anlegen",
     "SW304": "Reedkontakt: Teil wählen (SMD, Schaltabstand am Prototyp testen, mcu-funk.md 3.3)",
 }
 # Footprints, die nur Platzhalter sind (Pads passen, Teil/Maße weichen ab)
 PLATZHALTER = {
-    "BT1": "Keystone 1042 (Durchsteck) statt 1043 (SMD) – 1043 anlegen",
     "D301": "LED 0603 statt seitlich abstrahlender LED – Teil wählen",
     "J201": "Phoenix MC 3,5 mm statt DEGSON 15EDGRHC-3.5 – Maße vergleichen",
 }
@@ -78,7 +75,7 @@ DATENBLATT = {
         "1": ("S1", "S1"), "2": ("D12", "D12"), "3": ("S2", "S2"), "4": ("G2", "G2"), "5": ("D12", "D12"), "6": ("G1", "G1")}),
     "Bienen:RT9080-33GJ5": ("Richtek DS9080 (TSOT-23-5)", "[V*]", {
         "1": ("VIN", "VIN"), "2": ("GND", "GND"), "3": ("EN", "EN"), "4": ("NC", "NC"), "5": ("VOUT", "VOUT")}),
-    "Bienen:Ra-01SH": ("Ai-Thinker Ra-01SH Specification V1.1, S. 11", "[V*]", {
+    "Bienen:Ra-01SH": ("Ai-Thinker Ra-01SH Specification V1.1 (2020-08-18), S. 11", "[V]", {
         "1": ("ANT", "ANT"), "2": ("GND", "GND"), "3": ("3.3V", "3.3V"), "4": ("RESET", "RESET"), "5": ("TXEN", "TXEN"),
         "6": ("DIO1", "DIO1"), "7": ("DIO2", "DIO2"), "8": ("DIO3", "DIO3"), "9": ("GND", "GND"), "10": ("BUSY", "BUSY"),
         "11": ("RXEN", "RXEN"), "12": ("SCK", "SCK"), "13": ("MISO", "MISO"), "14": ("MOSI", "MOSI"), "15": ("NSS", "NSS"),
@@ -100,7 +97,7 @@ DATENBLATT = {
     "Device:Crystal_GND24": ("YXC X322525MOB4SI 3225-4: 1/3 Quarz, 2/4 Gehäuse", "[A] [P]", {
         "1": ("XTAL", "1"), "2": ("GND", "G"), "3": ("XTAL", "3"), "4": ("GND", "G")}),
     "Device:Crystal": ("Seiko SC-32S, 2 Pads, ungepolt", "[A]", {"1": ("XTAL", "1"), "2": ("XTAL", "2")}),
-    "Device:Battery_Cell": ("Halter: + / −", "[A]", {"1": ("+", "+"), "2": ("−", "-")}),
+    "Device:Battery_Cell": ("Keystone 1042 (HW-02): Pad 1 = Plus laut KiCad-Footprint (Silkscreen „+“)", "[A] [P]", {"1": ("+", "+"), "2": ("−", "-")}),
     "Switch:SW_Reed": ("Reedkontakt, ungepolt", "[A]", {"1": ("1", "1"), "2": ("2", "2")}),
     "Connector:USB_C_Receptacle_USB2.0_16P": ("KiCad-Symbol mit HRO-Footprint (Pads geprüft)", "[A]", None),
     "MCU_ST_STM32F4:STM32F411CEUx": ("ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinbelegung mcu-funk.md 4", "[A]", None),
@@ -113,7 +110,8 @@ def pads(fp):
     if not fp or ":" not in fp:
         return None
     lib, name = fp.split(":", 1)
-    datei = os.path.join(FP_WURZEL, lib + ".pretty", name + ".kicad_mod")
+    wurzel = KICAD if lib == "Bienen" else FP_WURZEL      # Projektfootprints in hardware/kicad/Bienen.pretty
+    datei = os.path.join(wurzel, lib + ".pretty", name + ".kicad_mod")
     if not os.path.exists(datei):
         return None
     with open(datei, encoding="utf-8") as f:

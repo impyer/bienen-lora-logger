@@ -165,7 +165,7 @@ def baue():
     zelle = [
         b.teil("Device:Battery_Cell", "BT1", "18650 3,6 V", fp="Battery:BatteryHolder_Keystone_1042_1x18650",
                netze={"+": "B+", "-": "B-"},
-               info="Halter Keystone 1043 (SMD) vorgesehen; Footprint 1042 nur Platzhalter [P]"),
+               info="Keystone 1042 (SMD), Entscheidung HW-02; Pad 1 = Plus; LCSC-Nummer [P]"),
         b.teil("Jumper:SolderJumper_2_Bridged", "JP1", "Messbrücke B+", fp="Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm",
                netze={"A": "B+", "B": "P+"}, info="Zum Strommessen auftrennen, Amperemeter an J2"),
         b.teil("Connector_Generic:Conn_01x02", "J2", "Strommessung", fp="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",

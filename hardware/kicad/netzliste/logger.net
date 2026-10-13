@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-13T04:55:25")
+		(date "2026-10-13T05:16:26")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -1969,7 +1969,7 @@
 			(ref "U201")
 			(value "BQ25185DLHR")
 			(footprint "Bienen:WSON-10-1EP_2.2x2mm_DLH0010A")
-			(description "Footprint DLH 2,2 × 2 mm selbst anlegen [P]; Thermal-Pad mit 6–9 Vias auf L2")
+			(description "Footprint Bienen.pretty nach TI 4226298/A; Thermal-Pad 0,9 × 1,5 mm mit 2 Vias Ø 0,2 mm nach TI-Beispiel (verfüllt/abgedeckt) auf L2")
 			(fields
 				(field
 					(name "Footprint") "Bienen:WSON-10-1EP_2.2x2mm_DLH0010A")
@@ -1977,7 +1977,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "Footprint DLH 2,2 × 2 mm selbst anlegen [P]; Thermal-Pad mit 6–9 Vias auf L2")
+					(name "Description") "Footprint Bienen.pretty nach TI 4226298/A; Thermal-Pad 0,9 × 1,5 mm mit 2 Vias Ø 0,2 mm nach TI-Beispiel (verfüllt/abgedeckt) auf L2")
 			)
 			(libsource
 				(lib "Bienen")

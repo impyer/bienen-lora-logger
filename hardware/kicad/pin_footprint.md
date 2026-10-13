@@ -2,11 +2,11 @@
 
 Erzeugt von `werkzeug/pin_footprint.py` aus den Generatoren; nicht von Hand ändern. Kennzeichnung: [V] in dieser Prüfung im Datenblatt gelesen, [V*] früher gelesen (Symbolkommentar), [A] Konvention/Annahme, [P] vor der Bestellung prüfen.
 
-Ergebnis: 161 Bauteile, 0 Abweichungen, 3 Footprints offen (SW304, U201, U401).
+Ergebnis: 161 Bauteile, 0 Abweichungen, 1 Footprints offen (SW304).
 
 | Ref. | Platine | Blatt | Wert | Footprint | Footprint-Prüfung | Datenblatt-Prüfung | Quelle |
 |---|---|---|---|---|---|---|---|
-| BT1 | Akku | Akku-Platine | 18650 3,6 V | `BatteryHolder_Keystone_1042_1x18650` | Pads = Pins (2); Platzhalter: Keystone 1042 (Durchsteck) statt 1043 (SMD) – 1043 anlegen | [A] 2 Pins = Datenblatt | Halter: + / − |
+| BT1 | Akku | Akku-Platine | 18650 3,6 V | `BatteryHolder_Keystone_1042_1x18650` | Pads = Pins (2) | [A] [P] 2 Pins = Datenblatt | Keystone 1042 (HW-02): Pad 1 = Plus laut KiCad-Footprint (Silkscreen „+“) |
 | C1 | Akku | Akku-Platine | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C2 | Akku | Akku-Platine | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C3 | Akku | Akku-Platine | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -154,13 +154,13 @@ Ergebnis: 161 Bauteile, 0 Abweichungen, 3 Footprints offen (SW304, U201, U401).
 | SW304 | Haupt | MCU | Reedkontakt | `–` | offen: Reedkontakt: Teil wählen (SMD, Schaltabstand am Prototyp testen, mcu-funk.md 3.3) | [A] 2 Pins = Datenblatt | Reedkontakt, ungepolt |
 | TP201 | Haupt | Versorgung | STAT1 | `TestPoint_Pad_D1.0mm` | Pads = Pins (1) | passiv/Stecker | – |
 | TP202 | Haupt | Versorgung | STAT2 | `TestPoint_Pad_D1.0mm` | Pads = Pins (1) | passiv/Stecker | – |
-| U201 | Haupt | Versorgung | BQ25185DLHR | `WSON-10-1EP_2.2x2mm_DLH0010A` | offen: BQ25185 DLH0010A (WSON-10, 2,2 × 2 mm) nach TI-Gehäusezeichnung anlegen | [V] 11 Pins = Datenblatt | TI SLUSF65 Tab. 4-1 (DLH) |
+| U201 | Haupt | Versorgung | BQ25185DLHR | `WSON-10-1EP_2.2x2mm_DLH0010A` | Pads = Pins (11) | [V] 11 Pins = Datenblatt | TI SLUSF65 Tab. 4-1 (DLH) |
 | U202 | Haupt | Versorgung | RT9080-33GJ5 | `TSOT-23-5` | Pads = Pins (5) | [V*] 5 Pins = Datenblatt | Richtek DS9080 (TSOT-23-5) |
 | U203 | Haupt | Versorgung | TPS22917DBV | `SOT-23-6` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | TI SLVSDW8B Tab. 6-1 (DBV) |
 | U204 | Haupt | Versorgung | TPS70933DBV | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI SBVS186 Tab. 5-1, Spalte TPS709 DBV |
 | U301 | Haupt | MCU | STM32F411CEU6 | `QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm` | Pads = Pins (49) | [A] | ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinbelegung mcu-funk.md 4 |
 | U302 | Haupt | MCU | USBLC6-2SC6 | `SOT-23-6` | Pads = Pins (6) | [A] [P] 6 Pins = Datenblatt | ST USBLC6-2 (SOT23-6L); Download hier gescheitert |
-| U401 | Haupt | Funk + Flash | Ra-01SH | `Ai-Thinker_Ra-01SH` | offen: Ai-Thinker Ra-01SH, 16 Stempellöcher, nach Datenblatt V1.1 bzw. EasyEDA C2764087 anlegen | [V*] 16 Pins = Datenblatt | Ai-Thinker Ra-01SH Specification V1.1, S. 11 |
+| U401 | Haupt | Funk + Flash | Ra-01SH | `Ai-Thinker_Ra-01SH` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | Ai-Thinker Ra-01SH Specification V1.1 (2020-08-18), S. 11 |
 | U402 | Haupt | Funk + Flash | 64 Mbit SOIC-8 208 mil | `SOIC-8_5.3x5.3mm_P1.27mm` | Pads = Pins (8) | [A] [P] 8 Pins = Datenblatt | Standard-Pinbelegung 25er-SPI-Flash SOIC-8 (XT25F64B / ZD25Q64D) – je Teil prüfen |
 | U501 | Haupt | Waage | TPS61240DRVR | `WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm` | Pads = Pins (7) | [V] 7 Pins = Datenblatt | TI SLVS806D Pin Functions (WSON) |
 | U502 | Haupt | Waage | HX711 | `SOIC-16_3.9x9.9mm_P1.27mm` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | AVIA HX711 (engl. Datenblatt, SparkFun-Kopie), Pin-Tabelle; SOP-16L 3,9 × 9,9 mm |
