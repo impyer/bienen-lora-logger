@@ -161,16 +161,16 @@ Seit 09.10.2026 liegt auch die LoRaWAN-Sitzung im Flash (3.1); der EEPROM entfä
 Ohne Summer zeigt eine **LED** an, was der Logger tut. Entscheidung (Philipp, 09.10.2026): **Lichtleiter durch eine Bohrung in der Gehäusewand.**
 
 Anordnung:
-- Die Platine liegt waagerecht im Unterteil, die Wand steht senkrecht. Deshalb eine **seitlich abstrahlende SMD-LED** (Side-View, z. B. 0603/1206) direkt an der Platinenkante, Lichtaustritt zur Wand [A].
+- Die Platine liegt waagerecht im Unterteil, die Wand steht senkrecht. Deshalb eine **seitlich abstrahlende SMD-LED** direkt an der Platinenkante, Lichtaustritt zur Wand [A]. **Gewählt (13.10.2026): Lite-On LTST-S220KGKT** (grün, AlInGaP, 2,15 × 1,0 mm, LCSC C160469, Bestand 39.801) [V: Lite-On DS22-2000-075]; mit 1 kΩ ca. 1,3 mA – Sichtbarkeit durch den Lichtleiter am Muster prüfen, ggf. kleineren Widerstand [P].
 - **Lichtleiter waagerecht** von der LED durch die Bohrung nach außen.
 - **Fertiger Wand-Lichtleiter mit Dichtung** (Entscheidung 09.10.2026). Kandidat: **Bivar PLTR2** (Linse 3 mm), starr, gerade, **IP67 mit Dichtung** (schwarz oder weiß), von außen eingepresst mit Gewinde-Halterung, Polycarbonat UL94 V-0, Längen 6,4–72 mm [V: Mouser-Seite „BIVAR PLTR IP67-Rated Rigid Light Pipes“]. Alternativ PLTR5 (Linse 5 mm, heller sichtbar).
   - Länge: Wand 3 mm + Abstand Wand bis Platinenkante ca. 15 mm (Platine 121 mm im Innenraum 152 mm) ≈ **18–20 mm** [A]; genau nach dem STEP-Modell.
   - **[P]** im Datenblatt PLTR2-XXX-PRX: Bohrungsdurchmesser, zulässige Wanddicke (wir haben ca. 3 mm PC), Temperaturbereich, UV-Beständigkeit; Bezug (Mouser/DigiKey), Preis.
   - Nicht gewählt: Mentor 1292/1282/1293 (IP68). Diese sind nur für 1 mm Frontplatte und −20 bis +50 °C angegeben [V: Mentor-Datenblatt].
 - Kein Durchsteck-Lichtleiter mit Klebefuß auf der Platine: Die Platine ist verschraubt und die Toleranzen zur Wand sind zu groß [A].
-- **Reedkontakt** auf derselben Kante, 10–20 mm neben der LED; außen eine Markierung „Magnet hier“.
+- **Reedkontakt** auf derselben Kante, 10–20 mm neben der LED; außen eine Markierung „Magnet hier“. **Gewählt (13.10.2026): MiRelay MRS03-B-3** (vergossen, SMD mit J-Anschlüssen, 8,5 × 2,1 × 2,4 mm, Empfindlichkeit 10–15 AT, LCSC C41432613, Bestand 2051) [V: MiRelay-Datenblatt]; Längsachse parallel zur Kante, Magnet längs der Kante führen. Lötprofil laut Datenblatt max. 260 °C / 5 s.
 - Schaltabstand Reedkontakt durch die Wand: **wird am Prototyp getestet** (Entscheidung 09.10.2026).
-- **Höhe der Bohrung** = Domhöhe + 1,6 mm Platine + halbe LED-Höhe. Die Domhöhe kommt aus dem **STEP-Modell**. Camdenboss gibt es nur auf Anfrage heraus („STEP drawing request“ auf der Produktseite, Formular mit Kontaktdaten und Captcha; Philipp stellt die Anfrage).
+- **Höhe der Bohrung** = Domhöhe + 10 mm Distanzhülse (HW-03) + 1,6 mm Platine + halbe LED-Höhe; am ersten Muster messen und übertragen. Die Domhöhe kommt aus dem **STEP-Modell**. Camdenboss gibt es nur auf Anfrage heraus („STEP drawing request“ auf der Produktseite, Formular mit Kontaktdaten und Captcha; Philipp stellt die Anfrage).
 
 | Vorgang | Lichtsignal (Vorschlag) |
 |---|---|

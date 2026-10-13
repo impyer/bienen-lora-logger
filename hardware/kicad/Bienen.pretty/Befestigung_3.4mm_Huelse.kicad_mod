@@ -1,0 +1,84 @@
+(footprint "Befestigung_3.4mm_Huelse"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Mounting hole 3.4mm NPTH for CBHUB-02 boss with 10mm spacer sleeve (HW-03)")
+	(tags "mounting hole NPTH 3.4")
+	(property "Reference" "REF**"
+		(at 0 -4.5 0)
+		(layer "F.SilkS")
+		(uuid "e23af361-0ddb-570f-9fdf-b347f77acc7d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Befestigung_3.4mm_Huelse"
+		(at 0 4.5 0)
+		(layer "F.Fab")
+		(uuid "d4a1e798-d5a0-54bd-b0cc-8112bc303398")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "92cecf21-57bc-5ebe-9924-4d66099b4877")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "12f45a4a-04c5-50c5-9745-4a8911ca1118")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr exclude_from_pos_files exclude_from_bom)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_circle
+		(center 0 0)
+		(end 3.5 0)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "8cd25e06-5196-5634-9a01-7897b39f751e")
+	)
+	(fp_circle
+		(center 0 0)
+		(end 3 0)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "75aea39b-e4f2-581a-81b9-65f9812915ec")
+	)
+	(pad "" np_thru_hole circle
+		(at 0 0)
+		(size 3.4 3.4)
+		(drill 3.4)
+		(layers "*.Cu" "*.Mask")
+		(uuid "77f95665-3e2b-547f-ad06-449ec9e2f4f4")
+	)
+	(embedded_fonts no)
+)

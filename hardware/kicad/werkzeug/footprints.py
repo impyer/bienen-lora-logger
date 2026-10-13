@@ -127,7 +127,57 @@ def degson_15edgrc(n):
     fp.schreibe(-2.6, 9.4)
 
 
+def mrs03_j():
+    """MiRelay MRS03-x-3: vergossener Reedkontakt mit J-Anschlüssen, Körper 8,5 × 2,1 × 2,4 mm. Quelle: MiRelay-Datenblatt
+    MRS03 (LCSC C41432613), Abschnitt 4 „J型引脚“ [V]: Gesamtlänge 9,6 ± 0,2 mm, Innenabstand der Anschlüsse 6,8 mm,
+    Anschlussbreite 0,6 mm. Kein Pad-Vorschlag im Datenblatt → Pads 2,0 × 1,2 mm bei x = ±4,1 mm (überdecken die
+    Anschlüsse von 3,4 bis 4,8 mm mit Rand) [A]; EasyEDA (MK17-B-3-Footprint): 2,3 × 1,3 mm bei ±4,05 mm. Schaltachse
+    = Längsachse: Magnet parallel zur Platinenkante führen."""
+    fp = Fp("MiRelay_MRS03_J-Lead_8.5x2.1mm", "MiRelay MRS03 molded reed switch, J-lead, 8.5x2.1x2.4mm (MiRelay MRS03 datasheet)",
+            "reed switch MRS03 MiRelay")
+    fp.pad_smd("1", -4.1, 0, 2.0, 1.2)
+    fp.pad_smd("2", 4.1, 0, 2.0, 1.2)
+    fp.rechteck("F.Fab", -4.25, -1.05, 4.25, 1.05, 0.1)
+    fp.linie("F.Fab", -2.5, 0, 2.5, 0, 0.1)                       # Glasröhrchen/Schaltachse
+    fp.linie("F.SilkS", -2.9, -1.2, 2.9, -1.2, 0.12)
+    fp.linie("F.SilkS", -2.9, 1.2, 2.9, 1.2, 0.12)
+    fp.rechteck("F.CrtYd", -5.35, -1.5, 5.35, 1.5, 0.05)
+    fp.schreibe(-2.4, 2.4)
+
+
+def ltst_s220():
+    """Lite-On LTST-S220 (seitlich abstrahlende Chip-LED, 2,15 × 1,0 mm). Quelle: Lite-On DS22-2000-075 Rev. D [V]:
+    „Suggest Soldering Pad Dimensions“ 2 Pads 1,0 × 1,5 mm, Abstand 1,0 mm, gesamt 4,0 mm; Kathode an der Seite mit
+    „Cathode Mask“ = Pad 1. Lichtaustritt seitlich: hier zur Seite −y (an die Platinenkante legen)."""
+    fp = Fp("LED_Lite-On_LTST-S220_SideView", "Lite-On LTST-S220 side looking chip LED 2.15x1.0mm, pad 1 = cathode "
+            "(Lite-On DS22-2000-075)", "LED side view LTST-S220")
+    fp.pad_smd("1", -1.25, 0, 1.5, 1.0)
+    fp.pad_smd("2", 1.25, 0, 1.5, 1.0)
+    fp.rechteck("F.Fab", -1.075, -0.5, 1.075, 0.5, 0.1)
+    fp.linie("F.Fab", -0.85, -0.5, -0.85, -0.85, 0.1)              # Linse (Lichtaustritt −y)
+    fp.linie("F.Fab", -0.85, -0.85, 0.85, -0.85, 0.1)
+    fp.linie("F.Fab", 0.85, -0.85, 0.85, -0.5, 0.1)
+    fp.linie("F.SilkS", -0.35, 0.75, 0.35, 0.75, 0.12)
+    fp.kreis("F.SilkS", -2.35, 0.75, 0.1, 0.12, fuellen=True)       # Kathodenpunkt
+    fp.rechteck("F.CrtYd", -2.25, -1.1, 2.25, 0.85, 0.05)
+    fp.schreibe(-2.0, 2.0)
+
+
+def befestigung():
+    """Befestigungsloch Ø 3,4 mm (nicht durchkontaktiert) für die Gehäusedome CBHUB-02 (Blatt 5) mit 10-mm-Distanzhülse
+    (HW-03). Courtyard Ø 7 mm = Hülse Außen-Ø ≤ 6 mm plus Rand; Kupfer-Sperrfläche setzt die Platine."""
+    fp = Fp("Befestigung_3.4mm_Huelse", "Mounting hole 3.4mm NPTH for CBHUB-02 boss with 10mm spacer sleeve (HW-03)",
+            "mounting hole NPTH 3.4", attr="exclude_from_pos_files exclude_from_bom")
+    fp.teile.append('\t(pad "" np_thru_hole circle (at 0 0) (size 3.4 3.4) (drill 3.4) (layers "*.Cu" "*.Mask"))')
+    fp.kreis("F.Fab", 0, 0, 3.0, 0.1)
+    fp.kreis("F.CrtYd", 0, 0, 3.5, 0.05)
+    fp.schreibe(-4.5, 4.5)
+
+
 def main():
+    befestigung()
+    mrs03_j()
+    ltst_s220()
     bq25185_dlh()
     ra01sh()
     for n in (2, 3, 4, 5, 6):

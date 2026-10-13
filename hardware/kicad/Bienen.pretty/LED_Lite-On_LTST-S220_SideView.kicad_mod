@@ -1,0 +1,142 @@
+(footprint "LED_Lite-On_LTST-S220_SideView"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Lite-On LTST-S220 side looking chip LED 2.15x1.0mm, pad 1 = cathode (Lite-On DS22-2000-075)")
+	(tags "LED side view LTST-S220")
+	(property "Reference" "REF**"
+		(at 0 -2 0)
+		(layer "F.SilkS")
+		(uuid "fe2800b7-eac6-5955-877d-2e19b6fb9089")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "LED_Lite-On_LTST-S220_SideView"
+		(at 0 2 0)
+		(layer "F.Fab")
+		(uuid "450bdec1-59dd-564c-ba36-5daba58f1163")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "4e01d42c-825e-54be-b45c-d597eed5decc")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "0158748f-1e36-5ce8-8e01-ebe8beb110d7")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -0.35 0.75)
+		(end 0.35 0.75)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "a612beb0-3230-5a34-8b26-6a6ac7648635")
+	)
+	(fp_circle
+		(center -2.35 0.75)
+		(end -2.25 0.75)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.SilkS")
+		(uuid "3478f110-3681-5290-8658-8aa61d9d8505")
+	)
+	(fp_rect
+		(start -2.25 -1.1)
+		(end 2.25 0.85)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "23f63d09-2e28-54a2-8b9f-07fc02128cfb")
+	)
+	(fp_line
+		(start -0.85 -0.85)
+		(end 0.85 -0.85)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "ee79c749-1515-5eee-8d5e-065b4e4f8fd6")
+	)
+	(fp_line
+		(start -0.85 -0.5)
+		(end -0.85 -0.85)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "f9dd2be3-79f9-5039-9ba7-706d99a28332")
+	)
+	(fp_line
+		(start 0.85 -0.85)
+		(end 0.85 -0.5)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "395aaf95-e770-56a7-9378-635bb5729543")
+	)
+	(fp_rect
+		(start -1.075 -0.5)
+		(end 1.075 0.5)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "8b939b66-0465-592a-a169-0d8ddc970352")
+	)
+	(pad "1" smd roundrect
+		(at -1.25 0)
+		(size 1.5 1)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.25)
+		(uuid "e593766b-0dd4-5744-bf6d-53fa77193ba1")
+	)
+	(pad "2" smd roundrect
+		(at 1.25 0)
+		(size 1.5 1)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.25)
+		(uuid "04d912f7-e6c2-51d3-bc2e-65fbc646022d")
+	)
+	(embedded_fonts no)
+)

@@ -9352,7 +9352,7 @@
 				)
 			)
 		)
-		(property "Value" "Reedkontakt"
+		(property "Value" "MRS03-B-3"
 			(at 256.54 76.143 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9362,7 +9362,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Bienen:MiRelay_MRS03_J-Lead_8.5x2.1mm"
 			(at 256.54 78.74 0)
 			(hide yes)
 			(show_name no)
@@ -9384,7 +9384,18 @@
 				)
 			)
 		)
-		(property "Description" "an der Platinenkante neben der LED; Teil und Footprint [P]"
+		(property "Description" "MiRelay MRS03-B-3: Reed SMD 8,5 × 2,1 mm, 10–15 AT; an der Platinenkante neben der LED, Längsachse parallel zur Kante; Schaltabstand durch die Wand am Prototyp [P]"
+			(at 256.54 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C41432613"
 			(at 256.54 78.74 0)
 			(hide yes)
 			(show_name no)
@@ -11453,7 +11464,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "Side-View"
+		(property "Value" "LTST-S220KGKT"
 			(at 109.966 167.081 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11464,7 +11475,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0603_1608Metric"
+		(property "Footprint" "Bienen:LED_Lite-On_LTST-S220_SideView"
 			(at 106.68 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -11486,7 +11497,18 @@
 				)
 			)
 		)
-		(property "Description" "seitlich abstrahlend am Rand unter dem Lichtleiter; Teil/Footprint [P]"
+		(property "Description" "Lite-On, seitlich abstrahlend, grün (AlInGaP 574 nm), am Rand vor dem Lichtleiter; mit 1 kΩ ca. 1,3 mA – Helligkeit am Muster prüfen [P]"
+			(at 106.68 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C160469"
 			(at 106.68 165.1 0)
 			(hide yes)
 			(show_name no)

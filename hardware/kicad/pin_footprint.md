@@ -2,7 +2,7 @@
 
 Erzeugt von `werkzeug/pin_footprint.py` aus den Generatoren; nicht von Hand ändern. Kennzeichnung: [V] in dieser Prüfung im Datenblatt gelesen, [V*] früher gelesen (Symbolkommentar), [A] Konvention/Annahme, [P] vor der Bestellung prüfen.
 
-Ergebnis: 161 Bauteile, 0 Abweichungen, 1 Footprints offen (SW304).
+Ergebnis: 161 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 
 | Ref. | Platine | Blatt | Wert | Footprint | Footprint-Prüfung | Datenblatt-Prüfung | Quelle |
 |---|---|---|---|---|---|---|---|
@@ -80,7 +80,7 @@ Ergebnis: 161 Bauteile, 0 Abweichungen, 1 Footprints offen (SW304).
 | D202 | Haupt | Versorgung | SS34 | `D_SMA` | Pads = Pins (2) | [A] 2 Pins = Datenblatt | KiCad-Konvention D_SMA: Pad 1 = Kathode (Ring) |
 | D203 | Haupt | Versorgung | SS34 | `D_SMA` | Pads = Pins (2) | [A] 2 Pins = Datenblatt | KiCad-Konvention D_SMA: Pad 1 = Kathode (Ring) |
 | D204 | Haupt | Versorgung | SMAJ12A | `D_SMA` | Pads = Pins (2) | [A] 2 Pins = Datenblatt | unidirektional: Pad 1 = Kathode (Ring) an VIN_LADER |
-| D301 | Haupt | MCU | Side-View | `LED_0603_1608Metric` | Pads = Pins (2); Platzhalter: LED 0603 statt seitlich abstrahlender LED – Teil wählen | [A] [P] 2 Pins = Datenblatt | KiCad-Konvention LED_0603: Pad 1 = Kathode |
+| D301 | Haupt | MCU | LTST-S220KGKT | `LED_Lite-On_LTST-S220_SideView` | Pads = Pins (2) | [V] 2 Pins = Datenblatt | Lite-On LTST-S220 DS22-2000-075: Pad 1 = Kathode (Cathode Mask) |
 | D401 | Haupt | Funk + Flash | TVS 3,3V | `D_SOD-523` | Pads = Pins (2) | [P] 2 Pins = Datenblatt | Teil offen; Pad 1 = Kathode bei unidirektionaler TVS, an +3V3 |
 | D501 | Haupt | Waage | TPD4E05U06DQAR | `USON-10_2.5x1.0mm_P0.5mm` | Pads = Pins (10) | [V] 10 Pins = Datenblatt | TI TPD4E05U06 Tab. 4-2 (DQA) |
 | D601 | Haupt | Mikrofon | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
@@ -151,7 +151,7 @@ Ergebnis: 161 Bauteile, 0 Abweichungen, 1 Footprints offen (SW304).
 | SW301 | Haupt | MCU | Reset | `SW_SPST_TL3342` | Pads = Pins (2) | passiv/Stecker | – |
 | SW302 | Haupt | MCU | BOOT | `SW_SPST_TL3342` | Pads = Pins (2) | passiv/Stecker | – |
 | SW303 | Haupt | MCU | Service | `SW_SPST_TL3342` | Pads = Pins (2) | passiv/Stecker | – |
-| SW304 | Haupt | MCU | Reedkontakt | `–` | offen: Reedkontakt: Teil wählen (SMD, Schaltabstand am Prototyp testen, mcu-funk.md 3.3) | [A] 2 Pins = Datenblatt | Reedkontakt, ungepolt |
+| SW304 | Haupt | MCU | MRS03-B-3 | `MiRelay_MRS03_J-Lead_8.5x2.1mm` | Pads = Pins (2) | [V] 2 Pins = Datenblatt | MiRelay MRS03-B-3, ungepolt (Datenblatt Abschnitt 5) |
 | TP201 | Haupt | Versorgung | STAT1 | `TestPoint_Pad_D1.0mm` | Pads = Pins (1) | passiv/Stecker | – |
 | TP202 | Haupt | Versorgung | STAT2 | `TestPoint_Pad_D1.0mm` | Pads = Pins (1) | passiv/Stecker | – |
 | U201 | Haupt | Versorgung | BQ25185DLHR | `WSON-10-1EP_2.2x2mm_DLH0010A` | Pads = Pins (11) | [V] 11 Pins = Datenblatt | TI SLUSF65 Tab. 4-1 (DLH) |

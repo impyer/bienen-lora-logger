@@ -7,6 +7,7 @@ Stand 13.10.2026: **Akku-Platine** und alle Blätter der Hauptplatine (**Versorg
 | `akku-platine/` | Projekt `akku.kicad_pro`: Zelle, HY2111 + FS8205, Messbrücke, Ladesperre 2 × TMP390 (Stufe 1 → CE, Stufe 2 → NTC-Kreis), NTC, JST PH 5 |
 | `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch`, `mikrofon.kicad_sch`, `anschluesse.kicad_sch` |
 | `bienen.kicad_sym` | Projektsymbole (BQ25185, TMP390, HY2111-GB, FS8205, RT9080, TPS70933, Ra-01SH, TPS61240), Pinbelegungen mit Datenblattquelle in `werkzeug/symbole.py` |
+| `hauptplatine/logger.kicad_pcb` | **Platine (Layout), von Hand in KiCad bearbeitet** – angelegt am 13.10.2026 mit `werkzeug/platine_start.py`: 4 Lagen, 1,6 mm, Umriss 121 × 121 mm (Ecken R 3 [A]), 4 Löcher Ø 3,4 mm auf 110,2 mm mit Kupfersperre Ø 7 mm (Hülse 10 mm, HW-03), JLCPCB-Regeln (0,15/0,15 mm, Via 0,3/0,6 mm) [A], Hinweise auf User.1. Bauteile über „Platine aus Schaltplan aktualisieren“. Das Skript überschreibt nichts |
 | `erc_erwartet.json` | begründete ERC-Warnungen; jede andere Meldung lässt die Prüfung scheitern |
 | `pdf/`, `netzliste/` | Ausdrucke und KiCad-Netzlisten (zum Prüfen ohne KiCad; enthalten ein Datum, daher vom CI-Diff ausgenommen) |
 | `werkzeug/` | Erzeuger `kicad_gen.py`, `symbole.py`, `erc_pruefen.py`, `netz_tests.py` |
@@ -27,7 +28,7 @@ Stand 13.10.2026: **Akku-Platine** und alle Blätter der Hauptplatine (**Versorg
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
 4. `werkzeug/netz_tests.py`: 178 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon: Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA, symmetrische Vorspannung, ESD direkt an der Klemme, **Hochpass, Sallen-Key-Grenzfrequenz und -Güte sowie RC vor PA1 aus den Bauteilwerten** (mit Gegenprobe vertauschter Kondensatoren), Spannungsfolger-Beschaltung, J5/J601 gegen `anschluesse.md`; Blatt Anschlüsse: 1-Wire- und I²C-Netze, **Pull-ups nur an 3V3_SW** (HW26-04, mit Gegenprobe), ESD-Arrays, J8-Pin 6 frei, eigene Polzahl je Sensorklemme, Masse an Pin 1, J6/J7/J8/J11 gegen `anschluesse.md`
-5. `werkzeug/pin_footprint.py` (REG26-08): für jedes Bauteil Footprint vorhanden, **Symbol-Pins = Footprint-Pads** und **Symbol-Pinnamen = Pinbelegung laut Datenblatt** (Tabelle mit Quelle und Status [V]/[V*]/[A]/[P] im Skript); schreibt [`pin_footprint.md`](pin_footprint.md), Exit 1 bei Abweichung. Offen: eigene Footprints U201 (BQ25185 DLH), U401 (Ra-01SH), SW304 (Reedkontakt)
+5. `werkzeug/pin_footprint.py` (REG26-08): für jedes Bauteil Footprint vorhanden, **Symbol-Pins = Footprint-Pads** und **Symbol-Pinnamen = Pinbelegung laut Datenblatt** (Tabelle mit Quelle und Status [V]/[V*]/[A]/[P] im Skript); schreibt [`pin_footprint.md`](pin_footprint.md), Exit 1 bei Abweichung. Alle Footprints vorhanden (13.10.2026)
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
 
@@ -68,9 +69,9 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 
 ## Offene Punkte [P]
 
-- Projektfootprints (`werkzeug/footprints.py` → `Bienen.pretty`, reproduzierbar, in `pruefen.sh`): BQ25185 DLH0010A nach TI 4226298/A und Ra-01SH nach Ai-Thinker-Datenblatt V1.1 S. 13 angelegt (13.10.2026). Offen: Reedkontakt wählen; Akkuhalter **Keystone 1042 (SMD)** festgelegt (HW-02, 13.10.2026), Footprint aus der KiCad-Bibliothek; Klemmen auf einreihige DEGSON 15EDGRC-3.5 umgestellt (SCH26-13), 5 Footprints in `Bienen.pretty`. Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
+- Projektfootprints (`werkzeug/footprints.py` → `Bienen.pretty`, reproduzierbar, in `pruefen.sh`): BQ25185 DLH0010A nach TI 4226298/A und Ra-01SH nach Ai-Thinker-Datenblatt V1.1 S. 13 angelegt (13.10.2026). Reedkontakt MiRelay MRS03-B-3 und Side-View-LED Lite-On LTST-S220KGKT gewählt, Footprints nach Datenblatt (13.10.2026); Akkuhalter **Keystone 1042 (SMD)** festgelegt (HW-02, 13.10.2026), Footprint aus der KiCad-Bibliothek; Klemmen auf einreihige DEGSON 15EDGRC-3.5 umgestellt (SCH26-13), 5 Footprints in `Bienen.pretty`. Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
 - Datenblatt-Pinbelegung noch nicht gelesen ([A]/[P] in `pin_footprint.md`): USBLC6-2SC6, SPI-Flash (je gewähltem Typ), AO3400A, S8550 (C397181), Quarz Y301, Side-View-LED, TVS D401. HY2111, FS8205, RT9080, Ra-01SH nur aus früherer Sitzung ([V*]) – beim Footprint-Anlegen erneut lesen.
-- Blatt MCU: Reedkontakt SW304 (Teil und Footprint), Side-View-LED D301 (Platzhalter 0603), Ferrit FB301 (LCSC-Nummer).
+- Blatt MCU: Ferrit FB301 (LCSC-Nummer); LED-Helligkeit mit 1 kΩ und Lichtleiter am Muster prüfen; Schaltabstand Reedkontakt am Prototyp.
 - Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.
 - Blatt Waage: Footprint WSON-6 2 × 2 (KiCad) mit TI DRV0006A vergleichen (U501); Spule L501 1 µH mit Isat ≥ 0,7 A wählen; Ferrite FB501 (600 Ω) und FB502 (Gleichstromwiderstand ≤ 0,1 Ω) wählen; Pinfolge des gelieferten S8550 (Q501) mit 1 B, 2 E, 3 C vergleichen; R507 (Kanal B an INA−) am Muster bewerten.
 - Blatt Mikrofon: Operationsverstärker **TLV9001IDBVR** (C398363) statt LMV321TP (C90297 laut LCSC-Seite am 13.10.2026 nicht lieferbar; TLV9001IDBVR dort 39.765 Stück); JLCPCB-Bestand vor der Bestellung erneut prüfen; **nicht TLV9001U** (andere Pinfolge). LCSC-Nummer ESDS304DBVR; Ferrit FB601 wählen; Frequenzgang und Schwingneigung mit 2 m Kabel am Muster messen (`../mikrofon.md` 7).
@@ -158,7 +159,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | D202 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D203 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D204 | SMAJ12A | Diode:SMAJ12A | D_SMA |  | Versorgung |
-| D301 | Side-View | Device:LED | LED_0603_1608Metric |  | MCU |
+| D301 | LTST-S220KGKT | Device:LED | LED_Lite-On_LTST-S220_SideView | C160469 | MCU |
 | D401 | TVS 3,3V | Device:D_TVS | D_SOD-523 |  | Funk + Flash |
 | D501 | TPD4E05U06DQAR | Power_Protection:TPD4E05U06DQA | USON-10_2.5x1.0mm_P0.5mm | C138714 | Waage |
 | D601 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Mikrofon |
@@ -229,7 +230,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | SW301 | Reset | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW302 | BOOT | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW303 | Service | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
-| SW304 | Reedkontakt | Switch:SW_Reed | – |  | MCU |
+| SW304 | MRS03-B-3 | Switch:SW_Reed | MiRelay_MRS03_J-Lead_8.5x2.1mm | C41432613 | MCU |
 | TP201 | STAT1 | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
 | TP202 | STAT2 | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
 | U201 | BQ25185DLHR | Bienen:BQ25185 | WSON-10-1EP_2.2x2mm_DLH0010A |  | Versorgung |

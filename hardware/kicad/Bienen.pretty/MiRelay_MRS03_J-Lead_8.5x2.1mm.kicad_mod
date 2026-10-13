@@ -1,0 +1,121 @@
+(footprint "MiRelay_MRS03_J-Lead_8.5x2.1mm"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "MiRelay MRS03 molded reed switch, J-lead, 8.5x2.1x2.4mm (MiRelay MRS03 datasheet)")
+	(tags "reed switch MRS03 MiRelay")
+	(property "Reference" "REF**"
+		(at 0 -2.4 0)
+		(layer "F.SilkS")
+		(uuid "3ed268e2-0f6c-55e0-b322-02669f16a350")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "MiRelay_MRS03_J-Lead_8.5x2.1mm"
+		(at 0 2.4 0)
+		(layer "F.Fab")
+		(uuid "dd89b631-7cc4-557d-99ea-d4ccaff2ecb0")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "9e9d6437-301c-5286-9ba8-4331623d1238")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "43bc3a03-cad1-5a16-8d92-ea39ea6c7a01")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -2.9 -1.2)
+		(end 2.9 -1.2)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "c3de883e-83ba-5fc9-bb34-d718abbc4e5f")
+	)
+	(fp_line
+		(start -2.9 1.2)
+		(end 2.9 1.2)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "d4a8c497-17f3-55b6-9ef7-a618fe3c2fab")
+	)
+	(fp_rect
+		(start -5.35 -1.5)
+		(end 5.35 1.5)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "c0b3ebcb-6c16-5954-a154-80b6f5ead754")
+	)
+	(fp_line
+		(start -2.5 0)
+		(end 2.5 0)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "2e5f97a4-e120-5a0d-ab81-7c2dccda33b6")
+	)
+	(fp_rect
+		(start -4.25 -1.05)
+		(end 4.25 1.05)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "915cdd29-0da4-5ee1-855b-2cb907a36d0a")
+	)
+	(pad "1" smd roundrect
+		(at -4.1 0)
+		(size 2 1.2)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.25)
+		(uuid "be3de429-3593-5501-b50a-ea7bcbb2d228")
+	)
+	(pad "2" smd roundrect
+		(at 4.1 0)
+		(size 2 1.2)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.25)
+		(uuid "c4653e01-2c4f-5a79-98bc-9e1fd5a9f7d9")
+	)
+	(embedded_fonts no)
+)

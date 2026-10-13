@@ -218,12 +218,14 @@ def mcu(p):
     b.teil("Device:C", "C313", "8,2p C0G", fp=C0603, netze={"1": "GND", "2": "LSE_OUT"})
     # Magnet/Taster, LED
     b.teil("Switch:SW_Push", "SW303", "Service", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "WAKE", "2": "+3V3"})
-    b.teil("Switch:SW_Reed", "SW304", "Reedkontakt", fp="", netze={"1": "WAKE", "2": "+3V3"},
-           info="an der Platinenkante neben der LED; Teil und Footprint [P]")
+    b.teil("Switch:SW_Reed", "SW304", "MRS03-B-3", fp="Bienen:MiRelay_MRS03_J-Lead_8.5x2.1mm", lcsc="C41432613",
+           netze={"1": "WAKE", "2": "+3V3"},
+           info="MiRelay MRS03-B-3: Reed SMD 8,5 × 2,1 mm, 10–15 AT; an der Platinenkante neben der LED, Längsachse parallel zur Kante; Schaltabstand durch die Wand am Prototyp [P]")
     b.teil("Device:R", "R305", "100k", fp=R0603, netze={"1": "WAKE", "2": "GND"}, info="Pull-down WKUP1")
     b.teil("Device:R", "R306", "1k", fp=R0603, netze={"1": "+3V3", "2": "LED_A"}, info="≥ 1 kΩ (mcu-funk.md 4)")
-    b.teil("Device:LED", "D301", "Side-View", fp="LED_SMD:LED_0603_1608Metric", netze={"A": "LED_A", "K": "LED"},
-           info="seitlich abstrahlend am Rand unter dem Lichtleiter; Teil/Footprint [P]")
+    b.teil("Device:LED", "D301", "LTST-S220KGKT", fp="Bienen:LED_Lite-On_LTST-S220_SideView", lcsc="C160469",
+           netze={"A": "LED_A", "K": "LED"},
+           info="Lite-On, seitlich abstrahlend, grün (AlInGaP 574 nm), am Rand vor dem Lichtleiter; mit 1 kΩ ca. 1,3 mA – Helligkeit am Muster prüfen [P]")
     # USB-C
     b.teil("Connector:USB_C_Receptacle_USB2.0_16P", "J301", "USB-C", fp="Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
            lcsc="C165948", netze={"A1": "GND", "A12": "GND", "B1": "GND", "B12": "GND", "A4": "VBUS", "A9": "VBUS", "B4": "VBUS",

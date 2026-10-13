@@ -28,11 +28,9 @@ ZIEL = os.path.join(KICAD, "pin_footprint.md")
 
 # Eigene Footprints, die vor dem Layout noch angelegt bzw. gewählt werden müssen (Ref → Grund)
 OFFEN = {
-    "SW304": "Reedkontakt: Teil wählen (SMD, Schaltabstand am Prototyp testen, mcu-funk.md 3.3)",
 }
 # Footprints, die nur Platzhalter sind (Pads passen, Teil/Maße weichen ab)
 PLATZHALTER = {
-    "D301": "LED 0603 statt seitlich abstrahlender LED – Teil wählen",
 }
 for _r in ("J201", "J202", "J501", "J601", "J701", "J702", "J703"):
     PLATZHALTER[_r] = "DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P]"
@@ -92,12 +90,12 @@ DATENBLATT = {
     "Diode:SS34": ("KiCad-Konvention D_SMA: Pad 1 = Kathode (Ring)", "[A]", {"1": ("K", "K"), "2": ("A", "A")}),
     "Diode:SMAJ12A": ("unidirektional: Pad 1 = Kathode (Ring) an VIN_LADER", "[A]", {"1": ("K", "A1"), "2": ("A", "A2")}),
     "Device:D_TVS": ("Teil offen; Pad 1 = Kathode bei unidirektionaler TVS, an +3V3", "[P]", {"1": ("K", "A1"), "2": ("A", "A2")}),
-    "Device:LED": ("KiCad-Konvention LED_0603: Pad 1 = Kathode", "[A] [P]", {"1": ("K", "K"), "2": ("A", "A")}),
+    "Device:LED": ("Lite-On LTST-S220 DS22-2000-075: Pad 1 = Kathode (Cathode Mask)", "[V]", {"1": ("K", "K"), "2": ("A", "A")}),
     "Device:Crystal_GND24": ("YXC X322525MOB4SI 3225-4: 1/3 Quarz, 2/4 Gehäuse", "[A] [P]", {
         "1": ("XTAL", "1"), "2": ("GND", "G"), "3": ("XTAL", "3"), "4": ("GND", "G")}),
     "Device:Crystal": ("Seiko SC-32S, 2 Pads, ungepolt", "[A]", {"1": ("XTAL", "1"), "2": ("XTAL", "2")}),
     "Device:Battery_Cell": ("Keystone 1042 (HW-02): Pad 1 = Plus laut KiCad-Footprint (Silkscreen „+“)", "[A] [P]", {"1": ("+", "+"), "2": ("−", "-")}),
-    "Switch:SW_Reed": ("Reedkontakt, ungepolt", "[A]", {"1": ("1", "1"), "2": ("2", "2")}),
+    "Switch:SW_Reed": ("MiRelay MRS03-B-3, ungepolt (Datenblatt Abschnitt 5)", "[V]", {"1": ("1", "1"), "2": ("2", "2")}),
     "Connector:USB_C_Receptacle_USB2.0_16P": ("KiCad-Symbol mit HRO-Footprint (Pads geprüft)", "[A]", None),
     "MCU_ST_STM32F4:STM32F411CEUx": ("ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinbelegung mcu-funk.md 4", "[A]", None),
 }

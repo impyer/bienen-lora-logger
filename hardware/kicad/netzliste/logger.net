@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-13T05:24:07")
+		(date "2026-10-13T11:47:46")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -2942,22 +2942,28 @@
 		)
 		(comp
 			(ref "D301")
-			(value "Side-View")
-			(footprint "LED_SMD:LED_0603_1608Metric")
-			(description "seitlich abstrahlend am Rand unter dem Lichtleiter; Teil/Footprint [P]")
+			(value "LTST-S220KGKT")
+			(footprint "Bienen:LED_Lite-On_LTST-S220_SideView")
+			(description "Lite-On, seitlich abstrahlend, grün (AlInGaP 574 nm), am Rand vor dem Lichtleiter; mit 1 kΩ ca. 1,3 mA – Helligkeit am Muster prüfen [P]")
 			(fields
 				(field
-					(name "Footprint") "LED_SMD:LED_0603_1608Metric")
+					(name "LCSC") "C160469")
+				(field
+					(name "Footprint") "Bienen:LED_Lite-On_LTST-S220_SideView")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "seitlich abstrahlend am Rand unter dem Lichtleiter; Teil/Footprint [P]")
+					(name "Description") "Lite-On, seitlich abstrahlend, grün (AlInGaP 574 nm), am Rand vor dem Lichtleiter; mit 1 kΩ ca. 1,3 mA – Helligkeit am Muster prüfen [P]")
 			)
 			(libsource
 				(lib "Device")
 				(part "LED")
 				(description "Light emitting diode")
+			)
+			(property
+				(name "LCSC")
+				(value "C160469")
 			)
 			(property
 				(name "Sheetname")
@@ -3698,22 +3704,28 @@
 		)
 		(comp
 			(ref "SW304")
-			(value "Reedkontakt")
-			(description "an der Platinenkante neben der LED; Teil und Footprint [P]")
+			(value "MRS03-B-3")
+			(footprint "Bienen:MiRelay_MRS03_J-Lead_8.5x2.1mm")
+			(description "MiRelay MRS03-B-3: Reed SMD 8,5 × 2,1 mm, 10–15 AT; an der Platinenkante neben der LED, Längsachse parallel zur Kante; Schaltabstand durch die Wand am Prototyp [P]")
 			(fields
 				(field
-					(name "Footprint")
-				)
+					(name "LCSC") "C41432613")
+				(field
+					(name "Footprint") "Bienen:MiRelay_MRS03_J-Lead_8.5x2.1mm")
 				(field
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "an der Platinenkante neben der LED; Teil und Footprint [P]")
+					(name "Description") "MiRelay MRS03-B-3: Reed SMD 8,5 × 2,1 mm, 10–15 AT; an der Platinenkante neben der LED, Längsachse parallel zur Kante; Schaltabstand durch die Wand am Prototyp [P]")
 			)
 			(libsource
 				(lib "Switch")
 				(part "SW_Reed")
 				(description "reed switch")
+			)
+			(property
+				(name "LCSC")
+				(value "C41432613")
 			)
 			(property
 				(name "Sheetname")

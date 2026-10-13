@@ -45,3 +45,12 @@ Vergleich Ra-01SH mit dem EasyEDA-Footprint (LCSC C2764087): gleiche Rasterung u
 - **Gegenstecker** 15EDGK-3.5: 2P C5632692, 3P C7603431 (Bestand 0), 4P C7603432, 5P C7603433; 6P bei JLCPCB nicht gefunden → lose über LCSC/Mouser [P].
 - **Akkuhalter:** Keystone 1042 (SMD) entschieden (HW-02).
 - Ergebnis: reproduzierbar, ERC 0, Pin-/Footprint-Abgleich 0 Abweichungen, Netzprüfung 178/178.
+
+## Nachtrag 13.10.2026 – Reedkontakt und Side-View-LED
+
+| Teil | Wahl | Footprint (Quelle) |
+|---|---|---|
+| SW304 Reedkontakt | **MiRelay MRS03-B-3**, vergossen, J-Anschlüsse, 8,5 × 2,1 × 2,4 mm, 10–15 AT, LCSC C41432613 (Bestand 2051) | `MiRelay_MRS03_J-Lead_8.5x2.1mm`: Gesamtlänge 9,6 mm, Innenabstand 6,8 mm, Anschlussbreite 0,6 mm laut Datenblatt [V]; Pads 2,0 × 1,2 mm bei ±4,1 mm, da kein Pad-Vorschlag im Datenblatt [A] |
+| D301 LED | **Lite-On LTST-S220KGKT**, grün, seitlich abstrahlend, 2,15 × 1,0 mm, LCSC C160469 (Bestand 39.801) | `LED_Lite-On_LTST-S220_SideView`: Pads 1,0 × 1,5 mm, Abstand 1,0 mm, gesamt 4,0 mm laut „Suggest Soldering Pad Dimensions“ [V]; Pad 1 = Kathode („Cathode Mask“) [V]; Lichtaustritt zur Seite −y |
+
+Ergebnis: alle 161 Bauteile mit Footprint, Pin-/Footprint-Abgleich 0 Abweichungen, ERC 0, Netzprüfung 178/178. Offen: Helligkeit der LED bei ca. 1,3 mA durch den Lichtleiter und Schaltabstand des Reedkontakts durch die Wand am Muster [P].

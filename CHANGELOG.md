@@ -1,5 +1,15 @@
 # Änderungen
 
+## 2026-10-13 – Bauhöhe festgelegt (HW-03), Platinendatei angelegt
+
+- **HW-03 (Philipp):** Hauptplatine auf glatten Distanzhülsen 10 mm über den Gehäusedomen, selbstformende Schrauben in die Dombohrung Ø 3,6 mm; Bauhöhe über der Platine höchstens 40 mm. Das Layout hängt damit nicht mehr vom STEP-Modell ab (angefragt, nur zur Kontrolle). Lastenheft M2/M3, `mcu-funk.md` (Lichtleiter-Bohrung am Muster), `mechanik/README.md`, Entscheidungsregister.
+- Neu `hardware/kicad/hauptplatine/logger.kicad_pcb` (Grundgerüst aus `werkzeug/platine_start.py`): 4 Lagen, Umriss 121 × 121 mm, 4 Befestigungslöcher Ø 3,4 mm auf 110,2 mm mit Kupfersperre, JLCPCB-Regeln, Hinweise zu Klemmen- und Funkkante. Footprint `Bienen:Befestigung_3.4mm_Huelse`. DRC: 0 Verstöße.
+
+## 2026-10-13 – Reedkontakt und Side-View-LED gewählt, alle Footprints vorhanden
+
+- **SW304: MiRelay MRS03-B-3** (SMD-Reed, J-Anschlüsse, 10–15 AT, LCSC C41432613) und **D301: Lite-On LTST-S220KGKT** (grün, seitlich abstrahlend, LCSC C160469); Footprints nach Datenblatt in `Bienen.pretty` (`footprints.py`). `mcu-funk.md` 3.3 nachgeführt.
+- Pin-/Footprint-Abgleich: alle 161 Bauteile mit Footprint, 0 Abweichungen; ERC 0; Netzprüfung 178/178. Offen am Muster: LED-Helligkeit (ca. 1,3 mA) und Schaltabstand des Reedkontakts.
+
 ## 2026-10-13 – Projektfootprints BQ25185 und Ra-01SH; Funde Akkuhalter und Klemmen
 
 - Neu `hardware/kicad/werkzeug/footprints.py` → `hardware/kicad/Bienen.pretty/`: **WSON-10 DLH0010A** (BQ25185) nach TI-Gehäusezeichnung 4226298/A und **Ai-Thinker Ra-01SH** nach Herstellerdatenblatt V1.1 (empfohlenes Pad-Layout). Reproduzierbar (feste UUIDs), in `pruefen.sh`; `kicad_gen.py` schreibt `fp-lib-table`.
