@@ -20,6 +20,8 @@ HIER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANSCHLUESSE = os.path.join(os.path.dirname(HIER), "anschluesse.md")
 ANZ = FEHL = 0
 
+OFFEN = "(offen)"         # Pin ohne Verbindung (KiCad-Netz „unconnected-…“)
+
 # Stecker, deren Pinbelegung in anschluesse.md steht und schon auf einem Schaltplanblatt liegt:
 # Nr. im Dokument → (Referenz auf der Hauptplatine, Bezeichnung im Dokument → Netzname im Schaltplan)
 STECKER_DOKU = {
@@ -30,6 +32,11 @@ STECKER_DOKU = {
                      "TX1": "DBG_TX", "RX1": "DBG_RX"}),
     "J4": ("J501", {"Schirm": "GND", "E−": "GND", "S−": "ZELLE_SN", "S+": "ZELLE_SP", "E+": "ZELLE_EP"}),
     "J5": ("J601", {"Schirm": "GND", "GND": "GND", "OUT": "MIC_OUT_K", "VCC": "3V3_ANA"}),
+    "J6": ("J701", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
+    "J7": ("J702", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
+    "J8": ("J703", {"Schirm": "GND", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "3V3_SW": "3V3_SW", "frei": OFFEN}),
+    "J11": ("J704", {"3V3": "+3V3", "3V3_SW": "3V3_SW", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "TX1": "DBG_TX",
+                     "RX1": "DBG_RX", "PA15": "EXT_PA15", "PB12": "EXT_PB12", "PB13": "EXT_PB13"}),
 }
 VBG_HX711 = 1.25        # V, Bandgap-Referenz des AVDD-Reglers (HX711-Datenblatt, waage.md 3)
 VSUP_MIN = 4.9          # V, TPS61240 5,0 V −2 % (waage.md 2)
@@ -88,7 +95,9 @@ def doku_pins(nr):
 
 def stecker_abweichungen(pin_netz, ref, soll):
     """Liste der Pins, deren Netz in der Netzliste nicht dem Soll entspricht (leer = in Ordnung)."""
-    return sorted((pin, netz, pin_netz.get((ref, pin))) for pin, netz in soll.items() if pin_netz.get((ref, pin)) != netz)
+    def passt(ist, netz):
+        return ist == netz or (netz == OFFEN and (ist is None or ist.startswith("unconnected")))
+    return sorted((pin, netz, pin_netz.get((ref, pin))) for pin, netz in soll.items() if not passt(pin_netz.get((ref, pin)), netz))
 
 
 def stecker_gegen_doku(pin_netz):
@@ -226,6 +235,37 @@ def mikrofon(h, h_pin, h_wert):
     pruefe(("RC vor PA1 = %.1f kHz (mikrofon.md: 4,8 kHz)" % (frc / 1000)).replace(".", ","), 4.0e3 <= frc <= 5.5e3)
 
 
+def anschluesse(h, h_pin, h_wert):
+    """SCH26-07: Blatt Anschlüsse gegen anschluesse.md 1–3 und HW26-04 (Pull-ups nur an 3V3_SW)."""
+    genau(h, "ONEWIRE", {("U301", "29"), ("R701", "2"), ("J701", "2"), ("J702", "2"), ("D701", "1")})   # PA8
+    genau(h, "I2C_SDA", {("U301", "43"), ("R702", "1"), ("J703", "3"), ("D702", "1"), ("J704", "5")})   # PB7
+    genau(h, "I2C_SCL", {("U301", "42"), ("R703", "2"), ("J703", "4"), ("D702", "3"), ("J704", "6")})   # PB6
+    def pullup_ok(pin_netz, wert, ref, soll):
+        andere = {n for (r, _), n in pin_netz.items() if r == ref} - {"ONEWIRE", "I2C_SDA", "I2C_SCL"}
+        return andere == {"3V3_SW"} and wert.get(ref) == soll
+    for ref, soll in (("R701", "4,7k"), ("R702", "1,8k"), ("R703", "1,8k")):
+        pruefe("Pull-up %s = %s an 3V3_SW (HW26-04)" % (ref, soll), pullup_ok(h_pin, h_wert, ref, soll),
+               ({n for (r, _), n in h_pin.items() if r == ref}, h_wert.get(ref)))
+    falsch = dict(h_pin)
+    falsch[("R701", "1")] = "+3V3"
+    pruefe("Gegenprobe: Pull-up R701 an +3V3 statt 3V3_SW wird erkannt", not pullup_ok(falsch, h_wert, "R701", "4,7k"))
+    for ref in ("D701", "D702"):
+        pruefe("ESD %s ist ESDS304, GND an Pin 2" % ref,
+               h_wert.get(ref, "").startswith("ESDS304") and h_pin.get((ref, "2")) == "GND", (h_wert.get(ref), h_pin.get((ref, "2"))))
+    pruefe("ESD D702 schützt SDA, SCL und 3V3_SW an J703",
+           {h_pin.get(("D702", p)) for p in ("1", "3", "4")} == {"I2C_SDA", "I2C_SCL", "3V3_SW"})
+    pruefe("ESD D701 schützt DQ und 3V3_SW an J701/J702", {h_pin.get(("D701", p)) for p in ("1", "3")} == {"ONEWIRE", "3V3_SW"})
+    pruefe("J703 Pin 6 frei (Verwechslungsschutz)", h_pin.get(("J703", "6"), "unconnected").startswith("unconnected"),
+           h_pin.get(("J703", "6")))
+    pol = {ref: len({p for (r, p) in h_pin if r == ref}) for ref in ("J201", "J701", "J601", "J501", "J703")}
+    pruefe("Sensorklemmen mit eigener Polzahl (Solar 2, DS18B20 3, Mikrofon 4, Wägezelle 5, BME280 6)",
+           pol == {"J201": 2, "J701": 3, "J601": 4, "J501": 5, "J703": 6}, pol)
+    for ref in ("J501", "J601", "J701", "J702", "J703", "J201", "J202"):
+        pruefe("%s: Pin 1 an GND (Masse/Schirm an Pin 1)" % ref, h_pin.get((ref, "1")) == "GND", h_pin.get((ref, "1")))
+    for nr, netz in (("9", "EXT_PA15"), ("10", "EXT_PB12"), ("11", "EXT_PB13")):
+        enthaelt(h, netz, {("J704", nr)})
+
+
 def modell_netze(modul):
     """Netze laut Generator-Beschreibung (Quelle der Wahrheit) als {Name: {(Ref, Pin)}}."""
     sys.path.insert(0, HIER)
@@ -298,8 +338,8 @@ def main():
     # --- Debug-Stecker J302 (SCH26-09): je Pin ---
     for pin, netz in (("1", "+3V3"), ("2", "SWDIO"), ("3", "SWCLK"), ("4", "NRST"), ("5", "GND"), ("6", "DBG_TX"), ("7", "DBG_RX")):
         pruefe("J302 Pin %s = %s" % (pin, netz), h_pin.get(("J302", pin)) == netz, h_pin.get(("J302", pin)))
-    genau(h, "DBG_TX", {("J302", "6"), ("U301", "30")})   # PA9
-    genau(h, "DBG_RX", {("J302", "7"), ("U301", "31")})   # PA10
+    genau(h, "DBG_TX", {("J302", "6"), ("J704", "7"), ("U301", "30")})   # PA9, auch an J11
+    genau(h, "DBG_RX", {("J302", "7"), ("J704", "8"), ("U301", "31")})   # PA10, auch an J11
     # --- Ra-01SH TXEN/RXEN (SCH26-11): TXEN ist im Modul DIO2 → Lötbrücken offen, nur über Brücke an PB14/PB15 ---
     for jp, mod, mcu_netz, pin in (("JP401", "TXEN_MOD", "LORA_TXEN", "5"), ("JP402", "RXEN_MOD", "LORA_RXEN", "11")):
         pruefe("%s ist offene Lötbrücke" % jp, "_Open_" in h_wert.get(jp + ":footprint", ""), h_wert.get(jp + ":footprint"))
@@ -309,6 +349,8 @@ def main():
     waage(h, h_pin, h_wert)
     # --- Mikrofon (SCH26-07) ---
     mikrofon(h, h_pin, h_wert)
+    # --- Anschlüsse (SCH26-07) ---
+    anschluesse(h, h_pin, h_wert)
     # --- Stecker: anschluesse.md ↔ Netzliste ---
     stecker_gegen_doku(h_pin)
 

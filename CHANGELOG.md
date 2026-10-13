@@ -1,5 +1,12 @@
 # Änderungen
 
+## 2026-10-13 – Schaltplanblatt Anschlüsse, Schaltplan vollständig (SCH26-07)
+
+- **Neues Blatt „Anschlüsse“** (`hauptplatine/anschluesse.kicad_sch`, Teile 7xx): DS18B20-Klemmen J701/J702 (= J6/J7) am gemeinsamen 1-Wire-Bus PA8 mit 4,7 kΩ an 3V3_SW und ESDS304; BME280-Klemme J703 (= J8, 6-polig, Pin 6 frei) mit 1,8-kΩ-Pull-ups an 3V3_SW und ESDS304; Erweiterungsleiste J704 (= J11, 2 × 6). Damit sind alle Blätter der Hauptplatine im Entwurf; SCH26-07 im Entwurf behoben.
+- DBG_TX/DBG_RX sind jetzt globale Netze (Debug-Leiste und Erweiterungsleiste). `anschluesse.md`: Platinenreferenzen J701–J704.
+- `netz_tests.py`: Blatt Anschlüsse (Netze, Pull-ups nur an 3V3_SW mit Gegenprobe, ESD, Polzahlen, Masse an Pin 1, J8-Pin 6 frei) und Stecker J6/J7/J8/J11 gegen `anschluesse.md`; freie Pins werden als unverbunden erwartet. 139 → 178 Prüfungen.
+- ERC Hauptplatine 7 → 1 erwartete Meldung (nur der fehlende Footprint U201). Prüfung lokal mit KiCad 10.0.6: reproduzierbar, 178/178, Gegenproben bestanden. Stückliste 161 Teile. Bericht: `docs/testberichte/2026-10-13-sch26-07-anschluesse.md`.
+
 ## 2026-10-13 – Schaltplanblatt Mikrofon (SCH26-07, Teil Mikrofon)
 
 - **Neues Blatt „Mikrofon“** auf der Hauptplatine (`hauptplatine/mikrofon.kicad_sch`, Teile 6xx): Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA (22 µF + 100 nF), Vorspannung 1,65 V (2 × 47 kΩ, 1 µF), Klemme J601 (= J5) mit ESDS304 direkt an OUT und VCC, 100 Ω, Hochpass 22 Hz, Sallen-Key 1179 Hz / Q 0,74 als Spannungsfolger, RC 4,8 kHz vor PA1 (MIC_ADC).

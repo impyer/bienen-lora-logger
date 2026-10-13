@@ -1,11 +1,11 @@
 # KiCad-Projekte (KiCad 10)
 
-Stand 13.10.2026: **Akku-Platine** und die Blätter **Versorgung**, **MCU**, **Funk + Flash**, **Waage** und **Mikrofon** der Hauptplatine. Das Blatt Anschlüsse folgt (SCH26-07). **Entwurf, keine Fertigungsfreigabe.**
+Stand 13.10.2026: **Akku-Platine** und alle Blätter der Hauptplatine (**Versorgung**, **MCU**, **Funk + Flash**, **Waage**, **Mikrofon**, **Anschlüsse**) im Entwurf (SCH26-07). **Entwurf, keine Fertigungsfreigabe.**
 
 | Ordner/Datei | Inhalt |
 |---|---|
 | `akku-platine/` | Projekt `akku.kicad_pro`: Zelle, HY2111 + FS8205, Messbrücke, Ladesperre 2 × TMP390 (Stufe 1 → CE, Stufe 2 → NTC-Kreis), NTC, JST PH 5 |
-| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch`, `mikrofon.kicad_sch` |
+| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch`, `mikrofon.kicad_sch`, `anschluesse.kicad_sch` |
 | `bienen.kicad_sym` | Projektsymbole (BQ25185, TMP390, HY2111-GB, FS8205, RT9080, TPS70933, Ra-01SH, TPS61240), Pinbelegungen mit Datenblattquelle in `werkzeug/symbole.py` |
 | `erc_erwartet.json` | begründete ERC-Warnungen; jede andere Meldung lässt die Prüfung scheitern |
 | `pdf/`, `netzliste/` | Ausdrucke und KiCad-Netzlisten (zum Prüfen ohne KiCad; enthalten ein Datum, daher vom CI-Diff ausgenommen) |
@@ -26,7 +26,7 @@ Stand 13.10.2026: **Akku-Platine** und die Blätter **Versorgung**, **MCU**, **F
 1. zweimal erzeugen, Prüfsummen **aller** erzeugten Blätter und der Symbolbibliothek vergleichen (reproduzierbar). Die Liste entsteht aus den Ordnern; jedes von einem Wurzelblatt verwiesene Blatt muss darin stehen, verwaiste `.kicad_sch` lassen die Prüfung scheitern (SCH26-12). `bash pruefen.sh --gegenprobe` erzeugt absichtlich mit Zufalls-UUIDs und zeigt, dass jede Blattdatei als abweichend erkannt wird.
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
-4. `werkzeug/netz_tests.py`: 139 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon: Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA, symmetrische Vorspannung, ESD direkt an der Klemme, **Hochpass, Sallen-Key-Grenzfrequenz und -Güte sowie RC vor PA1 aus den Bauteilwerten** (mit Gegenprobe vertauschter Kondensatoren), Spannungsfolger-Beschaltung, J5/J601 gegen `anschluesse.md`
+4. `werkzeug/netz_tests.py`: 178 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon: Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA, symmetrische Vorspannung, ESD direkt an der Klemme, **Hochpass, Sallen-Key-Grenzfrequenz und -Güte sowie RC vor PA1 aus den Bauteilwerten** (mit Gegenprobe vertauschter Kondensatoren), Spannungsfolger-Beschaltung, J5/J601 gegen `anschluesse.md`; Blatt Anschlüsse: 1-Wire- und I²C-Netze, **Pull-ups nur an 3V3_SW** (HW26-04, mit Gegenprobe), ESD-Arrays, J8-Pin 6 frei, eigene Polzahl je Sensorklemme, Masse an Pin 1, J6/J7/J8/J11 gegen `anschluesse.md`
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
 
@@ -35,7 +35,7 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|
 | Akku-Platine | 0 | |
-| Hauptplatine | 7 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH); 6 globale Netze vom Blatt MCU haben ihre Gegenstelle erst auf dem Blatt Anschlüsse |
+| Hauptplatine | 1 (erwartet) | Footprint-Bibliothek „Bienen“ fehlt noch (BQ25185 DLH); alle globalen Netze haben ihre Gegenstelle |
 
 ## Board-Kennung und Umgebung (REG26-10)
 
@@ -73,11 +73,12 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 - Blatt Waage: Footprint WSON-6 2 × 2 (KiCad) mit TI DRV0006A vergleichen (U501); Spule L501 1 µH mit Isat ≥ 0,7 A wählen; Ferrite FB501 (600 Ω) und FB502 (Gleichstromwiderstand ≤ 0,1 Ω) wählen; Pinfolge des gelieferten S8550 (Q501) mit 1 B, 2 E, 3 C vergleichen; R507 (Kanal B an INA−) am Muster bewerten.
 - Blatt Mikrofon: Operationsverstärker **TLV9001IDBVR** (C398363) statt LMV321TP (C90297 laut LCSC-Seite am 13.10.2026 nicht lieferbar; TLV9001IDBVR dort 39.765 Stück); JLCPCB-Bestand vor der Bestellung erneut prüfen; **nicht TLV9001U** (andere Pinfolge). LCSC-Nummer ESDS304DBVR; Ferrit FB601 wählen; Frequenzgang und Schwingneigung mit 2 m Kabel am Muster messen (`../mikrofon.md` 7).
 - Klemmen: Platzhalter Phoenix MC 1,5 / 3,5 mm für DEGSON 15EDGRHC-3.5 – Maße vergleichen.
+- Blatt Anschlüsse: LCSC-Nummer ESDS304DBVR (D701, D702); DEGSON-Teilenummern 3- und 6-polig; Kapazität des gekauften Netzwerkkabels messen (`../anschluesse.md` 3.1).
 - LCSC-Nummern ergänzen (BQ25185, TMP390, TPS70933, SS34, SMAJ12A, Klemmen, JST).
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
 - Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
-## Stückliste (bisher, 152 Teile; erzeugt aus den Generatoren)
+## Stückliste (bisher, 161 Teile; erzeugt aus den Generatoren)
 
 | Ref. | Wert | Symbol | Footprint | LCSC | Blatt |
 |---|---|---|---|---|---|
@@ -159,6 +160,8 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | D401 | TVS 3,3V | Device:D_TVS | D_SOD-523 |  | Funk + Flash |
 | D501 | TPD4E05U06DQAR | Power_Protection:TPD4E05U06DQA | – | C138714 | Waage |
 | D601 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Mikrofon |
+| D701 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Anschlüsse |
+| D702 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Anschlüsse |
 | FB301 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | MCU |
 | FB501 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
 | FB502 | Ferrit ≤ 0,1 Ω | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
@@ -170,6 +173,10 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | J302 | Debug (SWD + Serial1) | Connector_Generic:Conn_01x07 | PinHeader_1x07_P2.54mm_Vertical |  | MCU |
 | J501 | Wägezelle | Connector_Generic:Conn_01x05 | PhoenixContact_MC_1,5_5-G-3.5_1x05_P3.50mm_Horizontal |  | Waage |
 | J601 | Mikrofon | Connector_Generic:Conn_01x04 | PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal |  | Mikrofon |
+| J701 | DS18B20 Nr. 1 | Connector_Generic:Conn_01x03 | PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal |  | Anschlüsse |
+| J702 | DS18B20 Nr. 2 | Connector_Generic:Conn_01x03 | PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal |  | Anschlüsse |
+| J703 | BME280 | Connector_Generic:Conn_01x06 | PhoenixContact_MC_1,5_6-G-3.5_1x06_P3.50mm_Horizontal |  | Anschlüsse |
+| J704 | Erweiterung | Connector_Generic:Conn_02x06_Odd_Even | PinHeader_2x06_P2.54mm_Vertical |  | Anschlüsse |
 | JP401 | TXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | JP402 | RXEN | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | L501 | 1µ | Device:L | L_0805_2012Metric |  | Waage |
@@ -214,6 +221,9 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R606 | 9,1k 1% | Device:R | R_0603_1608Metric |  | Mikrofon |
 | R607 | 9,1k 1% | Device:R | R_0603_1608Metric |  | Mikrofon |
 | R608 | 3,3k | Device:R | R_0603_1608Metric |  | Mikrofon |
+| R701 | 4,7k | Device:R | R_0603_1608Metric |  | Anschlüsse |
+| R702 | 1,8k | Device:R | R_0603_1608Metric |  | Anschlüsse |
+| R703 | 1,8k | Device:R | R_0603_1608Metric |  | Anschlüsse |
 | SW301 | Reset | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW302 | BOOT | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW303 | Service | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |

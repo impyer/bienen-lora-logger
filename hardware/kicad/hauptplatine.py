@@ -3,8 +3,7 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
-Stand 13.10.2026: Blätter „Versorgung“, „MCU“, „Funk + Flash“, „Waage“ und „Mikrofon“. Das Blatt Anschlüsse
-folgt; Netze zu diesen Blättern sind als Schnittstellen (globale Labels) angelegt.
+Stand 13.10.2026: alle Blätter im Entwurf: „Versorgung“, „MCU“, „Funk + Flash“, „Waage“, „Mikrofon“, „Anschlüsse“; Netze zwischen den Blättern sind globale Labels.
 
 Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7, mcu-funk.md, waage.md, mikrofon.md.
 Aufruf: python3 hardware/kicad/hauptplatine.py
@@ -780,6 +779,108 @@ def zeichne_mikrofon(b, T):
     L("MIC_ADC", 223.52, U.p("1")[1])
 
 
+def anschluesse(p):
+    """Blatt Anschlüsse (anschluesse.md 1–3, Lastenheft M4/M5/F10, HW26-04/-09/-13): Sensorklemmen DS18B20 (J701/J702 = J6/J7)
+    und BME280 (J703 = J8) mit ESD-Arrays und Pull-ups an der geschalteten Schiene, Erweiterungsleiste J704 (= J11).
+    Kennzeichnung: [V] Datenblatt, [A] Annahme/Rechnung, [P] vor der Bestellung bzw. am Muster prüfen."""
+    b = p.blatt("Anschlüsse", "anschluesse.kicad_sch", titel="Anschlüsse: DS18B20, BME280, Erweiterungsleiste")
+    klemme = "DEGSON 15EDGRHC-3.5 %d-polig (Platzhalter-Footprint Phoenix MC) [P]"
+    # --- 1 DS18B20 an 1-Wire (PA8) ------------------------------------------------
+    b.teil("Connector_Generic:Conn_01x03", "J701", "DS18B20 Nr. 1", fp=KLEMME % (3, 3),
+           netze={"1": "GND", "2": "ONEWIRE", "3": "3V3_SW"}, info="= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; " + klemme % 3)
+    b.teil("Connector_Generic:Conn_01x03", "J702", "DS18B20 Nr. 2", fp=KLEMME % (3, 3),
+           netze={"1": "GND", "2": "ONEWIRE", "3": "3V3_SW"}, info="= J7 (TempIn2), selber Bus; " + klemme % 3)
+    b.teil("Device:R", "R701", "4,7k", fp=R0603, netze={"1": "3V3_SW", "2": "ONEWIRE"},
+           info="1-Wire-Pull-up an der geschalteten Schiene (HW26-04: keine Rückspeisung im Standby); 3-adrig, nicht parasitär")
+    b.teil("Power_Protection:ESDS304", "D701", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
+           netze={"1": "ONEWIRE", "3": "3V3_SW", "4": "NC", "5": "NC", "2": "GND"},
+           info="ein Array für J701 + J702 (anschluesse.md 1), zwischen beiden Klemmen; LCSC [P]")
+    # --- 2 BME280 an I²C (PB6/PB7) ---------------------------------------------------
+    b.teil("Connector_Generic:Conn_01x06", "J703", "BME280", fp=KLEMME % (6, 6),
+           netze={"1": "GND", "2": "GND", "3": "I2C_SDA", "4": "I2C_SCL", "5": "3V3_SW", "6": "NC"},
+           info="= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); " + klemme % 6)
+    b.teil("Device:R", "R702", "1,8k", fp=R0603, netze={"1": "I2C_SDA", "2": "3V3_SW"},
+           info="1,8 kΩ: Anstiegszeit auch mit falschem Kabel ≤ 1000 ns (anschluesse.md 3.1, i2c_leitung.py)")
+    b.teil("Device:R", "R703", "1,8k", fp=R0603, netze={"1": "3V3_SW", "2": "I2C_SCL"})
+    b.teil("Power_Protection:ESDS304", "D702", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
+           netze={"1": "I2C_SDA", "3": "I2C_SCL", "4": "3V3_SW", "5": "NC", "2": "GND"},
+           info="direkt hinter J703; 2,3 pF je Kanal in der Buskapazität enthalten (i2c_leitung.py); LCSC [P]")
+    # --- 3 Erweiterungsleiste (innen) ----------------------------------------------------
+    b.teil("Connector_Generic:Conn_02x06_Odd_Even", "J704", "Erweiterung",
+           fp="Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical",
+           netze={"1": "+3V3", "2": "3V3_SW", "3": "GND", "4": "GND", "5": "I2C_SDA", "6": "I2C_SCL", "7": "DBG_TX",
+                  "8": "DBG_RX", "9": "EXT_PA15", "10": "EXT_PB12", "11": "EXT_PB13", "12": "GND"},
+           info="= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1)")
+    zeichne_anschluesse(b, {t.ref: t for t in b.teile})
+    return b
+
+
+def zeichne_anschluesse(b, T):
+    """Links die Außenklemmen (Masse an Pin 1 unten), rechts die Leitungen zum MCU; ESD-Arrays direkt neben den
+    Klemmen, über Netznamen angeschlossen. Rechts die Erweiterungsleiste J704 mit Netznamen an jedem Signal."""
+    S, D, L = b.setze, b.draht, b.label
+    b.text("1  DS18B20 (1-Wire, PA8): J701 = J6, J702 = J7, gemeinsamer Bus, Pull-up 4,7 kΩ an 3V3_SW", 30.48, 60.96, 2.0)
+    b.text("2  BME280 (I²C, PB6/PB7): J703 = J8, 6-polig, Pull-ups 1,8 kΩ an 3V3_SW, Takt 50 kHz, Kabel ≤ 1 m", 30.48, 137.16, 2.0)
+    b.text("3  Erweiterung J704 = J11 (innen, ohne ESD)", 233.68, 71.12, 2.0)
+    b.text("Regeln (anschluesse.md 1, 4): Masse an Pin 1, Versorgung am anderen Ende; jede Klemme eigene Polzahl; ESD direkt hinter "
+           "der Klemme mit kurzer Masseanbindung; alle Außenklemmen an einer Kante.", 30.48, 228.6, 1.5)
+    b.text("Pull-ups nur an 3V3_SW (HW26-04): im Standby keine Rückspeisung über Sensorleitungen.", 30.48, 233.68, 1.5)
+
+    # --- 1 DS18B20 --------------------------------------------------------------------
+    y1, y2, xb = 91.44, 116.84, 66.04
+    J1 = S(T["J701"], 40.64, y1, rot=180, text="links")
+    J2 = S(T["J702"], 40.64, y2, rot=180, text="links")
+    for J in (J1, J2):
+        stub(b, J, "3", 5.08)
+    D(J1.p("2"), (xb, y1))
+    D(J2.p("2"), (xb, y2), (xb, y1))
+    D((xb, y1), (139.7, y1))
+    L("ONEWIRE", 139.7, y1)
+    R1 = S(T["R701"], 111.76, 85.09, text="links")
+    D(R1.p("2"), (111.76, y1))
+    stub(b, R1, "1", 5.08)
+    E1 = S(T["D701"], 86.36, 109.22, text=(93.98, 116.84))
+    for pin in ("1", "3"):
+        stub(b, E1, pin, 5.08)
+
+    # --- 2 BME280 ------------------------------------------------------------------------
+    J3 = S(T["J703"], 40.64, 165.1, rot=180, text="links")
+    stub(b, J3, "5", 5.08)
+    D(J3.p("1"), (48.26, J3.p("1")[1]), (48.26, J3.p("2")[1]), J3.p("2"))
+    b.versorgung("GND", 48.26, J3.p("1")[1], "unten")
+    xs = 139.7
+    D(J3.p("3"), (xs, J3.p("3")[1]))
+    L("I2C_SDA", xs, J3.p("3")[1])
+    D(J3.p("4"), (xs, J3.p("4")[1]))
+    L("I2C_SCL", xs, J3.p("4")[1])
+    R3 = S(T["R703"], 111.76, J3.p("4")[1] - 6.35, text="links")
+    D(R3.p("2"), (111.76, J3.p("4")[1]))
+    stub(b, R3, "1", 5.08)
+    R2 = S(T["R702"], 121.92, J3.p("3")[1] + 6.35, text="rechts")
+    D(R2.p("1"), (121.92, J3.p("3")[1]))
+    stub(b, R2, "2", 5.08)
+    E2 = S(T["D702"], 86.36, 185.42, text=(93.98, 193.04))
+    for pin in ("1", "3", "4"):
+        stub(b, E2, pin, 5.08)
+
+    # --- 3 Erweiterungsleiste ---------------------------------------------------------------
+    X = S(T["J704"], 266.7, 106.68, text="oben")
+    for pin in ("5", "7", "9", "11"):
+        stub(b, X, pin, 10.16)
+    for pin in ("2", "6", "8", "10"):
+        stub(b, X, pin, 10.16)
+    # Versorgung: Leitungen außen um die Netznamen herum, damit Symbole und Texte frei stehen
+    x1, y1_ = X.p("1")
+    D(X.p("1"), (x1 - 5.08, y1_))
+    b.versorgung("+3V3", x1 - 5.08, y1_, "oben")
+    xl, yb = x1 - 30.48, X.p("12")[1] + 5.08
+    D(X.p("3"), (xl, X.p("3")[1]), (xl, yb))
+    b.versorgung("GND", xl, yb, "unten")
+    xr = X.p("4")[0] + 30.48
+    D(X.p("4"), (xr, X.p("4")[1]), (xr, X.p("12")[1]), X.p("12"))
+    b.versorgung("GND", xr, X.p("12")[1], "unten")
+
+
 def pins_von_lib(lib_id):
     from kicad_gen import lib_symbol, pins_von
     return pins_von(lib_symbol(lib_id))
@@ -874,12 +975,13 @@ def baue():
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)
     w = p.blatt("Bienenlogger Hauptplatine", "logger.kicad_sch", titel="Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
-    w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon (fertig). Folgt: Anschlüsse.", 30, 25, 2.0)
+    w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse (Entwurf vollständig).", 30, 25, 2.0)
     versorgung(p)
     mcu(p)
     funk(p)
     waage(p)
     mikrofon(p)
+    anschluesse(p)
     return p
 
 

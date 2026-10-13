@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-13T04:13:54")
+		(date "2026-10-13T04:29:31")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -254,6 +254,54 @@
 				(rev "0.1 Entwurf")
 				(date "2026-10-09")
 				(source "mikrofon.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
+				)
+				(comment
+					(number "3")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "7")
+			(name "/Anschlüsse/")
+			(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			(title_block
+				(title "Anschlüsse: DS18B20, BME280, Erweiterungsleiste")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "anschluesse.kicad_sch")
 				(comment
 					(number "1")
 					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
@@ -7786,6 +7834,558 @@
 				)
 			)
 		)
+		(comp
+			(ref "D701")
+			(value "ESDS304DBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(description "ein Array für J701 + J702 (anschluesse.md 1), zwischen beiden Klemmen; LCSC [P]")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "ein Array für J701 + J702 (anschluesse.md 1), zwischen beiden Klemmen; LCSC [P]")
+			)
+			(libsource
+				(lib "Power_Protection")
+				(part "ESDS304")
+				(description "4-channel 1Gbps TVS Diode Array, 2.3pF, 4.5V breakdown, 30kV contact & air gap, SOT-23-5")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "usb ethernet esd protection suppression transient transient-voltage low-capacitance texas")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "0fc4d4ec-f66a-511d-8279-35a257c0f79e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "D702")
+			(value "ESDS304DBVR")
+			(footprint "Package_TO_SOT_SMD:SOT-23-5")
+			(description "direkt hinter J703; 2,3 pF je Kanal in der Buskapazität enthalten (i2c_leitung.py); LCSC [P]")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "direkt hinter J703; 2,3 pF je Kanal in der Buskapazität enthalten (i2c_leitung.py); LCSC [P]")
+			)
+			(libsource
+				(lib "Power_Protection")
+				(part "ESDS304")
+				(description "4-channel 1Gbps TVS Diode Array, 2.3pF, 4.5V breakdown, 30kV contact & air gap, SOT-23-5")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "usb ethernet esd protection suppression transient transient-voltage low-capacitance texas")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "7284f862-d6b0-57c4-a067-83724a5052c1")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J701")
+			(value "DS18B20 Nr. 1")
+			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
+			(description "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			(fields
+				(field
+					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "= J6 (TempIn): 1 GND, 2 DQ, 3 3V3_SW; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x03")
+				(description "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "291cdc32-5315-519a-b1e8-7daf0eb0ccc1")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J702")
+			(value "DS18B20 Nr. 2")
+			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
+			(description "= J7 (TempIn2), selber Bus; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			(fields
+				(field
+					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_3-G-3.5_1x03_P3.50mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "= J7 (TempIn2), selber Bus; DEGSON 15EDGRHC-3.5 3-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x03")
+				(description "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "ea42d584-0cfb-5c69-9f0f-9aa7a31d9181")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J703")
+			(value "BME280")
+			(footprint "Connector_Phoenix_MC:PhoenixContact_MC_1,5_6-G-3.5_1x06_P3.50mm_Horizontal")
+			(description "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRHC-3.5 6-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			(fields
+				(field
+					(name "Footprint") "Connector_Phoenix_MC:PhoenixContact_MC_1,5_6-G-3.5_1x06_P3.50mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "= J8: 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (Verwechslungsschutz gegen J4, 6-polig); DEGSON 15EDGRHC-3.5 6-polig (Platzhalter-Footprint Phoenix MC) [P]")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x06")
+				(description "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "b8df70de-e16d-5a2f-a34a-7bc6a1dd5c29")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "6")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J704")
+			(value "Erweiterung")
+			(footprint "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical")
+			(description "= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1)")
+			(fields
+				(field
+					(name "Footprint") "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1)")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_02x06_Odd_Even")
+				(description "Generic connector, double row, 02x06, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_2x??_*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "c6f93405-d53d-55a2-a47e-0f10863a521d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "11")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "12")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R701")
+			(value "4,7k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "1-Wire-Pull-up an der geschalteten Schiene (HW26-04: keine Rückspeisung im Standby); 3-adrig, nicht parasitär")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "1-Wire-Pull-up an der geschalteten Schiene (HW26-04: keine Rückspeisung im Standby); 3-adrig, nicht parasitär")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "36e30f59-6dfd-5a8f-90f9-5819221bc791")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R702")
+			(value "1,8k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "1,8 kΩ: Anstiegszeit auch mit falschem Kabel ≤ 1000 ns (anschluesse.md 3.1, i2c_leitung.py)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "1,8 kΩ: Anstiegszeit auch mit falschem Kabel ≤ 1000 ns (anschluesse.md 3.1, i2c_leitung.py)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "e9edf2e5-cd08-51f8-9c73-f10fee7026b2")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R703")
+			(value "1,8k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Anschlüsse")
+			)
+			(property
+				(name "Sheetfile")
+				(value "anschluesse.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Anschlüsse/")
+				(tstamps "/913cf5cb-2823-55ad-940f-82fcb211bc57/")
+			)
+			(tstamps "614cc599-1af1-55fb-ba50-32189269b8c4")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
 	)
 	(groups)
 	(variants)
@@ -8436,6 +9036,45 @@
 		)
 		(libpart
 			(lib "Connector_Generic")
+			(part "Conn_01x03")
+			(description "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_1x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x03")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "Pin_3")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
 			(part "Conn_01x04")
 			(description "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
 			(footprints
@@ -8529,6 +9168,60 @@
 		)
 		(libpart
 			(lib "Connector_Generic")
+			(part "Conn_01x06")
+			(description "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_1x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x06")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "Pin_3")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "Pin_4")
+					(type "passive")
+				)
+				(pin
+					(num "5")
+					(name "Pin_5")
+					(type "passive")
+				)
+				(pin
+					(num "6")
+					(name "Pin_6")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
 			(part "Conn_01x07")
 			(description "Generic connector, single row, 01x07, script generated (kicad-library-utils/schlib/autogen/connector/)")
 			(footprints
@@ -8582,6 +9275,90 @@
 				(pin
 					(num "7")
 					(name "Pin_7")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Connector_Generic")
+			(part "Conn_02x06_Odd_Even")
+			(description "Generic connector, double row, 02x06, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)")
+			(footprints
+				(fp "Connector*:*_2x??_*")
+			)
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_02x06_Odd_Even")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Generic connector, double row, 02x06, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "Pin_1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "Pin_2")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "Pin_3")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "Pin_4")
+					(type "passive")
+				)
+				(pin
+					(num "5")
+					(name "Pin_5")
+					(type "passive")
+				)
+				(pin
+					(num "6")
+					(name "Pin_6")
+					(type "passive")
+				)
+				(pin
+					(num "7")
+					(name "Pin_7")
+					(type "passive")
+				)
+				(pin
+					(num "8")
+					(name "Pin_8")
+					(type "passive")
+				)
+				(pin
+					(num "9")
+					(name "Pin_9")
+					(type "passive")
+				)
+				(pin
+					(num "10")
+					(name "Pin_10")
+					(type "passive")
+				)
+				(pin
+					(num "11")
+					(name "Pin_11")
+					(type "passive")
+				)
+				(pin
+					(num "12")
+					(name "Pin_12")
 					(type "passive")
 				)
 			)
@@ -9783,6 +10560,12 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "J704")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
 				(ref "R306")
 				(pin "1")
 				(pintype "passive")
@@ -10044,40 +10827,6 @@
 		)
 		(net
 			(code "12")
-			(name "/MCU/DBG_RX")
-			(class "Default")
-			(node
-				(ref "J302")
-				(pin "7")
-				(pinfunction "Pin_7_7")
-				(pintype "passive")
-			)
-			(node
-				(ref "U301")
-				(pin "31")
-				(pinfunction "PA10_31")
-				(pintype "bidirectional")
-			)
-		)
-		(net
-			(code "13")
-			(name "/MCU/DBG_TX")
-			(class "Default")
-			(node
-				(ref "J302")
-				(pin "6")
-				(pinfunction "Pin_6_6")
-				(pintype "passive")
-			)
-			(node
-				(ref "U301")
-				(pin "30")
-				(pinfunction "PA9_30")
-				(pintype "bidirectional")
-			)
-		)
-		(net
-			(code "14")
 			(name "/MCU/HSE_IN")
 			(class "Default")
 			(node
@@ -10099,7 +10848,7 @@
 			)
 		)
 		(net
-			(code "15")
+			(code "13")
 			(name "/MCU/HSE_OUT")
 			(class "Default")
 			(node
@@ -10121,7 +10870,7 @@
 			)
 		)
 		(net
-			(code "16")
+			(code "14")
 			(name "/MCU/LED")
 			(class "Default")
 			(node
@@ -10138,7 +10887,7 @@
 			)
 		)
 		(net
-			(code "17")
+			(code "15")
 			(name "/MCU/LED_A")
 			(class "Default")
 			(node
@@ -10154,7 +10903,7 @@
 			)
 		)
 		(net
-			(code "18")
+			(code "16")
 			(name "/MCU/LSE_IN")
 			(class "Default")
 			(node
@@ -10176,7 +10925,7 @@
 			)
 		)
 		(net
-			(code "19")
+			(code "17")
 			(name "/MCU/LSE_OUT")
 			(class "Default")
 			(node
@@ -10198,7 +10947,7 @@
 			)
 		)
 		(net
-			(code "20")
+			(code "18")
 			(name "/MCU/NRST")
 			(class "Default")
 			(node
@@ -10226,7 +10975,7 @@
 			)
 		)
 		(net
-			(code "21")
+			(code "19")
 			(name "/MCU/SWCLK")
 			(class "Default")
 			(node
@@ -10243,7 +10992,7 @@
 			)
 		)
 		(net
-			(code "22")
+			(code "20")
 			(name "/MCU/SWDIO")
 			(class "Default")
 			(node
@@ -10260,7 +11009,7 @@
 			)
 		)
 		(net
-			(code "23")
+			(code "21")
 			(name "/MCU/USB_CC1")
 			(class "Default")
 			(node
@@ -10276,7 +11025,7 @@
 			)
 		)
 		(net
-			(code "24")
+			(code "22")
 			(name "/MCU/USB_CC2")
 			(class "Default")
 			(node
@@ -10292,7 +11041,7 @@
 			)
 		)
 		(net
-			(code "25")
+			(code "23")
 			(name "/MCU/USB_DM")
 			(class "Default")
 			(node
@@ -10327,7 +11076,7 @@
 			)
 		)
 		(net
-			(code "26")
+			(code "24")
 			(name "/MCU/USB_DP")
 			(class "Default")
 			(node
@@ -10362,7 +11111,7 @@
 			)
 		)
 		(net
-			(code "27")
+			(code "25")
 			(name "/MCU/VCAP")
 			(class "Default")
 			(node
@@ -10378,7 +11127,7 @@
 			)
 		)
 		(net
-			(code "28")
+			(code "26")
 			(name "/MCU/VDDA")
 			(class "Default")
 			(node
@@ -10404,7 +11153,7 @@
 			)
 		)
 		(net
-			(code "29")
+			(code "27")
 			(name "/MCU/WAKE")
 			(class "Default")
 			(node
@@ -10432,7 +11181,7 @@
 			)
 		)
 		(net
-			(code "30")
+			(code "28")
 			(name "/Mikrofon/3V3_ANA")
 			(class "Default")
 			(node
@@ -10480,7 +11229,7 @@
 			)
 		)
 		(net
-			(code "31")
+			(code "29")
 			(name "/Mikrofon/MIC_FB")
 			(class "Default")
 			(node
@@ -10495,7 +11244,7 @@
 			)
 		)
 		(net
-			(code "32")
+			(code "30")
 			(name "/Mikrofon/MIC_HP")
 			(class "Default")
 			(node
@@ -10515,7 +11264,7 @@
 			)
 		)
 		(net
-			(code "33")
+			(code "31")
 			(name "/Mikrofon/MIC_IN")
 			(class "Default")
 			(node
@@ -10530,7 +11279,7 @@
 			)
 		)
 		(net
-			(code "34")
+			(code "32")
 			(name "/Mikrofon/MIC_OP")
 			(class "Default")
 			(node
@@ -10556,7 +11305,7 @@
 			)
 		)
 		(net
-			(code "35")
+			(code "33")
 			(name "/Mikrofon/MIC_OUT_K")
 			(class "Default")
 			(node
@@ -10578,7 +11327,7 @@
 			)
 		)
 		(net
-			(code "36")
+			(code "34")
 			(name "/Mikrofon/MIC_SK1")
 			(class "Default")
 			(node
@@ -10598,7 +11347,7 @@
 			)
 		)
 		(net
-			(code "37")
+			(code "35")
 			(name "/Mikrofon/MIC_SK2")
 			(class "Default")
 			(node
@@ -10619,7 +11368,7 @@
 			)
 		)
 		(net
-			(code "38")
+			(code "36")
 			(name "/Mikrofon/MIC_VREF")
 			(class "Default")
 			(node
@@ -10644,7 +11393,7 @@
 			)
 		)
 		(net
-			(code "39")
+			(code "37")
 			(name "/Versorgung/CE_LADEN")
 			(class "Default")
 			(node
@@ -10671,7 +11420,7 @@
 			)
 		)
 		(net
-			(code "40")
+			(code "38")
 			(name "/Versorgung/ILIM")
 			(class "Default")
 			(node
@@ -10687,7 +11436,7 @@
 			)
 		)
 		(net
-			(code "41")
+			(code "39")
 			(name "/Versorgung/ISET")
 			(class "Default")
 			(node
@@ -10703,7 +11452,7 @@
 			)
 		)
 		(net
-			(code "42")
+			(code "40")
 			(name "/Versorgung/LADE_STAT1")
 			(class "Default")
 			(node
@@ -10720,7 +11469,7 @@
 			)
 		)
 		(net
-			(code "43")
+			(code "41")
 			(name "/Versorgung/LADE_STAT2")
 			(class "Default")
 			(node
@@ -10737,7 +11486,7 @@
 			)
 		)
 		(net
-			(code "44")
+			(code "42")
 			(name "/Versorgung/NTC")
 			(class "Default")
 			(node
@@ -10754,7 +11503,7 @@
 			)
 		)
 		(net
-			(code "45")
+			(code "43")
 			(name "/Versorgung/PV1")
 			(class "Default")
 			(node
@@ -10771,7 +11520,7 @@
 			)
 		)
 		(net
-			(code "46")
+			(code "44")
 			(name "/Versorgung/PV2")
 			(class "Default")
 			(node
@@ -10788,7 +11537,7 @@
 			)
 		)
 		(net
-			(code "47")
+			(code "45")
 			(name "/Versorgung/SW_CT")
 			(class "Default")
 			(node
@@ -10804,7 +11553,7 @@
 			)
 		)
 		(net
-			(code "48")
+			(code "46")
 			(name "/Versorgung/SW_QOD")
 			(class "Default")
 			(node
@@ -10820,7 +11569,7 @@
 			)
 		)
 		(net
-			(code "49")
+			(code "47")
 			(name "/Versorgung/TMP_VCC")
 			(class "Default")
 			(node
@@ -10842,7 +11591,7 @@
 			)
 		)
 		(net
-			(code "50")
+			(code "48")
 			(name "/Versorgung/VBAT")
 			(class "Default")
 			(node
@@ -10869,7 +11618,7 @@
 			)
 		)
 		(net
-			(code "51")
+			(code "49")
 			(name "/Versorgung/VIN_LADER")
 			(class "Default")
 			(node
@@ -10925,7 +11674,7 @@
 			)
 		)
 		(net
-			(code "52")
+			(code "50")
 			(name "/Waage/5V_WAAGE")
 			(class "Default")
 			(node
@@ -10957,7 +11706,7 @@
 			)
 		)
 		(net
-			(code "53")
+			(code "51")
 			(name "/Waage/HX_AVDD")
 			(class "Default")
 			(node
@@ -10994,7 +11743,7 @@
 			)
 		)
 		(net
-			(code "54")
+			(code "52")
 			(name "/Waage/HX_BASE")
 			(class "Default")
 			(node
@@ -11011,7 +11760,7 @@
 			)
 		)
 		(net
-			(code "55")
+			(code "53")
 			(name "/Waage/HX_DOUT_IC")
 			(class "Default")
 			(node
@@ -11027,7 +11776,7 @@
 			)
 		)
 		(net
-			(code "56")
+			(code "54")
 			(name "/Waage/HX_INB")
 			(class "Default")
 			(node
@@ -11049,7 +11798,7 @@
 			)
 		)
 		(net
-			(code "57")
+			(code "55")
 			(name "/Waage/HX_INN")
 			(class "Default")
 			(node
@@ -11080,7 +11829,7 @@
 			)
 		)
 		(net
-			(code "58")
+			(code "56")
 			(name "/Waage/HX_INP")
 			(class "Default")
 			(node
@@ -11106,7 +11855,7 @@
 			)
 		)
 		(net
-			(code "59")
+			(code "57")
 			(name "/Waage/HX_PD_SCK")
 			(class "Default")
 			(node
@@ -11122,7 +11871,7 @@
 			)
 		)
 		(net
-			(code "60")
+			(code "58")
 			(name "/Waage/HX_VBG")
 			(class "Default")
 			(node
@@ -11138,7 +11887,7 @@
 			)
 		)
 		(net
-			(code "61")
+			(code "59")
 			(name "/Waage/HX_VFB")
 			(class "Default")
 			(node
@@ -11159,7 +11908,7 @@
 			)
 		)
 		(net
-			(code "62")
+			(code "60")
 			(name "/Waage/L_5V")
 			(class "Default")
 			(node
@@ -11176,7 +11925,7 @@
 			)
 		)
 		(net
-			(code "63")
+			(code "61")
 			(name "/Waage/VSUP_HX")
 			(class "Default")
 			(node
@@ -11208,7 +11957,7 @@
 			)
 		)
 		(net
-			(code "64")
+			(code "62")
 			(name "/Waage/ZELLE_EP")
 			(class "Default")
 			(node
@@ -11230,7 +11979,7 @@
 			)
 		)
 		(net
-			(code "65")
+			(code "63")
 			(name "/Waage/ZELLE_SN")
 			(class "Default")
 			(node
@@ -11252,7 +12001,7 @@
 			)
 		)
 		(net
-			(code "66")
+			(code "64")
 			(name "/Waage/ZELLE_SP")
 			(class "Default")
 			(node
@@ -11274,7 +12023,7 @@
 			)
 		)
 		(net
-			(code "67")
+			(code "65")
 			(name "3V3_SW")
 			(class "Default")
 			(node
@@ -11288,13 +12037,64 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "D701")
+				(pin "3")
+				(pinfunction "K_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "D702")
+				(pin "4")
+				(pinfunction "K_4")
+				(pintype "passive")
+			)
+			(node
 				(ref "FB601")
 				(pin "1")
 				(pintype "passive")
 			)
 			(node
+				(ref "J701")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "J702")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "J703")
+				(pin "5")
+				(pinfunction "Pin_5_5")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
 				(ref "R209")
 				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R701")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R702")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R703")
+				(pin "1")
 				(pintype "passive")
 			)
 			(node
@@ -11311,7 +12111,7 @@
 			)
 		)
 		(net
-			(code "68")
+			(code "66")
 			(name "ADC_AKKU")
 			(class "Default")
 			(node
@@ -11337,7 +12137,7 @@
 			)
 		)
 		(net
-			(code "69")
+			(code "67")
 			(name "ADC_SOLAR")
 			(class "Default")
 			(node
@@ -11363,9 +12163,61 @@
 			)
 		)
 		(net
+			(code "68")
+			(name "DBG_RX")
+			(class "Default")
+			(node
+				(ref "J302")
+				(pin "7")
+				(pinfunction "Pin_7_7")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "8")
+				(pinfunction "Pin_8_8")
+				(pintype "passive")
+			)
+			(node
+				(ref "U301")
+				(pin "31")
+				(pinfunction "PA10_31")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "69")
+			(name "DBG_TX")
+			(class "Default")
+			(node
+				(ref "J302")
+				(pin "6")
+				(pinfunction "Pin_6_6")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "7")
+				(pinfunction "Pin_7_7")
+				(pintype "passive")
+			)
+			(node
+				(ref "U301")
+				(pin "30")
+				(pinfunction "PA9_30")
+				(pintype "bidirectional")
+			)
+		)
+		(net
 			(code "70")
 			(name "EXT_PA15")
 			(class "Default")
+			(node
+				(ref "J704")
+				(pin "9")
+				(pinfunction "Pin_9_9")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "38")
@@ -11378,6 +12230,12 @@
 			(name "EXT_PB12")
 			(class "Default")
 			(node
+				(ref "J704")
+				(pin "10")
+				(pinfunction "Pin_10_10")
+				(pintype "passive")
+			)
+			(node
 				(ref "U301")
 				(pin "25")
 				(pinfunction "PB12_25")
@@ -11388,6 +12246,12 @@
 			(code "72")
 			(name "EXT_PB13")
 			(class "Default")
+			(node
+				(ref "J704")
+				(pin "11")
+				(pinfunction "Pin_11_11")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "26")
@@ -11672,6 +12536,18 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "D701")
+				(pin "2")
+				(pinfunction "A_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "D702")
+				(pin "2")
+				(pinfunction "A_2")
+				(pintype "passive")
+			)
+			(node
 				(ref "J201")
 				(pin "1")
 				(pinfunction "Pin_1_1")
@@ -11747,6 +12623,48 @@
 				(ref "J601")
 				(pin "2")
 				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J701")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J702")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J703")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J703")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "12")
+				(pinfunction "Pin_12_12")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "4")
+				(pinfunction "Pin_4_4")
 				(pintype "passive")
 			)
 			(node
@@ -12001,6 +12919,29 @@
 			(name "I2C_SCL")
 			(class "Default")
 			(node
+				(ref "D702")
+				(pin "3")
+				(pinfunction "K_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "J703")
+				(pin "4")
+				(pinfunction "Pin_4_4")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "6")
+				(pinfunction "Pin_6_6")
+				(pintype "passive")
+			)
+			(node
+				(ref "R703")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
 				(ref "U301")
 				(pin "42")
 				(pinfunction "PB6_42")
@@ -12011,6 +12952,29 @@
 			(code "78")
 			(name "I2C_SDA")
 			(class "Default")
+			(node
+				(ref "D702")
+				(pin "1")
+				(pinfunction "K_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J703")
+				(pin "3")
+				(pinfunction "Pin_3_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "J704")
+				(pin "5")
+				(pinfunction "Pin_5_5")
+				(pintype "passive")
+			)
+			(node
+				(ref "R702")
+				(pin "1")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "43")
@@ -12149,6 +13113,29 @@
 			(code "86")
 			(name "ONEWIRE")
 			(class "Default")
+			(node
+				(ref "D701")
+				(pin "1")
+				(pinfunction "K_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J701")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J702")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R701")
+				(pin "2")
+				(pintype "passive")
+			)
 			(node
 				(ref "U301")
 				(pin "29")
@@ -12441,6 +13428,39 @@
 		)
 		(net
 			(code "101")
+			(name "unconnected-(D701-K-Pad4)")
+			(class "Default")
+			(node
+				(ref "D701")
+				(pin "4")
+				(pinfunction "K_4")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "102")
+			(name "unconnected-(D701-K-Pad5)")
+			(class "Default")
+			(node
+				(ref "D701")
+				(pin "5")
+				(pinfunction "K_5")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "103")
+			(name "unconnected-(D702-K-Pad5)")
+			(class "Default")
+			(node
+				(ref "D702")
+				(pin "5")
+				(pinfunction "K_5")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "104")
 			(name "unconnected-(J301-SBU1-PadA8)")
 			(class "Default")
 			(node
@@ -12451,7 +13471,7 @@
 			)
 		)
 		(net
-			(code "102")
+			(code "105")
 			(name "unconnected-(J301-SBU2-PadB8)")
 			(class "Default")
 			(node
@@ -12462,7 +13482,18 @@
 			)
 		)
 		(net
-			(code "103")
+			(code "106")
+			(name "unconnected-(J703-Pin_6-Pad6)")
+			(class "Default")
+			(node
+				(ref "J703")
+				(pin "6")
+				(pinfunction "Pin_6_6")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "107")
 			(name "unconnected-(U202-NC-Pad4)")
 			(class "Default")
 			(node
@@ -12473,7 +13504,7 @@
 			)
 		)
 		(net
-			(code "104")
+			(code "108")
 			(name "unconnected-(U204-EN-Pad3)")
 			(class "Default")
 			(node
@@ -12484,7 +13515,7 @@
 			)
 		)
 		(net
-			(code "105")
+			(code "109")
 			(name "unconnected-(U204-NC-Pad4)")
 			(class "Default")
 			(node
@@ -12495,7 +13526,7 @@
 			)
 		)
 		(net
-			(code "106")
+			(code "110")
 			(name "unconnected-(U401-ANT-Pad1)")
 			(class "Default")
 			(node
@@ -12506,7 +13537,7 @@
 			)
 		)
 		(net
-			(code "107")
+			(code "111")
 			(name "unconnected-(U401-DIO2-Pad7)")
 			(class "Default")
 			(node
@@ -12517,7 +13548,7 @@
 			)
 		)
 		(net
-			(code "108")
+			(code "112")
 			(name "unconnected-(U401-DIO3-Pad8)")
 			(class "Default")
 			(node
@@ -12528,7 +13559,7 @@
 			)
 		)
 		(net
-			(code "109")
+			(code "113")
 			(name "unconnected-(U502-XO-Pad13)")
 			(class "Default")
 			(node

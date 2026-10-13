@@ -8,6 +8,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Schaltplanblatt Anschlüsse](2026-10-13-sch26-07-anschluesse.md)** | **13.10.2026, Basis `969339d`** | **SCH26-07 letztes Blatt: DS18B20 J701/J702, BME280 J703 (6-polig), Erweiterung J704, ESDS304, Pull-ups an 3V3_SW; T3 lokal 178/178, ERC nur Footprint U201; CI offen, kein Muster** |
 | **[Schaltplanblatt Mikrofon](2026-10-13-sch26-07-mikrofon.md)** | **13.10.2026, Basis `ecf2918`** | **SCH26-07 Teil Mikrofon im Entwurf: 3V3_ANA, Hochpass 22 Hz, Sallen-Key 1179 Hz/Q 0,74 mit TLV9001IDBVR (statt LMV321TP), J601 = J5 mit ESDS304; T3 lokal 139/139, Gegenproben; CI offen, kein Muster** |
 | **[Schaltplanblatt Waage](2026-10-10-sch26-07-waage.md)** | **10.10.2026, Basis `eb9e10b`** | **SCH26-07 Teil Waage im Entwurf: TPS61240, HX711 (AVDD 4,30 V), J501 = J4 mit ESD und Filter; T3 lokal 114/114, Gegenproben; CI offen, kein Muster** |
 | **[Analyse USB-Rolle und Ra-01SH-HF-Schalter](2026-10-10-sch26-10-11-analyse.md)** | **10.10.2026, Basis `3ff894a`** | **SCH26-10 Festlegung HW-01 (USB nur Laden/DFU); SCH26-11 Herstellerschaltbild: TXEN = DIO2, Brücken offen, Modell `funk_modell.py`; T4 F-1…F-7 offen** |

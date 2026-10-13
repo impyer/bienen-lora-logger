@@ -5,36 +5,6 @@
       "type": "footprint_link_issues",
       "item": "Symbol U201 [BQ25185]",
       "grund": "Footprint BQ25185 DLH0010A (2,2 x 2 mm) wird vor dem Layout in der Bibliothek 'Bienen' angelegt"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'I2C_SCL'",
-      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'I2C_SDA'",
-      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'ONEWIRE'",
-      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'EXT_PA15'",
-      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (Erweiterung) (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'EXT_PB12'",
-      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (Erweiterung) (SCH26-07)"
-    },
-    {
-      "type": "isolated_pin_label",
-      "item": "Global Label 'EXT_PB13'",
-      "grund": "Gegenstelle kommt mit dem Blatt Anschlüsse (Erweiterung) (SCH26-07)"
     }
   ],
   "akku-platine/akku.kicad_sch": []
