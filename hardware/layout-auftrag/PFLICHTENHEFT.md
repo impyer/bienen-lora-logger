@@ -5,9 +5,11 @@
 **License of the result:** CERN-OHL-S-2.0 (see section 10)
 
 > **Kurzfassung (Deutsch):** Auftrag an einen externen Layouter: Platzierung, Routing und JLCPCB-Fertigungsdaten
-> (Gerber, Bohrdaten, BOM, CPL) für die 4-lagige Hauptplatine 121 × 121 mm im KiCad-10-Projekt. Der Schaltplan ist
-> vorgegeben und wird nicht vom Layouter geändert; fehlende LCSC-Nummern schlägt er vor, Philipp gibt frei. Abnahme:
-> DRC 0, Schaltplanabgleich 0, Freigabe Platzierung vor dem Routing, JLCPCB-DFM ohne Fehler. Ergebnis unter CERN-OHL-S-2.0.
+> (Gerber, Bohrdaten, BOM, CPL) für die 4-lagige Hauptplatine 121 × 121 mm. **Das Layout-Werkzeug wählt der Layouter
+> frei** (KiCad, Altium, EasyEDA …); Grundlage ist unsere KiCad-Netzliste. Der Schaltplan ist vorgegeben und wird nicht
+> vom Layouter geändert; fehlende LCSC-Nummern schlägt er vor, Philipp gibt frei. Abnahme: DRC 0, Netzlistenvergleich
+> (IPC-D-356 gegen unsere Netzliste) ohne Abweichung, Freigabe Platzierung vor dem Routing, JLCPCB-DFM ohne Fehler.
+> Geliefert werden auch die bearbeitbaren Quelldateien seines Werkzeugs. Ergebnis unter CERN-OHL-S-2.0.
 
 ---
 
@@ -20,7 +22,7 @@
 | 3 | **Routing** of all nets on 4 layers, copper zones, stitching vias | yes |
 | 4 | **LCSC part selection** for every BOM line without an LCSC number (151 of 172 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
 | 5 | **Manufacturing outputs** for JLCPCB: Gerber, drill files, BOM and CPL in JLCPCB format (section 8) | yes |
-| 6 | Updated **KiCad 10 project** (`logger.kicad_pcb`, project file) with the routed board | yes |
+| 6 | **Editable source files** of the routed board in the tool you used (section 2.2) | yes |
 | 7 | Support until the JLCPCB DFM/assembly check passes without errors | yes |
 
 Not in scope: changing the circuit, firmware, enclosure design. If you find a schematic problem, **report it** (section 2.3) – it will be fixed at the source.
@@ -41,24 +43,32 @@ Not in scope: changing the circuit, firmware, enclosure design. If you find a sc
 
 The enclosure 3D model (Camdenboss CBHUB-02, STEP) is a manufacturer file and is **not** in the repository; the client sends it separately on request. All dimensions you need are in section 3.
 
-### 2.2 Tools
+### 2.2 Tools – your choice
 
-- **KiCad 10.0.x** (the project is generated with KiCad 10.0.6). Please do not save with an older or newer major version.
-- Libraries: KiCad 10 standard libraries plus the two project libraries above (paths are relative in `fp-lib-table` / `sym-lib-table`).
+**You may use any PCB tool** (KiCad, Altium Designer, EasyEDA/EasyEDA Pro, Eagle/Fusion, …). Our design data are KiCad 10
+files; use whatever import works best for you:
+
+- **KiCad:** open `kicad/hauptplatine/logger.kicad_pro` (KiCad 10.0.x; libraries are relative paths in `fp-lib-table` /
+  `sym-lib-table`). The board file already contains outline, holes and design rules.
+- **Other tools:** import the KiCad schematic/project if your tool supports it, or use the netlist `kicad/netzliste/logger.net`
+  (KiCad S-expression format) together with the schematic PDF and the BOM. Footprints of the KiCad standard libraries and
+  of `kicad/Bienen.pretty/` define the land patterns; if you use your own library parts, **pad numbering and land pattern
+  must match** (see `kicad/pin_footprint.md`) – list every deviation.
+- Whatever the tool: the **net names and reference designators of our netlist are binding** (no renaming, no renumbering).
 
 ### 2.3 Source of truth – do not edit the schematic
 
 The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and checked automatically (ERC, net tests). Therefore:
 
-- **Do not edit the schematic in KiCad.** Edits would be overwritten.
-- Footprint changes, pin swaps, value changes, added test points or parts: send a **change request** (list with reference, old, new, reason). The client changes the generator and sends an updated schematic; you then run *Tools → Update PCB from Schematic* (F8).
+- **Do not change the circuit** (in KiCad or in a schematic you re-create in your tool). Edits would be lost.
+- Footprint changes, pin swaps, value changes, added test points or parts: send a **change request** (list with reference, old, new, reason). The client changes the generator and sends an updated schematic/netlist; you then update your board from it (in KiCad: *Tools → Update PCB from Schematic*, F8).
 - Gate/pin swaps for routing convenience are possible **only** after agreement (e.g. STM32 GPIOs are fixed by alternate functions, see `doku/mcu-funk.md` §4).
 
 ## 3. Board and mechanics
 
 | Item | Requirement |
 |---|---|
-| Outline | **121.0 × 121.0 mm**, corner radius 3 mm (already in `logger.kicad_pcb`, Edge.Cuts) |
+| Outline | **121.0 × 121.0 mm**, corner radius 3 mm (in `logger.kicad_pcb`, Edge.Cuts; centre of the board at (100, 100) mm in the KiCad file) |
 | Mounting holes | 4 × Ø 3.4 mm NPTH on a **110.2 × 110.2 mm** square, centred; copper keep-out Ø 7 mm (already placed). Standoffs 10 mm, self-tapping screws Ø 3 mm |
 | Thickness / layers | 1.6 mm, **4 layers** |
 | Bottom side | **no components** (only THT leads/solder joints). Free space below the board ≥ 13 mm |
@@ -136,11 +146,18 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 
 ## 8. Deliverables
 
-1. `logger.kicad_pcb` (+ project file) – routed, zones filled, **DRC 0 errors**, *Schematic parity* 0 errors (KiCad 10).
-2. **Gerber** files (all copper layers, masks, silkscreen, paste, Edge.Cuts) and **drill files** (Excellon, PTH/NPTH), as a ZIP that JLCPCB accepts without warnings.
-3. **BOM** (JLCPCB format: Comment, Designator, Footprint, LCSC Part #) and **CPL/pick-and-place** (Designator, Mid X, Mid Y, Layer, Rotation) with rotations checked against the JLCPCB preview.
-4. LCSC proposal table (section 7) and the list of change requests you raised.
-5. Screenshots/PDF of all layers and a 3D view (top).
+1. **Editable source files** of the board (and of the schematic, if you re-created it) in your tool's native format, with
+   the tool name and version. If you did not use KiCad, additionally a **KiCad import check**: open your board in KiCad 10
+   (KiCad imports Altium, EasyEDA (Pro), Eagle and others) and report what does not import cleanly – or deliver the KiCad
+   file directly if your tool can export it. Background: the project is open hardware and must remain editable with free
+   tools (section 10).
+2. **Gerber** files (all copper layers, masks, silkscreen, paste, board outline) and **drill files** (Excellon, PTH/NPTH),
+   as a ZIP that JLCPCB accepts without warnings.
+3. **IPC-D-356 netlist** exported from the routed board (or ODB++), used by the client to compare against our KiCad netlist.
+4. **BOM** (JLCPCB format: Comment, Designator, Footprint, LCSC Part #) and **CPL/pick-and-place** (Designator, Mid X,
+   Mid Y, Layer, Rotation) with rotations checked against the JLCPCB preview.
+5. LCSC proposal table (section 7) and the list of change requests you raised.
+6. PDF of all layers and a 3D view (top), plus the DRC report of your tool (0 errors).
 
 The client uploads the files to his JLCPCB project himself (no account sharing is needed).
 
@@ -149,11 +166,13 @@ The client uploads the files to his JLCPCB project himself (no account sharing i
 | Milestone | Content | Acceptance by the client |
 |---|---|---|
 | M0 | Questions answered, feasibility and price confirmed | written OK |
-| **M1** | **Placement proposal** (KiCad file + PDF/screenshot), connector positions, LCSC proposals (draft) | **review before routing starts** (1 round included) |
-| M2 | Routed board, DRC 0, parity 0 | review (1 round included) |
+| **M1** | **Placement proposal** (source file + PDF/screenshot), connector positions, LCSC proposals (draft) | **review before routing starts** (1 round included) |
+| M2 | Routed board, DRC 0, IPC-D-356 netlist | review incl. netlist comparison (1 round included) |
 | M3 | Manufacturing outputs, final BOM/CPL | JLCPCB upload and DFM/assembly check without errors |
 
-Acceptance criteria for M2/M3: all rules of sections 3–6 met, DRC 0, parity 0, no schematic file changed (the client re-runs the generator; only `logger.kicad_pcb` and the project file may differ), Gerber/BOM/CPL accepted by JLCPCB.
+Acceptance criteria for M2/M3: all rules of sections 3–6 met; DRC 0 in your tool with the rules of section 5.2; the
+**IPC-D-356 netlist of the board matches our KiCad netlist** (same nets, same pins; the client checks this with `hardware/layout-auftrag/netz_vergleich.py` – only changes
+agreed via change requests are allowed); Gerber/BOM/CPL accepted by JLCPCB; editable sources delivered (section 8.1).
 
 ## 10. License and rights
 
