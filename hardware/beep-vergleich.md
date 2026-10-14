@@ -85,7 +85,7 @@ Eine durchgehende Massefläche unter allem macht das Layout deutlich sicherer ge
 
 - **Vorteil:** einfachere Führung von Masse und Versorgung; entschärft A3 und HW26-04.
 - **Nachteil:** höherer Preis je Platine. **[P]** Preis für 121 × 121 mm, 4 Lagen, 10 Stück bei JLCPCB im Angebot prüfen; ich habe ihn nicht abgefragt.
-- **Entschieden:** 4 Lagen (Signal / Masse / Versorgung / Signal), siehe Lastenheft M8.
+- **Entschieden:** 4 Lagen (Signal / Masse / Versorgung / Signal), siehe Lastenheft M8. **Seit 14.10.2026: 4 oder 6 Lagen nach Wahl des Layouters** (Philipp, Preise geprüft).
 
 ### 3.5 Audio: Alternative eigener Audio-ADC (nur zur Information)
 
@@ -113,5 +113,5 @@ Unbestückt lassen, bis die Firmware das nutzt.
 - V5: TPS22917 statt AO3401A (AO3401A als Rückfall)
 - F7: Reedkontakt parallel zum Service-Taster an PA0
 - Neu F10: ESD-Arrays an allen Sensorklemmen; an der Wägezelle mit kleinem Leckstrom, für E± ≥ 5 V Sperrspannung
-- M8: **4 Lagen** (entschieden 09.10.2026)
+- M8: **4 Lagen** (entschieden 09.10.2026), seit 14.10.2026 4 oder 6 Lagen nach Wahl des Layouters
 - F11: SPI-Flash 64 Mbit **fest bestückt** (Entscheidung 09.10.2026), CS an PB3

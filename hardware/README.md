@@ -8,7 +8,7 @@ mit Funkmodul Ai-Thinker Ra-01SH (SX1262). Dafür entsteht eine neue Firmware mi
 - Sicherheitsanalyse Akku und Laden (D3, Voraussetzung für G2): [`sicherheit-akku.md`](sicherheit-akku.md).
 - Prüfberichte: [`docs/testberichte/`](../docs/testberichte/README.md); Freigaberegeln für Hardware: [`docs/entwicklung/hardware.md`](../docs/entwicklung/hardware.md).
 - KiCad-10-Projekte: [`kicad/`](kicad/README.md) (V0.1 Hauptplatine mit allen Blättern, Akku seit HW-06 auf der Hauptplatine; **Entwurf, noch keine Fertigungsfreigabe**). Stand der Befunde: [Befundregister](../docs/testberichte/befunde.md).
-- Layout-Auftrag (HW-08): Pflichtenheft für den externen Layouter (englisch) [`layout-auftrag/PFLICHTENHEFT.md`](layout-auftrag/PFLICHTENHEFT.md); Übergabepaket mit `python3 hardware/layout-auftrag/paket_bauen.py` (ZIP unter `build/`); Abnahme-Netzvergleich `netz_vergleich.py <platine.ipc>`.
+- Layout-Auftrag (HW-08): Pflichtenheft für den externen Layouter (englisch) [`layout-auftrag/PFLICHTENHEFT.md`](layout-auftrag/PFLICHTENHEFT.md), Anfragetext [`layout-auftrag/FIVERR-ANFRAGE.md`](layout-auftrag/FIVERR-ANFRAGE.md); Übergabepaket mit `python3 hardware/layout-auftrag/paket_bauen.py` (ZIP unter `build/`); Abnahme-Netzvergleich `netz_vergleich.py <platine.ipc>`.
 - Fertigungsdaten für JLCPCB (Gerber, Bohrdaten, BOM, CPL): liefert der Layouter (Pflichtenheft Abschnitt 8); Ablage im Repo mit der ersten Fertigungsfreigabe.
 
 Die Platinen von beelogger.de gehören nicht hierher, weil ihre Fertigungsdaten nicht offen lizenziert sind.

@@ -3,6 +3,7 @@
 ## 2026-10-14 – Pflichtenheft für den Layout-Auftrag
 
 - Neu `hardware/layout-auftrag/PFLICHTENHEFT.md` (englisch, deutsche Kurzfassung): Umfang (Platzierung, Routing, LCSC-Auswahl für 151 von 172 Teilen, JLCPCB-Gerber/Bohrdaten/BOM/CPL), Mechanik, Platzierungs- und Routingregeln (u. a. B− ≠ GND, ANT ohne Leiterbahn, L2 durchgehende Masse, PDM/Mikrofon), Meilensteine mit Platzierungsfreigabe vor dem Routing, Abnahme (DRC 0, Netzvergleich IPC-D-356, JLCPCB-DFM), Lizenz CERN-OHL-S-2.0.
+- 4 oder 6 Lagen nach Wahl des Layouters (Philipp, Preise geprüft): Lastenheft M8 und Pflichtenheft 5.1 mit Lagenaufbau für beide Fälle; Pflicht bleibt die durchgehende Masselage unter L1.
 - Layout-Werkzeug frei (Philipp): Lieferung bearbeitbarer Quelldateien plus KiCad-Importprüfung, IPC-D-356-Netzliste; Abnahme über den Netzvergleich statt KiCad-Schaltplanabgleich.
 - Neu `hardware/layout-auftrag/netz_vergleich.py`: vergleicht die IPC-D-356-Netzliste der gelieferten Platine pinweise mit `logger.net` (Netznamen dürfen gekürzt sein); Selbsttest mit Gegenproben (Kurzschluss MIC_P/MIC_N, getrenntes B−, B− an GND) und Prüfung an einer echten KiCad-10-IPC-D-356-Ausgabe (Testplatine mit allen 172 Footprints): gleich, vertauschte Pins erkannt.
 - Neu `hardware/layout-auftrag/paket_bauen.py`: baut das Übergabe-ZIP (KiCad-Projekt mit Bibliotheken, PDF, Netzliste, Stückliste als CSV, Blockdokumente, Pflichtenheft) unter `build/`; geprüft: entpacktes Paket ERC 0, DRC 0 (Footprints fehlen gewollt).

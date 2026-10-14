@@ -5,7 +5,7 @@
 **License of the result:** CERN-OHL-S-2.0 (see section 10)
 
 > **Kurzfassung (Deutsch):** Auftrag an einen externen Layouter: Platzierung, Routing und JLCPCB-Fertigungsdaten
-> (Gerber, Bohrdaten, BOM, CPL) für die 4-lagige Hauptplatine 121 × 121 mm. **Das Layout-Werkzeug wählt der Layouter
+> (Gerber, Bohrdaten, BOM, CPL) für die Hauptplatine 121 × 121 mm, **4 oder 6 Lagen nach Wahl des Layouters**. **Das Layout-Werkzeug wählt der Layouter
 > frei** (KiCad, Altium, EasyEDA …); Grundlage ist unsere KiCad-Netzliste. Der Schaltplan ist vorgegeben und wird nicht
 > vom Layouter geändert; fehlende LCSC-Nummern schlägt er vor, Philipp gibt frei. Abnahme: DRC 0, Netzlistenvergleich
 > (IPC-D-356 gegen unsere Netzliste) ohne Abweichung, Freigabe Platzierung vor dem Routing, JLCPCB-DFM ohne Fehler.
@@ -19,7 +19,7 @@
 |---|---|---|
 | 1 | Review the package, ask questions, confirm feasibility (section 9, milestone M0) | yes |
 | 2 | **Component placement** inside the given board frame, respecting sections 3–6 | yes |
-| 3 | **Routing** of all nets on 4 layers, copper zones, stitching vias | yes |
+| 3 | **Routing** of all nets on **4 or 6 layers (your choice)**, copper zones, stitching vias | yes |
 | 4 | **LCSC part selection** for every BOM line without an LCSC number (151 of 172 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
 | 5 | **Manufacturing outputs** for JLCPCB: Gerber, drill files, BOM and CPL in JLCPCB format (section 8) | yes |
 | 6 | **Editable source files** of the routed board in the tool you used (section 2.2) | yes |
@@ -70,7 +70,7 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 |---|---|
 | Outline | **121.0 × 121.0 mm**, corner radius 3 mm (in `logger.kicad_pcb`, Edge.Cuts; centre of the board at (100, 100) mm in the KiCad file) |
 | Mounting holes | 4 × Ø 3.4 mm NPTH on a **110.2 × 110.2 mm** square, centred; copper keep-out Ø 7 mm (already placed). Standoffs 10 mm, self-tapping screws Ø 3 mm |
-| Thickness / layers | 1.6 mm, **4 layers** |
+| Thickness / layers | 1.6 mm, **4 or 6 layers – your choice** (both are acceptable in cost; choose what gives the cleaner result, state the reason). The board frame file is prepared with 4 layers; change it if you choose 6. |
 | Bottom side | **no components** (only THT leads/solder joints). Free space below the board ≥ 13 mm |
 | Component height above the board | **≤ 40 mm** including mated plugs and the 18650 cell in its holder (~21 mm) |
 | Enclosure | board edge to inner wall 16.2 mm on all sides; cables enter later through glands in the bottom wall (position not yet fixed) |
@@ -97,17 +97,23 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 
 ### 5.1 Stack-up and planes (requirement M8)
 
-| Layer | Use |
-|---|---|
-| L1 (F.Cu) | components, signals |
-| **L2 (In1.Cu)** | **continuous GND plane – do not split, no signal tracks** |
-| L3 (In2.Cu) | power (+3V3 zone, SYS, 5 V where needed) with GND fill in the remaining area |
-| L4 (B.Cu) | signals, GND fill |
+Use a JLCPCB standard (impedance-controlled) stack-up. Mandatory in both cases: **the layer directly below L1 is a
+continuous GND plane – not split, no signal tracks**; every signal layer has an adjacent GND reference.
+
+| Layer | 4-layer stack-up | 6-layer stack-up (proposal) |
+|---|---|---|
+| L1 (F.Cu) | components, signals | components, signals |
+| L2 | **continuous GND** | **continuous GND** |
+| L3 | power (+3V3 zone, SYS, 5 V where needed), GND fill | signals (e.g. SPI, I²S, digital) |
+| L4 | signals, GND fill (B.Cu) | power (+3V3, SYS, 5 V), GND fill |
+| L5 | – | **GND** |
+| L6 (B.Cu) | – | signals, GND fill |
 
 - GND stitching vias along the board edge and around the radio module, the boost converter and the load-cell and microphone blocks.
+- Analog paths (MIC_P/MIC_N, load-cell lines) only on layers next to a GND plane, never next to the power layer under the boost converter.
 - Thermal pads (U201, U301, U501, U601) soldered to GND with vias to L2 (U201: 2 vias inside the pad as in the TI example; U301: up to 9).
 
-### 5.2 Design rules (JLCPCB standard 4-layer; check current JLCPCB capabilities)
+### 5.2 Design rules (JLCPCB standard 4- or 6-layer; check current JLCPCB capabilities)
 
 Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm drill / 0.6 mm pad, copper to board edge ≥ 0.3 mm, hole clearance 0.25 mm. These values are set in the project; keep DRC at **0 errors**.
 
