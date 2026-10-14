@@ -2,7 +2,7 @@
 
 Erzeugt von `werkzeug/pin_footprint.py` aus den Generatoren; nicht von Hand ändern. Kennzeichnung: [V] in dieser Prüfung im Datenblatt gelesen, [V*] früher gelesen (Symbolkommentar), [A] Konvention/Annahme, [P] vor der Bestellung prüfen.
 
-Ergebnis: 161 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
+Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 
 | Ref. | Platine | Blatt | Wert | Footprint | Footprint-Prüfung | Datenblatt-Prüfung | Quelle |
 |---|---|---|---|---|---|---|---|
@@ -49,12 +49,22 @@ Ergebnis: 161 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | C512 | Haupt | Waage | 10n C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C601 | Haupt | Mikrofon | 22µ 10V X5R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C602 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C603 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C604 | Haupt | Mikrofon | 220n X7R | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C605 | Haupt | Mikrofon | 22n C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C606 | Haupt | Mikrofon | 10n C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C607 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C608 | Haupt | Mikrofon | 10n C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C609 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C610 | Haupt | Mikrofon | 4,7µ 16V X7R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C611 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C612 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C613 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C614 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C615 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C616 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C617 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C618 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C619 | Haupt | Mikrofon | 1µ X7R | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C620 | Haupt | Mikrofon | 1µ X7R | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C621 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C622 | Haupt | Mikrofon | 100p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C623 | Haupt | Mikrofon | 100p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C624 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C801 | Haupt | Akku | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C802 | Haupt | Akku | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C803 | Haupt | Akku | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -72,12 +82,13 @@ Ergebnis: 161 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | FB501 | Haupt | Waage | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | FB502 | Haupt | Waage | Ferrit ≤ 0,1 Ω | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | FB601 | Haupt | Mikrofon | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| FB602 | Haupt | Mikrofon | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | J201 | Haupt | Versorgung | Solar 1 | `DEGSON_15EDGRC-3.5-02P` | Pads = Pins (2); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J202 | Haupt | Versorgung | Solar 2 | `DEGSON_15EDGRC-3.5-02P` | Pads = Pins (2); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J301 | Haupt | MCU | USB-C | `USB_C_Receptacle_HRO_TYPE-C-31-M-12` | Pads = Pins (17) | [A] | KiCad-Symbol mit HRO-Footprint (Pads geprüft) |
 | J302 | Haupt | MCU | Debug (SWD + Serial1) | `PinHeader_1x07_P2.54mm_Vertical` | Pads = Pins (7) | passiv/Stecker | – |
 | J501 | Haupt | Waage | Wägezelle | `DEGSON_15EDGRC-3.5-05P` | Pads = Pins (5); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
-| J601 | Haupt | Mikrofon | Mikrofon | `DEGSON_15EDGRC-3.5-04P` | Pads = Pins (4); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
+| J601 | Haupt | Mikrofon | Mikrofone | `RJ45_RCH_RC01937` | Pads = Pins (9); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | [A] [P] 9 Pins = Datenblatt | RJ45 8P8C, Kontakte 1–8 nach IEC 60603-7, SH = Schirmblech; Footprint RCH RC01937 (KiCad, LCSC-Datenblatt) – Teil wählt der Layouter |
 | J701 | Haupt | Anschlüsse | DS18B20 Nr. 1 | `DEGSON_15EDGRC-3.5-03P` | Pads = Pins (3); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J702 | Haupt | Anschlüsse | DS18B20 Nr. 2 | `DEGSON_15EDGRC-3.5-03P` | Pads = Pins (3); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J703 | Haupt | Anschlüsse | BME280 | `DEGSON_15EDGRC-3.5-06P` | Pads = Pins (6); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
@@ -125,14 +136,12 @@ Ergebnis: 161 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | R507 | Haupt | Waage | 0 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R508 | Haupt | Waage | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R509 | Haupt | Waage | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R601 | Haupt | Mikrofon | 100 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R602 | Haupt | Mikrofon | 47 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R603 | Haupt | Mikrofon | 47k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R604 | Haupt | Mikrofon | 47k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R605 | Haupt | Mikrofon | 33k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R606 | Haupt | Mikrofon | 9,1k 1% | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R607 | Haupt | Mikrofon | 9,1k 1% | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R608 | Haupt | Mikrofon | 3,3k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R602 | Haupt | Mikrofon | 10 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R609 | Haupt | Mikrofon | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R610 | Haupt | Mikrofon | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R611 | Haupt | Mikrofon | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R612 | Haupt | Mikrofon | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R613 | Haupt | Mikrofon | 22 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R701 | Haupt | Anschlüsse | 4,7k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R702 | Haupt | Anschlüsse | 1,8k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R703 | Haupt | Anschlüsse | 1,8k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -161,7 +170,9 @@ Ergebnis: 161 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | U402 | Haupt | Funk + Flash | 64 Mbit SOIC-8 208 mil | `SOIC-8_5.3x5.3mm_P1.27mm` | Pads = Pins (8) | [A] [P] 8 Pins = Datenblatt | Standard-Pinbelegung 25er-SPI-Flash SOIC-8 (XT25F64B / ZD25Q64D) – je Teil prüfen |
 | U501 | Haupt | Waage | TPS61240DRVR | `WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm` | Pads = Pins (7) | [V] 7 Pins = Datenblatt | TI SLVS806D Pin Functions (WSON) |
 | U502 | Haupt | Waage | HX711 | `SOIC-16_3.9x9.9mm_P1.27mm` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | AVIA HX711 (engl. Datenblatt, SparkFun-Kopie), Pin-Tabelle; SOP-16L 3,9 × 9,9 mm |
-| U601 | Haupt | Mikrofon | TLV9001IDBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI SBOS833R Tab. 6-1, TLV9001 DBV (Wert TLV9001IDBVR) |
+| U601 | Haupt | Mikrofon | TLV320ADC3101IRGET | `VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm` | Pads = Pins (25) | [V] 25 Pins = Datenblatt | TI SLAS553B Abschnitt 7 (RGE, VQFN-24); Thermal-Pad an AVSS |
+| U602 | Haupt | Mikrofon | TPS70918DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI SBVS186 Tab. 5-1, Spalte TPS709 DBV |
+| U603 | Haupt | Mikrofon | 74LVC1G17GW | `SOT-353_SC-70-5` | Pads = Pins (5) | [A] [P] 5 Pins = Datenblatt | KiCad-Symbol = übliche DCK-Belegung (SC-70-5): 1 NC, 2 A, 3 GND, 4 Y, 5 VCC; Datenblatt des gewählten Herstellers prüfen |
 | U801 | Haupt | Akku | HY2111-GB | `SOT-23-6` | Pads = Pins (6) | [V*] 6 Pins = Datenblatt | HYCON HY2111 (LCSC C82747), Abschnitt 7 |
 | U802 | Haupt | Akku | TMP390A2DRL | `SOT-563` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | TI SBOS904A Pin Functions (DRL) |
 | U803 | Haupt | Akku | TMP390A2DRL | `SOT-563` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | TI SBOS904A Pin Functions (DRL) |

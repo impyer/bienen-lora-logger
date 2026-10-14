@@ -18,13 +18,13 @@ Bezug:
 | J2 (Platine: J202) | Solarpanel 2 | wie J1 | 1 GND, 2 +PV | wie J1 | Panelkabel |
 | ~~J3 (Platine: J203)~~ | ~~Akku-Platine~~ | **entfällt (HW-06, 14.10.2026):** Zelle, Zellschutz und Ladesperre liegen auf der Hauptplatine (Blatt „Akku“, BT801) | – | – | Halter Keystone 1042 innen auf der Hauptplatine |
 | J4 (Platine: J501) | Wägezelle H40A | steckbare Klemme 3,5 mm, 5-polig | 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+ | **TPD4E05U06** an E+, S+, S− (E− ist Masse); Ferrit ≤ 0,1 Ω in E+; 100 Ω in S±, 100 nF S+/S−, 10 nF je S nach Masse (waage.md 4) | Originalkabel 1,8 m |
-| J5 (Platine: J601) | Mikrofon | steckbare Klemme 3,5 mm, 4-polig | 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA) | **ESDS304** an OUT und VCC; 100 Ω in OUT (mikrofon.md 2) | LiYCY 3 × 0,14, ≤ 2 m |
+| J5 (Platine: J601) | Mikrofone (Elektret + MEMS, HW-07) | **RJ45 geschirmt, ohne Übertrager** (Teil wählt der Layouter) | 1 GND, 2 CLK (PDM-Takt), 3 DATA (PDM), 4 VDD (3V3_MEMS), 5 GND, 6 GND, 7 MIC+, 8 MIC−, SH Schirm | **ESDS304** an CLK, DATA, MIC+, MIC−; Takttreiber + 33 Ω, 22 Ω in DATA (mikrofon.md 2) | Cat7 S/FTP mit geschirmtem RJ45-Stecker, fest verlegt, 0,5–1 m (länger nur mit Treiber im Mikrofonkopf); Paare nach T568B: 1/2 CLK, 3/6 DATA, 4/5 VDD, 7/8 MIC |
 | J6 (Platine: J701) | DS18B20 Nr. 1 (TempIn) | steckbare Klemme 3,5 mm, 3-polig | 1 GND, 2 DQ, 3 3V3_SW | **ESDS304** (ein Array für J6 + J7) | Fühlerkabel |
 | J7 (Platine: J702) | DS18B20 Nr. 2 (TempIn2) | wie J6, am selben 1-Wire-Bus | 1 GND, 2 DQ, 3 3V3_SW | wie J6 | Fühlerkabel |
 | J8 (Platine: J703) | BME280 (Strahlungsschutz) | steckbare Klemme 3,5 mm, **6-polig** | 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (nur Verwechslungsschutz) | **ESDS304** an SDA, SCL, 3V3_SW | **Outdoor-Netzwerkkabel** (Cat 5e/6, PE-Mantel), Paare SDA+GND, SCL+GND, 3V3+GND, Schirm falls vorhanden an Pin 1; **≤ 1 m** (siehe 3.1, HW26-09) |
 | J9 (Platine: J301) | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – | USBLC6-2SC6 | am Tisch: Laden, Aufspielen und Kommunikation (USB-CDC, HW-05); VBUS-Erkennung an PB13 |
 | J10 (Platine: J302) | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen; Pinfolge siehe 1.2 (SCH26-09) |
-| J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 PA15, 10 PB12, 11 frei, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1); Pin 11 frei, weil PB13 seit HW-05 die VBUS-Erkennung ist |
+| J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 frei, 10 frei, 11 frei, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1); Pins 9–11 frei: PB13 ist seit HW-05 die VBUS-Erkennung, PA15/PB12 sind seit HW-07 der I²S-Bus zum Audio-ADC |
 | – | Antenne | IPEX am Funkmodul | – | – | FPC-Antenne innen (mcu-funk.md 2.3) |
 
 Die Nummern J1–J11 sind die Anschlussnummern dieses Dokuments; in Klammern steht die Referenz im KiCad-Schaltplan. Steht ein Stecker schon auf einem Schaltplanblatt, vergleicht `hardware/kicad/werkzeug/netz_tests.py` die Spalte „Pins“ mit der KiCad-Netzliste (SCH26-09). Eine Änderung der Pinfolge gehört deshalb immer in diese Tabelle **und** in den Generator.
@@ -35,11 +35,11 @@ Entfällt mit HW-06 (14.10.2026): Die Zelle sitzt im Halter Keystone 1042 auf de
 
 Die Klemmen-Pinbelegung folgt drei Regeln:
 - **Masse bzw. Schirm immer an Pin 1**, die Versorgung immer am anderen Ende. Ein um einen Pin versetzter Stecker legt so keine Versorgung auf einen Signaleingang.
-- **Jede Klemme hat eine andere Polzahl oder Kodierung**, wo Verwechslungen schaden würden. Wägezelle und BME280 hatten zuerst beide 5 Pole. **Festlegung (Philipp, 09.10.2026): J8 wird 6-polig (Pin 6 frei)**, zusätzlich Farbe als Hinweis. Damit hat jede Sensorklemme eine eigene Polzahl: Solar 2, DS18B20 3, Mikrofon 4, Wägezelle 5, BME280 6.
+- **Jede Klemme hat eine andere Polzahl oder Kodierung**, wo Verwechslungen schaden würden. Wägezelle und BME280 hatten zuerst beide 5 Pole. **Festlegung (Philipp, 09.10.2026): J8 wird 6-polig (Pin 6 frei)**, zusätzlich Farbe als Hinweis. Damit hat jede Sensorklemme eine eigene Polzahl: Solar 2, DS18B20 3, Wägezelle 5, BME280 6. Die Mikrofone haben seit HW-07 eine **RJ45-Buchse** (andere Bauform, vorher Klemme 4-polig).
   - Gefährlicher Fall ausgeschlossen: Der 6-polige BME280-Stecker passt mechanisch nicht in J4. Sonst läge seine Versorgung an E+ = 4,3 V; der BME280 verträgt höchstens **4,25 V** [V: Bosch-Datenblatt, Tabelle 5].
   - Ein **kleinerer** Stecker lässt sich weiter in eine größere Buchse stecken, um eine Stelle versetzt [A]. Nachgerechnet für die Belegung oben:
     - Wägezelle in J8: Die Brücke hängt an 3V3_SW bzw. an SDA/SCL. Der I²C-Bus fällt aus; Spannungen über 3,3 V entstehen nicht.
-    - Mikrofon in J4, versetzt: Das Modul bekommt bis 4,3 V (MAX4466 arbeitet bis 5,5 V [A, nicht erneut nachgelesen]); seine Leitungen landen über 100 Ω an den HX711-Eingängen. Die Messung ist gestört, ein Schaden ist unwahrscheinlich [A].
+    - Die RJ45-Buchse J5 nimmt keinen Klemmenstecker auf und umgekehrt. **Gefahr:** ein Netzwerkkabel von einem PoE-Gerät (bis ca. 57 V auf den Paaren 4/5 und 7/8 [A]) würde 3V3_MEMS und den Elektreteingang zerstören. Darum Beschriftung „Mikrofon – kein Netzwerk“ an Buchse und Kabel; das Kabel ist fest mit dem Mikrofonkopf verbunden.
     Die Farbe bleibt deshalb als Hinweis.
 - Die Belegung steht im **Bestückungsdruck an jeder Klemme**: Klemmenname und Pin-Bezeichnungen.
 
@@ -79,7 +79,7 @@ Warum zwei ESD-Typen:
 |---|---|---|
 | BME280 über I²C | Höchstens 400 pF Buskapazität (I²C-Spezifikation; BME280-Datenblatt „Cb max 400 pF“) [V]. Leitung **höchstens 1 m** (Festlegung Philipp 09.10.2026). | Siehe 3.1: Outdoor-Netzwerkkabel, Ziel **≤ 340 pF**, Pull-ups **1,8 kΩ**, Takt **50 kHz**. |
 | DS18B20 (1-Wire) | 1-Wire verträgt mit 4,7 kΩ einige Meter bis zehn Meter Sternleitung [A, Maxim-Anwendungshinweise nicht gelesen] | 4,7 kΩ an der geschalteten Schiene, 3-adrig (nicht parasitär) |
-| Mikrofon | Kabelkapazität am MAX4466 | 1 kΩ Trennwiderstand am Modul (mikrofon.md 2.1) |
+| Mikrofone (HW-07) | PDM-Takt/-Daten über das Kabel: DATA ≤ 200 pF, Taktflanke ≤ 13 ns [V Infineon] | Cat7 S/FTP, 0,5–1 m; Takt über Schmitt-Puffer + 33 Ω; länger nur mit Treiber im Mikrofonkopf (mikrofon.md 5) |
 | Wägezelle | Leckströme und Störungen | kleine Leckströme, Filter, Schirm nur an der Platine (waage.md 4) |
 | Panels | Überspannung, Verpolung | Schottky je Panel, TVS (versorgung.md 3.1) |
 
@@ -112,16 +112,15 @@ Bewertung:
 
 ## 4. Anordnung auf der Platine (Lastenheft M5)
 
-- **Alle Außenklemmen an eine Platinenkante**, zu den späteren Kabeldurchführungen hin. Bei einem an der Wand hängenden Gehäuse ist das die Unterseite [A].
-- Reihenfolge an der Kante, von links: J1/J2 Solar – J8 BME280 – J6/J7 DS18B20 – J5 Mikrofon – J4 Wägezelle.
-  - Die Wägezelle sitzt am Rand neben dem HX711.
-  - Das Mikrofon sitzt neben dem Filter vor PA1.
-  - Beide liegen weit weg vom 5-V-Wandler und vom Funkmodul (A3).
-- **Der ESD-Schutz sitzt direkt hinter der Klemme**, vor allen anderen Bauteilen. Der Masseanschluss geht auf kürzestem Weg mit mehreren Durchkontaktierungen auf die Massefläche (L2).
-- Das Funkmodul mit der IPEX-Buchse sitzt an der **gegenüberliegenden** Kante, die Antenne an der Wand daneben.
-- USB J9 sitzt innen, gut erreichbar beim Öffnen. Der Akkuhalter liegt auf der Hauptplatine (HW-06), Zellwechsel nach dem Öffnen.
-- **Lichtleiter-LED und Reedkontakt** sitzen an einer Seitenkante (mcu-funk.md 3.3).
-- Grobplatzierung (13.10.2026, `werkzeug/platine_bestuecken.py`): Die 7 Klemmen füllen 102,7 der 103,2 mm zwischen den unteren Befestigungslöchern, Körperabstand 1,4 mm. **[P]** Mit gesteckten 15EDGK-Steckern am Muster prüfen, ob sie nebeneinander passen und sich lösen lassen.
+**Die Lage legt der beauftragte Layouter fest** (Philipp 14.10.2026); hier stehen die Randbedingungen und ein Vorschlag.
+
+- Außenanschlüsse möglichst an **einer** Kante zu den späteren Kabeldurchführungen hin (bei einem an der Wand hängenden Gehäuse die Unterseite [A]); zwei Kanten sind zulässig. Breite zum Vergleich: zwischen den Sperrflächen der unteren Befestigungslöcher sind ca. 102 mm frei; die Klemmen J1/J2, J8, J6/J7, J4 brauchen zusammen ca. 86 mm, dazu die RJ45-Buchse J5 (ca. 16 mm) [A].
+- Vorschlag Reihenfolge: J1/J2 Solar – J8 BME280 – J6/J7 DS18B20 – J5 Mikrofone (neben dem Audio-ADC) – J4 Wägezelle (neben dem HX711); Mikrofon- und Waagenzweig weit weg vom 5-V-Wandler und vom Funkmodul (A3).
+- **Der ESD-Schutz sitzt direkt hinter jedem Anschluss**, vor allen anderen Bauteilen. Der Masseanschluss geht auf kürzestem Weg mit mehreren Durchkontaktierungen auf die Massefläche (L2).
+- Das Funkmodul mit der IPEX-Buchse sitzt an der Kante gegenüber, die Antenne an der Wand daneben.
+- USB J9, Debug J10, Erweiterung J11, BOOT und Reset innen, gut erreichbar beim Öffnen. Akkuhalter auf der Hauptplatine (HW-06), Zellwechsel nach dem Öffnen; TMP390/NTC unter der Zelle.
+- **Lichtleiter-LED und Reedkontakt** an einer Seitenkante (mcu-funk.md 3.3; Bohrungsmitte des Lichtleiters ca. 22,7 mm über dem Gehäuseboden).
+- **[P]** Mit gesteckten 15EDGK-Steckern am Muster prüfen, ob die Klemmen nebeneinander passen und sich lösen lassen.
 
 ## 5. Fertigung
 

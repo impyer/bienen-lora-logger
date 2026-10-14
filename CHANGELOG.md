@@ -1,5 +1,19 @@
 # Änderungen
 
+## 2026-10-14 – Pflichtenheft für den Layout-Auftrag
+
+- Neu `hardware/layout-auftrag/PFLICHTENHEFT.md` (englisch, deutsche Kurzfassung): Umfang (Platzierung, Routing, LCSC-Auswahl für 151 von 172 Teilen, JLCPCB-Gerber/Bohrdaten/BOM/CPL), Mechanik, Platzierungs- und Routingregeln (u. a. B− ≠ GND, ANT ohne Leiterbahn, L2 durchgehende Masse, PDM/Mikrofon), Meilensteine mit Platzierungsfreigabe vor dem Routing, Abnahme (DRC 0, Schaltplanabgleich 0, JLCPCB-DFM), Lizenz CERN-OHL-S-2.0.
+- Neu `hardware/layout-auftrag/paket_bauen.py`: baut das Übergabe-ZIP (KiCad-Projekt mit Bibliotheken, PDF, Netzliste, Stückliste als CSV, Blockdokumente, Pflichtenheft) unter `build/`; geprüft: entpacktes Paket ERC 0, DRC 0 (Footprints fehlen gewollt).
+
+## 2026-10-14 – Zwei Mikrofone am Audio-ADC (HW-07), Layout extern (HW-08)
+
+- **HW-07 (Philipp):** Blatt Mikrofon neu: Audio-ADC **TLV320ADC3101** (U601) mit Elektretkapsel (analog, pseudo-differenziell, MICBIAS über 2 × 1 kΩ) und MEMS **IM69D127** (PDM, Takt über Schmitt-Puffer 74LVC1G17); DVDD aus TPS70918, 3V3_MEMS über eigenen Ferrit; Anschluss über geschirmte **RJ45-Buchse** J601 (Cat7 S/FTP 0,5–1 m, Paare T568B). GY-MAX4466-Zweig mit Sallen-Key-Filter entfällt.
+- STM32: **I2S3** an PB12 (CK), PA15 (WS), PB5 (SD); Sensorschiene von PB5 auf **PA1**; J11 Pins 9/10 frei (keine Erweiterungs-GPIOs mehr).
+- `hardware/mikrofon_filter.py` rechnet jetzt Taktplan (fS 24 576 Hz, AOSR 128, PDM-Takt 3,146 MHz, PLL aus BCLK), Vorspannung, Hochpass, Kabellast und Dezimation gegen die Datenblattgrenzen; `energiebilanz.py` mit 5,5 mA × 1,5 s für die Mikrofone (Reichweite B 436 statt 454 Tage).
+- **HW-08 (Philipp):** Platzierung und Layout durch den beauftragten Layouter; `logger.kicad_pcb` nur noch Rahmen (`platine_start.py`); Platzierungs- und Routing-Skripte entfernt (Erkenntnisse in den Berichten vom 13.10.2026). Lastenheft M5 und `anschluesse.md` 4 als Randbedingungen statt fester Lage.
+- Dokumente: `mikrofon.md` neu, Lastenheft (F6, A1–A7, M2, M4, M5, M9), `anschluesse.md`, `mcu-funk.md`, `versorgung.md`, `beep-vergleich.md`, Entscheidungs- und Befundregister (HW26-05), READMEs; Bericht [2026-10-14-hw07-mikrofone](docs/testberichte/2026-10-14-hw07-mikrofone.md).
+- Nachweis: `pruefen.sh` lokal (KiCad 10.0.6): reproduzierbar, ERC 0, Netzprüfung 187/187, Pin/Footprint 0; `tests/alle_tests_linux.sh` rc 0 (T0/T3, keine Messung).
+
 ## 2026-10-14 – Aufräumen vor der Layout-Übergabe
 
 - Restbezüge auf die entfallene Akku-Platine bereinigt: Beschreibung U204 („Ladesperre (Blatt Akku)“), R808 und #FLG805 mit neuen Bezeichnern; `sicherheit-akku.md` Prüfaufbau und Rückverfolgbarkeit LH-V1 auf HW-06, Zuordnung alte → neue Bezeichner in Abschnitt 10 (Abschnitte 1–9 bleiben als Analyse zum Bezugsstand `2076c20`).

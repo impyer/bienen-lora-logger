@@ -6,8 +6,10 @@
 Legt an: 4 Kupferlagen, 1,6 mm; Umriss 121 × 121 mm (Lastenheft M1, Camdenboss CBHUB_02 Rev. N Blatt 5);
 4 Befestigungslöcher Ø 3,4 mm auf 110,2 × 110,2 mm (nicht durchkontaktiert) mit Kupfersperrfläche Ø 7 mm;
 Entwurfsregeln nach JLCPCB-Standardfertigung (konservativ); Hinweise zu Klemmenkante, Funkkante und Bauhöhe (HW-03).
-Danach wird logger.kicad_pcb **von Hand in KiCad** weiterbearbeitet (Bauteile über „Platine aus Schaltplan
-aktualisieren“). Das Skript überschreibt eine vorhandene Platinendatei nicht.
+Danach wird logger.kicad_pcb **von Hand in KiCad** weiterbearbeitet: Bauteile über „Platine aus Schaltplan
+aktualisieren“, Platzierung und Routing durch den beauftragten Layouter (Philipp 14.10.2026; die eigenen Platzierungs-
+und Routing-Skripte vom 13./14.10. sind entfernt, siehe Prüfbericht 2026-10-13-platine-routing und Git-Verlauf).
+Das Skript überschreibt eine vorhandene Platinendatei nicht.
 
 Aufruf: python3 hardware/kicad/werkzeug/platine_start.py
 """
@@ -131,9 +133,10 @@ def main():
         befestigungsloch(board, nr, cx + sx * d, cy + sy * d)
 
     U = pcbnew.User_1
-    text(board, U, "Klemmenkante (anschluesse.md 4), von links:", cx, cy + h - 16, 1.2)
-    text(board, U, "J201/J202 Solar - J703 BME280 - J701/J702 DS18B20 - J601 Mikrofon - J501 Waage", cx, cy + h - 13, 1.2)
-    text(board, U, "Funkkante: Ra-01SH mit IPEX gegenüber den Klemmen", cx, cy - h + 6, 1.2)
+    text(board, U, "Lage der Anschlüsse und Bauteile: Layouter (Lastenheft M5, anschluesse.md 4)", cx, cy + h - 16, 1.2)
+    text(board, U, "Außenanschlüsse J201/J202, J703, J701/J702, J601 (RJ45), J501 möglichst an einer Kante, ESD direkt dahinter",
+         cx, cy + h - 13, 1.2)
+    text(board, U, "Funkkante: Ra-01SH mit IPEX gegenüber den Außenanschlüssen", cx, cy - h + 6, 1.2)
     text(board, U, "Bauhöhe über der Platine <= 40 mm; Platine auf 10-mm-Hülsen (HW-03); Unterseite ohne Bauteile (M2)",
          cx, cy, 1.2)
     text(board, pcbnew.F_SilkS, "PCB-MAIN-0.1", cx, cy + h - 3, 1.0)

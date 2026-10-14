@@ -14,7 +14,7 @@ Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung
 | Pin | Beschaltung |
 |---|---|
 | VDD (24, 36, 48) | je 100 nF direkt am Pin, dazu 1 × 10 µF in der Nähe (ST: mind. 4,7 µF) |
-| VDDA/VREF+ (9) | 100 nF + 1 µF; über Ferrit (z. B. 600 Ω bei 100 MHz) an 3,3 V [A]. Gut für die Mikrofonmessung an PA1, ST schreibt den Ferrit nicht vor. |
+| VDDA/VREF+ (9) | 100 nF + 1 µF; über Ferrit (z. B. 600 Ω bei 100 MHz) an 3,3 V [A]. Ursprünglich für die Mikrofonmessung an PA1 (seit HW-07 Audio-ADC per I²S); für die Akku- und Solar-ADC-Messung weiter sinnvoll. ST schreibt den Ferrit nicht vor. |
 | VSSA (8), VSS (23, 35, 47), Thermal-Pad | an die Massefläche; Thermal-Pad mit Durchkontaktierungen |
 | VCAP_1 (22) | **4,7 µF keramisch, ESR < 1 Ω**, sehr nah. Der UFQFPN-48 hat nur diesen einen VCAP-Pin. |
 | VBAT (1) | an 3,3 V (dauernd) + 100 nF; **keine Knopfzelle** (versorgung.md, V6). Nie an den Akku: nur 1,65–3,6 V zulässig. |
@@ -52,7 +52,7 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 ### 1.4 Debug
 
 - Stiftleiste 2,54 mm 1 × 7 (J10, im Schaltplan J302): 1 3V3, 2 SWDIO (PA13), 3 SWCLK (PA14), 4 NRST, 5 GND, 6 TX1 (PA9), 7 RX1 (PA10). Führend ist die Tabelle in `anschluesse.md` 1.2; die Netzprüfung vergleicht sie mit dem Schaltplan (SCH26-09).
-- Firmware stellt auf „nur SWD“: Dann sind PA15, PB3, PB4 als normale Pins frei [A].
+- Firmware stellt auf „nur SWD“: Dann sind PA15, PB3, PB4 als normale Pins frei [A]. **Pflicht seit HW-07:** PA15 ist I2S3_WS.
 
 ### 1.5 Auswahlprüfung: Alternativen, FPGA, externer RAM (13.10.2026, Entscheidung HW-04)
 
@@ -72,7 +72,7 @@ Preise JLCPCB/LCSC am 13.10.2026, 10 Stück, in US-Dollar [V: JLCPCB-Teilesuche]
 | GD32F303CCT6, CH32V203C8T6 | 1,22 / 0,72 | viel | ≤ 256 K / ≤ 48 K | DFU-Bootloader und Ruhestrom ungeprüft |
 | STM32WLE5 (z. B. Wio-E5-Modul) | 7,58 | 6 | 256 K / 64 K | ersetzt MCU + Ra-01SH (zusammen ca. 8,90), aber **kein USB** (HW-05 entfiele), nach unserem Wissen ohne FPU [A], Neuentwurf → frühestens Version 2 |
 
-- **Energie:** Der L433 spart im Ruhezustand ca. 2,3 µA ≈ 0,055 mAh/Tag, das sind 2 % der Last (2,81 mAh/Tag, Szenario B) und wenig gegenüber der Selbstentladung (2,2–5,6 mAh/Tag). Kein Grund zum Wechsel.
+- **Energie:** Der L433 spart im Ruhezustand ca. 2,3 µA ≈ 0,055 mAh/Tag, das sind 2 % der Last (2,81 mAh/Tag, Szenario B; seit HW-07 3,02 mAh/Tag) und wenig gegenüber der Selbstentladung (2,2–5,6 mAh/Tag). Kein Grund zum Wechsel.
 - **FPGA:** Keine Aufgabe braucht hohe Datenraten oder parallele Kanäle; die FFT läuft auf dem M4F in Bruchteilen einer Sekunde. Günstigster Kandidat iCE40UP5K-SG48I 9,38 $ (doppelt so teuer wie die MCU) plus 1,2-V-Versorgung, Konfigurationsspeicher, zweite Toolchain und zusätzlicher Ruhestrom. Sinnvoll erst bei z. B. 4–8 synchron abgetasteten Mikrofonen (Schallortung), nicht im Lastenheft.
 - **Externer RAM (SPI-PSRAM):** Der F411 im 48-Pin-Gehäuse hat kein QSPI/FSMC [A], PSRAM wäre nur per SPI-Befehlen nutzbar, zu langsam für die FFT und flüchtig (im Ruhezustand abschalten = Daten weg). Dauerhafte Daten liegen bereits im SPI-Flash U402 (8 MB). Wird RAM knapp, zuerst in der Firmware sparen: FFT in q15 statt float (halbe Puffer), blockweise Welch-Mittelung per DMA, ggf. N = 256.
 - **Beschaffung:** F411 bei der JLCPCB-Bestellung reservieren (Lager 474).
@@ -213,7 +213,7 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | Pin | Funktion | Bemerkung |
 |---|---|---|
 | PA0 | Service-Taster und Reedkontakt parallel, Wecken (WKUP1) | Pull-down extern 100 kΩ |
-| PA1 | Mikrofon (ADC1_IN1) | Abtastung per TIM2/TIM3-TRGO und DMA2 [V: ST HAL, F4-Familie; RM0383 Tab. 42 noch prüfen] |
+| PA1 | Sensorschiene ein (high = ein) | ON des TPS22917, Pull-down 100 kΩ (HW-07, vorher PB5; Mikrofon-ADC entfällt) |
 | PA2 | Ra-01SH DIO1 | Interrupt |
 | PA3 | Ra-01SH BUSY | |
 | PA4–PA7 | Ra-01SH NSS, SCK, MISO, MOSI (SPI1, gemeinsam mit dem Flash) | je 33 Ω; NSS Pull-up 100 kΩ |
@@ -221,31 +221,31 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PA9 / PA10 | Serial1 TX / RX | Debug-Leiste |
 | PA11 / PA12 | USB D− / D+ | USBLC6 |
 | PA13 / PA14 | SWDIO / SWCLK | Debug-Leiste |
-| PA15 | frei (Erweiterung) | nach „nur SWD“ |
+| PA15 | I2S3_WS zum Audio-ADC U601 (HW-07) | nach „nur SWD“; AF laut ST-Pindaten [V] |
 | PB0 | Akkuspannung (ADC1_IN8) | Teiler 2 × 2,2 MΩ + 100 nF |
 | PB1 | Eingangsspannung Lader (ADC1_IN9) | Teiler 3,3 MΩ / 470 kΩ + 100 nF hinter den Schottky-Dioden (versorgung.md 3.1, HW26-08) |
 | PB2 | BOOT1 | 10 kΩ nach GND |
 | PB3 | Chip-Select SPI-Flash | Pull-up 100 kΩ; nach „nur SWD“ (3.2) |
 | PB4 | Ra-01SH RESET | |
-| PB5 | Sensorschiene ein (high = ein) | ON des TPS22917, Pull-down 100 kΩ (beim Rückfall AO3401A: low = ein, Pull-up 1 MΩ) |
+| PB5 | I2S3_SD vom Audio-ADC U601 (HW-07) | Empfang mit DMA; vorher Sensorschiene (jetzt PA1) |
 | PB6 / PB7 | I²C1 SCL / SDA | BME280 (außen) und Erweiterungsstecker, Pull-ups 1,8 kΩ an geschalteter Schiene, 50 kHz |
 | PB8 / PB9 | HX711 Nr. 1 DOUT / SCK | 1 kΩ in Reihe |
 | PB10 | 5-V-Wandler der Waage ein (high = ein) | Pull-down 100 kΩ; siehe waage.md |
-| PB12 | frei (Erweiterung) | nur noch ein HX711 (09.10.2026) |
+| PB12 | I2S3_CK zum Audio-ADC U601 (HW-07) | STM32 ist I²S-Master; AF laut ST-Pindaten [V] |
 | PB13 | VBUS-Erkennung (HW-05) | Teiler 33 kΩ / 82 kΩ von VBUS (AN4879) |
 | PB14 / PB15 | Ra-01SH TXEN / RXEN | über offene Lötbrücken |
 | PC13 | LED (low = an), am Platinenrand unter dem Lichtleiter | Signale siehe 3.3; Vorwiderstand ≥ 1 kΩ |
 | PC14 / PC15 | LSE 32,768 kHz | |
 | PH0 / PH1 | HSE 25 MHz | |
 
-Frei für den Erweiterungsstecker (F9): PA15, PB12 (PB13 seit HW-05 VBUS-Erkennung). PB11 gibt es beim UFQFPN-48 nicht [V].
+Frei für den Erweiterungsstecker (F9): keine GPIOs mehr (PB13 seit HW-05 VBUS-Erkennung, PA15/PB12 seit HW-07 I²S). PB11 gibt es beim UFQFPN-48 nicht [V]. Rückfall der Sensorschiene auf AO3401A: dann PA1 low = ein, Pull-up 1 MΩ.
 
 ## 5. Regeln für den Block
 
 1. Jeder VDD-Pin bekommt seinen 100-nF-Kondensator direkt am Pin; VCAP_1 4,7 µF mit kleinem ESR.
 2. LSE-Quarz mit **höchstens 7 pF** Lastkapazität.
 3. Funkmodul an den Platinenrand, IPEX-Buchse zur Gehäusewand hin, **keine Leiterbahn an ANT**. Grobplatzierung: Oberkante mittig, Pin-1-Seite (ANT) zur Kante; dass die IPEX-Buchse nahe Pin 1 sitzt, ist angenommen **[A]**, am gelieferten Modul prüfen. Unter dem Modul durchgehende Masse; laut Datenblatt dürfen die Pads größer sein als die Modulpads [V].
-4. Mikrofoneingang PA1 und VDDA weit weg von Funkmodul und SPI (Lastenheft A3).
+4. Audio-ADC U601 und I²S-Leitungen weit weg von Funkmodul und SPI (Lastenheft A3).
 5. Ungewisse Modulpins (TXEN/RXEN) über Lötbrücken an freie Pins führen, statt sich festzulegen. Die zugehörigen MCU-Pins (PB14/PB15) bleiben in der Firmware **Eingänge** (2.1).
 6. Alles, was am I²C-Bus hängt, an derselben (geschalteten) Schiene.
 7. SWD immer zugänglich, auch wenn USB-DFU vorgesehen ist.

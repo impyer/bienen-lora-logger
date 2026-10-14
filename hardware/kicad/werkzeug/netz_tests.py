@@ -30,12 +30,13 @@ STECKER_DOKU = {
     "J10": ("J302", {"3V3": "+3V3", "SWDIO": "SWDIO", "SWCLK": "SWCLK", "NRST": "NRST", "GND": "GND",
                      "TX1": "DBG_TX", "RX1": "DBG_RX"}),
     "J4": ("J501", {"Schirm": "GND", "E−": "GND", "S−": "ZELLE_SN", "S+": "ZELLE_SP", "E+": "ZELLE_EP"}),
-    "J5": ("J601", {"Schirm": "GND", "GND": "GND", "OUT": "MIC_OUT_K", "VCC": "3V3_ANA"}),
+    "J5": ("J601", {"GND": "GND", "VDD": "3V3_MEMS", "CLK": "PDM_CLK", "DATA": "PDM_DATA_K",
+                    "MIC+": "MIC_P", "MIC−": "MIC_N", "Schirm": "GND"}),
     "J6": ("J701", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
     "J7": ("J702", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
     "J8": ("J703", {"Schirm": "GND", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "3V3_SW": "3V3_SW", "frei": OFFEN}),
     "J11": ("J704", {"3V3": "+3V3", "3V3_SW": "3V3_SW", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "TX1": "DBG_TX",
-                     "RX1": "DBG_RX", "PA15": "EXT_PA15", "PB12": "EXT_PB12", "frei": OFFEN}),
+                     "RX1": "DBG_RX", "frei": OFFEN}),
 }
 VBG_HX711 = 1.25        # V, Bandgap-Referenz des AVDD-Reglers (HX711-Datenblatt, waage.md 3)
 VSUP_MIN = 4.9          # V, TPS61240 5,0 V −2 % (waage.md 2)
@@ -78,14 +79,15 @@ def enthaelt(netze, netz, soll):
 
 def doku_pins(nr):
     """Pinbelegung eines Steckers aus der Übersichtstabelle in anschluesse.md: {Pin: Bezeichnung}.
-    Erwartet in Spalte 1 „Jn (Platine: Jxxx)“ und in Spalte 4 „1 Name, 2 Name, …“; Klammerzusätze entfallen."""
+    Erwartet in Spalte 1 „Jn (Platine: Jxxx)“ und in Spalte 4 „1 Name, 2 Name, …“ (Schirmpin „SH Name“);
+    Klammerzusätze entfallen."""
     with open(ANSCHLUESSE, encoding="utf-8") as f:
         for zeile in f:
             spalten = [t.strip() for t in zeile.strip().strip("|").split("|")]
             if len(spalten) >= 4 and re.fullmatch(r"%s \(Platine: J\d+\)" % nr, spalten[0]):
                 pins = {}
                 for eintrag in spalten[3].split(","):
-                    m = re.fullmatch(r"(\d+)\s+(\S+)(?:\s*\(.*\))?", re.sub(r"\*", "", eintrag).strip())
+                    m = re.fullmatch(r"(\d+|SH)\s+(\S+)(?:\s*\(.*\))?", re.sub(r"\*", "", eintrag).strip())   # SH = Schirmpin (RJ45)
                     if m:
                         pins[m.group(1)] = m.group(2)
                 return spalten[0], pins
@@ -186,59 +188,65 @@ def farad(wert):
     return float(zahl[:-1]) * {"p": 1e-12, "n": 1e-9, "u": 1e-6}[zahl[-1]]
 
 
-def sallen_key(r1, r2, c_rueck, c_masse):
-    """Tiefpass 2. Ordnung, Verstärkung 1: Grenzfrequenz f0 und Güte Q (C_rück vom Mittelknoten zum Ausgang)."""
-    f0 = 1 / (2 * math.pi * math.sqrt(r1 * r2 * c_rueck * c_masse))
-    q = math.sqrt(r1 * r2 * c_rueck * c_masse) / (c_masse * (r1 + r2))
-    return f0, q
-
-
-def sk_ok(f0, q):
-    """Soll aus mikrofon.md 2.1: 1179 Hz ± 5 %, Q 0,6–0,9 (nahe Butterworth 0,707)."""
-    return abs(f0 - 1179) <= 0.05 * 1179 and 0.6 <= q <= 0.9
-
-
 def mikrofon(h, h_pin, h_wert):
-    """SCH26-07: Blatt Mikrofon gegen mikrofon.md 2 und Lastenheft A1–A2."""
-    # Versorgung: 3V3_SW → Ferrit → 47 Ω → 3V3_ANA (A1)
+    """HW-07: Blatt Mikrofon gegen mikrofon.md 2 und Lastenheft A1–A7 (Audio-ADC TLV320ADC3101, Elektret + PDM-MEMS)."""
+    # Versorgung
     pruefe("FB601 zwischen 3V3_SW und MIC_FB", {h_pin.get(("FB601", "1")), h_pin.get(("FB601", "2"))} == {"3V3_SW", "MIC_FB"})
-    pruefe("R602 47 Ω zwischen MIC_FB und 3V3_ANA",
-           {h_pin.get(("R602", "1")), h_pin.get(("R602", "2"))} == {"MIC_FB", "3V3_ANA"} and h_wert.get("R602") == "47")
-    enthaelt(h, "3V3_ANA", {("C601", "1"), ("U601", "5"), ("R603", "1"), ("J601", "4"), ("D601", "3")})
-    # Vorspannung 1,65 V
-    genau(h, "MIC_VREF", {("R603", "2"), ("R604", "1"), ("C603", "1"), ("R605", "1")})
-    pruefe("VREF-Teiler symmetrisch (R603 = R604)", h_wert.get("R603") == h_wert.get("R604"), (h_wert.get("R603"), h_wert.get("R604")))
-    # Eingang: ESD direkt an der Klemme, dann 100 Ω, Hochpass
-    genau(h, "MIC_OUT_K", {("J601", "3"), ("D601", "1"), ("R601", "1")})
-    genau(h, "MIC_IN", {("R601", "2"), ("C604", "1")})
-    genau(h, "MIC_HP", {("C604", "2"), ("R605", "2"), ("R606", "1")})
-    fh = 1 / (2 * math.pi * ohm(h_wert.get("R605", "1")) * farad(h_wert.get("C604", "1n")))
-    pruefe(("Hochpass R605/C604 = %.1f Hz (Lastenheft A2: 20–25 Hz)" % fh).replace(".", ","), 20 <= fh <= 25)
-    pruefe("ESD D601 ist ESDS304 (3,6 V reicht für 3,3 V)", h_wert.get("D601", "").startswith("ESDS304"), h_wert.get("D601"))
-    pruefe("ESD D601 GND an Pin 2", h_pin.get(("D601", "2")) == "GND", h_pin.get(("D601", "2")))
-    # Sallen-Key mit Spannungsfolger
-    genau(h, "MIC_SK1", {("R606", "2"), ("R607", "1"), ("C605", "2")})
-    genau(h, "MIC_SK2", {("R607", "2"), ("C606", "1"), ("U601", "3")})
-    genau(h, "MIC_OP", {("U601", "1"), ("U601", "4"), ("C605", "1"), ("R608", "1")})
-    pruefe("C606 nach GND", h_pin.get(("C606", "2")) == "GND", h_pin.get(("C606", "2")))
-    pruefe("OPV V− an GND", h_pin.get(("U601", "2")) == "GND", h_pin.get(("U601", "2")))
-    pruefe("OPV ist TLV9001IDBVR (nicht TLV9001U: andere Pinfolge)", h_wert.get("U601") == "TLV9001IDBVR", h_wert.get("U601"))
-    f0, q = sallen_key(ohm(h_wert.get("R606", "1")), ohm(h_wert.get("R607", "1")),
-                       farad(h_wert.get("C605", "1n")), farad(h_wert.get("C606", "1n")))
-    pruefe(("Sallen-Key f0 = %.0f Hz, Q = %.2f (Soll 1179 Hz ± 5 %%, Q 0,6–0,9)" % (f0, q)).replace(".", ","), sk_ok(f0, q))
-    f0g, qg = sallen_key(9.1e3, 9.1e3, 10e-9, 22e-9)
-    pruefe(("Gegenprobe: vertauschte Kondensatoren (Q = %.2f) werden erkannt" % qg).replace(".", ","), not sk_ok(f0g, qg))
-    # RC vor dem ADC
-    genau(h, "MIC_ADC", {("R608", "2"), ("C608", "1"), ("U301", "11")})   # PA1
-    frc = 1 / (2 * math.pi * ohm(h_wert.get("R608", "1")) * farad(h_wert.get("C608", "1n")))
-    pruefe(("RC vor PA1 = %.1f kHz (mikrofon.md: 4,8 kHz)" % (frc / 1000)).replace(".", ","), 4.0e3 <= frc <= 5.5e3)
+    pruefe("R602 10 Ω zwischen MIC_FB und 3V3_ANA",
+           {h_pin.get(("R602", "1")), h_pin.get(("R602", "2"))} == {"MIC_FB", "3V3_ANA"} and h_wert.get("R602") == "10")
+    genau(h, "3V3_ANA", {("R602", "2"), ("C601", "1"), ("C602", "1"), ("C612", "1"), ("C613", "1"), ("U601", "10")})
+    genau(h, "1V8_ADC", {("U602", "5"), ("C610", "1"), ("C614", "1"), ("C615", "1"), ("U601", "22")})
+    pruefe("U602 ist TPS70918 (DVDD 1,65–1,95 V)", h_wert.get("U602", "").startswith("TPS70918"), h_wert.get("U602"))
+    pruefe("U602 IN und EN an 3V3_SW", h_pin.get(("U602", "1")) == h_pin.get(("U602", "3")) == "3V3_SW",
+           (h_pin.get(("U602", "1")), h_pin.get(("U602", "3"))))
+    pruefe("IOVDD (Pin 21) an 3V3_SW wie die I²C-Pull-ups", h_pin.get(("U601", "21")) == "3V3_SW", h_pin.get(("U601", "21")))
+    genau(h, "3V3_MEMS", {("FB602", "2"), ("C611", "1"), ("J601", "4")})
+    for pin in ("9", "23", "25", "15", "16", "24"):
+        pruefe("U601 Pin %s an GND (AVSS, DVSS, EP, I2C_ADR0/1 → 0x18, MCLK unbenutzt)" % pin,
+               h_pin.get(("U601", pin)) == "GND", h_pin.get(("U601", pin)))
+    pruefe("U601 ist TLV320ADC3101 (3100 hat keinen Digitalmikrofon-Eingang)",
+           h_wert.get("U601", "").startswith("TLV320ADC3101"), h_wert.get("U601"))
+    # I²S und I²C zum STM32
+    genau(h, "I2S_CK", {("U601", "1"), ("U301", "25")})    # PB12 = I2S3_CK
+    genau(h, "I2S_WS", {("U601", "2"), ("U301", "38")})    # PA15 = I2S3_WS
+    genau(h, "I2S_SD", {("U601", "3"), ("U301", "41")})    # PB5 = I2S3_SD
+    genau(h, "ADC_RESET", {("U601", "4"), ("R609", "2"), ("C618", "1")})
+    pruefe("Reset-Pull-up R609 an 3V3_SW", h_pin.get(("R609", "1")) == "3V3_SW", h_pin.get(("R609", "1")))
+    # Elektret, pseudo-differenziell
+    genau(h, "MICBIAS", {("U601", "5"), ("R610", "1"), ("C621", "1")})
+    genau(h, "MIC_P", {("R610", "2"), ("C619", "1"), ("C622", "1"), ("J601", "7"), ("D601", "4")})
+    genau(h, "MIC_N", {("R611", "1"), ("C620", "1"), ("C623", "1"), ("J601", "8"), ("D601", "5")})
+    genau(h, "MIC_INP", {("C619", "2"), ("U601", "7")})     # IN2L(P)
+    genau(h, "MIC_INN", {("C620", "2"), ("U601", "6")})     # IN3L(M)
+    pruefe("R611 nach GND, R610 = R611 (symmetrisch)",
+           h_pin.get(("R611", "2")) == "GND" and h_wert.get("R610") == h_wert.get("R611"), (h_wert.get("R610"), h_wert.get("R611")))
+    fh = 1 / (2 * math.pi * 35e3 * farad(h_wert.get("C619", "1n")))
+    pruefe(("Hochpass Koppel-C mit 35 kΩ Eingang = %.1f Hz (≤ 20 Hz, Nutzband ab 60 Hz)" % fh).replace(".", ","), fh <= 20)
+    # PDM-Mikrofon
+    genau(h, "PDM_CLK_ADC", {("U601", "20"), ("U603", "2")})
+    genau(h, "PDM_CLK_BUF", {("U603", "4"), ("R612", "2")})
+    genau(h, "PDM_CLK", {("R612", "1"), ("J601", "2"), ("D601", "1")})
+    genau(h, "PDM_DATA_K", {("J601", "3"), ("D601", "3"), ("R613", "1")})
+    genau(h, "PDM_DATA", {("R613", "2"), ("U601", "19")})
+    pruefe("Takttreiber U603 an 3V3_SW", h_pin.get(("U603", "5")) == "3V3_SW", h_pin.get(("U603", "5")))
+    # Klemme und ESD
+    pruefe("ESD D601 ist ESDS304, GND an Pin 2", h_wert.get("D601", "").startswith("ESDS304") and
+           h_pin.get(("D601", "2")) == "GND", (h_wert.get("D601"), h_pin.get(("D601", "2"))))
+    for pin in ("1", "5", "6", "SH"):
+        pruefe("J601 Pin %s an GND (Paarpartner/Schirm)" % pin, h_pin.get(("J601", pin)) == "GND", h_pin.get(("J601", pin)))
+    pruefe("J601 ist RJ45 geschirmt (T568B-Paare 1/2, 3/6, 4/5, 7/8)", h_wert.get("J601:footprint", "").startswith("Connector_RJ:RJ45"),
+           h_wert.get("J601:footprint"))
+    falsch = dict(h_pin)
+    falsch[("J601", "2")], falsch[("J601", "3")] = "PDM_DATA_K", "PDM_CLK"
+    pruefe("Gegenprobe: vertauschte CLK/DATA an J601 werden erkannt",
+           stecker_abweichungen(falsch, "J601", {"2": "PDM_CLK", "3": "PDM_DATA_K"}) != [])
 
 
 def anschluesse(h, h_pin, h_wert):
     """SCH26-07: Blatt Anschlüsse gegen anschluesse.md 1–3 und HW26-04 (Pull-ups nur an 3V3_SW)."""
     genau(h, "ONEWIRE", {("U301", "29"), ("R701", "2"), ("J701", "2"), ("J702", "2"), ("D701", "1")})   # PA8
-    genau(h, "I2C_SDA", {("U301", "43"), ("R702", "1"), ("J703", "3"), ("D702", "1"), ("J704", "5")})   # PB7
-    genau(h, "I2C_SCL", {("U301", "42"), ("R703", "2"), ("J703", "4"), ("D702", "3"), ("J704", "6")})   # PB6
+    genau(h, "I2C_SDA", {("U301", "43"), ("R702", "1"), ("J703", "3"), ("D702", "1"), ("J704", "5"), ("U601", "18")})   # PB7
+    genau(h, "I2C_SCL", {("U301", "42"), ("R703", "2"), ("J703", "4"), ("D702", "3"), ("J704", "6"), ("U601", "17")})   # PB6
     def pullup_ok(pin_netz, wert, ref, soll):
         andere = {n for (r, _), n in pin_netz.items() if r == ref} - {"ONEWIRE", "I2C_SDA", "I2C_SCL"}
         return andere == {"3V3_SW"} and wert.get(ref) == soll
@@ -257,14 +265,13 @@ def anschluesse(h, h_pin, h_wert):
     pruefe("J703 Pin 6 frei (Verwechslungsschutz)", h_pin.get(("J703", "6"), "unconnected").startswith("unconnected"),
            h_pin.get(("J703", "6")))
     pol = {ref: len({p for (r, p) in h_pin if r == ref}) for ref in ("J201", "J701", "J601", "J501", "J703")}
-    pruefe("Sensorklemmen mit eigener Polzahl (Solar 2, DS18B20 3, Mikrofon 4, Wägezelle 5, BME280 6)",
-           pol == {"J201": 2, "J701": 3, "J601": 4, "J501": 5, "J703": 6}, pol)
+    pruefe("Sensoranschlüsse mit eigener Polzahl/Bauform (Solar 2, DS18B20 3, Wägezelle 5, BME280 6, Mikrofone RJ45 8 + Schirm)",
+           pol == {"J201": 2, "J701": 3, "J601": 9, "J501": 5, "J703": 6}, pol)
     for ref in ("J501", "J601", "J701", "J702", "J703", "J201", "J202"):
         pruefe("%s: Pin 1 an GND (Masse/Schirm an Pin 1)" % ref, h_pin.get((ref, "1")) == "GND", h_pin.get((ref, "1")))
-    for nr, netz in (("9", "EXT_PA15"), ("10", "EXT_PB12")):
-        enthaelt(h, netz, {("J704", nr)})
-    pruefe("J704 Pin 11 frei (HW-05: PB13 = VBUS-Erkennung)", h_pin.get(("J704", "11"), "unconnected").startswith("unconnected"),
-           h_pin.get(("J704", "11")))
+    for nr in ("9", "10", "11"):
+        pruefe("J704 Pin %s frei (HW-05: PB13 = VBUS-Erkennung; HW-07: PA15/PB12 = I²S)" % nr,
+               h_pin.get(("J704", nr), "unconnected").startswith("unconnected"), h_pin.get(("J704", nr)))
 
 
 def modell_netze(modul):
@@ -337,7 +344,7 @@ def main():
     pruefe("R205 (CE-Pull-up) an SYS", h_pin.get(("R205", "1")) == "SYS", h_pin.get(("R205", "1")))
     for ref, soll in (("R203", "2,0k 1%"), ("R204", "130k 1%"), ("R205", "100k"), ("R208", "100k"), ("R201", "3,3M"), ("R202", "470k")):
         pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
-    genau(h, "SENSOR_EIN", {("U203", "3"), ("R208", "1"), ("U301", "41")})  # PB5
+    genau(h, "SENSOR_EIN", {("U203", "3"), ("R208", "1"), ("U301", "11")})  # PA1 (HW-07, vorher PB5)
     pruefe("TPS22917 CT-Kondensator nach VIN (+3V3)", h_pin.get(("C210", "2")) == "+3V3" and h_pin.get(("C210", "1")) == "SW_CT")
 
     # --- Debug-Stecker J302 (SCH26-09): je Pin ---
@@ -352,7 +359,7 @@ def main():
     pruefe("Ra-01SH DIO2 ohne Verbindung", h_pin.get(("U401", "7"), "unconnected").startswith("unconnected"), h_pin.get(("U401", "7")))
     # --- Waage (SCH26-07) ---
     waage(h, h_pin, h_wert)
-    # --- Mikrofon (SCH26-07) ---
+    # --- Mikrofon (SCH26-07, seit HW-07 Audio-ADC) ---
     mikrofon(h, h_pin, h_wert)
     # --- Anschlüsse (SCH26-07) ---
     anschluesse(h, h_pin, h_wert)

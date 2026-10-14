@@ -136,6 +136,24 @@ SYMBOLE = [
        fp="Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm",
        ds="https://www.ti.com/lit/ds/symlink/tps61240.pdf",
        info="Aufwärtswandler fest 5,0 V, 3,5 MHz, Lasttrennung im Aus; FB direkt an VOUT; Datenblatt nennt keinen internen Pull-down an EN"),
+    # TI TLV320ADC3101, VQFN-24 (RGE) + Thermal-Pad (Pad 25 = AVSS). Quelle: TI SLAS553B, Abschnitt 7 Pin Configuration
+    # and Functions [V]: 1 BCLK, 2 WCLK, 3 DOUT, 4 RESET, 5 MICBIAS1, 6 IN3L(M), 7 IN2L(P), 8 IN1L(P), 9 AVSS, 10 AVDD,
+    # 11 IN1R(M), 12 IN2R(P), 13 IN3R(M), 14 MICBIAS2, 15 I2C_ADR0, 16 I2C_ADR1, 17 SCL, 18 SDA, 19 DMDIN/GPIO1,
+    # 20 DMCLK/GPIO2, 21 IOVDD, 22 DVDD, 23 DVSS, 24 MCLK; „Connect the VQFN thermal pad to AVSS“
+    ic("TLV320ADC3101", "U",
+       links=[("7", "IN2L(P)", "input"), ("6", "IN3L(M)", "input"), ("8", "IN1L(P)", "input"), ("11", "IN1R(M)", "input"),
+              ("12", "IN2R(P)", "input"), ("13", "IN3R(M)", "input"), ("5", "MICBIAS1", "power_out"),
+              ("14", "MICBIAS2", "power_out"), ("19", "DMDIN/GPIO1", "bidirectional"),
+              ("20", "DMCLK/GPIO2", "bidirectional")],
+       rechts=[("1", "BCLK", "bidirectional"), ("2", "WCLK", "bidirectional"), ("3", "DOUT", "output"),
+               ("24", "MCLK", "input"), ("17", "SCL", "input"), ("18", "SDA", "bidirectional"), ("4", "~{RESET}", "input"),
+               ("15", "I2C_ADR0", "input"), ("16", "I2C_ADR1", "input")],
+       oben=[("10", "AVDD", "power_in"), ("22", "DVDD", "power_in"), ("21", "IOVDD", "power_in")],
+       unten=[("9", "AVSS", "power_in"), ("23", "DVSS", "power_in"), ("25", "EP", "passive")],
+       fp="Package_DFN_QFN:VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm",
+       ds="https://www.ti.com/lit/ds/symlink/tlv320adc3101.pdf",
+       info="Stereo-Audio-ADC 92 dB, analoge und digitale Mikrofoneingänge (PDM an DMDIN/DMCLK), I²S/TDM, I²C 0x18–0x1B; "
+            "AVDD 2,6–3,6 V, DVDD 1,65–1,95 V, IOVDD 1,1–3,6 V; Gehäuse RGE0024B (EP 2,45 mm), Variante RGE0024F prüfen"),
 ]
 
 

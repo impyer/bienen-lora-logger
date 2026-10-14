@@ -59,8 +59,21 @@ DATENBLATT = {
         "6": ("NC", "NC"), "7": ("NC", "NC"), "8": ("GND", "GND"), "9": ("NC", "NC"), "10": ("NC", "NC")}),
     "Power_Protection:ESDS304": ("TI ESDS304 Tab. 4-2 (DBV)", "[V]", {
         "1": ("I/O1", "K"), "2": ("GND", "A"), "3": ("I/O2", "K"), "4": ("I/O3", "K"), "5": ("I/O4", "K")}),
-    "Amplifier_Operational:MCP6001-OT": ("TI SBOS833R Tab. 6-1, TLV9001 DBV (Wert TLV9001IDBVR)", "[V]", {
-        "1": ("OUT", ""), "2": ("V−", "V-"), "3": ("IN+", "+"), "4": ("IN−", "-"), "5": ("V+", "V+")}),
+    "Bienen:TLV320ADC3101": ("TI SLAS553B Abschnitt 7 (RGE, VQFN-24); Thermal-Pad an AVSS", "[V]", {
+        "1": ("BCLK", "BCLK"), "2": ("WCLK", "WCLK"), "3": ("DOUT", "DOUT"), "4": ("RESET", "~{RESET}"),
+        "5": ("MICBIAS1", "MICBIAS1"), "6": ("IN3L(M)", "IN3L(M)"), "7": ("IN2L(P)", "IN2L(P)"), "8": ("IN1L(P)", "IN1L(P)"),
+        "9": ("AVSS", "AVSS"), "10": ("AVDD", "AVDD"), "11": ("IN1R(M)", "IN1R(M)"), "12": ("IN2R(P)", "IN2R(P)"),
+        "13": ("IN3R(M)", "IN3R(M)"), "14": ("MICBIAS2", "MICBIAS2"), "15": ("I2C_ADR0", "I2C_ADR0"),
+        "16": ("I2C_ADR1", "I2C_ADR1"), "17": ("SCL", "SCL"), "18": ("SDA", "SDA"), "19": ("DMDIN/GPIO1", "DMDIN/GPIO1"),
+        "20": ("DMCLK/GPIO2", "DMCLK/GPIO2"), "21": ("IOVDD", "IOVDD"), "22": ("DVDD", "DVDD"), "23": ("DVSS", "DVSS"),
+        "24": ("MCLK", "MCLK"), "25": ("Thermal-Pad", "EP")}),
+    "Connector:RJ45_Shielded": ("RJ45 8P8C, Kontakte 1–8 nach IEC 60603-7, SH = Schirmblech; Footprint RCH RC01937 "
+                                "(KiCad, LCSC-Datenblatt) – Teil wählt der Layouter", "[A] [P]", {
+        "1": ("1", ""), "2": ("2", ""), "3": ("3", ""), "4": ("4", ""), "5": ("5", ""), "6": ("6", ""), "7": ("7", ""),
+        "8": ("8", ""), "SH": ("Schirm", "")}),
+    "74xGxx:74LVC1G17": ("KiCad-Symbol = übliche DCK-Belegung (SC-70-5): 1 NC, 2 A, 3 GND, 4 Y, 5 VCC; Datenblatt des "
+                         "gewählten Herstellers prüfen", "[A] [P]", {
+        "1": ("NC", "NC"), "2": ("A", ""), "3": ("GND", "GND"), "4": ("Y", ""), "5": ("VCC", "VCC")}),
     "Analog_ADC:HX711": ("AVIA HX711 (engl. Datenblatt, SparkFun-Kopie), Pin-Tabelle; SOP-16L 3,9 × 9,9 mm", "[V]", {
         "1": ("VSUP", "VSUP"), "2": ("BASE", "BASE"), "3": ("AVDD", "AVDD"), "4": ("VFB", "VFB"), "5": ("AGND", "AGND"),
         "6": ("VBG", "VBG"), "7": ("INA-", "INA-"), "8": ("INA+", "INA+"), "9": ("INB-", "INB-"), "10": ("INB+", "INB+"),

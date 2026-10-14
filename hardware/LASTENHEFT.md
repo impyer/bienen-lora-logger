@@ -11,7 +11,7 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 - Laderegler BQ25185 statt CN3065; Tiefentladeschutz zweistufig in Hardware; Zelle, Schutz und NTC auf der Hauptplatine (HW-06, 14.10.2026; vorher eigene Akku-Platine)
 - RT9080 als 3,3-V-Regler; Regeln gegen Rückspeisung; Erfahrungen aus dem beelogger
 - Vergleich mit BEEP base v3: [`beep-vergleich.md`](beep-vergleich.md) (Übernahmen: TPS22917, Reedkontakt, ESD-Arrays, 4 Lagen zur Entscheidung)
-- Block Mikrofon: [`mikrofon.md`](mikrofon.md) (Filter mit Frequenzgang-Rechnung `mikrofon_filter.py`, Versorgung, Abtastung, Ablaufregeln)
+- Block Mikrofon: [`mikrofon.md`](mikrofon.md); seit **HW-07 (14.10.2026)** zwei Mikrofone verschiedener Bauart (Elektret analog + MEMS IM69D127 digital) am Audio-ADC TLV320ADC3101 statt GY-MAX4466 mit Analogfilter
 - Block Waage: [`waage.md`](waage.md) (5 V über TPS61240, H40A 404 Ω, Auflösung, Energie)
 - Block Mikrocontroller und Funk: [`mcu-funk.md`](mcu-funk.md) (Beschaltung, Quarz 7 pF, USB-C, Antenne an IPEX, LLCC68-Hinweis, Pinbelegung)
 
@@ -35,7 +35,7 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 
 Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md), Abschnitt 4.** Änderungen gegen 0.3:
 - Ra-01SH TXEN/RXEN über Lötbrücken an PB14/PB15
-- Erweiterung: PA15, PB12 (PB13 seit HW-05 VBUS-Erkennung; PB10 schaltet den 5-V-Wandler der Waage, PB3 ist CS des SPI-Flashs; nur noch ein HX711)
+- Erweiterung: keine freien GPIOs mehr am Erweiterungsstecker (PB13 seit HW-05 VBUS-Erkennung; PA15/PB12 seit HW-07 I²S zum Audio-ADC, dazu PB5 als I²S-Daten und die Sensorschiene von PB5 auf PA1; PB10 schaltet den 5-V-Wandler der Waage, PB3 ist CS des SPI-Flashs; nur noch ein HX711)
 - PA15 nicht mehr für den Regensensor
 - (EEPROM entfällt, Sitzung im SPI-Flash)
 
@@ -48,10 +48,10 @@ Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md
 | F3 [M] | **Waage** (Entscheidungen 08./09.10.2026): **1 × HX711** mit **VSUP 5 V aus festem Aufwärtswandler TPS61240** (Lasttrennung, nur beim Wiegen an), AVDD 4,3 V, **eine** Bosche H40A 200 kg. Anschluss 5-polig steckbar (E±, S±, Schirm). Einzelheiten [`waage.md`](waage.md). |
 | F4 [M] | **Temperatur**: 1-Wire für mindestens 2 × DS18B20, zwei 3-polige Klemmen J6/J7 am gleichen Bus (GND, DQ, 3V3_SW), 4,7 kΩ an der geschalteten Schiene, ESDS304. [`anschluesse.md`](anschluesse.md). |
 | F5 [M] | **I²C außen**: BME280 im Strahlungsschutz an J8 (6-polig mit Schirm, Pin 6 frei), ESDS304; wegen der Kabelkapazität Pull-ups **1,8 kΩ** und Takt **50 kHz**, Leitung **≤ 1 m** (Festlegung 09.10.2026), **Outdoor-Netzwerkkabel mit verdrillten Paaren** (SDA/GND, SCL/GND, 3V3/GND); Buskapazität gesamt **≤ 340 pF** (400 pF minus 15 % Reserve, HW26-09). [`anschluesse.md`](anschluesse.md) 3.1. |
-| F6 [M] | **Mikrofon GY-MAX4466** als Modul, Entstörung und Filter auf der Platine (2.2). Ausgearbeitet in [`mikrofon.md`](mikrofon.md). |
+| F6 [M] | **Zwei Mikrofone verschiedener Bauart** (HW-07, 14.10.2026; ersetzt GY-MAX4466): Elektretkapsel (analog) und MEMS **Infineon IM69D127** (PDM, IP57, fertige Platine) in einem Mikrofonkopf auf dem Gitterboden, beide am **Audio-ADC TI TLV320ADC3101** (links analog, rechts digital, I²S an den STM32). Zweck: Plausibilisierung (Ausfall, Verkleben, Drift) durch Vergleich der Kanäle. Ausgearbeitet in [`mikrofon.md`](mikrofon.md) (2.2). |
 | F7 [M] | **Bedienung ohne Öffnen** (Entscheidung 09.10.2026): Reedkontakt parallel zum Service-Taster an PA0 (Magnet von außen); **seitlich abstrahlende LED** an PC13 am Platinenrand, **fertiger Wand-Lichtleiter mit Dichtung durch eine Bohrung in der Gehäusewand** (Kandidat Bivar PLTR2, IP67), außen Markierung „Magnet hier“. Lichtsignale: `mcu-funk.md` 3.3. Reset- und BOOT0-Taster innen. |
 | F8 [K] | Regensensor über den Erweiterungsstecker (F9). |
-| F9 [S] | **Reserve**: Erweiterungsstecker J11 **2 × 6**, 2,54 mm: 3,3 V (geschaltet und dauernd), 3 × GND, I²C, Serial1, PA15, PB12 (Pin 11 frei, PB13 ist seit HW-05 die VBUS-Erkennung). Ein dort angeschlossenes I²C-Gerät zählt zur Buskapazität von F5 (HW26-13). |
+| F9 [S] | **Reserve**: Erweiterungsstecker J11 **2 × 6**, 2,54 mm: 3,3 V (geschaltet und dauernd), 3 × GND, I²C, Serial1; Pins 9–11 frei (PB13 seit HW-05 VBUS-Erkennung, PA15/PB12 seit HW-07 I²S zum Audio-ADC). Ein dort angeschlossenes I²C-Gerät zählt zur Buskapazität von F5 (HW26-13). |
 | F11 [M] | **SPI-Flash 64 Mbit** für Messwerte (fest, Entscheidung 09.10.2026): SOIC-8 208 mil, Typ nach Bestand bei der Bestellung, SPI1 mit CS an PB3, dauernd versorgt im Deep Power-down. `mcu-funk.md` 3.2. |
 | F10 [M] | **ESD-Schutz** an allen Sensorklemmen mit 4-fach-ESD-Arrays (wie BEEP base v3). An der Wägezelle mit kleinem Leckstrom; für E± Sperrspannung ≥ 5 V. Gewählt (09.10.2026): **TI ESDS304** (3,6 V, ≤ 50 nA) an DS18B20, BME280 und Mikrofon; **TI TPD4E05U06** (5,5 V, ≤ 10 nA, C138714) an der Wägezelle. Siehe [`anschluesse.md`](anschluesse.md) 2 und [`beep-vergleich.md`](beep-vergleich.md) 3.2. |
 
@@ -66,17 +66,17 @@ Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md
 | CE | Ai-Thinker verlinkt ein CE-RED-Zertifikat für das Modul | **[P]** Zertifikat herunterladen und ablegen |
 | Lager | LCSC 1.791 Stück am 08.10.2026, ca. 3,96 $ ab 10 Stück | **[P]** Bestand bei JLCPCB vor der Bestellung |
 
-### 2.2 Mikrofon-Entstörung (GY-MAX4466)
+### 2.2 Mikrofone und Audio-ADC (HW-07, 14.10.2026; ersetzt GY-MAX4466 mit Analogfilter)
 
 | Nr. | Maßnahme |
 |---|---|
-| A1 [M] | Eigene, gesiebte Versorgung 3V3_ANA: Ferrit + 47 Ω + 22 µF hinter dem Sensorschalter. |
-| A2 [M] | **Anti-Aliasing:** Sallen-Key-Tiefpass 2. Ordnung mit LMV321 (1179 Hz, Q 0,74) + RC 4,8 kHz vor PA1. Gerechnet: −36 bis −39 dB bei den Spiegelfrequenzen 7168–8192 Hz, höchstens −1,1 dB im Nutzband. Hochpass ca. 22 Hz (220 nF / 33 kΩ an VREF 1,65 V). Die Grenze bei 60 Hz setzt die Firmware. |
-| A3 [M] | Durchgehende Massefläche; Filter nahe an PA1; Funkmodul, SPI und 5-V-Wandler fern vom Mikrofonzweig; kein Rückstrom des Wandlers unter dem Filter (Hinweis HW26-04 statt „sternförmig“). |
-| A4 [M] | Abgeschirmtes Kabel (LiYCY 3 × 0,14). Schirm einseitig auf Analogmasse. |
+| A1 [M] | Versorgung: AVDD aus eigener Schiene 3V3_ANA (Ferrit + 10 Ω + 22 µF hinter dem Sensorschalter), DVDD 1,8 V aus TPS70918, IOVDD = 3V3_SW (wie die I²C-Pull-ups), MEMS-Versorgung 3V3_MEMS über eigenen Ferrit. |
+| A2 [M] | **Anti-Aliasing im Audio-ADC:** Delta-Sigma-Wandler mit digitalem Dezimationsfilter (Filter A: −73 dB ab 0,55 fS [V, TI SLAS553B]), Abtastung **fS = 24 576 Hz, AOSR 128** → PDM-Takt 3,146 MHz (Bedingung 2,8–6,2 MHz [V], IM69D127-Band 2,9–3,3 MHz [V]). Der STM32 dezimiert weiter auf 2048 Hz (Faktor 12) und wertet 60–900 Hz aus (`docs/fft-konzept.md`). Hochpass durch die Koppelkondensatoren (1 µF an ca. 35 kΩ ≈ 4,5 Hz). |
+| A3 [M] | Durchgehende Massefläche; ADC nahe der Mikrofonbuchse J5, weg von Funkmodul, SPI und 5-V-Wandler; PDM-Takt über Schmitt-Puffer (Flanke ≤ 13 ns am Mikrofon [V]). |
+| A4 [M] | Kabel **Cat7 S/FTP** mit geschirmtem **RJ45** (Buchse J5 ohne Übertrager, Paare T568B), fest verlegt, **0,5–1 m** (länger nur mit Treiber für DATA im Mikrofonkopf: Last ≤ 200 pF und Taktflanke ≤ 13 ns, `mikrofon_filter.py`); je Signal ein Paar mit GND, Elektret auf eigenem Paar (pseudo-differenziell); Gesamtschirm nur am Logger an Masse. |
 | A5 [M] | Messung nie während einer Funkübertragung und nie bei laufendem 5-V-Wandler; Reihenfolge Waage → Mikrofon → Senden. |
-| A6 [S] | Verstärkung am Poti so einstellen, dass nichts übersteuert. In der Firmware Welch-Mittelung, Pegel in dBFS und Bandpegel (`docs/fft-konzept.md`). |
-| A7 [M] | ADC an PA1 timergesteuert (TIM2/TIM3-TRGO) mit DMA2 (8192 Hz, optional 16384 Hz für 55 dB). **[P]** RM0383 Tab. 42 und 28 bestätigen. |
+| A6 [S] | Feste Verstärkung (AGC aus), damit die Pegel beider Kanäle und aller Logger vergleichbar bleiben; Welch-Mittelung, Pegel in dBFS und Bandpegel (`docs/fft-konzept.md`); zusätzlich eine **Kanalvergleichs-Kennzahl** (Pegelverhältnis, Kohärenz) als Qualitätsmerkmal, 1 Byte im Funkformat [A]. |
+| A7 [M] | Daten über **I2S3** des STM32 (PB12 CK, PA15 WS, PB5 SD; STM32 Master, Empfang mit DMA); ADC-Takt aus BCLK über die interne PLL (kein MCLK); Einstellung über I²C (0x18). Sind 3V3_SW und der ADC aus, bleiben die I²S-Pins hochohmig. **[P]** PLL-/Teilerwerte am Muster bestätigen. |
 
 ## 3. Versorgung
 
@@ -131,14 +131,14 @@ Ausgewertet mit OpenCascade (Strahlschnitte im 1-mm-Raster und Einzelschnitte); 
 | Nr. | Anforderung |
 |---|---|
 | M1 [M] | **Hauptplatine 121 × 121 mm**, quadratisch, Ecken gerundet, 4 Bohrungen Ø 3,4 mm auf **110,2 × 110,2 mm** (mittig). Sie liegt ganz innerhalb der erlaubten Kontur und lässt am Rand Platz für die Kabel. |
-| M2 [M] | Auf der **Unterseite** keine Bauteile. **Platine auf glatten Distanzhülsen 10 mm über den Domen** (HW-03, 13.10.2026), selbstformende Schrauben durch Platine und Hülse in die Dombohrung Ø 2,4 mm (Blatt 4, STEP; Schraube Ø 3 mm für Kunststoff); damit genug Freiraum unter der Platine auch in den eingeschränkten Feldern, THT-Lötstellen müssen nicht gekürzt werden [A]. **Bauhöhe über der Platine höchstens 40 mm** (inkl. gesteckter Klemmenstecker und Akku-Platine, M3). Höhe der Lichtleiter-Bohrung (F7) aus dem STEP berechnet (4.1a, `mcu-funk.md` 3.3), am ersten Muster bestätigen. **STEP-Kontrolle (13.10.2026): bestanden**, mindestens 4,3 mm Reserve über den 40 mm. |
+| M2 [M] | Auf der **Unterseite** keine Bauteile. **Platine auf glatten Distanzhülsen 10 mm über den Domen** (HW-03, 13.10.2026), selbstformende Schrauben durch Platine und Hülse in die Dombohrung Ø 2,4 mm (Blatt 4, STEP; Schraube Ø 3 mm für Kunststoff); damit genug Freiraum unter der Platine auch in den eingeschränkten Feldern, THT-Lötstellen müssen nicht gekürzt werden [A]. **Bauhöhe über der Platine höchstens 40 mm** (inkl. gesteckter Klemmen- und RJ45-Stecker und Zelle im Halter, M3). Höhe der Lichtleiter-Bohrung (F7) aus dem STEP berechnet (4.1a, `mcu-funk.md` 3.3), am ersten Muster bestätigen. **STEP-Kontrolle (13.10.2026): bestanden**, mindestens 4,3 mm Reserve über den 40 mm. |
 | M3 [S] | **Akkuhalter** Keystone 1042 (88 × 22 mm Courtyard) **auf der Hauptplatine** (HW-06). Bauhöhe 18650 im Halter ca. 21 mm [A], unter den 40 mm über der Platine (M2/HW-03) und unter dem STEP-Freiraum ≥ 44,3 mm (4.1a). Nicht an der Funkkante; TMP390/NTC unter der Zelle. Halterung bei Erschütterung am Muster prüfen [P]. |
-| M4 [M] | Innen **steckbare Schraubklemmen**, Raster **3,5 mm** (**DEGSON 15EDGRC-3.5**, einreihig; Teilenummern je Polzahl in `anschluesse.md` 2; SCH26-13), damit jeder Sensor ohne Löten getauscht werden kann. Masse/Schirm immer Pin 1; Aufdruck an jeder Klemme; Jede Sensorklemme eigene Polzahl: **J8 (BME280) 6-polig**, J4 (Wägezelle) 5-polig, dazu Steckerfarbe (09.10.2026). Belegung J1–J11: [`anschluesse.md`](anschluesse.md). |
-| M5 [S] | **Alle Außenklemmen an einer Platinenkante** (Solar – BME280 – DS18B20 – Mikrofon – Wägezelle), ESD direkt hinter der Klemme; Funkmodul an der gegenüberliegenden Kante. Rund ein Drittel der Fläche frei für Erweiterungen. [`anschluesse.md`](anschluesse.md) 4. |
+| M4 [M] | Innen **steckbare Schraubklemmen**, Raster **3,5 mm** (Mikrofone seit HW-07 über eine geschirmte **RJ45-Buchse**) (**DEGSON 15EDGRC-3.5**, einreihig; Teilenummern je Polzahl in `anschluesse.md` 2; SCH26-13), damit jeder Sensor ohne Löten getauscht werden kann. Masse/Schirm immer Pin 1; Aufdruck an jeder Klemme; Jede Sensorklemme eigene Polzahl: **J8 (BME280) 6-polig**, J4 (Wägezelle) 5-polig, dazu Steckerfarbe (09.10.2026). Belegung J1–J11: [`anschluesse.md`](anschluesse.md). |
+| M5 [S] | **Lage der Außenanschlüsse legt der Layouter fest** (Philipp 14.10.2026): möglichst an einer Kante zu den Kabeldurchführungen hin, zwei Kanten zulässig; ESD direkt hinter jedem Anschluss; Funkmodul mit IPEX an der Kante gegenüber; USB, Debug, Erweiterung, BOOT/Reset innen gut erreichbar; Lichtleiter-LED und Reedkontakt an einer Seitenkante (mcu-funk.md 3.3). Vorschläge und Gründe in [`anschluesse.md`](anschluesse.md) 4. |
 | M6 [K] | Kabeldurchführungen: zurückgestellt, Festlegung später. |
 | M7 [M] | Bestückung **komplett bei JLCPCB, auch die Durchsteckteile** (Festlegung 09.10.2026; anschluesse.md 5). SMD einseitig, möglichst JLCPCB-„Basic Parts“; „Extended Parts“ (STM32, HX711, CN3065, Ra-01SH …) nur wo nötig. |
 | M8 [M] | **4 Lagen** (Entscheidung Philipp, 09.10.2026), 1,6 mm, Aufbau nach JLCPCB-Standard: L1 Signal/Bauteile, **L2 durchgehende Masse**, L3 Versorgung (3,3 V, SYS, 5 V) mit Masse-Füllung, L4 Signal. L2 nicht auftrennen; Masse-Durchkontaktierungen entlang der Platinenkante und um Funkmodul, Wandler und Waagen-/Mikrofonzweig. HASL bleifrei oder ENIG; Schutzlack nach dem Test; Klemmen, USB und Antennenanschluss abdecken. |
-| M9 [S] | Testpunkte für 3,3 V, Akku, Solar, GND, Mikrofon-Ausgang. |
+| M9 [S] | Testpunkte für 3,3 V, Akku, Solar, GND, PDM-Takt und I²S (HW-07). |
 | M10 [M] | Temperaturbereich: alle Bauteile mindestens −20 bis +70 °C. |
 | M11 [M] | **Board-Kennung und Umgebung** im Titelblock jedes Schaltplans und später im Bestückungsdruck: **PCB-AKKU-0.1**, **PCB-MAIN-0.1** (REG26-10). Auslegungsumgebung [A]: Gehäuse innen −20 … +60 °C, Betauung möglich (Bienenstock); Laden nur +5 … 42 °C (`sicherheit-akku.md`); Solar-Eingang ≤ 12 V dauernd, 25 V absolut. Jede Änderung von Schaltung oder Leiterplatte erhöht die Kennung. |
 
@@ -172,7 +172,7 @@ Entschieden (08.10.2026):
 
 - Funkmodul Ai-Thinker Ra-01SH
 - Neue Firmware ohne beelogger-Kompatibilität
-- Mikrofon GY-MAX4466 mit Entstörung
+- Mikrofon GY-MAX4466 mit Entstörung (ersetzt durch HW-07: zwei Mikrofone am Audio-ADC)
 - Akku per Kabel
 - Gehäuse CBHUB-02-GY, Hauptplatine im Unterteil
 - Daten weiter an den eigenen beelogger-Webserver

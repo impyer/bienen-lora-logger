@@ -13,7 +13,7 @@ Die Rechnung zur Energiebilanz ist reproduzierbar: `python3 hardware/energiebila
 
 | Frage | Ergebnis |
 |---|---|
-| Reicht die Energie im Winter? | **Ja, mit großer Reserve.** Bedarf rund 5–18 mAh/Tag (eine 5-V-Waage). Reichweite ohne jedes Laden 128–454 Tage, je nach Firmware, Funk und Selbstentladung. Der Dezemberertrag der Panels liegt bei grob dem 38-Fachen des Bedarfs. |
+| Reicht die Energie im Winter? | **Ja, mit großer Reserve.** Bedarf rund 5–18 mAh/Tag (eine 5-V-Waage). Reichweite ohne jedes Laden 127–436 Tage, je nach Firmware, Funk und Selbstentladung. Der Dezemberertrag der Panels liegt bei grob dem 37-Fachen des Bedarfs. |
 | Was ist kritisch? | 1. Laden **unter 0 °C** muss gesperrt sein. 2. **Tiefentladeschutz** in Hardware. 3. **Leerlaufspannung** der Panels bei Kälte (bis etwa 9–10 V). 4. Ein Kurzschluss im **Akkukabel**. |
 | Laderegler | **BQ25185** (TI) statt CN3065. Der CN3065 verträgt nur 6,5 V am Eingang und hat nur eine Temperaturschwelle; bei LCSC ist er zurzeit nicht lieferbar. |
 | Tiefentladeschutz | **zweistufig in Hardware**, dazu Stufen in der Firmware (Abschnitt 4) |
@@ -164,7 +164,7 @@ Versorgung der Sperre (geändert nach Schaltplan-Review SCH26-01):
 
 **Prüfung am Muster [P]** (Versuchsplan, Einzelfehleranalyse und Grenzen der Unabhängigkeit: [`sicherheit-akku.md`](sicherheit-akku.md)): Temperaturen 0/4/5/7/36/37/42/44/45/55/60 °C; jeden Fehlerfall der Tabelle einzeln; Wiederanlauf nach Tiefentladung **nur mit strombegrenztem Zell-Emulator, nicht mit einer absichtlich tiefentladenen 18650**.
 
-Die Kältesperre steigt damit von +1,7 °C auf +5 °C. Im Winter lädt der Logger seltener. Bei 128 Tagen Reichweite ohne Laden ist das unkritisch [A].
+Die Kältesperre steigt damit von +1,7 °C auf +5 °C. Im Winter lädt der Logger seltener. Bei rund 127 Tagen Reichweite ohne Laden ist das unkritisch [A].
 
 ### 3.4 Zelle und Zellschutz am Halter (bis 14.10.2026: eigene Akku-Platine)
 
@@ -219,7 +219,7 @@ Der Steckverbinder ist verpolsicher kodiert. Zusätzlich P-MOSFET (AO3401A) in B
 
 | Punkt | Festlegung |
 |---|---|
-| Schalter | **TPS22917** (LCSC C2681320, Extended) im 3,3-V-Zweig, ON an PB5 (high = ein), Pull-down 100 kΩ an ON; CT für die Anstiegszeit, QOD für die aktive Entladung (Übernahme aus BEEP base v3, beep-vergleich.md 3.1). Rückfall: AO3401A (C15127, Basic) mit Gate direkt am GPIO (low = ein). |
+| Schalter | **TPS22917** (LCSC C2681320, Extended) im 3,3-V-Zweig, ON an PA1 (high = ein; bis HW-07 PB5), Pull-down 100 kΩ an ON; CT für die Anstiegszeit, QOD für die aktive Entladung (Übernahme aus BEEP base v3, beep-vergleich.md 3.1). Rückfall: AO3401A (C15127, Basic) mit Gate direkt am GPIO (low = ein). |
 | Sicher aus im Standby | **Pflicht:** Die GPIOs sind im Standby hochohmig. TPS22917: Pull-down 100 kΩ an ON. Rückfall AO3401A: Gate-Pull-up 1 MΩ nach 3,3 V. |
 | Einschaltstrom | An der Schiene hängen u. a. 22 µF (Mikrofon) und 10 µF (HX711). TPS22917: CT ≥ 1 nF für eine Anstiegszeit im ms-Bereich [A, Datenblatt-Gleichung prüfen]. Rückfall: Gate-RC 100 kΩ / 10 nF. |
 | An der Schiene | HX711 (nur DVDD; Brücke und Analogteil am 5-V-Wandler, waage.md), DS18B20, BME280, Mikrofon, **alle Pull-ups**. (Der EEPROM entfällt seit 09.10.2026, HW26-10; die Sitzung liegt im SPI-Flash, mcu-funk.md 3.2.) **Nicht** an der Schiene: SPI-Flash (dauernd versorgt, Bus mit dem Funk geteilt, mcu-funk.md 3.2). |
@@ -228,7 +228,7 @@ Der Steckverbinder ist verpolsicher kodiert. Zusätzlich P-MOSFET (AO3401A) in B
 **Regeln gegen Rückspeisung (HW26-04):**
 1. Alle Pull-ups (I²C, 1-Wire) hängen an der **geschalteten** Schiene, nie an der Dauerversorgung.
 2. Vor dem Abschalten stellt die Firmware alle Sensor-Pins auf Analog bzw. hochohmig. Beim Einschalten zuerst die Schiene, dann die Pins.
-3. Serienwiderstände 1 kΩ in HX711-SCK/DOUT und 1-Wire. 10 kΩ vor PA1 (Mikrofon) gehört ohnehin zum Filter.
+3. Serienwiderstände 1 kΩ in HX711-SCK/DOUT und 1-Wire. Der Audio-ADC (HW-07) hängt mit IOVDD an 3V3_SW: Bei abgeschalteter Schiene I²S- und I²C-Pins hochohmig.
 4. **[P] am Muster:** mit abgeschalteter Schiene und Standby den Ruhestrom messen; der Wert muss zur Tabelle in Abschnitt 4 passen.
 
 ### 3.8 Akkuspannung messen
@@ -248,7 +248,7 @@ Der Steckverbinder ist verpolsicher kodiert. Zusätzlich P-MOSFET (AO3401A) in B
 | VBAT | Zelle über Zellschutz (Blatt Akku) | 3,0 (BUVLO) … 4,1 V | HY2111 2,9 / 4,28 V | dauernd | Lader-Ruhestrom, Teiler 0,9 µA |
 | SYS | BQ25185: bei Quelle 4,5 V geregelt, sonst VBAT über 115 mΩ | 3,0–4,5 V | – | dauernd, solange VBAT > BUVLO oder Quelle da | RT9080, 5-V-Wandler der Waage |
 | +3V3 | U202 RT9080 aus SYS, EN an SYS | 3,3 V bei SYS ≥ ca. 3,4 V; darunter folgt sie SYS | Abfall 0,31 V bei 600 mA [V] | folgt SYS (kein eigener Startablauf) | MCU, Funk (bis 140 mA), SPI-Flash |
-| 3V3_SW | U203 TPS22917 aus +3V3 | wie +3V3 | Anstieg ca. 1,7 ms (CT 1 nF), aktive Entladung über QOD | **nur auf Befehl der MCU** (PB5); Standby aus | Sensoren und alle Pull-ups |
+| 3V3_SW | U203 TPS22917 aus +3V3 | wie +3V3 | Anstieg ca. 1,7 ms (CT 1 nF), aktive Entladung über QOD | **nur auf Befehl der MCU** (PA1, bis HW-07 PB5); Standby aus | Sensoren und alle Pull-ups |
 
 Reihenfolge beim Start: Quelle oder Zelle → SYS → +3V3 → MCU → (Firmware) 3V3_SW → Sensor-Pins. Beim Abschalten umgekehrt; vor 3V3_SW aus stellt die Firmware alle Sensor-Pins hochohmig (3.7, Regel 2). Brownout-Schwelle der MCU und Verhalten bei langsam fallender SYS sind Firmware-Festlegungen auf Blatt MCU und am Muster zu prüfen [P].
 
@@ -300,8 +300,10 @@ Nutzbare Kapazität: 3350 mAh × 0,9 (Ladeschluss 4,1 V) × 0,95 (bis 3,3 V) × 
 
 | Szenario | Selbstentladung 2 %/Monat | 5 %/Monat | SF12 + 5 %/Monat |
 |---|---|---|---|
-| A | 282 Tage | 200 Tage | 128 Tage |
-| B | 454 Tage | 273 Tage | 155 Tage |
+| A | 275 Tage | 196 Tage | 127 Tage |
+| B | 436 Tage | 266 Tage | 152 Tage |
+
+Stand 14.10.2026 mit den beiden Mikrofonen am Audio-ADC (HW-07, ca. 5,5 mA für 1,5 s je Messung [A]); vorher 282/200/128 bzw. 454/273/155 Tage.
 
 **Die Selbstentladung der Zelle ist so groß wie der ganze Logger.** Werte für 2–5 %/Monat sind eine Spanne [A]. Battery University nennt für volle Zellen bei 25 °C deutlich mehr. In der Kälte ist sie kleiner. **[P]** Leerlaufspannung einer Zelle über einige Wochen beobachten.
 

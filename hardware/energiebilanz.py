@@ -44,7 +44,9 @@ GEMEINSAM = [
      "Bosche H40A RLC 404 Ω (V); HX711 Tab. 2: 1,4 + 0,1 mA (V); Wandler-Wirkungsgrad 85 % (A); "
      "Dauer: Anlauf + 400 ms Einschwingen + 10 Werte bei 10 SPS (V/A)"),
     ("DS18B20 × 2, Wandlung parallel", 2 * 1.0, 0.75, "V", "ADI DS18B20: IDD typ. 1 mA, tCONV 750 ms (12 Bit)"),
-    ("Mikrofonmodul GY-MAX4466 (Verstärker + Elektret-Vorstrom)", 0.3, 1.4, "A", "MAX4466 ICC 24 µA (V); Elektret-Vorstrom geschätzt 0,2–0,3 mA"),
+    ("Mikrofone (HW-07): Audio-ADC TLV320ADC3101 + IM69D127 + Elektret", 5.5, 1.5, "A",
+     "TLV320ADC3100/3101 Stereo 11 mW bei 8 kHz, 17 mW bei 48 kHz (V, TI) → ca. 14 mW bei 24,6 kHz = 4,2 mA (A); "
+     "IM69D127 0,98 mA bei 3,072 MHz (V); Elektret 0,3 mA (A); Dauer 1,4 s + PLL-Anlauf 10 ms + Einschwingen (A)"),
     ("Sensorschiene sonst (Pull-ups, BME280)", 0.2, 8.0, "A", "BME280 < 1 mA für ~10 ms (V); Pull-ups 1,8 kΩ teilweise low"),
     ("Sitzung in den SPI-Flash schreiben (HW26-10, 2 × 256 Byte)", 15.0, 0.003, "A", "NOR Page Program typ. 0,7 ms bei ca. 15 mA je Seite (W25Q-Familie, A)"),
     ("SX1262 RX1 (SF7) + RX2 (SF9), ohne Downlink, LDO-Modus", 8.8, 0.045, "A",

@@ -35,7 +35,7 @@ Gelesen habe ich den Schaltplan (2 Blätter), die Stückliste und die Leiterplat
 | 32-kHz-Quarz mit kleiner Lastkapazität | 6 pF | 7 pF (C97604) | **bestätigt** |
 | Leiterplatte | 4 Lagen | 4 Lagen (09.10.2026) | **übernommen** (siehe 3.4) |
 | HX711-Speisung | 3,0 V, AVDD 2,77 V, 2. Zelle an Kanal B (Verstärkung 32) | 5 V, AVDD 4,3 V, 2 × HX711 je Kanal A (128) | Wir haben **ca. 1,55-fach mehr Signal** und für die zweite Zelle die **4-fache Verstärkung**. Unsere Entscheidung bleibt. |
-| Audio | eigener Audio-ADC mit eingebauter digitaler Filterung | GY-MAX4466 + Analogfilter + STM32-ADC | **Alternative**, siehe 3.5; keine Änderung ohne Entscheidung |
+| Audio | eigener Audio-ADC mit eingebauter digitaler Filterung | GY-MAX4466 + Analogfilter + STM32-ADC → seit HW-07 TLV320ADC3101 mit Elektret + MEMS | **übernommen (HW-07)**, siehe 3.5 |
 | Versorgung | Primärzellen ohne Solar | 18650 + Solar | anderes Konzept, nichts zu übernehmen |
 | Krypto-Chip, Bluetooth, Summer | ja | nein | nicht übernehmen (ABP-Schlüssel in der Firmware; Summer kostet Strom und stört womöglich die Bienen [A]) |
 | Flash für Messwerte | 64 Mbit | 64 Mbit, fest (09.10.2026) | **übernommen** (siehe 3.6) |
@@ -96,7 +96,7 @@ BEEP setzt einen Audio-ADC TLV320ADC3100 ein. Ein Delta-Sigma-Audio-ADC filtert 
 | Audio-ADC (BEEP-Weg) | kein Analogfilter nötig; **Verstärkung per Software**, also bei allen Loggern gleich (hilft bei HW26-05) | Elektret direkt über 2 m Kabel: Millivolt-Signal mit hoher Impedanz, störanfälliger [A]; **4–5 zusätzliche Pins** (I²S, MCLK, Reset), die wir nicht mehr frei haben; neue Firmware für I²S; Extended-Teil |
 | Unser Weg (GY-MAX4466 + Filter) | Modul verstärkt im Stock, kräftiges Signal auf dem Kabel; nur ein Pin; einfach | Analogfilter nötig; Verstärkung am Poti, bei jedem Logger etwas anders |
 
-**Keine Änderung**, die Entscheidung für den GY-MAX4466 steht. Gegen die ungleiche Poti-Einstellung hilft eine Kalibrierung mit gleichem Prüfton.
+~~**Keine Änderung**, die Entscheidung für den GY-MAX4466 steht.~~ **Überholt durch HW-07 (14.10.2026):** Audio-ADC übernommen, aber als **TLV320ADC3101** (mit Digitalmikrofon-Eingang) für zwei Mikrofone verschiedener Bauart; Elektret pseudo-differenziell über Cat7 0,5–1 m statt 2 m, Takt aus BCLK (kein MCLK), Reset per RC, damit genügen 3 I²S-Pins (mikrofon.md).
 
 ### 3.6 Flash für Messwerte (Kann)
 
