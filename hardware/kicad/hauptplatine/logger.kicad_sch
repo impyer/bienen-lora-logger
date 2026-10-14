@@ -14,7 +14,7 @@
 		(comment 3 "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
 	)
 	(lib_symbols)
-	(text "Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse (Entwurf vollständig)."
+	(text "Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse, Akku (Entwurf vollständig; Akku seit HW-06 auf der Hauptplatine)."
 		(exclude_from_sim no)
 		(at 30 25 0)
 		(effects
@@ -24,6 +24,52 @@
 			(justify left bottom)
 		)
 		(uuid "f9e34c00-3518-5ef5-9f18-b586e7bf4bcb")
+	)
+	(sheet
+		(at 30 75)
+		(size 45 20)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd")
+		(property "Sheetname" "Akku"
+			(at 30 74.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "akku.kicad_sch"
+			(at 30 95.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "logger"
+				(path "/69595bfe-3184-5a98-8dcb-39e42f38dc44"
+					(page "8")
+				)
+			)
+		)
 	)
 	(sheet
 		(at 140 40)

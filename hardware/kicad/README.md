@@ -1,20 +1,19 @@
 # KiCad-Projekte (KiCad 10)
 
-Stand 13.10.2026: **Akku-Platine** und alle Blätter der Hauptplatine (**Versorgung**, **MCU**, **Funk + Flash**, **Waage**, **Mikrofon**, **Anschlüsse**) im Entwurf (SCH26-07). **Entwurf, keine Fertigungsfreigabe.**
+Stand 14.10.2026: alle Blätter der Hauptplatine (**Versorgung**, **MCU**, **Funk + Flash**, **Waage**, **Mikrofon**, **Anschlüsse**, **Akku**) im Entwurf (SCH26-07). **Seit HW-06 gibt es nur noch eine Platine:** Zelle, Zellschutz und Ladesperre liegen auf dem Blatt „Akku“ der Hauptplatine; die frühere Akku-Platine (`akku_platine.py`, `akku-platine/`) ist entfernt und steht in der Git-Historie. USB dient seit HW-05 auch als Programmier- und Kommunikationsschnittstelle (VBUS-Erkennung an PB13). **Entwurf, keine Fertigungsfreigabe.**
 
 | Ordner/Datei | Inhalt |
 |---|---|
-| `akku-platine/` | Projekt `akku.kicad_pro`: Zelle, HY2111 + FS8205, Messbrücke, Ladesperre 2 × TMP390 (Stufe 1 → CE, Stufe 2 → NTC-Kreis), NTC, JST PH 5 |
-| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch`, `mikrofon.kicad_sch`, `anschluesse.kicad_sch` |
+| `hauptplatine/` | Projekt `logger.kicad_pro`: Wurzelblatt mit Blättern je Block; fertig: `versorgung.kicad_sch`, `mcu.kicad_sch`, `funk.kicad_sch`, `waage.kicad_sch`, `mikrofon.kicad_sch`, `anschluesse.kicad_sch`, `akku.kicad_sch` (Zelle, HY2111 + FS8205, Messbrücke, Ladesperre 2 × TMP390, NTC) |
 | `bienen.kicad_sym` | Projektsymbole (BQ25185, TMP390, HY2111-GB, FS8205, RT9080, TPS70933, Ra-01SH, TPS61240), Pinbelegungen mit Datenblattquelle in `werkzeug/symbole.py` |
-| `hauptplatine/logger.kicad_pcb` | **Platine (Layout), von Hand in KiCad bearbeitet** – angelegt am 13.10.2026 mit `werkzeug/platine_start.py`: 4 Lagen, 1,6 mm, Umriss 121 × 121 mm (Ecken R 3 [A]), 4 Löcher Ø 3,4 mm auf 110,2 mm mit Kupfersperre Ø 7 mm (Hülse 10 mm, HW-03), JLCPCB-Regeln (0,15/0,15 mm, Via 0,3/0,6 mm) [A], Hinweise auf User.1. Das Skript überschreibt nichts. **Bauteile** übernommen und grob platziert mit `werkzeug/platine_bestuecken.py` (ergänzt nur fehlende Referenzen; Regeln M5/A3, siehe Prüfbericht 2026-10-13-platine-grobplatzierung); Feinplatzierung von STM32, Ra-01SH und TPS61240, Thermal-Vias und GND-Fläche L2 mit `werkzeug/platine_fein.py` (wiederholbar); Versorgungslage L3 (+3V3-Fläche, GND-Füllung) mit `werkzeug/platine_lagen.py`; Fanout der GND-/+3V3-Pads zu den Innenlagen mit `werkzeug/platine_fanout.py`; weitere Schaltplanänderungen danach über „Platine aus Schaltplan aktualisieren“ in KiCad |
+| `hauptplatine/logger.kicad_pcb` | **Stand 14.10.2026: Platzierungsvorschlag nach HW-05/HW-06, nicht geroutet** (Layout durch den beauftragten Layouter; Pipeline unten). **Platine (Layout)** – angelegt am 13.10.2026 mit `werkzeug/platine_start.py`: 4 Lagen, 1,6 mm, Umriss 121 × 121 mm (Ecken R 3 [A]), 4 Löcher Ø 3,4 mm auf 110,2 mm mit Kupfersperre Ø 7 mm (Hülse 10 mm, HW-03), JLCPCB-Regeln (0,15/0,15 mm, Via 0,3/0,6 mm) [A], Hinweise auf User.1. Das Skript überschreibt nichts. **Bauteile** übernommen und grob platziert mit `werkzeug/platine_bestuecken.py` (ergänzt nur fehlende Referenzen; Regeln M5/A3, siehe Prüfbericht 2026-10-13-platine-grobplatzierung); Feinplatzierung von STM32, Ra-01SH und TPS61240, Thermal-Vias und GND-Fläche L2 mit `werkzeug/platine_fein.py` (wiederholbar); Versorgungslage L3 (+3V3-Fläche, GND-Füllung) mit `werkzeug/platine_lagen.py`; Fanout der GND-/+3V3-Pads zu den Innenlagen mit `werkzeug/platine_fanout.py`; Routing mit `werkzeug/platine_routen.py` (Freerouting 1.9.0, `FREEROUTING_JAR`), `platine_nachrouten.py` und `platine_aufraeumen.py` – Ablauf und Stand im Prüfbericht 2026-10-13-platine-routing; weitere Schaltplanänderungen danach über „Platine aus Schaltplan aktualisieren“ in KiCad |
 | `erc_erwartet.json` | begründete ERC-Warnungen; jede andere Meldung lässt die Prüfung scheitern |
 | `pdf/`, `netzliste/` | Ausdrucke und KiCad-Netzlisten (zum Prüfen ohne KiCad; enthalten ein Datum, daher vom CI-Diff ausgenommen) |
 | `werkzeug/` | Erzeuger `kicad_gen.py`, `symbole.py`, `erc_pruefen.py`, `netz_tests.py` |
 
 ## Wie die Schaltpläne entstehen
 
-- Jeder Block ist in Python beschrieben: `akku_platine.py`, `hauptplatine.py` (Bauteil, Wert, Footprint, LCSC, Pin → Netz). **Diese Netzbeschreibung ist die Quelle der Wahrheit.**
+- Jeder Block ist in Python beschrieben: `hauptplatine.py` (Bauteil, Wert, Footprint, LCSC, Pin → Netz). **Diese Netzbeschreibung ist die Quelle der Wahrheit.**
 - **Zeichnung (Verdrahtungsmodus, seit 09.10.2026):** Je Blatt legt eine Funktion `zeichne…()` Lage und Drehung jedes Bauteils fest und zieht die Leitungen nach dem Stromfluss (links Quelle, rechts Verbraucher, oben Versorgung, Masse als GND-Symbol). Netznamen stehen als Label an der Leitung; Netze zu anderen Blättern werden globale Labels. Seit 10.10.2026 (Blatt Waage): Mehrere GND-Pins können mit einem Draht verbunden werden und bekommen dann ein gemeinsames GND-Symbol (`b.versorgung("GND", …)`); Referenz und Wert lassen sich mit `text=(x, y)` frei setzen. Die älteren Blätter sind davon unverändert.
 - Absicherung der Zeichnung: Der Erzeuger bricht ab, wenn ein Pin keinen Draht hat; `netz_tests.py` vergleicht **jedes Netz** der von KiCad exportierten Netzliste mit der Netzbeschreibung (Name und Pins). Ein falsch gezogener oder vergessener Draht fällt so auf (Gegenproben 09.10.2026: fehlender Draht an R5 → Abbruch; U2-VDD an B+ → 9 Prüfungen rot).
 - Danach speichert KiCad jede Datei einmal selbst neu (`kicad-cli sch upgrade --force`): exaktes KiCad-10-Format.
@@ -27,7 +26,7 @@ Stand 13.10.2026: **Akku-Platine** und alle Blätter der Hauptplatine (**Versorg
 1. zweimal erzeugen, Prüfsummen **aller** erzeugten Blätter und der Symbolbibliothek vergleichen (reproduzierbar). Die Liste entsteht aus den Ordnern; jedes von einem Wurzelblatt verwiesene Blatt muss darin stehen, verwaiste `.kicad_sch` lassen die Prüfung scheitern (SCH26-12). `bash pruefen.sh --gegenprobe` erzeugt absichtlich mit Zufalls-UUIDs und zeigt, dass jede Blattdatei als abweichend erkannt wird.
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
-4. `werkzeug/netz_tests.py`: 178 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung (je Projekt), gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Kabel J1 ↔ J203, Widerstandswerte), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J3/J203, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon: Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA, symmetrische Vorspannung, ESD direkt an der Klemme, **Hochpass, Sallen-Key-Grenzfrequenz und -Güte sowie RC vor PA1 aus den Bauteilwerten** (mit Gegenprobe vertauschter Kondensatoren), Spannungsfolger-Beschaltung, J5/J601 gegen `anschluesse.md`; Blatt Anschlüsse: 1-Wire- und I²C-Netze, **Pull-ups nur an 3V3_SW** (HW26-04, mit Gegenprobe), ESD-Arrays, J8-Pin 6 frei, eigene Polzahl je Sensorklemme, Masse an Pin 1, J6/J7/J8/J11 gegen `anschluesse.md`
+4. `werkzeug/netz_tests.py`: 168 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung, gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Zelle B− getrennt von GND (Schutz-FET im Minuspfad), Widerstandswerte; VBUS-Erkennung an PB13 nach HW-05), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon: Siebung 3V3_SW → Ferrit → 47 Ω → 3V3_ANA, symmetrische Vorspannung, ESD direkt an der Klemme, **Hochpass, Sallen-Key-Grenzfrequenz und -Güte sowie RC vor PA1 aus den Bauteilwerten** (mit Gegenprobe vertauschter Kondensatoren), Spannungsfolger-Beschaltung, J5/J601 gegen `anschluesse.md`; Blatt Anschlüsse: 1-Wire- und I²C-Netze, **Pull-ups nur an 3V3_SW** (HW26-04, mit Gegenprobe), ESD-Arrays, J8-Pin 6 frei, eigene Polzahl je Sensorklemme, Masse an Pin 1, J6/J7/J8/J11 gegen `anschluesse.md`
 5. `werkzeug/pin_footprint.py` (REG26-08): für jedes Bauteil Footprint vorhanden, **Symbol-Pins = Footprint-Pads** und **Symbol-Pinnamen = Pinbelegung laut Datenblatt** (Tabelle mit Quelle und Status [V]/[V*]/[A]/[P] im Skript); schreibt [`pin_footprint.md`](pin_footprint.md), Exit 1 bei Abweichung. Alle Footprints vorhanden (13.10.2026)
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
@@ -36,15 +35,13 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|
-| Akku-Platine | 0 | |
 | Hauptplatine | 0 | Projektfootprints in `Bienen.pretty` (BQ25185 DLH, Ra-01SH) über `fp-lib-table`; alle globalen Netze haben ihre Gegenstelle |
 
 ## Board-Kennung und Umgebung (REG26-10)
 
 | Projekt | Kennung (Titelblock Kommentar 2) | Umgebung (Kommentar 3) [A] |
 |---|---|---|
-| Akku-Platine | PCB-AKKU-0.1 | Gehäuse −20 … +60 °C, Betauung möglich; Laden nur +5 … 42 °C |
-| Hauptplatine | PCB-MAIN-0.1 | Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut |
+| Hauptplatine | PCB-MAIN-0.1 | Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut; Laden nur +5 … 42 °C |
 
 ## PWR_FLAG – Begründungen (REG26-09)
 
@@ -52,14 +49,11 @@ Ein `PWR_FLAG` sagt dem ERC: „Hier speist eine Quelle ein, die KiCad nicht als
 
 | Projekt | Netz | Echte Quelle |
 |---|---|---|
-| Akku-Platine | B+, B− | Zelle BT1 (Halter = passive Pins) |
-| Akku-Platine | P+ | Zelle über die Lötbrücke JP1 (passiv) |
-| Akku-Platine | GND (P−) | Zelle über Q1 FS8205 (FET kein Treiber im ERC) |
-| Akku-Platine | TMP_VCC | U204 auf der Hauptplatine über J1 Pin 4 (anderes Projekt) |
-| Akku-Platine | HY_VDD | B+ über R1 100 Ω (HYCON-Anwendungsschaltung) |
+| Hauptplatine (Blatt Akku) | B+, B− | Zelle BT801 (Halter = passive Pins) |
+| Hauptplatine (Blatt Akku) | HY_VDD | B+ über R801 100 Ω (HYCON-Anwendungsschaltung) |
 | Hauptplatine | VIN_LADER | Panels J201/J202 und VBUS über D201–D203 |
-| Hauptplatine | GND | Klemmen J201/J202 und Akku-Stecker J203 |
-| Hauptplatine | VBAT | Akku-Platine über J203 Pin 5 (anderes Projekt) |
+| Hauptplatine | GND | Klemmen J201/J202 und Zelle über Q801 FS8205 (FET kein Treiber im ERC) |
+| Hauptplatine | VBAT | Zelle BT801 über die Lötbrücke JP801 (passiv) |
 | Hauptplatine | VDDA | +3V3 über Ferrit FB301 (Ferrit kein Treiber im ERC) |
 | Hauptplatine | VSUP_HX | 5-V-Wandler U501 über Ferrit FB501 |
 | Hauptplatine | HX_AVDD | Kollektor des PNP Q501 (HX711-AVDD-Regler) |
@@ -77,36 +71,15 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 - Blatt Mikrofon: Operationsverstärker **TLV9001IDBVR** (C398363) statt LMV321TP (C90297 laut LCSC-Seite am 13.10.2026 nicht lieferbar; TLV9001IDBVR dort 39.765 Stück); JLCPCB-Bestand vor der Bestellung erneut prüfen; **nicht TLV9001U** (andere Pinfolge). LCSC-Nummer ESDS304DBVR; Ferrit FB601 wählen; Frequenzgang und Schwingneigung mit 2 m Kabel am Muster messen (`../mikrofon.md` 7).
 - Klemmen: DEGSON 15EDGRC-3.5 (einreihig, SCH26-13) mit Footprints `Bienen:DEGSON_15EDGRC-3.5-0nP` nach EasyEDA/LCSC-Geometrie – gegen die DEGSON-Zeichnung prüfen [P].
 - Blatt Anschlüsse: LCSC-Nummer ESDS304DBVR (D701, D702); DEGSON-Teilenummern 3- und 6-polig; Kapazität des gekauften Netzwerkkabels messen (`../anschluesse.md` 3.1).
-- LCSC-Nummern ergänzen (BQ25185, TMP390, TPS70933, SS34, SMAJ12A, Klemmen, JST).
+- LCSC-Nummern ergänzen (BQ25185, TMP390, TPS70933, SS34, SMAJ12A, Klemmen, Akkuhalter Keystone 1042).
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
 - Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
-## Stückliste (bisher, 161 Teile; erzeugt aus den Generatoren)
+## Stückliste (bisher, 161 Teile; erzeugt aus dem Generator)
 
 | Ref. | Wert | Symbol | Footprint | LCSC | Blatt |
 |---|---|---|---|---|---|
-| BT1 | 18650 3,6 V | Device:Battery_Cell | BatteryHolder_Keystone_1042_1x18650 |  | Akku-Platine |
-| C1 | 100n | Device:C | C_0603_1608Metric |  | Akku-Platine |
-| C2 | 100n | Device:C | C_0603_1608Metric |  | Akku-Platine |
-| C3 | 100n | Device:C | C_0603_1608Metric |  | Akku-Platine |
-| J1 | JST PH 5-polig | Connector_Generic:Conn_01x05 | JST_PH_S5B-PH-K_1x05_P2.00mm_Horizontal |  | Akku-Platine |
-| J2 | Strommessung (DNP) | Connector_Generic:Conn_01x02 | PinHeader_1x02_P2.54mm_Vertical |  | Akku-Platine |
-| JP1 | Messbrücke B+ (kein Bestückteil) | Jumper:SolderJumper_2_Bridged | SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm |  | Akku-Platine |
-| Q1 | FS8205 | Bienen:FS8205 | SOT-23-6 | C32254 | Akku-Platine |
-| Q2 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku-Platine |
-| Q3 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku-Platine |
-| R1 | 100 | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| R2 | 2k | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| R3 | 2,49k 1% | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| R4 | 18,7k 1% | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| R5 | 100k | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| R6 | 2,49k 1% | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| R7 | 18,7k 1% | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| R8 | 100k | Device:R | R_0603_1608Metric |  | Akku-Platine |
-| TH1 | 10k B3435 | Device:Thermistor_NTC | R_0603_1608Metric |  | Akku-Platine |
-| U1 | HY2111-GB | Bienen:HY2111-GB | SOT-23-6 | C82747 | Akku-Platine |
-| U2 | TMP390A2DRL | Bienen:TMP390 | SOT-563 |  | Akku-Platine |
-| U3 | TMP390A2DRL | Bienen:TMP390 | SOT-563 |  | Akku-Platine |
+| BT801 | 18650 3,6 V | Device:Battery_Cell | BatteryHolder_Keystone_1042_1x18650 |  | Akku |
 | C201 | 4,7µ 50V X7R | Device:C | C_1206_3216Metric |  | Versorgung |
 | C202 | 100n 50V | Device:C | C_0603_1608Metric |  | Versorgung |
 | C203 | 100n | Device:C | C_0603_1608Metric |  | Versorgung |
@@ -155,6 +128,9 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | C606 | 10n C0G | Device:C | C_0603_1608Metric |  | Mikrofon |
 | C607 | 100n | Device:C | C_0603_1608Metric |  | Mikrofon |
 | C608 | 10n C0G | Device:C | C_0603_1608Metric |  | Mikrofon |
+| C801 | 100n | Device:C | C_0603_1608Metric |  | Akku |
+| C802 | 100n | Device:C | C_0603_1608Metric |  | Akku |
+| C803 | 100n | Device:C | C_0603_1608Metric |  | Akku |
 | D201 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D202 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
 | D203 | SS34 | Diode:SS34 | D_SMA |  | Versorgung |
@@ -171,7 +147,6 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | FB601 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Mikrofon |
 | J201 | Solar 1 | Connector_Generic:Conn_01x02 | DEGSON_15EDGRC-3.5-02P | C5160225 | Versorgung |
 | J202 | Solar 2 | Connector_Generic:Conn_01x02 | DEGSON_15EDGRC-3.5-02P | C5160225 | Versorgung |
-| J203 | Akku (JST PH 5) | Connector_Generic:Conn_01x05 | JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical |  | Versorgung |
 | J301 | USB-C | Connector:USB_C_Receptacle_USB2.0_16P | USB_C_Receptacle_HRO_TYPE-C-31-M-12 | C165948 | MCU |
 | J302 | Debug (SWD + Serial1) | Connector_Generic:Conn_01x07 | PinHeader_1x07_P2.54mm_Vertical |  | MCU |
 | J501 | Wägezelle | Connector_Generic:Conn_01x05 | DEGSON_15EDGRC-3.5-05P | C7603439 | Waage |
@@ -180,10 +155,15 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | J702 | DS18B20 Nr. 2 | Connector_Generic:Conn_01x03 | DEGSON_15EDGRC-3.5-03P | C5160226 | Anschlüsse |
 | J703 | BME280 | Connector_Generic:Conn_01x06 | DEGSON_15EDGRC-3.5-06P | C49352918 | Anschlüsse |
 | J704 | Erweiterung | Connector_Generic:Conn_02x06_Odd_Even | PinHeader_2x06_P2.54mm_Vertical |  | Anschlüsse |
+| J801 | Strommessung (DNP) | Connector_Generic:Conn_01x02 | PinHeader_1x02_P2.54mm_Vertical |  | Akku |
 | JP401 | TXEN (kein Bestückteil) | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
 | JP402 | RXEN (kein Bestückteil) | Jumper:SolderJumper_2_Open | SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm |  | Funk + Flash |
+| JP801 | Messbrücke B+ (kein Bestückteil) | Jumper:SolderJumper_2_Bridged | SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm |  | Akku |
 | L501 | 1µ | Device:L | L_0805_2012Metric |  | Waage |
 | Q501 | S8550 | Transistor_BJT:SS8550 | SOT-23 | C397181 | Waage |
+| Q801 | FS8205 | Bienen:FS8205 | SOT-23-6 | C32254 | Akku |
+| Q802 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku |
+| Q803 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku |
 | R201 | 3,3M | Device:R | R_0603_1608Metric |  | Versorgung |
 | R202 | 470k | Device:R | R_0603_1608Metric |  | Versorgung |
 | R203 | 2,0k 1% | Device:R | R_0603_1608Metric |  | Versorgung |
@@ -199,6 +179,8 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R304 | 5,1k | Device:R | R_0603_1608Metric |  | MCU |
 | R305 | 100k | Device:R | R_0603_1608Metric |  | MCU |
 | R306 | 1k | Device:R | R_0603_1608Metric |  | MCU |
+| R307 | 33k | Device:R | R_0603_1608Metric |  | MCU |
+| R308 | 82k | Device:R | R_0603_1608Metric |  | MCU |
 | R401 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R402 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R403 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
@@ -227,10 +209,19 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R701 | 4,7k | Device:R | R_0603_1608Metric |  | Anschlüsse |
 | R702 | 1,8k | Device:R | R_0603_1608Metric |  | Anschlüsse |
 | R703 | 1,8k | Device:R | R_0603_1608Metric |  | Anschlüsse |
+| R801 | 100 | Device:R | R_0603_1608Metric |  | Akku |
+| R802 | 2k | Device:R | R_0603_1608Metric |  | Akku |
+| R803 | 2,49k 1% | Device:R | R_0603_1608Metric |  | Akku |
+| R804 | 18,7k 1% | Device:R | R_0603_1608Metric |  | Akku |
+| R805 | 100k | Device:R | R_0603_1608Metric |  | Akku |
+| R806 | 2,49k 1% | Device:R | R_0603_1608Metric |  | Akku |
+| R807 | 18,7k 1% | Device:R | R_0603_1608Metric |  | Akku |
+| R808 | 100k | Device:R | R_0603_1608Metric |  | Akku |
 | SW301 | Reset | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW302 | BOOT | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW303 | Service | Switch:SW_Push | SW_SPST_TL3342 |  | MCU |
 | SW304 | MRS03-B-3 | Switch:SW_Reed | MiRelay_MRS03_J-Lead_8.5x2.1mm | C41432613 | MCU |
+| TH801 | 10k B3435 | Device:Thermistor_NTC | R_0603_1608Metric |  | Akku |
 | TP201 | STAT1 (kein Bestückteil) | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
 | TP202 | STAT2 (kein Bestückteil) | Connector:TestPoint | TestPoint_Pad_D1.0mm |  | Versorgung |
 | U201 | BQ25185DLHR | Bienen:BQ25185 | WSON-10-1EP_2.2x2mm_DLH0010A |  | Versorgung |
@@ -244,5 +235,8 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | U501 | TPS61240DRVR | Bienen:TPS61240 | WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm | C59567 | Waage |
 | U502 | HX711 | Analog_ADC:HX711 | SOIC-16_3.9x9.9mm_P1.27mm | C43656 | Waage |
 | U601 | TLV9001IDBVR | Amplifier_Operational:MCP6001-OT | SOT-23-5 | C398363 | Mikrofon |
+| U801 | HY2111-GB | Bienen:HY2111-GB | SOT-23-6 | C82747 | Akku |
+| U802 | TMP390A2DRL | Bienen:TMP390 | SOT-563 |  | Akku |
+| U803 | TMP390A2DRL | Bienen:TMP390 | SOT-563 |  | Akku |
 | Y301 | 25MHz 12pF | Device:Crystal_GND24 | Crystal_SMD_3225-4Pin_3.2x2.5mm | C9006 | MCU |
 | Y302 | 32,768k 7pF | Device:Crystal | Crystal_SMD_3215-2Pin_3.2x1.5mm | C97604 | MCU |

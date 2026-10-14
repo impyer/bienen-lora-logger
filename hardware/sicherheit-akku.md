@@ -2,7 +2,7 @@
 
 - **Dokument:** SAF-AKKU, Fassung 0.1 vom 09.10.2026
 - **Änderungsklasse:** D3 (Li-Ion, Ladefreigabe, Tiefentladeschutz)
-- **Bezugsstand:** `main` = `2076c20` (Akku-Platine `hardware/kicad/akku_platine.py`, Versorgung `hardware/kicad/hauptplatine.py`, Beschreibung [`versorgung.md`](versorgung.md) 3.2–3.5)
+- **Bezugsstand:** `main` = `2076c20` (Akku-Platine `hardware/kicad/akku_platine.py`; seit HW-06 vom 14.10.2026 Blatt „Akku“ der Hauptplatine, siehe Abschnitt 10; Versorgung `hardware/kicad/hauptplatine.py`, Beschreibung [`versorgung.md`](versorgung.md) 3.2–3.5)
 - **Zweck:** Voraussetzung für Gate **G2** (Labormuster) nach [tests-freigaben.md](../docs/entwicklung/tests-freigaben.md) T-05 und [hardware.md](../docs/entwicklung/hardware.md) H-02: Gefährdungsanalyse, Fehler- und Wiederanlaufzustände, sicherer Versuchsplan, Rückverfolgbarkeit (Befunde REG26-06/07).
 - **Teststufe dieses Dokuments:** T0 (Analyse aus Schaltplan und Datenblättern). **Keine Messung, kein Muster, kein HiL.**
 - **Verfasser:** Claude (Agent). **Gegenlesen durch einen zweiten Prüfweg steht aus**; G2 entscheidet Philipp. G3/G4 brauchen zusätzlich T4-Messungen und das unabhängige fachkundige Review (GOV-02).
@@ -116,7 +116,7 @@ Zustände: **gesperrt** = sicher; **erlaubt** = Laden möglich; maßgeblich ist,
 | Solar-Ersatz | Labornetzteil an VIN | 0–12 V, Strom **200 mA** |
 | USB-Ersatz | Labornetzteil an VBUS | 5,0 V, 200 mA |
 | Zell-Emulator | **muss Strom aufnehmen können**: 2-Quadranten-Netzteil oder Netzteil mit parallelem Lastwiderstand (z. B. 22 Ω / 2 W, nimmt bei 3,7 V ca. 170 mA auf) [A] | 0–4,3 V, Strom **500 mA** Quelle; Ladestrom muss vollständig in den Emulator fließen können |
-| Temperatur | Heizplatte bzw. Kältespray oder Klimaschrank für die Akku-Platine, Referenzthermometer am TMP390; für TS-Versuche Widerstandsdekade statt NTC | 0–60 °C an der Platine |
+| Temperatur | Heizplatte bzw. Kältespray oder Klimaschrank für den Bereich Zelle/Akku-Blatt (U802, U803, TH801), Referenzthermometer am TMP390; für TS-Versuche Widerstandsdekade statt NTC | 0–60 °C an der Platine |
 | Messung | Multimeter an CE, TS, TMP_VCC, SYS; Strommessung in der Messbrücke JP1/J2 | – |
 
 **Abbruchkriterien:** Emulatorspannung > 4,25 V; Ladestrom > 180 mA; Platine > 65 °C; Ladestrom > 1 mA im Zustand „gesperrt“; Geruch, Verfärbung, unerwartete Erwärmung.
@@ -141,7 +141,7 @@ SCH-T07 (ERC, Reproduzierbarkeit) und SCH-T08 (Footprints, Layout) sind Entwurfs
 
 | Anforderung | Risiko | Umsetzung (Schaltplan) | Test-ID / Stufe | Status |
 |---|---|---|---|---|
-| LH-V1 Akku-Platine, Stecker J1/J3 5-polig, Kabel 1:1 | G-05, G-08 | `akku_platine.py` J1; `hauptplatine.py` J203; Kabelplan `anschluesse.md` | `netz_tests.py` / T3; SCH-T09 / T4 | T3 bestanden lokal (`2076c20`); T4 offen |
+| LH-V1 Zelle auf der Hauptplatine (HW-06; bis 14.10.2026 Akku-Platine mit Stecker J1/J3 und Kabel) | G-05, G-08 | `hauptplatine.py` Blatt „Akku“ (BT801, U801, Q801); Abschnitt 10 | `netz_tests.py` / T3; SCH-T09 / T4 | T3 bestanden lokal (`2076c20`); T4 offen |
 | LH-V2 Tiefentladeschutz zweistufig, Freigabe nur durch Laden | G-04 | BQ25185 BUVLO; HY2111-GB U1 + FS8205 Q1 | `netz_tests.py` (kein Pfad an U1/Q1 vorbei) / T3; SCH-T04 / T4 | T3 lokal; T4 offen; HW26-17 offen |
 | LH-V3 Ladeschluss 4,1 V, 150 mA | G-03, G-07 | R203 (ISET) 2,0 kΩ, R204 (ILIM/VSET) 130 kΩ in `hauptplatine.py` | SCH-T01 / T4 | T4 offen |
 | LH-V3 Ladesperre Stufe 1 (+5 … 42 °C) | G-01, G-02 | U2, R3/R4, Q2, R5 → CE_FREI → R205/CE | `netz_tests.py` / T3; SCH-T02/T03 / T4 | T3 lokal; T4 offen |
@@ -160,3 +160,16 @@ SCH-T07 (ERC, Reproduzierbarkeit) und SCH-T08 (Footprints, Layout) sind Entwurfs
 | E-5 | Gegenlesen dieses Dokuments (zweiter Prüfweg) | Philipp benennt |
 
 **Freigabestand:** G2 für den Akku-Teil ist **nicht** erteilt. Voraussetzungen fehlen noch: Gegenlesen (E-5), Entscheidungen E-1 bis E-4, Board-Kennung und Umgebungsbereich (REG26-10), Footprints (SCH26-04).
+
+## 10. Änderung HW-06 (14.10.2026): Zelle und Schutz auf der Hauptplatine
+
+- **Änderung:** Halter, HY2111 + FS8205, NTC und beide TMP390-Stufen mit unveränderter Schaltung auf das Blatt „Akku“ der Hauptplatine (Bauteile 8xx). Kabel J1 ↔ J203 und beide JST-Stecker entfallen.
+- **Wirkung auf die Gefährdungen:**
+  - G-05 (Kurzschluss in Kabel/Stecker): Kabel und Stecker entfallen; Kurzschlüsse auf der Platine schaltet weiter HY2111 + FS8205 an der Zelle ab. SZ-5 bleibt erfüllt.
+  - G-08 (falsch gesteckt/gecrimpt): entfällt; Polung nur noch am Halter (Pad 1 = Plus, Bestückungsdruck), Zelle verpolt einsetzen bleibt möglich [P: Halter verpolungssicher? Datenblatt Keystone 1042].
+  - Neu zu beachten im Layout: **B− ist nicht GND**. B− darf nur die Insel zwischen Halter, U801 (VSS) und Q801 (S1) sein; eine Verbindung B− ↔ GND würde den Schutz-FET überbrücken (Netzprüfung: „Zelle B− ist nicht GND“, T3).
+  - Wärmekopplung (Abschnitt 4, H-A): TMP390 und NTC unter der Zelle; Laderegler, LDO und Funkmodul mit Abstand, damit die Sperre die Zelle misst und nicht die Platine [P: Verzug am Muster messen].
+- **Schaltung und Ladesperre-Logik:** unverändert (Netzprüfung 168/168, T3, lokal 14.10.2026). Die Einzelfehleranalyse (Abschnitt 4) gilt weiter; der Fehlerfall „Ader TMP_VCC/CE_FREI reißt“ entfällt mit dem Kabel.
+- **Bauteilbezeichner:** Abschnitte 1–9 nennen die Bezeichner der früheren Akku-Platine (Bezugsstand `2076c20`). Sie entsprechen auf dem Blatt „Akku“ der Hauptplatine dem Schema *alt n → 80n*: BT1 → BT801, U1 → U801, Q1 → Q801, U2 → U802, U3 → U803, Q2 → Q802, Q3 → Q803, R1 … R8 → R801 … R808, C1 … C3 → C801 … C803, TH1 → TH801, JP1 → JP801, J2 → J801; CE_FREI heißt jetzt CE_LADEN, P+ heißt VBAT.
+- **Rückverfolgbarkeit:** LH-V1 jetzt `hauptplatine.py` (Blatt Akku, BT801 …), Nachweis `netz_tests.py` / T3; SCH-T09 (Kabel) entfällt.
+- **Gate:** G2 bleibt offen (keine Messung). Gegenlesen dieser Änderung durch einen zweiten Prüfweg steht aus.

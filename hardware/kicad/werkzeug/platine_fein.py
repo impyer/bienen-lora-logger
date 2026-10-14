@@ -29,28 +29,27 @@ PCB = os.path.join(os.path.dirname(HIER), "hauptplatine", "logger.kicad_pcb")
 # Bezug -> {Ref: (dx, dy, Drehung)}; dx/dy in mm relativ zur Lage des Bezugs, Drehung absolut in Grad
 FEIN = {
     "U301": {
-        # Nordseite (Pins 37–48): VDD 48 / VSS 47, BOOT0 44
-        "C301": (-2.5, -5.1, 0),       # 100 nF an Pin 48/47
-        "R301": (0.7, -5.1, 0),        # BOOT0-Pull-down an Pin 44
-        # Ostseite (Pins 25–36): VDD 36 / VSS 35
-        "C302": (5.1, -3.0, 90),       # 100 nF an Pin 36/35
-        # Südseite (Pins 13–24): VCAP 22, VSS 23, VDD 24, BOOT1 20
-        "C307": (0.3, 5.4, 0),         # VCAP 4,7 µF an Pin 22
-        "C303": (3.9, 5.1, 0),         # 100 nF an Pin 24/23
-        "C304": (3.9, 7.1, 0),         # 10 µF Sammelkondensator
-        "R302": (-1.9, 7.6, 0),        # BOOT1-Pull-down an Pin 20
-        # Westseite (Pins 1–12): VBAT 1, LSE 3/4, HSE 5/6, NRST 7, VSSA 8, VDDA 9
-        "Y302": (-6.4, -5.5, 0),       # 32,768 kHz an Pin 3/4, Lastkondensatoren nach außen
-        "C312": (-7.65, -8.3, 90),
-        "C313": (-5.15, -8.3, 90),
-        "C308": (-5.1, -2.5, 90),      # 100 nF an VBAT (Pin 1)
-        "Y301": (-8.4, 0.2, 90),       # 25 MHz an Pin 5/6
-        "C310": (-12.0, 2.0, 90),
-        "C311": (-12.0, -1.6, 90),
-        "C305": (-5.1, 1.9, 90),       # 100 nF an VDDA (Pin 9) / VSSA (Pin 8)
-        "C306": (-5.1, 5.2, 90),       # 1 µF an VDDA
-        "FB301": (-7.0, 5.2, 90),      # Ferrit +3V3 → VDDA
-        "C309": (-8.9, 5.2, 90),       # NRST 100 nF
+        # Seiten der QFN bleiben frei, damit die Signale ausbrechen können (Routing 13.10.2026: eine Kondensatorreihe
+        # parallel zur Kante blockierte 18 Pins). Abblockkondensatoren daher an den Ecken, nahe ihrem VDD/VSS-Paar.
+        "C301": (-3.9, -6.0, 0),       # 100 nF an Pin 48/47 (NW-Ecke)
+        "C308": (-6.3, -3.9, 90),      # 100 nF an VBAT (Pin 1), oberhalb der LED-Leitung von Pin 2
+        "R301": (-0.75, -6.9, 90),     # BOOT0-Pull-down an Pin 44, außerhalb des Ausbruchbereichs
+        "C302": (5.6, -4.6, 90),       # 100 nF an Pin 36/35 (NO-Ecke)
+        "C303": (5.4, 4.6, 90),        # 100 nF an Pin 24/23 (SO-Ecke)
+        "C307": (2.9, 7.3, 0),         # VCAP 4,7 µF an Pin 22
+        "C304": (7.3, 6.0, 90),        # 10 µF Sammelkondensator
+        "R302": (-2.4, 8.2, 90),       # BOOT1-Pull-down an Pin 20
+        # Westseite (Pins 1–12): LSE 3/4, HSE 5/6, NRST 7, VSSA 8, VDDA 9 – Quarze mit Lastkondensatoren außen
+        "Y302": (-9.6, -3.6, 90),      # 32,768 kHz
+        "C312": (-12.3, -4.85, 0),
+        "C313": (-12.3, -2.35, 0),
+        "Y301": (-8.4, 1.6, 270),      # 25 MHz: Pad 1 (IN) oben links, Pad 3 (OUT) unten rechts
+        "C310": (-12.0, 0.4, 0),       # an HSE_IN (Pad 1)
+        "C311": (-12.0, 2.8, 0),       # an HSE_OUT
+        "C305": (-5.2, 5.2, 270),       # 100 nF an VDDA (Pin 9) / VSSA (Pin 8), SW-Ecke
+        "C306": (-7.2, 5.6, 90),       # 1 µF an VDDA
+        "FB301": (-7.2, 8.8, 90),      # Ferrit +3V3 → VDDA
+        "C309": (-9.4, 5.6, 90),       # NRST 100 nF
     },
     "U401": {
         # links: Pin 2 GND (−7,68 / −5,0), Pin 3 VCC (−7,68 / −3,0), Pin 5 TXEN_MOD; Courtyard des Moduls bis x = −10,25
@@ -77,6 +76,39 @@ FEIN = {
     },
 }
 
+# Vorverlegte Leiterbahnen an fein geteilten ICs (Routing 13.10.2026: der Autorouter kann 0,4-mm-Versorgungsbahnen
+# nicht an 0,2-mm-Pads im 0,4-/0,65-mm-Raster anschließen). (Ref, Pad, Ziel, Breite); Ziel = (Ref, Pad) oder
+# (dx, dy) relativ zum Pad. Am Stichende schließt der Autorouter die breite Bahn an.
+VORVERLEGT = [
+    # TPS61240: Schleife VIN/L/VOUT direkt (TI-Layoutempfehlung), Pins 2+3 = VOUT
+    ("U501", "2", [("U501", "3")], 0.25),
+    ("U501", "3", [("C502", "1")], 0.3),
+    ("U501", "5", [(0.75, 0.0), ("L501", "2")], 0.3),   # erst gerade heraus, dann an Pin 4 (EN) vorbei
+    ("U501", "6", [("C501", "1")], 0.3),
+    ("C501", "1", [("L501", "1")], 0.3),
+    # STM32: kurze, kritische Netze von Hand (AN2867: Quarzleitungen kurz, ohne Fremdsignale; VCAP/VDDA direkt)
+    ("U301", "22", [("C307", "1")], 0.25),                              # VCAP
+    ("U301", "9", [(-1.16, 0.0), (-1.76, 0.6), ("C305", "1")], 0.25),  # VDDA
+    ("U301", "3", [(-4.16, 0.0), (-4.16, -3.1), ("Y302", "1")], 0.2),  # LSE_IN, oberhalb um Pad 2 herum
+    ("U301", "4", [(-5.16, 0.0), ("Y302", "2")], 0.2),                 # LSE_OUT
+    ("Y302", "1", [("C312", "2")], 0.2),
+    ("Y302", "2", [("C313", "2")], 0.2),
+    ("U301", "5", [(-5.81, 0.0), ("Y301", "1")], 0.2),                 # HSE_IN über dem Quarz
+    ("U301", "6", [(-2.06, 0.0), (-3.16, 2.95), ("Y301", "3")], 0.2),  # HSE_OUT rechts am Quarz vorbei
+    ("Y301", "1", [("C310", "2")], 0.2),
+    # BQ25185 (WSON-10, Raster 0,4 mm): alle Pins gerade aus dem Raster heraus, Enden gestaffelt – der Autorouter
+    # schloss die Pins sonst nicht an (Routing 13.10.2026). Pin 5 (GND) geht in platine_fanout.py auf das EP.
+    ("U201", "1", [(-0.6, 0.0), (-1.0, -0.7)], 0.2),        # SYS nach links oben
+    ("U201", "2", [(-1.3, 0.0)], 0.2),                      # VBAT gerade nach links
+    ("U201", "3", [(-0.7, 0.0), (-1.1, 0.5)], 0.15),        # STAT2
+    ("U201", "4", [(-0.55, 0.0), (-0.55, 1.0)], 0.15),      # CE nach unten
+    ("U201", "10", [(0.6, 0.0), (1.0, -0.7)], 0.2),         # VIN_LADER nach rechts oben
+    ("U201", "9", [(1.3, 0.0)], 0.15),                      # STAT1 gerade nach rechts
+    ("U201", "8", [(0.95, 0.0), (1.35, 0.5)], 0.15),        # ISET (über das Ende von ILIM hinaus)
+    ("U201", "7", [(0.7, 0.0), (0.7, 1.0)], 0.15),          # ILIM nach unten
+    ("U201", "6", [(0.3, 0.0), (0.3, 0.8)], 0.15),          # NTC nach unten
+]
+
 # Masse-Vias in Thermal-Pads: Bezug -> Liste (dx, dy); Via 0,6/0,3 mm (Entwurfsregel), Netz GND
 VIAS = {
     "U201": [(0.0, -0.4), (0.0, 0.4)],                                    # TI DLH0010A: 2 Vias
@@ -90,6 +122,108 @@ def mm(x):
     return pcbnew.FromMM(x)
 
 
+def veraltete_stiche_entfernen(board, f):
+    """Leiterbahnen, die an einem Pad von f beginnen oder enden, samt der Fanout-Via am anderen Ende entfernen
+    (das Bauteil wird verschoben; platine_fanout.py legt danach neue Stiche an)."""
+    formen = [(p.GetNetCode(), p.GetEffectiveShape(pcbnew.F_Cu)) for p in f.Pads()]
+    weg, enden = set(), set()
+    for t in board.GetTracks():
+        if t.GetClass() != "PCB_TRACK":
+            continue
+        for net, form in formen:
+            if t.GetNetCode() != net:
+                continue
+            a, b = form.Collide(t.GetStart(), 0), form.Collide(t.GetEnd(), 0)
+            if a or b:
+                weg.add(t.m_Uuid.AsString())
+                e = t.GetEnd() if a else t.GetStart()
+                enden.add((e.x, e.y))
+                break
+    for t in board.GetTracks():
+        if t.GetClass() == "PCB_VIA" and (t.GetPosition().x, t.GetPosition().y) in enden:
+            weg.add(t.m_Uuid.AsString())
+    for t in [t for t in board.GetTracks() if t.m_Uuid.AsString() in weg]:
+        board.Delete(t)
+
+
+def vorverlegen(board, fp):
+    """VORVERLEGT als Leiterbahnen auf F.Cu anlegen; Wegpunkte (dx, dy) relativ zum Startpad oder (Ref, Pad).
+    Vorhandene identische Bahnen werden nicht doppelt angelegt."""
+    vorhanden = {(t.GetStart().x, t.GetStart().y, t.GetEnd().x, t.GetEnd().y)
+                 for t in board.GetTracks() if t.GetClass() == "PCB_TRACK"}
+    for ref, pad, wege, breite in VORVERLEGT:
+        p = next(q for q in fp[ref].Pads() if q.GetNumber() == pad)
+        a = p.GetPosition()
+        punkte = [a]
+        for w in wege:
+            if isinstance(w[0], str):
+                punkte.append(next(q for q in fp[w[0]].Pads() if q.GetNumber() == w[1]).GetPosition())
+            else:
+                punkte.append(pcbnew.VECTOR2I(a.x + mm(w[0]), a.y + mm(w[1])))
+        for s_, e in zip(punkte, punkte[1:]):
+            if (s_.x, s_.y, e.x, e.y) in vorhanden:
+                continue
+            t = pcbnew.PCB_TRACK(board)
+            t.SetStart(s_)
+            t.SetEnd(e)
+            t.SetWidth(mm(breite))
+            t.SetLayer(pcbnew.F_Cu)
+            t.SetNet(p.GetNet())
+            board.Add(t)
+
+
+AUSBRUCH = {"U301": 0.86}   # QFN: Signalpins mit 0,86 mm langem Stich gerade nach außen (über das Padende hinaus)
+
+
+def ausbruch(board, fp):
+    """Gerade Ausbruchstiche an Signalpins der QFN (Routing 13.10.2026: Freerouting fand an mehreren STM32-Pins keinen
+    Eingang). Pins mit vorhandener Bahn und GND/+3V3 bleiben unberührt."""
+    for ref, laenge in AUSBRUCH.items():
+        f = fp[ref]
+        cx, cy = f.GetPosition().x, f.GetPosition().y
+        for p in f.Pads():
+            n = p.GetNetname()
+            if not p.GetNumber().isdigit() or n in ("GND", "+3V3", "") or n.startswith("unconnected"):
+                continue
+            form = p.GetEffectiveShape(pcbnew.F_Cu)
+            if any(t.GetClass() == "PCB_TRACK" and (form.Collide(t.GetStart(), 0) or form.Collide(t.GetEnd(), 0))
+                   for t in board.GetTracks()):
+                continue
+            a = p.GetPosition()
+            dx, dy = a.x - cx, a.y - cy
+            if abs(dx) > abs(dy):
+                e = pcbnew.VECTOR2I(a.x + (mm(laenge) if dx > 0 else -mm(laenge)), a.y)
+            else:
+                e = pcbnew.VECTOR2I(a.x, a.y + (mm(laenge) if dy > 0 else -mm(laenge)))
+            t = pcbnew.PCB_TRACK(board)
+            t.SetStart(a)
+            t.SetEnd(e)
+            t.SetWidth(mm(0.15))
+            t.SetLayer(pcbnew.F_Cu)
+            t.SetNet(p.GetNet())
+            board.Add(t)
+
+
+def ausweichen(board, fp, gesetzt):
+    """Bauteile der Grobplatzierung, deren Courtyard ein fein gesetztes Bauteil überdeckt, neu ablegen (nächster freier
+    Platz um ihre bisherige Lage, Verfahren aus platine_bestuecken.py). Gibt die verschobenen Referenzen zurück."""
+    import platine_bestuecken as pb
+    kaesten = {r: pb.kasten(f) for r, f in fp.items()}
+    fest = [kaesten[r] for r in gesetzt]
+    verschoben = []
+    for r, f in sorted(fp.items()):
+        if r in gesetzt or r.startswith("H"):
+            continue
+        k = kaesten[r]
+        if any(k[0] < b[2] and b[0] < k[2] and k[1] < b[3] and b[1] < k[3] for b in fest):
+            andere = [kaesten[o] for o in fp if o != r]
+            ziel = (pcbnew.ToMM(f.GetPosition().x), pcbnew.ToMM(f.GetPosition().y))
+            veraltete_stiche_entfernen(board, f)
+            kaesten[r] = pb.ablegen(f, ziel, andere, None, 0.5)
+            verschoben.append(r)
+    return verschoben
+
+
 def main():
     board = pcbnew.LoadBoard(PCB)
     fp = {f.GetReference(): f for f in board.GetFootprints()}
@@ -97,11 +231,19 @@ def main():
         bx, by = (pcbnew.ToMM(v) for v in fp[bezug].GetPosition())
         for ref, (dx, dy, rot) in teile.items():
             f = fp[ref]
+            ziel = pcbnew.VECTOR2I(mm(bx + dx), mm(by + dy))
+            if f.GetPosition() != ziel or abs(f.GetOrientationDegrees() - rot) > 0.01:
+                veraltete_stiche_entfernen(board, f)
             f.SetOrientationDegrees(rot)
             f.SetPosition(pcbnew.VECTOR2I(mm(bx + dx), mm(by + dy)))
             f.Reference().SetPosition(f.GetPosition())          # Referenz in die Bauteilmitte (dicht gepackt)
             f.Reference().SetTextSize(pcbnew.VECTOR2I(mm(0.8), mm(0.8)))
             f.Reference().SetTextThickness(mm(0.12))
+    weg = ausweichen(board, fp, {r for t in FEIN.values() for r in t} | set(FEIN))
+    if weg:
+        print("ausgewichen:", ", ".join(weg))
+    vorverlegen(board, fp)
+    ausbruch(board, fp)
     gnd = board.FindNet("GND")
     vorhanden = {(t.GetPosition().x, t.GetPosition().y) for t in board.GetTracks() if t.GetClass() == "PCB_VIA"}
     neu = 0

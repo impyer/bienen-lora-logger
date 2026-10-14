@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Philipp Schnabel
 """Prüft sicherheitsrelevante Netze in den von KiCad exportierten Netzlisten (nicht in den
-Generator-Daten): Ladesperre, Zellschutz, Kabel Akku-Platine ↔ Hauptplatine, Widerstandswerte.
+Generator-Daten): Ladesperre, Zellschutz (Blatt Akku, seit HW-06 auf der Hauptplatine), Widerstandswerte.
 Seit SCH26-09 zusätzlich: Pinbelegung der Stecker laut hardware/anschluesse.md (Spalte „Pins“)
 gegen die Netzliste, mit Gegenprobe (vertauschter Pin muss auffallen).
 Seit SCH26-07 (Blatt Waage): Wandler-Ansteuerung, HX711-Versorgung, AVDD aus dem Teiler, Zellenleitungen.
@@ -27,7 +27,6 @@ OFFEN = "(offen)"         # Pin ohne Verbindung (KiCad-Netz „unconnected-…�
 STECKER_DOKU = {
     "J1": ("J201", {"GND": "GND", "+PV": "PV1"}),
     "J2": ("J202", {"GND": "GND", "+PV": "PV2"}),
-    "J3": ("J203", {"P−": "GND", "NTC": "NTC", "CE_FREI": "CE_LADEN", "TMP_VCC": "TMP_VCC", "P+": "VBAT"}),
     "J10": ("J302", {"3V3": "+3V3", "SWDIO": "SWDIO", "SWCLK": "SWCLK", "NRST": "NRST", "GND": "GND",
                      "TX1": "DBG_TX", "RX1": "DBG_RX"}),
     "J4": ("J501", {"Schirm": "GND", "E−": "GND", "S−": "ZELLE_SN", "S+": "ZELLE_SP", "E+": "ZELLE_EP"}),
@@ -36,7 +35,7 @@ STECKER_DOKU = {
     "J7": ("J702", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
     "J8": ("J703", {"Schirm": "GND", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "3V3_SW": "3V3_SW", "frei": OFFEN}),
     "J11": ("J704", {"3V3": "+3V3", "3V3_SW": "3V3_SW", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "TX1": "DBG_TX",
-                     "RX1": "DBG_RX", "PA15": "EXT_PA15", "PB12": "EXT_PB12", "PB13": "EXT_PB13"}),
+                     "RX1": "DBG_RX", "PA15": "EXT_PA15", "PB12": "EXT_PB12", "frei": OFFEN}),
 }
 VBG_HX711 = 1.25        # V, Bandgap-Referenz des AVDD-Reglers (HX711-Datenblatt, waage.md 3)
 VSUP_MIN = 4.9          # V, TPS61240 5,0 V −2 % (waage.md 2)
@@ -262,8 +261,10 @@ def anschluesse(h, h_pin, h_wert):
            pol == {"J201": 2, "J701": 3, "J601": 4, "J501": 5, "J703": 6}, pol)
     for ref in ("J501", "J601", "J701", "J702", "J703", "J201", "J202"):
         pruefe("%s: Pin 1 an GND (Masse/Schirm an Pin 1)" % ref, h_pin.get((ref, "1")) == "GND", h_pin.get((ref, "1")))
-    for nr, netz in (("9", "EXT_PA15"), ("10", "EXT_PB12"), ("11", "EXT_PB13")):
+    for nr, netz in (("9", "EXT_PA15"), ("10", "EXT_PB12")):
         enthaelt(h, netz, {("J704", nr)})
+    pruefe("J704 Pin 11 frei (HW-05: PB13 = VBUS-Erkennung)", h_pin.get(("J704", "11"), "unconnected").startswith("unconnected"),
+           h_pin.get(("J704", "11")))
 
 
 def modell_netze(modul):
@@ -295,39 +296,43 @@ def vollstaendig(modul, ist, datei):
 
 
 def main():
-    a, a_pin, a_wert = lade("akku.net")
     h, h_pin, h_wert = lade("logger.net")
 
     # --- Vollständiger Vergleich Modell ↔ gezeichneter Schaltplan ---
-    vollstaendig("akku_platine", a, "akku.net")
     vollstaendig("hauptplatine", h, "logger.net")
 
-    # --- Akku-Platine: Zellschutz ---
-    genau(a, "B-", {("BT1", "2"), ("U1", "6"), ("C1", "2"), ("Q1", "1")})
-    genau(a, "B+", {("BT1", "1"), ("JP1", "1"), ("J2", "1"), ("R1", "1")})
-    genau(a, "D12", {("Q1", "2"), ("Q1", "5")})
-    enthaelt(a, "GND", {("Q1", "3"), ("R2", "2"), ("J1", "1"), ("U2", "3"), ("U3", "3"), ("Q2", "2"), ("Q3", "2")})
-    # SCH26-01: Ladesperre nur an TMP_VCC/GND (P−), keine Verbindung zu B+/B−
-    genau(a, "TMP_VCC", {("J1", "4"), ("U2", "5"), ("U3", "5"), ("C2", "1"), ("C3", "1"), ("R5", "1"), ("R8", "1")})
-    for ref in ("U2", "U3", "Q2", "Q3", "R5", "R8"):
-        netze_ref = {n for (r, _), n in a_pin.items() if r == ref}
-        pruefe("%s ohne Verbindung zu B+/B−/P+ (SCH26-01)" % ref, not (netze_ref & {"B+", "B-", "P+"}), netze_ref)
-    # Stufe 1: TMP390 U2 → Q2 → CE_FREI
-    genau(a, "GATE_CE", {("U2", "6"), ("U2", "4"), ("R5", "2"), ("Q2", "1")})
-    genau(a, "CE_FREI", {("Q2", "3"), ("J1", "3")})
-    # Stufe 2: TMP390 U3 → Q3 im NTC-Fuß
-    genau(a, "GATE_NTC", {("U3", "6"), ("R8", "2"), ("Q3", "1")})
-    genau(a, "NTC", {("J1", "2"), ("TH1", "1")})
-    genau(a, "NTC_FUSS", {("TH1", "2"), ("Q3", "3")})
-    pruefe("U3 OUTB offen", ("U3", "4") not in a_pin or a_pin[("U3", "4")].startswith("unconnected"), a_pin.get(("U3", "4")))
-    for ref, soll in (("R3", "2,49k 1%"), ("R4", "18,7k 1%"), ("R6", "2,49k 1%"), ("R7", "18,7k 1%"), ("R2", "2k"), ("R1", "100")):
-        pruefe("Wert %s = %s" % (ref, soll), a_wert.get(ref) == soll, a_wert.get(ref))
+    # --- Blatt Akku (HW-06; bis 14.10.2026 eigene Akku-Platine): Zellschutz im Minuspfad ---
+    genau(h, "B-", {("BT801", "2"), ("U801", "6"), ("C801", "2"), ("Q801", "1")})
+    genau(h, "B+", {("BT801", "1"), ("JP801", "1"), ("J801", "1"), ("R801", "1")})
+    genau(h, "D12", {("Q801", "2"), ("Q801", "5")})
+    enthaelt(h, "GND", {("Q801", "3"), ("R802", "2"), ("U802", "3"), ("U803", "3"), ("Q802", "2"), ("Q803", "2")})
+    pruefe("Zelle B− ist nicht GND (Schutz-FET Q801 im Minuspfad, B− nur als Insel)",
+           h_pin.get(("BT801", "2")) == "B-" and ("BT801", "2") not in h.get("GND", set()))
+    # SCH26-01: Ladesperre nur an TMP_VCC/GND (P−), keine Verbindung zu B+/B−/VBAT
+    genau(h, "TMP_VCC", {("U204", "5"), ("C212", "1"), ("U802", "5"), ("U803", "5"), ("C802", "1"), ("C803", "1"),
+                         ("R805", "1"), ("R808", "1")})
+    for ref in ("U802", "U803", "Q802", "Q803", "R805", "R808"):
+        netze_ref = {n for (r, _), n in h_pin.items() if r == ref}
+        pruefe("%s ohne Verbindung zu B+/B−/VBAT (SCH26-01)" % ref, not (netze_ref & {"B+", "B-", "VBAT"}), netze_ref)
+    # Stufe 1: TMP390 U802 → Q802 → CE des BQ25185
+    genau(h, "GATE_CE", {("U802", "6"), ("U802", "4"), ("R805", "2"), ("Q802", "1")})
+    genau(h, "CE_LADEN", {("U201", "4"), ("R205", "2"), ("C206", "1"), ("Q802", "3")})
+    # Stufe 2: TMP390 U803 → Q803 im NTC-Fuß → TS des BQ25185
+    genau(h, "GATE_NTC", {("U803", "6"), ("R808", "2"), ("Q803", "1")})
+    genau(h, "NTC", {("U201", "6"), ("TH801", "1")})
+    genau(h, "NTC_FUSS", {("TH801", "2"), ("Q803", "3")})
+    pruefe("U803 OUTB offen", ("U803", "4") not in h_pin or h_pin[("U803", "4")].startswith("unconnected"), h_pin.get(("U803", "4")))
+    for ref, soll in (("R803", "2,49k 1%"), ("R804", "18,7k 1%"), ("R806", "2,49k 1%"), ("R807", "18,7k 1%"),
+                      ("R802", "2k"), ("R801", "100")):
+        pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
+    enthaelt(h, "VBAT", {("U201", "2"), ("JP801", "2"), ("J801", "2"), ("C205", "1"), ("R206", "1")})
+    # HW-05: VBUS-Erkennung an PB13 (Teiler 33 kΩ / 82 kΩ, ST AN4879)
+    genau(h, "VBUS_SENSE", {("R307", "2"), ("R308", "1"), ("U301", "26")})
+    pruefe("VBUS-Teiler R307 an VBUS, R308 an GND", h_pin.get(("R307", "1")) == "VBUS" and h_pin.get(("R308", "2")) == "GND")
+    for ref, soll in (("R307", "33k"), ("R308", "82k")):
+        pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
 
     # --- Hauptplatine: Lader ---
-    genau(h, "CE_LADEN", {("U201", "4"), ("R205", "2"), ("C206", "1"), ("J203", "3")})
-    genau(h, "TMP_VCC", {("U204", "5"), ("C212", "1"), ("J203", "4")})
-    genau(h, "NTC", {("U201", "6"), ("J203", "2")})
-    enthaelt(h, "VBAT", {("U201", "2"), ("J203", "5"), ("C205", "1"), ("R206", "1")})
     pruefe("U204 IN an VIN_LADER", h_pin.get(("U204", "1")) == "VIN_LADER", h_pin.get(("U204", "1")))
     pruefe("R205 (CE-Pull-up) an SYS", h_pin.get(("R205", "1")) == "SYS", h_pin.get(("R205", "1")))
     for ref, soll in (("R203", "2,0k 1%"), ("R204", "130k 1%"), ("R205", "100k"), ("R208", "100k"), ("R201", "3,3M"), ("R202", "470k")):
@@ -353,12 +358,6 @@ def main():
     anschluesse(h, h_pin, h_wert)
     # --- Stecker: anschluesse.md ↔ Netzliste ---
     stecker_gegen_doku(h_pin)
-
-    # --- Kabel J1 (Akku) ↔ J203 (Haupt), 1:1 ---
-    zuordnung = {"GND": "GND", "NTC": "NTC", "CE_FREI": "CE_LADEN", "TMP_VCC": "TMP_VCC", "P+": "VBAT"}
-    for pin in "12345":
-        na, nh = a_pin.get(("J1", pin)), h_pin.get(("J203", pin))
-        pruefe("Kabel Pin %s: Akku %s ↔ Haupt %s" % (pin, na, nh), zuordnung.get(na) == nh)
 
     print("%d von %d Netzprüfungen bestanden" % (ANZ - FEHL, ANZ))
     return 1 if FEHL else 0

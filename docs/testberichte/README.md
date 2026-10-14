@@ -8,6 +8,8 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[HW-05/HW-06: USB mit VBUS-Erkennung, Akku auf der Hauptplatine](2026-10-14-hw05-hw06-schaltplan.md)** | **14.10.2026, Basis `bbabcd4` + Routing-Lieferung** | **Blatt Akku (Schaltung unverändert, B− ≠ GND geprüft), VBUS-Teiler an PB13; Akku-Platine entfernt; ERC 0, Netzprüfung 168/168, Pin/Footprint 0; Platine neu platziert, ohne Routing (Layouter)** |
+| **[Platine: Routing, Platzierung optimiert](2026-10-13-platine-routing.md)** | **13.10.2026, Basis `bbabcd4`** | **Freerouting 1.9.0 + Vorverlegung (Quarze, VCAP/VDDA, BQ25185, TPS61240) + Gitter-Router; Platzierung aus dem Routing verbessert (Kondensatoren an STM32-Ecken, J704/SW303 näher, Freiraum um U201); 6 von 202 Verbindungen offen, DRC 0, Schaltplanabgleich 0** |
 | **[Platine: Fanout GND/+3V3](2026-10-13-platine-fanout.md)** | **13.10.2026, Basis `dd61bc9` + L3** | **120 Anbindungen von SMD-Pads an GND/+3V3 zu L2/L3 (Via 0,6/0,3, Abstand ≥ 0,2 mm); DRC 0, Schaltplanabgleich 0; offene Verbindungen 322 → 202** |
 | **[Platine: Versorgungslage L3](2026-10-13-platine-lage-l3.md)** | **13.10.2026, Basis `dd61bc9`** | **L3: +3V3-Fläche über MCU/Funk mit Arm zu den Reglern, Rest GND-Füllung; DRC 0, Schaltplanabgleich 0; SYS/3V3_SW/5 V als Leiterbahnen beim Routing** |
 | **[Platine: Feinplatzierung, Masse L2](2026-10-13-platine-feinplatzierung.md)** | **13.10.2026, Basis `751de0f`** | **34 Bauteile an STM32, Ra-01SH und TPS61240 gesetzt (Abblock-C 1,7–2,4 mm am Pin), 13 Thermal-Vias, GND-Fläche L2; DRC 0 Verstöße, Schaltplanabgleich 0; offen: Via-Füllung [P], Routing** |

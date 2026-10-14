@@ -8,7 +8,7 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 
 Änderungen gegen 0.3:
 - Abschnitt 3 Versorgung neu ausgearbeitet: [`versorgung.md`](versorgung.md) mit Energiebilanz [`energiebilanz.py`](energiebilanz.py)
-- Laderegler BQ25185 statt CN3065; Tiefentladeschutz zweistufig in Hardware; Akku-Platine am Halter mit Schutz und NTC
+- Laderegler BQ25185 statt CN3065; Tiefentladeschutz zweistufig in Hardware; Zelle, Schutz und NTC auf der Hauptplatine (HW-06, 14.10.2026; vorher eigene Akku-Platine)
 - RT9080 als 3,3-V-Regler; Regeln gegen Rückspeisung; Erfahrungen aus dem beelogger
 - Vergleich mit BEEP base v3: [`beep-vergleich.md`](beep-vergleich.md) (Übernahmen: TPS22917, Reedkontakt, ESD-Arrays, 4 Lagen zur Entscheidung)
 - Block Mikrofon: [`mikrofon.md`](mikrofon.md) (Filter mit Frequenzgang-Rechnung `mikrofon_filter.py`, Versorgung, Abtastung, Ablaufregeln)
@@ -29,13 +29,13 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 | K2 [S] | **25-MHz-Quarz (HSE)** wie bei der BlackPill. So bleibt die fertige Arduino-Variante „BlackPill F411CE“ nutzbar, und eine gekaufte BlackPill mit Ra-01SH-Adapter dient als Entwicklungsplattform, bevor die Platine da ist. |
 | K3 [M] | **32,768-kHz-Quarz (LSE)** an PC14/PC15 für die RTC. |
 | K4 [M] | ~~EEPROM AT24C256~~ entfällt (09.10.2026, HW26-10): LoRaWAN-Sitzung und Messwerte im dauernd versorgten SPI-Flash (F11), Sitzung mit Generationszähler und CRC. `mcu-funk.md` 3.1. |
-| K5 [S] | **USB-C** an PA11/PA12: **nur Laden und Aufspielen** über den eingebauten USB-DFU-Bootloader des STM32 (BOOT0-Taster). Die Anwendungsfirmware nutzt USB nicht; Service-Konsole über Seriell (PA9/PA10) mit USB-Seriell-Adapter, dazu SWD, beide an der Stiftleiste J10 (Entscheidung Philipp 10.10.2026, SCH26-10; `mcu-funk.md` 1.3). |
+| K5 [S] | **USB-C** an PA11/PA12: **Laden, Aufspielen und Kommunikation** (HW-05, 14.10.2026; ersetzt „nur Laden und Aufspielen“, HW-01). Aufspielen über den ROM-DFU-Bootloader (BOOT0-Taster) oder aus der Anwendung; Service-Konsole über USB-CDC. **VBUS-Erkennung** über Teiler 33 kΩ / 82 kΩ an PB13 (ST AN4879); D+-Pull-up nur bei gestecktem Kabel. Serial1 und SWD an J10 bleiben als Rückfall. |
 
 ### Pinbelegung
 
 Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md), Abschnitt 4.** Änderungen gegen 0.3:
 - Ra-01SH TXEN/RXEN über Lötbrücken an PB14/PB15
-- Erweiterung: PA15, PB12, PB13 (PB10 schaltet den 5-V-Wandler der Waage, PB3 ist CS des SPI-Flashs; nur noch ein HX711)
+- Erweiterung: PA15, PB12 (PB13 seit HW-05 VBUS-Erkennung; PB10 schaltet den 5-V-Wandler der Waage, PB3 ist CS des SPI-Flashs; nur noch ein HX711)
 - PA15 nicht mehr für den Regensensor
 - (EEPROM entfällt, Sitzung im SPI-Flash)
 
@@ -51,7 +51,7 @@ Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md
 | F6 [M] | **Mikrofon GY-MAX4466** als Modul, Entstörung und Filter auf der Platine (2.2). Ausgearbeitet in [`mikrofon.md`](mikrofon.md). |
 | F7 [M] | **Bedienung ohne Öffnen** (Entscheidung 09.10.2026): Reedkontakt parallel zum Service-Taster an PA0 (Magnet von außen); **seitlich abstrahlende LED** an PC13 am Platinenrand, **fertiger Wand-Lichtleiter mit Dichtung durch eine Bohrung in der Gehäusewand** (Kandidat Bivar PLTR2, IP67), außen Markierung „Magnet hier“. Lichtsignale: `mcu-funk.md` 3.3. Reset- und BOOT0-Taster innen. |
 | F8 [K] | Regensensor über den Erweiterungsstecker (F9). |
-| F9 [S] | **Reserve**: Erweiterungsstecker J11 **2 × 6**, 2,54 mm: 3,3 V (geschaltet und dauernd), 3 × GND, I²C, Serial1, PA15, PB12, PB13. Ein dort angeschlossenes I²C-Gerät zählt zur Buskapazität von F5 (HW26-13). |
+| F9 [S] | **Reserve**: Erweiterungsstecker J11 **2 × 6**, 2,54 mm: 3,3 V (geschaltet und dauernd), 3 × GND, I²C, Serial1, PA15, PB12 (Pin 11 frei, PB13 ist seit HW-05 die VBUS-Erkennung). Ein dort angeschlossenes I²C-Gerät zählt zur Buskapazität von F5 (HW26-13). |
 | F11 [M] | **SPI-Flash 64 Mbit** für Messwerte (fest, Entscheidung 09.10.2026): SOIC-8 208 mil, Typ nach Bestand bei der Bestellung, SPI1 mit CS an PB3, dauernd versorgt im Deep Power-down. `mcu-funk.md` 3.2. |
 | F10 [M] | **ESD-Schutz** an allen Sensorklemmen mit 4-fach-ESD-Arrays (wie BEEP base v3). An der Wägezelle mit kleinem Leckstrom; für E± Sperrspannung ≥ 5 V. Gewählt (09.10.2026): **TI ESDS304** (3,6 V, ≤ 50 nA) an DS18B20, BME280 und Mikrofon; **TI TPD4E05U06** (5,5 V, ≤ 10 nA, C138714) an der Wägezelle. Siehe [`anschluesse.md`](anschluesse.md) 2 und [`beep-vergleich.md`](beep-vergleich.md) 3.2. |
 
@@ -84,7 +84,7 @@ Ausgearbeitet in **[`versorgung.md`](versorgung.md)**, dort mit Quellen, Rechnun
 
 | Nr. | Anforderung |
 |---|---|
-| V1 [M] | Li-Ion 18650 **auf einer eigenen Akku-Platine** am Halter **Keystone 1042 (SMD)** (HW-02), per Kabel mit kodiertem Stecker zur Hauptplatine. Auf der Akku-Platine: Zellschutz, NTC, **2 × TMP390 mit N-FETs für die Ladesperre** (V3), Messbrücke. Stecker J3 JST PH **5-polig** (P−, NTC, CE_FREI, TMP_VCC, P+), Kabel 1:1 nach Kabelplan `anschluesse.md`. |
+| V1 [M] | Li-Ion 18650 im Halter **Keystone 1042 (SMD)** (HW-02) **auf der Hauptplatine** (HW-06, 14.10.2026; vorher eigene Akku-Platine mit Kabel). Direkt am Halter: Zellschutz, NTC, **2 × TMP390 mit N-FETs für die Ladesperre** (V3), Messbrücke. Stecker J3 JST PH **5-polig** (P−, NTC, CE_FREI, TMP_VCC, P+), Kabel 1:1 nach Kabelplan `anschluesse.md`. |
 | V2 [M] | **Tiefentladeschutz in Hardware, zweistufig:** BQ25185 trennt SYS bei 3,0 V; HY2111-GB + 8205 trennt die Zelle bei 2,9 V (0,1 µA). Freigabe nur durch Laden. Dazu Firmware-Stufen ab 3,5 V. |
 | V3 [M] | Laderegler **BQ25185**: Eingang bis 18 V (Panels kalt bis ca. 10 V), Eingangsspannungsregelung, Ladeschluss **4,1 V**, **150 mA** (HW26-11, Wärme `versorgung.md` 3.2a). **Ladesperre zweistufig, beide ≤ 45 °C (HW26-07, SCH26-01/03, 09.10.2026):** 1. **TMP390 U2 an der Zelle** sperrt über CE außerhalb **+5 … 42 °C**; 2. **zweiter TMP390 U3** öffnet über 42 °C den NTC-Kreis (TS offen), NTC zusätzlich +1,7 / 59,5 °C. Versorgung beider Stufen aus **TMP_VCC (TPS70933 am Ladereingang)**, damit der Wiederanlauf nach Tiefentladung funktioniert und nachts kein Strom fließt; ausfallsicher bei Leitungsbruch. Auslegung auf 45 °C, bis die Zellvariante feststeht. Je Panel eine Schottky-Diode, TVS am Eingang; Messung der Eingangsspannung 3,3 MΩ / 470 kΩ hinter den Dioden (HW26-08). `versorgung.md` 3.1–3.3. |
 | V4 [M] | LDO **RT9080-33**: 600 mA, 2 µA Ruhestrom |
@@ -132,7 +132,7 @@ Ausgewertet mit OpenCascade (Strahlschnitte im 1-mm-Raster und Einzelschnitte); 
 |---|---|
 | M1 [M] | **Hauptplatine 121 × 121 mm**, quadratisch, Ecken gerundet, 4 Bohrungen Ø 3,4 mm auf **110,2 × 110,2 mm** (mittig). Sie liegt ganz innerhalb der erlaubten Kontur und lässt am Rand Platz für die Kabel. |
 | M2 [M] | Auf der **Unterseite** keine Bauteile. **Platine auf glatten Distanzhülsen 10 mm über den Domen** (HW-03, 13.10.2026), selbstformende Schrauben durch Platine und Hülse in die Dombohrung Ø 2,4 mm (Blatt 4, STEP; Schraube Ø 3 mm für Kunststoff); damit genug Freiraum unter der Platine auch in den eingeschränkten Feldern, THT-Lötstellen müssen nicht gekürzt werden [A]. **Bauhöhe über der Platine höchstens 40 mm** (inkl. gesteckter Klemmenstecker und Akku-Platine, M3). Höhe der Lichtleiter-Bohrung (F7) aus dem STEP berechnet (4.1a, `mcu-funk.md` 3.3), am ersten Muster bestätigen. **STEP-Kontrolle (13.10.2026): bestanden**, mindestens 4,3 mm Reserve über den 40 mm. |
-| M3 [S] | **Akkuhalter** auf einer Trägerplatte an den Deckeldomen (108 × 108 mm) oder seitlich neben der Hauptplatine. Bauhöhe 18650 im Halter (ca. 21 mm [A]) liegt innerhalb der 40 mm über der Hauptplatine (M2/HW-03); am Muster prüfen [P]. |
+| M3 [S] | **Akkuhalter** Keystone 1042 (88 × 22 mm Courtyard) **auf der Hauptplatine** (HW-06). Bauhöhe 18650 im Halter ca. 21 mm [A], unter den 40 mm über der Platine (M2/HW-03) und unter dem STEP-Freiraum ≥ 44,3 mm (4.1a). Nicht an der Funkkante; TMP390/NTC unter der Zelle. Halterung bei Erschütterung am Muster prüfen [P]. |
 | M4 [M] | Innen **steckbare Schraubklemmen**, Raster **3,5 mm** (**DEGSON 15EDGRC-3.5**, einreihig; Teilenummern je Polzahl in `anschluesse.md` 2; SCH26-13), damit jeder Sensor ohne Löten getauscht werden kann. Masse/Schirm immer Pin 1; Aufdruck an jeder Klemme; Jede Sensorklemme eigene Polzahl: **J8 (BME280) 6-polig**, J4 (Wägezelle) 5-polig, dazu Steckerfarbe (09.10.2026). Belegung J1–J11: [`anschluesse.md`](anschluesse.md). |
 | M5 [S] | **Alle Außenklemmen an einer Platinenkante** (Solar – BME280 – DS18B20 – Mikrofon – Wägezelle), ESD direkt hinter der Klemme; Funkmodul an der gegenüberliegenden Kante. Rund ein Drittel der Fläche frei für Erweiterungen. [`anschluesse.md`](anschluesse.md) 4. |
 | M6 [K] | Kabeldurchführungen: zurückgestellt, Festlegung später. |

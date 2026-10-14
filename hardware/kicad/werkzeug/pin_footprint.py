@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Philipp Schnabel
-"""REG26-08: Pin-/Footprint-Abgleich für Akku-Platine und Hauptplatine.
+"""REG26-08: Pin-/Footprint-Abgleich für die Hauptplatine (seit HW-06 mit Blatt Akku).
 
 Prüft für jedes Bauteil aus den Generatoren (Quelle der Wahrheit):
   1. Footprint vorhanden: Datei in der KiCad-Bibliothek; fehlende eigene Footprints nur aus der Liste OFFEN.
@@ -116,9 +116,8 @@ def pads(fp):
 
 
 def teile():
-    import akku_platine
     import hauptplatine
-    for mod, platine in ((akku_platine, "Akku"), (hauptplatine, "Haupt")):
+    for mod, platine in ((hauptplatine, "Haupt"),):          # Akku-Platine seit HW-06 Teil der Hauptplatine
         p = mod.baue()
         for b in [p.wurzel] + p.blaetter:
             for t in b.teile:

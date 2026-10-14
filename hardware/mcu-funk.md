@@ -41,12 +41,13 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 - **VBUS → Schottky → Eingang des BQ25185**, parallel zu den Panels. So lädt der Logger am Tisch über USB, und USB speist nie zurück ins Panel [A].
 - Bootloader: BOOT0-Taster gedrückt halten, Reset → DFU über USB. Ob der Bootloader des F411 mit 25-MHz-Quarz zuverlässig startet, ist in AN2606 für F411 nicht gelesen. Ein ST-Forumsbeitrag berichtet Probleme [V, Forum]. Die BlackPill macht es aber serienmäßig. **[P]** am Muster prüfen. **SWD bleibt der sichere Weg.**
 
-**USB-Rolle (SCH26-10) – entschieden: nur Laden und Aufspielen (Philipp, 10.10.2026, Variante A):**
-- USB dient nur zum **Laden** (VBUS → D203 → BQ25185) und zum **Aufspielen über den ROM-Bootloader** (BOOT0 + Reset bei gestecktem Kabel). Die Anwendungsfirmware schaltet die USB-Peripherie **nie** ein: kein USB-Takt, kein D+-Pull-up, kein USB-Gerät während des Betriebs.
-- Deshalb ist keine VBUS-Erkennung nötig. ST AN4879 fordert sie für selbstversorgte Geräte, die sich am Bus anmelden [V: AN4879, „VBUS sensing detection“]; der Logger meldet sich nur im ROM-Bootloader an, und der läuft nur bei gestecktem Kabel [A]. Die BlackPill arbeitet genauso (PA9 nicht an VBUS) [A].
-- Service-Konsole und Auslesen des Flashs gehen über **Serial1 an J10/J302 Pin 5–7** mit einem 3,3-V-USB-Seriell-Adapter oder über SWD; Messwerte aus dem Flash werden per Funk nachgesendet (3.2).
-- Schaltplan unverändert. Falls später doch eine eigene USB-Funktion gewünscht ist: VBUS über 33 kΩ / 82 kΩ (AN4879) an einen freien 5-V-toleranten Pin, z. B. PB13 – das ist dann eine neue Entscheidung.
-- Prüfung am Muster (T4): ROM-DFU mit 25-MHz-Quarz (oben), Laden über USB, gesteckter USB bei schlafendem Logger ohne Einfluss auf den Ruhestrom.
+**USB-Rolle (SCH26-10) – entschieden: Laden, Aufspielen und Kommunikation (Philipp, 14.10.2026, HW-05; ersetzt Variante A „nur Laden und Aufspielen“ vom 10.10.2026, HW-01):**
+- USB lädt (VBUS → D203 → BQ25185), dient zum **Aufspielen** (ROM-DFU über BOOT0 + Reset oder aus der Anwendung) und zur **Kommunikation** (USB-CDC als Service-Konsole, Auslesen des Flashs).
+- **VBUS-Erkennung** nach ST AN4879 [V: AN4879, „VBUS sensing detection“]: Teiler **R307 33 kΩ / R308 82 kΩ** von VBUS an **PB13** (5-V-tolerant) → 5,0 V ergeben 3,57 V am Pin, 43 µA nur bei gestecktem Kabel [A, gerechnet]. Die Firmware schaltet USB-Peripherie und D+-Pull-up nur bei erkannter VBUS ein; ohne Kabel bleibt USB aus (Ruhestrom unverändert, USB-Spezifikation: kein Pull-up ohne VBUS).
+- **Takt:** 48 MHz für USB aus der PLL (25 MHz HSE, z. B. PLLM 25, PLLN 192, PLLQ 4 → 48 MHz; SYSCLK 96 MHz mit PLLP 2) [A, nach RM0383 zu bestätigen].
+- Folge: PB13 steht nicht mehr am Erweiterungsstecker zur Verfügung (J11/J704 Pin 11 frei).
+- Service-Konsole über **Serial1 an J10/J302** und SWD bleiben als Rückfall.
+- Prüfung am Muster (T4): Erkennung beim Stecken/Ziehen, CDC-Enumeration am PC, ROM-DFU mit 25-MHz-Quarz, Laden über USB, gesteckter USB ohne Einfluss auf den Ruhestrom nach dem Ziehen.
 
 ### 1.4 Debug
 
@@ -57,7 +58,7 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 
 Anlass: Frage von Philipp, ob ein günstiger FPGA oder ein Mikrocontroller mit besserem Preis-Leistungs-Verhältnis sinnvoll wäre. Ergebnis: **STM32F411CEU6 bleibt, kein FPGA, kein externer RAM.**
 
-**Bedarf** (aus `docs/fft-konzept.md`, `hardware/energiebilanz.py`): ADC 8192 Hz, FFT N = 512 mit Welch-Mittelung, ca. 41 KB RAM mit Mikrofon; dazu LoRaWAN-Stack (RadioLib), HX711, 1-Wire, I²C, SPI-Flash, USB-DFU (HW-01), RTC mit LSE. Genauen RAM-/Flash-Bedarf des Gesamtprogramms nach dem ersten Build der Platinenfirmware nachtragen [P].
+**Bedarf** (aus `docs/fft-konzept.md`, `hardware/energiebilanz.py`): ADC 8192 Hz, FFT N = 512 mit Welch-Mittelung, ca. 41 KB RAM mit Mikrofon; dazu LoRaWAN-Stack (RadioLib), HX711, 1-Wire, I²C, SPI-Flash, USB-DFU und USB-CDC (HW-05), RTC mit LSE. Genauen RAM-/Flash-Bedarf des Gesamtprogramms nach dem ersten Build der Platinenfirmware nachtragen [P].
 
 Preise JLCPCB/LCSC am 13.10.2026, 10 Stück, in US-Dollar [V: JLCPCB-Teilesuche]:
 
@@ -69,7 +70,7 @@ Preise JLCPCB/LCSC am 13.10.2026, 10 Stück, in US-Dollar [V: JLCPCB-Teilesuche]
 | APM32F411CEU6 (Geehy) | 2,03 | 0 | 512 K / 128 K | als F411-Ersatz beworben, nicht lieferbar |
 | AT32F403ACGU7 (Artery) | 2,68 | 1923 | 1 M / 224 K | andere Peripherie, schwächere Arduino-Unterstützung |
 | GD32F303CCT6, CH32V203C8T6 | 1,22 / 0,72 | viel | ≤ 256 K / ≤ 48 K | DFU-Bootloader und Ruhestrom ungeprüft |
-| STM32WLE5 (z. B. Wio-E5-Modul) | 7,58 | 6 | 256 K / 64 K | ersetzt MCU + Ra-01SH (zusammen ca. 8,90), aber **kein USB** (HW-01 entfiele), nach unserem Wissen ohne FPU [A], Neuentwurf → frühestens Version 2 |
+| STM32WLE5 (z. B. Wio-E5-Modul) | 7,58 | 6 | 256 K / 64 K | ersetzt MCU + Ra-01SH (zusammen ca. 8,90), aber **kein USB** (HW-05 entfiele), nach unserem Wissen ohne FPU [A], Neuentwurf → frühestens Version 2 |
 
 - **Energie:** Der L433 spart im Ruhezustand ca. 2,3 µA ≈ 0,055 mAh/Tag, das sind 2 % der Last (2,81 mAh/Tag, Szenario B) und wenig gegenüber der Selbstentladung (2,2–5,6 mAh/Tag). Kein Grund zum Wechsel.
 - **FPGA:** Keine Aufgabe braucht hohe Datenraten oder parallele Kanäle; die FFT läuft auf dem M4F in Bruchteilen einer Sekunde. Günstigster Kandidat iCE40UP5K-SG48I 9,38 $ (doppelt so teuer wie die MCU) plus 1,2-V-Versorgung, Konfigurationsspeicher, zweite Toolchain und zusätzlicher Ruhestrom. Sinnvoll erst bei z. B. 4–8 synchron abgetasteten Mikrofonen (Schallortung), nicht im Lastenheft.
@@ -230,13 +231,14 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PB6 / PB7 | I²C1 SCL / SDA | BME280 (außen) und Erweiterungsstecker, Pull-ups 1,8 kΩ an geschalteter Schiene, 50 kHz |
 | PB8 / PB9 | HX711 Nr. 1 DOUT / SCK | 1 kΩ in Reihe |
 | PB10 | 5-V-Wandler der Waage ein (high = ein) | Pull-down 100 kΩ; siehe waage.md |
-| PB12 / PB13 | frei (Erweiterung) | nur noch ein HX711 (09.10.2026) |
+| PB12 | frei (Erweiterung) | nur noch ein HX711 (09.10.2026) |
+| PB13 | VBUS-Erkennung (HW-05) | Teiler 33 kΩ / 82 kΩ von VBUS (AN4879) |
 | PB14 / PB15 | Ra-01SH TXEN / RXEN | über offene Lötbrücken |
 | PC13 | LED (low = an), am Platinenrand unter dem Lichtleiter | Signale siehe 3.3; Vorwiderstand ≥ 1 kΩ |
 | PC14 / PC15 | LSE 32,768 kHz | |
 | PH0 / PH1 | HSE 25 MHz | |
 
-Frei für den Erweiterungsstecker (F9): PA15, PB12, PB13. PB11 gibt es beim UFQFPN-48 nicht [V].
+Frei für den Erweiterungsstecker (F9): PA15, PB12 (PB13 seit HW-05 VBUS-Erkennung). PB11 gibt es beim UFQFPN-48 nicht [V].
 
 ## 5. Regeln für den Block
 

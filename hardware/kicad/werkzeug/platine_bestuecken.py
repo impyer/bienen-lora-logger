@@ -75,21 +75,23 @@ PLATZ["U401"] = (100.0, Y0 + RAND + 8.95, 0)
 PLATZ["D301"] = (X0 + RAND + 0.75, 92.0, 90)       # Lichtaustritt (−y im Footprint) nach links zur Kante [A]
 PLATZ["SW304"] = (X0 + RAND + 1.5, 108.0, 90)      # Schaltachse parallel zur Kante
 
-# Innen, gut erreichbar (anschluesse.md 4): USB-C an der rechten Kante, Akkustecker links innen
+# Innen, gut erreichbar (anschluesse.md 4): USB-C an der rechten Kante
 PLATZ["J301"] = (X1 - 4.3, 80.0, 90)        # Buchsenfront bündig mit der Kante
-PLATZ["J203"] = (62.0, 112.0, 0)
+# Akkuhalter (HW-06): waagerecht unter dem Funkmodul, weg von der Funkkante und vom Laderegler (versorgung.md 3.4)
+PLATZ["BT801"] = (91.0, 71.4, 0)
 
-# Stiftleisten: Debug neben der MCU, Erweiterung im freien Drittel links oben (M5, F9)
+# Stiftleisten: Debug neben der MCU; Erweiterung am Rand des freien Drittels links oben (M5, F9), nahe der MCU –
+# Routing 13.10.2026: links oben kostete J704 rund 250 mm zusätzliche Leiterbahn (I²C, Serial1, PA15/PB12/PB13)
 PLATZ["J302"] = (135.0, 92.0, 0)
-PLATZ["J704"] = (52.0, 58.0, 0)
+PLATZ["J704"] = (80.0, 104.0, 0)
 
-# Taster neben der USB-Buchse (Aufspielen am Tisch: BOOT + Reset)
+# Taster: BOOT + Reset neben der USB-Buchse (Aufspielen am Tisch)
 PLATZ["SW301"] = (146.0, 96.0, 0)
 PLATZ["SW302"] = (146.0, 104.0, 0)
-PLATZ["SW303"] = (146.0, 64.0, 0)
+PLATZ["SW303"] = (62.0, 96.0, 0)                  # Service-Taster (WAKE) links bei Reedkontakt und WAKE-Pin
 
 # Haupt-ICs je Block
-PLATZ["U301"] = (105.0, 88.0, 0)                   # STM32 in der Mitte
+PLATZ["U301"] = (105.0, 91.0, 0)                   # STM32 in der Mitte, unter dem Akkuhalter
 PLATZ["U402"] = (124.0, 52.0, 90)                  # SPI-Flash neben dem Funkmodul
 PLATZ["U201"] = (62.0, 132.0, 0)                   # Laderegler über den Solarklemmen
 PLATZ["U502"] = (147.0, 130.0, 90)                 # HX711 neben der Wägezellenklemme
@@ -104,11 +106,17 @@ BEREICH = {
     "Anschlüsse": (64, 126, 110, 150),
     "Mikrofon": (108, 116, 138, 150),
     "Waage": (136, 104, 160, 150),
+    "Akku": (113, 83, 135, 101),         # Zellschutz am Minuspol (rechtes Halterende, B−-Insel klein); Sensoren gehören
+                                         # im Layout unter die Zelle (Wärmeleitpad) – Aufgabe für den Layouter [P]
 }
 ANKER = {"Funk + Flash": "U401", "MCU": "U301", "Versorgung": "U201", "Anschlüsse": "J701",
-         "Mikrofon": "U601", "Waage": "U502"}
+         "Mikrofon": "U601", "Waage": "U502", "Akku": "BT801"}
 # Seitenkante links (LED, Reed): eigener Bereich für deren Kleinteile
 KANTE_LINKS = (40, 84, 62, 118)
+# Routing 13.10.2026: dicht gepackte Blöcke um fein geteilte ICs ließen keine Ausbruchswege. Deshalb Freiraum um diese
+# ICs (mm, um den Courtyard) und größere Abstände im Versorgungsblock.
+FREIRAUM = {"U201": 1.5, "U301": 0.8, "U501": 1.0, "U502": 0.8}
+ABSTAND_BLATT = {"Versorgung": 1.0}
 # Bauteile, die trotz Netzverwandtschaft an ein bestimmtes Bauteil gehören
 ZUORDNUNG = {"C401": "U401", "C402": "U401", "C403": "U401", "D401": "U401", "C404": "U402",
              "U202": "U201", "U203": "U201", "U204": "U201", "L501": "U501", "C501": "U501", "C502": "U501",
@@ -199,7 +207,7 @@ def setze(fp, x, y, rot=0):
     fp.SetPosition(pcbnew.VECTOR2I(mm(x), mm(y)))
 
 
-def ablegen(fp, ziel, belegt, bereich, abstand=0.3):
+def ablegen(fp, ziel, belegt, bereich, abstand=0.5):   # 0,5 mm: Routing-Kanäle zwischen den Kleinteilen
     """Spiralförmig um das Ziel-Bauteil suchen, bis der Courtyard (mit Abstand) frei ist."""
     zx, zy = ziel
     for r in [i * 0.5 for i in range(0, 120)]:
@@ -266,7 +274,9 @@ def main():
     for ref, (x, y, rot) in PLATZ.items():
         if ref in neu:
             setze(neu[ref][0], x, y, rot)
-            belegt.append(kasten(neu[ref][0]))
+            k = kasten(neu[ref][0])
+            r = FREIRAUM.get(ref, 0.0)
+            belegt.append((k[0] - r, k[1] - r, k[2] + r, k[3] + r))
     # 2. übrige: neben das Bauteil mit den meisten gemeinsamen Signalnetzen (im Bereich des Blatts)
     def signalnetze(ref):
         return {n for n in pads[ref].values() if n not in VERSORGUNGSNETZE and not n.startswith("unconnected")}
@@ -287,7 +297,7 @@ def main():
         pf = neu[partner][0] if partner in neu else None
         ziel = (pcbnew.ToMM(pf.GetPosition().x), pcbnew.ToMM(pf.GetPosition().y)) if pf else (100, 100)
         bereich = KANTE_LINKS if partner in ("D301", "SW304") else BEREICH.get(t["blatt"])
-        belegt.append(ablegen(fp, ziel, belegt, bereich))
+        belegt.append(ablegen(fp, ziel, belegt, bereich, ABSTAND_BLATT.get(t["blatt"], 0.5)))
         platziert.add(ref)
 
     # Referenztext, der über den Platinenrand ragt, in die Bauteilmitte legen

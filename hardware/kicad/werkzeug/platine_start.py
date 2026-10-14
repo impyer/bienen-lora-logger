@@ -139,6 +139,17 @@ def main():
     text(board, pcbnew.F_SilkS, "PCB-MAIN-0.1", cx, cy + h - 3, 1.0)
 
     board.Save(ZIEL)
+    # Netzklasse Default: Abstand 0,15 mm wie die Entwurfsregel (KiCad legt 0,2 mm an; SOT-563 im 0,5-mm-Raster
+    # hätte sonst Verstöße zwischen den eigenen Pads)
+    import json
+    pro = ZIEL[:-len(".kicad_pcb")] + ".kicad_pro"
+    d = json.load(open(pro, encoding="utf-8"))
+    for k in d["net_settings"]["classes"]:
+        if k["name"] == "Default":
+            k["clearance"] = 0.15
+    with open(pro, "w", encoding="utf-8") as f:
+        json.dump(d, f, indent=2)
+        f.write("\n")
     print("angelegt:", ZIEL)
     return 0
 

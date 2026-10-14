@@ -14,7 +14,7 @@ Dazu kommen eigene Erweiterungen, Tests, Dokumentation und später eine eigene, 
 |---|---|
 | Firmware `STM32_LORA_261008_ZS` (Firmware-ID 261010, ZS + V2 + optionale FFT) | Host-/SiL-Tests und drei STM32-Buildvarianten CI-grün, **noch nicht am Logger/mit TTN validiert** |
 | Tests (Unit-Tests, Simulation, TTN-Auswertung, Selbsttest auf dem STM32) | lauffähig |
-| Eigene SMD-Platine | Lastenheft-Entwurf, siehe [`hardware/`](hardware/) |
+| Eigene SMD-Platine | Schaltplan V0.1 (KiCad 10, alle Blätter inkl. Akku) und Bauteilplatzierung im Entwurf, Layout geht an einen externen Layouter; keine Fertigungsfreigabe, siehe [`hardware/`](hardware/) |
 | Waagenrahmen (Alu) | geplant, siehe [`mechanik/`](mechanik/) |
 | Erweiterungen beelogger-Webserver | Eigener TTN-LoRa-Eingang und UTC-Serverfassung integriert getestet; **vollständiges Deployment nötig**, siehe [`server/`](server/) und [`docs/server-utc.md`](docs/server-utc.md) |
 
@@ -51,7 +51,7 @@ Einzelheiten in [`LICENSE.md`](LICENSE.md).
 
 ## Entwicklung und Zusammenarbeit
 
-Das [**Entwicklungsregelwerk 1.0 (angenommener Projektstandard)**](docs/entwicklung/README.md) beschreibt Hardwaredesign, Programmierung, Open-Source-Rechte, Prüfklassen und getrennte Freigaben für Entwicklungsstand, Labormuster, Feldtest und Release. Vorschläge und Beiträge: [`CONTRIBUTING.md`](CONTRIBUTING.md). Sicherheitsmeldungen: [`SECURITY.md`](SECURITY.md).
+Das [**Entwicklungsregelwerk 1.1 (angenommener Projektstandard)**](docs/entwicklung/README.md) beschreibt Hardwaredesign, Programmierung, Open-Source-Rechte, Prüfklassen und getrennte Freigaben für Entwicklungsstand, Labormuster, Feldtest und Release. Vorschläge und Beiträge: [`CONTRIBUTING.md`](CONTRIBUTING.md). Sicherheitsmeldungen: [`SECURITY.md`](SECURITY.md).
 
 ## Tests
 

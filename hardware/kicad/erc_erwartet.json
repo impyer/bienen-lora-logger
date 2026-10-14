@@ -1,5 +1,4 @@
 {
   "_hinweis": "Bekannte, begründete ERC-Warnungen. Jede neue Warnung oder jeder Fehler lässt pruefen.sh scheitern (SCH26-04).",
-  "hauptplatine/logger.kicad_sch": [],
-  "akku-platine/akku.kicad_sch": []
+  "hauptplatine/logger.kicad_sch": []
 }

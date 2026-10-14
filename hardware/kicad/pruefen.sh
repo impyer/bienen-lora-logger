@@ -12,12 +12,12 @@ HIER="$(cd "$(dirname "$0")" && pwd)"
 cd "$HIER"
 command -v kicad-cli >/dev/null || { echo "kicad-cli (KiCad 10) fehlt"; exit 1; }
 kicad-cli version | grep -q '^10\.' || { echo "KiCad 10 erwartet, gefunden: $(kicad-cli version)"; exit 1; }
-WURZELN="akku-platine/akku.kicad_sch hauptplatine/logger.kicad_sch"
-erzeugen() { python3 werkzeug/symbole.py >/dev/null; python3 werkzeug/footprints.py >/dev/null; python3 akku_platine.py >/dev/null; python3 hauptplatine.py >/dev/null; }
+WURZELN="hauptplatine/logger.kicad_sch"            # Akku-Platine seit HW-06 als Blatt in der Hauptplatine
+erzeugen() { python3 werkzeug/symbole.py >/dev/null; python3 werkzeug/footprints.py >/dev/null; python3 hauptplatine.py >/dev/null; }
 
 # SCH26-12: Alle erzeugten Schaltplanblätter gehen in die Doppelerzeugung, nicht eine feste Liste.
 # Die Liste wird nach dem ersten Erzeugen gebildet, damit neue Blätter automatisch dabei sind.
-dateiliste() { echo bienen.kicad_sym; ls Bienen.pretty/*.kicad_mod; ls akku-platine/*.kicad_sch hauptplatine/*.kicad_sch | LC_ALL=C sort; }
+dateiliste() { echo bienen.kicad_sym; ls Bienen.pretty/*.kicad_mod; ls hauptplatine/*.kicad_sch | LC_ALL=C sort; }
 # Abdeckung: Jede Blattdatei, auf die ein Wurzelblatt verweist, muss in der Liste stehen,
 # und jede .kicad_sch im Ordner muss Wurzel oder verwiesenes Blatt sein (keine verwaisten Dateien).
 abdeckung() {

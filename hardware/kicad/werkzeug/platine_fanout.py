@@ -32,7 +32,9 @@ LOECHER = [(x, y) for x in (44.9, 155.1) for y in (44.9, 155.1)]
 LOCH_R = 3.5 + VIA_D / 2
 # (Bauteil, Pin, Endpunkt dx/dy relativ zum Bauteil, Breite): GND-Pin → Thermal-Pad
 EP_STICH = [("U201", "5", -0.3, 0.8, 0.2),      # BQ25185: Pin 5 liegt neben dem EP (±0,45 × ±0,75)
-            ("U301", "35", 2.6, -2.25, 0.25)]   # STM32: Pin 35 innen auf das EP (Kante 2,8 mm)
+            ("U301", "35", 2.6, -2.25, 0.25),   # STM32: Pin 35 innen auf das EP (Kante 2,8 mm)
+            ("U301", "8", -2.6, 0.75, 0.25),    # STM32: VSSA innen auf das EP (außen liegen Quarz-/VDDA-Leitungen)
+            ("U301", "23", 2.25, 2.6, 0.25)]    # STM32: VSS innen auf das EP (außen VCAP-Leitung)
 
 
 def mm(x):

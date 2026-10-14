@@ -3,7 +3,8 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
-Stand 13.10.2026: alle Blätter im Entwurf: „Versorgung“, „MCU“, „Funk + Flash“, „Waage“, „Mikrofon“, „Anschlüsse“; Netze zwischen den Blättern sind globale Labels.
+Stand 14.10.2026: alle Blätter im Entwurf: „Versorgung“, „MCU“, „Funk + Flash“, „Waage“, „Mikrofon“, „Anschlüsse“, „Akku“
+(HW-06: Zelle und Zellschutz auf der Hauptplatine, Akku-Platine entfällt); Netze zwischen den Blättern sind globale Labels.
 
 Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7, mcu-funk.md, waage.md, mikrofon.md.
 Aufruf: python3 hardware/kicad/hauptplatine.py
@@ -40,31 +41,30 @@ SCHNITTSTELLEN = {
     "SPI_SCK", "SPI_MISO", "SPI_MOSI", "LORA_NSS", "LORA_DIO1", "LORA_BUSY", "LORA_RST", "LORA_TXEN", "LORA_RXEN",
     "FLASH_CS",
     # Blatt MCU → Mikrofon, Waage, Anschlüsse
-    "MIC_ADC", "HX_DOUT", "HX_SCK", "WAAGE_EIN", "ONEWIRE", "I2C_SCL", "I2C_SDA", "EXT_PA15", "EXT_PB12", "EXT_PB13",
+    "MIC_ADC", "HX_DOUT", "HX_SCK", "WAAGE_EIN", "ONEWIRE", "I2C_SCL", "I2C_SDA", "EXT_PA15", "EXT_PB12",
 }
 
 
 def zeichne_versorgung(b, T):
     """Platzierung und Leitungen nach Stromfluss (A3 quer, mm).
-    Obere Reihe: Panels/USB → Schottky → VIN_LADER → Laderegler → SYS. Mitte: Akku-Stecker J203 mit
-    VBAT, CE, NTC und TMP_VCC (TPS70933 aus VIN_LADER). Untere Reihe: SYS → 3,3 V → Sensorschiene.
+    Obere Reihe: Panels/USB → Schottky → VIN_LADER → Laderegler → SYS. Mitte: Labels zum Blatt Akku mit
+    VBAT, CE, NTC und TMP_VCC (TPS70933 aus VIN_LADER) als Labels zum Blatt Akku. Untere Reihe: SYS → 3,3 V → Sensorschiene.
     netz_tests.py prüft jede gezeichnete Verbindung gegen die Netzbeschreibung."""
     S, D, L = b.setze, b.draht, b.label
     yv = 76.2                        # obere Schiene VIN_LADER / SYS
     y3 = 180.34                      # untere Schiene SYS / +3V3 / 3V3_SW
 
     b.text("1  Solar und USB → Schottky-Dioden → VIN_LADER (TVS, Messung der Eingangsspannung)", 30.48, 55.88, 2.0)
-    b.text("2  Laderegler BQ25185: 4,1 V, 150 mA; CE und TS kommen von der Ladesperre der Akku-Platine", 152.4, 63.5, 2.0)
-    b.text("3  Akku-Stecker J203, TMP_VCC", 175.26, 124.46, 2.0)
+    b.text("2  Laderegler BQ25185: 4,1 V, 150 mA; CE und TS kommen von der Ladesperre (Blatt Akku)", 152.4, 63.5, 2.0)
+    b.text("3  Zum Blatt Akku: VBAT, CE_LADEN, NTC, TMP_VCC", 175.26, 124.46, 2.0)
     b.text("4  SYS → 3,3 V (RT9080) → geschaltete Sensorschiene 3V3_SW (TPS22917, Ein/Aus von der MCU)", 152.4, 215.9, 2.0)
     b.text("Regeln: Pull-ups nur an 3V3_SW; TS/MR nie aktiv auf Masse (Werksmodus); Laderegler nicht neben der Zelle; "
            "SPI-Flash an +3V3 (dauernd).", 30.48, 233.68, 1.5)
-    b.text("J203: Kabel 1:1 zur Akku-Platine J1 (anschluesse.md). TMP_VCC aus dem TPS70933 am Ladereingang gibt es nur bei "
+    b.text("Zelle, Zellschutz und Ladesperre auf Blatt Akku (HW-06). TMP_VCC aus dem TPS70933 am Ladereingang gibt es nur bei "
            "Sonne/USB; ohne TMP_VCC sperrt die Ladesperre (sicherheit-akku.md).", 30.48, 240.03, 1.5)
 
     # Teile, auf die mehrere Abschnitte zeigen, zuerst setzen
     S(T["U201"], 205.74, 83.82, text="oben")
-    S(T["J203"], 302.26, 134.62, text="oben")
     S(T["U204"], 215.9, 152.4, text="oben")
     S(T["U202"], 228.6, 185.42, text="oben")
     S(T["U203"], 299.72, 182.88, text="oben")
@@ -108,8 +108,8 @@ def zeichne_versorgung(b, T):
     L("ISET", 180.34, 83.82)
     L("ILIM", 186.69, 86.36)
     x_ce, x_ts = 167.64, 170.18
-    D(T["U201"].p("~{CE}"), (x_ce, 78.74), (x_ce, 134.62), T["J203"].p("3"))
-    D(T["U201"].p("TS/~{MR}"), (x_ts, 81.28), (x_ts, 132.08), T["J203"].p("2"))
+    D(T["U201"].p("~{CE}"), (x_ce, 78.74), (x_ce, 134.62), (246.38, 134.62))
+    D(T["U201"].p("TS/~{MR}"), (x_ts, 81.28), (x_ts, 132.08), (246.38, 132.08))
     L("CE_LADEN", 246.38, 134.62)
     L("NTC", 246.38, 132.08)
     S(T["R205"], 157.48, 109.22, text="links")
@@ -125,9 +125,8 @@ def zeichne_versorgung(b, T):
     L("LADE_STAT1", 226.06, 81.28)
     L("LADE_STAT2", 226.06, 83.82)
 
-    # --- 3 Akku-Stecker: VBAT, Akkuteiler, TMP_VCC --------------------------
-    x_vbat = 317.5
-    D(T["U201"].p("BAT"), (x_vbat, 78.74), (x_vbat, 142.24), (297.18, 142.24), T["J203"].p("5"))
+    # --- 3 VBAT, Akkuteiler, TMP_VCC (zum Blatt Akku) -------------------------
+    D(T["U201"].p("BAT"), (302.26, 78.74))
     L("VBAT", 302.26, 78.74)
     S(T["C205"], 264.16, 82.55)
     
@@ -138,10 +137,10 @@ def zeichne_versorgung(b, T):
     D(T["C207"].p("1"), (289.56, 90.17), (279.4, 90.17))
     D((289.56, 90.17), (294.64, 90.17))
     L("ADC_AKKU", 294.64, 90.17)
-    S(T["#FLG203"], 309.88, 78.74)
+    S(T["#FLG203"], 297.18, 78.74)
     D((73.66, yv), (73.66, 147.32), T["U204"].p("IN"))
     S(T["C212"], 236.22, 151.13)
-    D(T["U204"].p("OUT"), (292.1, 147.32), (292.1, 137.16), T["J203"].p("4"))
+    D(T["U204"].p("OUT"), (243.84, 147.32))
     L("TMP_VCC", 243.84, 147.32)
 
     # --- 4 SYS → 3,3 V → 3V3_SW ---------------------------------------------
@@ -184,7 +183,7 @@ def mcu(p):
             "PA11": "USB_DM", "PA12": "USB_DP", "PA13": "SWDIO", "PA14": "SWCLK", "PA15": "EXT_PA15",
             "PB0": "ADC_AKKU", "PB1": "ADC_SOLAR", "PB2": "BOOT1", "PB3": "FLASH_CS", "PB4": "LORA_RST",
             "PB5": "SENSOR_EIN", "PB6": "I2C_SCL", "PB7": "I2C_SDA", "PB8": "HX_DOUT", "PB9": "HX_SCK", "PB10": "WAAGE_EIN",
-            "PB12": "EXT_PB12", "PB13": "EXT_PB13", "PB14": "LORA_TXEN", "PB15": "LORA_RXEN"}
+            "PB12": "EXT_PB12", "PB13": "VBUS_SENSE", "PB14": "LORA_TXEN", "PB15": "LORA_RXEN"}
     netze = {}
     for nr, name, *_r in pins_von_lib("MCU_ST_STM32F4:STM32F411CEUx"):
         netze[nr] = pins[name]
@@ -234,6 +233,11 @@ def mcu(p):
            info="Schirm direkt an GND [A]")
     b.teil("Device:R", "R303", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC1"}, info="USB-2.0-Gerät")
     b.teil("Device:R", "R304", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC2"})
+    # HW-05 (14.10.2026): USB auch für Programmierung und Kommunikation (CDC) → VBUS-Erkennung nach ST AN4879
+    b.teil("Device:R", "R307", "33k", fp=R0603, netze={"1": "VBUS", "2": "VBUS_SENSE"},
+           info="VBUS-Teiler AN4879: 5 V → 3,6 V an PB13 (5-V-tolerant); D+-Pull-up nur bei gestecktem Kabel")
+    b.teil("Device:R", "R308", "82k", fp=R0603, netze={"1": "VBUS_SENSE", "2": "GND"},
+           info="VBUS-Teiler AN4879; 43 µA nur bei gestecktem USB")
     b.teil("Power_Protection:USBLC6-2SC6", "U302", "USBLC6-2SC6", fp="Package_TO_SOT_SMD:SOT-23-6", lcsc="C7519",
            netze={"1": "USB_DM", "6": "USB_DM", "3": "USB_DP", "4": "USB_DP", "5": "VBUS", "2": "GND"})
     # Debug
@@ -364,6 +368,12 @@ def zeichne_mcu(b, T):
         stub(b, R, "2", 5.08)
     D(K.p("A4"), (314.96, K.p("A4")[1]))
     L("VBUS", 314.96, K.p("A4")[1], 180)
+    R7 = S(T["R307"], 266.7, 200.66, text="links")
+    S(T["R308"], 266.7, 213.36, text="links")
+    stub(b, R7, "1", 5.08)
+    D(R7.p("2"), T["R308"].p("1"))
+    D((266.7, 207.01), (259.08, 207.01))
+    L("VBUS_SENSE", 259.08, 207.01, 180)
     E = S(T["U302"], 289.56, 182.88, text="unten")
     for pin in ("1", "3", "4", "6", "5"):
         stub(b, E, pin, 5.08)
@@ -815,8 +825,8 @@ def anschluesse(p):
     b.teil("Connector_Generic:Conn_02x06_Odd_Even", "J704", "Erweiterung",
            fp="Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical",
            netze={"1": "+3V3", "2": "3V3_SW", "3": "GND", "4": "GND", "5": "I2C_SDA", "6": "I2C_SCL", "7": "DBG_TX",
-                  "8": "DBG_RX", "9": "EXT_PA15", "10": "EXT_PB12", "11": "EXT_PB13", "12": "GND"},
-           info="= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1)")
+                  "8": "DBG_RX", "9": "EXT_PA15", "10": "EXT_PB12", "11": "NC", "12": "GND"},
+           info="= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1); Pin 11 frei, seit HW-05 ist PB13 die VBUS-Erkennung")
     zeichne_anschluesse(b, {t.ref: t for t in b.teile})
     return b
 
@@ -871,7 +881,7 @@ def zeichne_anschluesse(b, T):
 
     # --- 3 Erweiterungsleiste ---------------------------------------------------------------
     X = S(T["J704"], 266.7, 106.68, text="oben")
-    for pin in ("5", "7", "9", "11"):
+    for pin in ("5", "7", "9"):                 # Pin 11 frei (HW-05: PB13 = VBUS-Erkennung), No-Connect
         stub(b, X, pin, 10.16)
     for pin in ("2", "6", "8", "10"):
         stub(b, X, pin, 10.16)
@@ -921,7 +931,7 @@ def versorgung(p):
         b.teil("Device:R", "R202", "470k", fp=R0603, netze={"1": "ADC_SOLAR", "2": "GND"}),
         b.teil("Device:C", "C203", "100n", fp=C0603, netze={"1": "ADC_SOLAR", "2": "GND"}, info="Ladung für die ADC-Abtastung"),
         b.teil("power:PWR_FLAG", "#FLG201", "PWR_FLAG", netze={"1": "VIN_LADER"}, info="Quellen: Panels an J201/J202 und VBUS über D201–D203; Klemmen sind für den ERC passive Pins"),
-        b.teil("power:PWR_FLAG", "#FLG202", "PWR_FLAG", netze={"1": "GND"}, info="Bezug über die Klemmen J201/J202 und den Akku-Stecker J203 (passive Pins)"),
+        b.teil("power:PWR_FLAG", "#FLG202", "PWR_FLAG", netze={"1": "GND"}, info="Bezug über die Klemmen J201/J202 und die Zelle über Q801 (passive Pins)"),
     ]
 
     lader = [
@@ -940,15 +950,12 @@ def versorgung(p):
         b.teil("Device:C", "C206", "10n", fp=C0603, netze={"1": "CE_LADEN", "2": "GND"}, info="Störschutz an CE (RC 1 ms)"),
         b.teil("Bienen:TPS70933DBV", "U204", "TPS70933DBV", fp="Package_TO_SOT_SMD:SOT-23-5",
                netze={"IN": "VIN_LADER", "EN": "NC", "OUT": "TMP_VCC", "GND": "GND"},
-               info="TMP_VCC für die Ladesperre auf der Akku-Platine, nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)"),
+               info="TMP_VCC für die Ladesperre (Blatt Akku), nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)"),
         b.teil("Device:C", "C212", "4,7µ 16V X7R", fp=C0805, netze={"1": "TMP_VCC", "2": "GND"},
                info="Datenblatt verlangt ≥ 2,2 µF am Ausgang; 4,7 µF/0805 hält das bei 3,3 V trotz DC-Bias (REG26-11)"),
         b.teil("Connector:TestPoint", "TP201", "STAT1", bom=False, fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT1"}),
         b.teil("Connector:TestPoint", "TP202", "STAT2", bom=False, fp="TestPoint:TestPoint_Pad_D1.0mm", netze={"1": "LADE_STAT2"}),
-        b.teil("Connector_Generic:Conn_01x05", "J203", "Akku (JST PH 5)", fp="Connector_JST:JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical",
-               netze={"1": "GND", "2": "NTC", "3": "CE_LADEN", "4": "TMP_VCC", "5": "VBAT"},
-               info="Kabel 1:1 zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+"),
-        b.teil("power:PWR_FLAG", "#FLG203", "PWR_FLAG", netze={"1": "VBAT"}, info="Quelle: Akku-Platine über J203 Pin 5 (P+), anderes KiCad-Projekt"),
+        b.teil("power:PWR_FLAG", "#FLG203", "PWR_FLAG", netze={"1": "VBAT"}, info="Quelle: Zelle BT801 über die Lötbrücke JP801 (Blatt Akku, passive Pins)"),
         b.teil("Device:R", "R206", "2,2M", fp=R0603, netze={"1": "VBAT", "2": "ADC_AKKU"}, info="Akkuteiler 1:2, 0,9 µA"),
         b.teil("Device:R", "R207", "2,2M", fp=R0603, netze={"1": "ADC_AKKU", "2": "GND"}),
         b.teil("Device:C", "C207", "100n", fp=C0603, netze={"1": "ADC_AKKU", "2": "GND"}),
@@ -974,6 +981,189 @@ def versorgung(p):
     return b
 
 
+def akku(p):
+    """Blatt „Akku“ (HW-06, 14.10.2026): Zelle 18650 im Halter Keystone 1042 auf der Hauptplatine, Zellschutz
+    HY2111 + FS8205 direkt am Halter, Strommessbrücke, zweistufige Temperatur-Ladesperre (2 × TMP390, NTC).
+    Bis dahin eigene Akku-Platine (akku_platine.py, Kabel J1 ↔ J203); Schaltung unverändert übernommen,
+    Bauteile 8xx. Quellen: versorgung.md 3.3/3.4, sicherheit-akku.md, LASTENHEFT V1–V3."""
+    b = p.blatt("Akku", "akku.kicad_sch", titel="Akku: Zelle 18650, Zellschutz, Temperatur-Ladesperre")
+    # --- Zelle, Messbrücke, Stecker ---
+    zelle = [
+        b.teil("Device:Battery_Cell", "BT801", "18650 3,6 V", fp="Battery:BatteryHolder_Keystone_1042_1x18650",
+               netze={"+": "B+", "-": "B-"},
+               info="Keystone 1042 (SMD), HW-02; seit HW-06 auf der Hauptplatine; Pad 1 = Plus; LCSC-Nummer [P]"),
+        b.teil("Jumper:SolderJumper_2_Bridged", "JP801", "Messbrücke B+", bom=False, fp="Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm",
+               netze={"A": "B+", "B": "VBAT"}, info="Zum Strommessen auftrennen, Amperemeter an J801"),
+        b.teil("Connector_Generic:Conn_01x02", "J801", "Strommessung", fp="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+               netze={"1": "B+", "2": "VBAT"}, dnp=True, info="nur bei Bedarf bestücken"),
+        b.teil("power:PWR_FLAG", "#FLG801", "PWR_FLAG", netze={"1": "B+"}, info="Quelle: Zelle BT1 (+); der Halter ist für den ERC nur ein passiver Pin"),
+        b.teil("power:PWR_FLAG", "#FLG802", "PWR_FLAG", netze={"1": "B-"}, info="Quelle: Zelle BT1 (−)"),
+    ]
+
+    # --- Zellschutz (HYCON-Anwendungsschaltung: R1 100 Ω, C1 100 nF, R2 2 kΩ) ---
+    schutz = [
+        b.teil("Bienen:HY2111-GB", "U801", "HY2111-GB", fp="Package_TO_SOT_SMD:SOT-23-6", lcsc="C82747",
+               netze={"VDD": "HY_VDD", "VSS": "B-", "CS": "HY_CS", "OD": "GATE_ENTL", "OC": "GATE_LADE"}),
+        b.teil("Device:R", "R801", "100", fp=R0603, netze={"1": "B+", "2": "HY_VDD"}, info="HYCON-Anwendungsschaltung R1"),
+        b.teil("Device:C", "C801", "100n", fp=C0603, netze={"1": "HY_VDD", "2": "B-"}, info="HYCON C1"),
+        b.teil("power:PWR_FLAG", "#FLG805", "PWR_FLAG", netze={"1": "HY_VDD"}, info="aus B+ über R801 100 Ω (HYCON-Anwendungsschaltung); der ERC sieht den Widerstand nicht als Treiber"),
+        b.teil("Device:R", "R802", "2k", fp=R0603, netze={"1": "HY_CS", "2": "GND"}, info="HYCON R2 (CS an P−)"),
+        b.teil("Bienen:FS8205", "Q801", "FS8205", fp="Package_TO_SOT_SMD:SOT-23-6", lcsc="C32254",
+               netze={"G1": "GATE_ENTL", "S1": "B-", "G2": "GATE_LADE", "S2": "GND", "D12": "D12"},
+               info="M1 Entladen (G1, S1 an B−), M2 Laden (G2, S2 an P−)"),
+    ]
+
+    # --- Ladesperre Stufe 1: TMP390 U2 → Q2 → CE ---
+    stufe1 = [
+        b.teil("Bienen:TMP390", "U802", "TMP390A2DRL", fp="Package_TO_SOT_SMD:SOT-563",
+               netze={"VDD": "TMP_VCC", "GND": "GND", "SETA": "SETA1", "SETB": "SETB1", "~{OUTA}": "GATE_CE", "~{OUTB}": "GATE_CE"},
+               info="OUTA heiß 42 °C, OUTB kalt +5 °C, Hysterese 5 °C; Ausgänge verbunden (wired-OR)"),
+        b.teil("Device:C", "C802", "100n", fp=C0603, netze={"1": "TMP_VCC", "2": "GND"}),
+        b.teil("Device:R", "R803", "2,49k 1%", fp=R0603, netze={"1": "SETA1", "2": "GND"}, info="TMP390 Tab. 7-1: 42 °C"),
+        b.teil("Device:R", "R804", "18,7k 1%", fp=R0603, netze={"1": "SETB1", "2": "GND"}, info="TMP390 Tab. 7-2: +5 °C, Hysterese 5 °C"),
+        b.teil("Device:R", "R805", "100k", fp=R0603, netze={"1": "TMP_VCC", "2": "GATE_CE"},
+               info="Gate-Pull-up an TMP_VCC: Leckstrom TMP390 ±0,1 µA → 10 mV (SCH26-02)"),
+        b.teil("Transistor_FET:AO3400A", "Q802", "AO3400A", fp="Package_TO_SOT_SMD:SOT-23",
+               netze={"G": "GATE_CE", "S": "GND", "D": "CE_LADEN"}, info="leitet → CE low → Laden erlaubt (gegen R205 100 kΩ nach SYS)"),
+    ]
+
+    # --- Ladesperre Stufe 2: TMP390 U3 trennt den NTC ---
+    stufe2 = [
+        b.teil("Bienen:TMP390", "U803", "TMP390A2DRL", fp="Package_TO_SOT_SMD:SOT-563",
+               netze={"VDD": "TMP_VCC", "GND": "GND", "SETA": "SETA2", "SETB": "SETB2", "~{OUTA}": "GATE_NTC", "~{OUTB}": "NC"},
+               info="nur Kanal A (heiß 42 °C, Hysterese 5 °C); OUTB offen (Datenblatt: erlaubt)"),
+        b.teil("Device:C", "C803", "100n", fp=C0603, netze={"1": "TMP_VCC", "2": "GND"}),
+        b.teil("Device:R", "R806", "2,49k 1%", fp=R0603, netze={"1": "SETA2", "2": "GND"}, info="TMP390 Tab. 7-1: 42 °C"),
+        b.teil("Device:R", "R807", "18,7k 1%", fp=R0603, netze={"1": "SETB2", "2": "GND"}, info="Hysterese 5 °C (Kanal B ungenutzt)"),
+        b.teil("Device:R", "R808", "100k", fp=R0603, netze={"1": "TMP_VCC", "2": "GATE_NTC"}, info="Gate-Pull-up Q803"),
+        b.teil("Transistor_FET:AO3400A", "Q803", "AO3400A", fp="Package_TO_SOT_SMD:SOT-23",
+               netze={"G": "GATE_NTC", "S": "GND", "D": "NTC_FUSS"},
+               info="leitet → NTC wirkt; sperrt (zu heiß oder TMP_VCC fehlt) → TS offen → BQ25185 sperrt"),
+        b.teil("Device:Thermistor_NTC", "TH801", "10k B3435", fp="Resistor_SMD:R_0603_1608Metric",
+               netze={"1": "NTC", "2": "NTC_FUSS"}, info="Layout: unter der Zelle, Wärmeleitpad; B = 3435 K (BQ25185-Schwellen)"),
+    ]
+    zeichne_akku(b, {t.ref: t for t in b.teile})
+    return b
+
+
+def zeichne_akku(b, T):
+    """Platzierung und Leitungen nach Stromfluss (Verdrahtungsmodus, A3 quer, Maße in mm).
+    Oben der Leistungspfad B+ → Messbrücke → VBAT (zum Laderegler, Blatt Versorgung), darunter der Zellschutz im Minuspfad
+    B− → FS8205 → P− (GND). Unten die Ladesperre: Stufe 2 (NTC-Kreis) und Stufe 1 (CE), beide
+    aus TMP_VCC (TPS70933, Blatt Versorgung). Bis HW-06 (14.10.2026) eigene Akku-Platine mit Kabel J1 ↔ J203. Jede Verbindung prüft netz_tests.py gegen die Netzbeschreibung."""
+    S, D, L = b.setze, b.draht, b.label
+
+    # --- Überschriften ------------------------------------------------------
+    b.text("1  Leistungspfad: Zelle → Messbrücke JP801 → VBAT (P+) zum Laderegler", 40.64, 22.86, 2.0)
+    b.text("2  Zellschutz im Minuspfad: HY2111 schaltet Q801 (M1 Entladen, M2 Laden); GND = P−, B− nur als Insel an der Zelle", 101.6, 58.42, 2.0)
+    b.text("3  Ladesperre Stufe 2 (SCH26-03): U803 öffnet über 42 °C mit Q803 den NTC-Kreis → TS offen → BQ25185 lädt nicht", 40.64, 129.54, 2.0)
+    b.text("4  Ladesperre Stufe 1 (CE)", 40.64, 203.2, 2.0)
+    b.text("U802 sperrt außerhalb +5 … 42 °C über Q802: CE_LADEN high → BQ25185 lädt nicht", 40.64, 208.28, 1.5)
+    b.text("TMP_VCC kommt vom TPS70933 am Ladereingang: nur bei Sonne/USB vorhanden; fehlt es, sperren beide Stufen. "
+           "Keine Verbindung der Sperre zu B+/B− (SCH26-01). Layout: TH801, U802, U803 direkt unter der Zelle (Wärmeleitpad).",
+           40.64, 276.86, 1.5)
+
+    # --- 1 Leistungspfad ----------------------------------------------------
+    yb = 45.72                       # B+/P+-Schiene
+    S(T["BT801"], 50.8, 76.2, text="links")
+    S(T["JP801"], 127.0, yb, text="unten")
+    S(T["J801"], 124.46, 33.02, rot=90, text="links")
+    D(T["BT801"].p("+"), (50.8, yb), T["JP801"].p("A"))
+    D(T["J801"].p("1"), (124.46, 40.64), (119.38, 40.64), (119.38, yb))
+    D(T["J801"].p("2"), (127.0, 40.64), (134.62, 40.64), (134.62, yb))
+    D(T["JP801"].p("B"), (190.5, yb))
+    L("B+", 55.88, yb)
+    L("VBAT", 190.5, yb)
+
+    # --- 2 Zellschutz -------------------------------------------------------
+    yminus = 99.06                   # B−-Schiene
+    S(T["R801"], 76.2, 57.15, text="links")
+    S(T["U801"], 116.84, 76.2)
+    S(T["C801"], 86.36, 81.28, text="links")
+    S(T["R802"], 99.06, 86.36)
+    S(T["Q801"], 165.1, 96.52)
+    D(T["R801"].p("1"), (76.2, yb))
+    D(T["R801"].p("2"), (76.2, 71.12), T["U801"].p("VDD"))
+    D(T["C801"].p("1"), (86.36, 71.12))
+    D(T["U801"].p("CS"), (99.06, 73.66), T["R802"].p("1"))
+    D(T["BT801"].p("-"), (50.8, yminus), T["Q801"].p("S1"))
+    D(T["U801"].p("VSS"), (116.84, yminus))
+    D(T["C801"].p("2"), (86.36, yminus))
+    D(T["U801"].p("OD"), (149.86, 71.12), (149.86, 96.52), T["Q801"].p("G1"))
+    D(T["U801"].p("OC"), (177.8, 73.66), (177.8, 96.52), T["Q801"].p("G2"))
+    D(T["Q801"].p("2"), T["Q801"].p("5"))
+    L("HY_VDD", 76.2, 69.85, 90)
+    L("HY_CS", 99.06, 81.28, 90)
+    L("B-", 55.88, yminus)
+    L("GATE_ENTL", 129.54, 71.12)
+    L("GATE_LADE", 157.48, 73.66)
+    L("D12", 163.83, 86.36)
+
+    # --- Anschlüsse zum Blatt Versorgung: NTC, CE_LADEN, TMP_VCC (globale Labels) ---
+    x_li = 55.88
+
+    # --- 3 Stufe 2 ----------------------------------------------------------
+    o = 7.62
+    y2 = 139.7 + o                   # TMP_VCC-Schiene Stufe 2
+    S(T["C803"], 66.04, 147.32 + o, text="links")
+    S(T["U803"], 106.68, 160.02 + o)
+    S(T["R806"], 81.28, 177.8 + o, text="links")
+    S(T["R807"], 91.44, 177.8 + o)
+    S(T["R808"], 127.0, 147.32 + o)
+    S(T["Q803"], 139.7, 160.02 + o)
+    S(T["TH801"], 142.24, 139.7 + o)
+    D((x_li, y2), (127.0, y2))
+    D(T["C803"].p("1"), (66.04, y2))
+    D(T["U803"].p("VDD"), (76.2, 154.94 + o), (76.2, y2))
+    D(T["U803"].p("SETA"), (81.28, 157.48 + o), T["R806"].p("1"))
+    D(T["U803"].p("SETB"), (91.44, 160.02 + o), T["R807"].p("1"))
+    D(T["R808"].p("1"), (127.0, y2))
+    D(T["U803"].p("~{OUTA}"), (132.08, 154.94 + o), (132.08, 160.02 + o), T["Q803"].p("G"))
+    D(T["R808"].p("2"), (127.0, 154.94 + o))
+    D(T["TH801"].p("2"), T["Q803"].p("D"))
+    D(T["TH801"].p("1"), (142.24, 137.16), (190.5, 137.16))
+    L("SETA2", 81.28, 171.45 + o, 90)
+    L("SETB2", 91.44, 171.45 + o, 90)
+    L("GATE_NTC", 132.08, 160.02 + o)
+    L("NTC_FUSS", 142.24, 151.13 + o)
+    L("NTC", 190.5, 137.16)
+
+    # --- 4 Stufe 1 ----------------------------------------------------------
+    o = 20.32
+    y1 = 193.04 + o                  # TMP_VCC-Schiene Stufe 1
+    S(T["C802"], 66.04, 200.66 + o, text="links")
+    S(T["U802"], 106.68, 213.36 + o)
+    S(T["R803"], 81.28, 231.14 + o, text="links")
+    S(T["R804"], 91.44, 231.14 + o)
+    S(T["R805"], 127.0, 200.66 + o)
+    S(T["Q802"], 139.7, 213.36 + o)
+    D((x_li, y1), (127.0, y1))
+    D(T["C802"].p("1"), (66.04, y1))
+    D(T["U802"].p("VDD"), (76.2, 208.28 + o), (76.2, y1))
+    D(T["U802"].p("SETA"), (81.28, 210.82 + o), T["R803"].p("1"))
+    D(T["U802"].p("SETB"), (91.44, 213.36 + o), T["R804"].p("1"))
+    D(T["R805"].p("1"), (127.0, y1))
+    D(T["U802"].p("~{OUTA}"), (121.92, 208.28 + o), (132.08, 208.28 + o), (132.08, 213.36 + o), T["Q802"].p("G"))
+    D(T["U802"].p("~{OUTB}"), (121.92, 210.82 + o), (121.92, 208.28 + o))
+    D(T["R805"].p("2"), (127.0, 208.28 + o))
+    D(T["Q802"].p("D"), (142.24, 198.12), (190.5, 198.12))
+    L("SETA1", 81.28, 224.79 + o, 90)
+    L("SETB1", 91.44, 224.79 + o, 90)
+    L("GATE_CE", 124.46, 208.28 + o)
+    L("CE_LADEN", 190.5, 198.12)
+
+    # --- TMP_VCC: vom Label nach links hoch zu beiden Stufen ----------------
+    y_unten = 266.7
+    D((190.5, y_unten), (x_li, y_unten), (x_li, y2))
+    L("TMP_VCC", 190.5, y_unten)
+
+    # --- PWR_FLAGs auf den Schienen (Begründung je Flag in der Beschreibung) --
+    S(T["#FLG801"], 63.5, yb)
+    S(T["#FLG802"], 63.5, yminus)
+    S(T["#FLG805"], 81.28, 71.12)
+
+
+
 def baue():
     p = Projekt("logger", os.path.join(HIER, "hauptplatine"), firma="Bienenlogger – Philipp Schnabel",
                 rev="0.1 Entwurf", datum="2026-10-09", eigene_bibs={"Bienen": BIB},
@@ -982,13 +1172,14 @@ def baue():
     p.schnittstellen = set(SCHNITTSTELLEN)
     p.eigene_fps = {"Bienen": os.path.join(HIER, "Bienen.pretty")}
     w = p.blatt("Bienenlogger Hauptplatine", "logger.kicad_sch", titel="Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
-    w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse (Entwurf vollständig).", 30, 25, 2.0)
+    w.text("Blätter: Versorgung, MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse, Akku (Entwurf vollständig; Akku seit HW-06 auf der Hauptplatine).", 30, 25, 2.0)
     versorgung(p)
     mcu(p)
     funk(p)
     waage(p)
     mikrofon(p)
     anschluesse(p)
+    akku(p)
     return p
 
 

@@ -1,8 +1,8 @@
 (export
 	(version "E")
 	(design
-		(source "/home/claude/neu/hardware/kicad/hauptplatine/logger.kicad_sch")
-		(date "2026-10-13T12:13:49")
+		(source "/tmp/claude-0/inv/hardware/kicad/hauptplatine/logger.kicad_sch")
+		(date "2026-10-14T04:21:36")
 		(tool "Eeschema 10.0.6-10.0.6~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -302,6 +302,54 @@
 				(rev "0.1 Entwurf")
 				(date "2026-10-09")
 				(source "anschluesse.kicad_sch")
+				(comment
+					(number "1")
+					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
+				)
+				(comment
+					(number "2")
+					(value "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
+				)
+				(comment
+					(number "3")
+					(value "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+		(sheet
+			(number "8")
+			(name "/Akku/")
+			(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			(title_block
+				(title "Akku: Zelle 18650, Zellschutz, Temperatur-Ladesperre")
+				(company "Bienenlogger – Philipp Schnabel")
+				(rev "0.1 Entwurf")
+				(date "2026-10-09")
+				(source "akku.kicad_sch")
 				(comment
 					(number "1")
 					(value "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
@@ -1327,69 +1375,6 @@
 			)
 		)
 		(comp
-			(ref "J203")
-			(value "Akku (JST PH 5)")
-			(footprint "Connector_JST:JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical")
-			(description "Kabel 1:1 zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+")
-			(fields
-				(field
-					(name "Footprint") "Connector_JST:JST_PH_B5B-PH-K_1x05_P2.00mm_Vertical")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "Kabel 1:1 zur Akku-Platine J1: 1 P−, 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+")
-			)
-			(libsource
-				(lib "Connector_Generic")
-				(part "Conn_01x05")
-				(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
-			)
-			(property
-				(name "Sheetname")
-				(value "Versorgung")
-			)
-			(property
-				(name "Sheetfile")
-				(value "versorgung.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "connector")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "Connector*:*_1x??_*")
-			)
-			(sheetpath
-				(names "/Versorgung/")
-				(tstamps "/97f7af31-0a49-5db9-8eb8-e1b8ea77ca16/")
-			)
-			(tstamps "ab411f2d-a1a3-5a9f-8b4c-8c29b68eecf7")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-						(pin
-							(num "3")
-						)
-						(pin
-							(num "4")
-						)
-						(pin
-							(num "5")
-						)
-					)
-				)
-			)
-		)
-		(comp
 			(ref "R201")
 			(value "3,3M")
 			(footprint "Resistor_SMD:R_0603_1608Metric")
@@ -2193,7 +2178,7 @@
 			(ref "U204")
 			(value "TPS70933DBV")
 			(footprint "Package_TO_SOT_SMD:SOT-23-5")
-			(description "TMP_VCC für die Ladesperre auf der Akku-Platine, nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)")
+			(description "TMP_VCC für die Ladesperre (Blatt Akku), nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)")
 			(fields
 				(field
 					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
@@ -2201,7 +2186,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "TMP_VCC für die Ladesperre auf der Akku-Platine, nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)")
+					(name "Description") "TMP_VCC für die Ladesperre (Blatt Akku), nur bei Sonne/USB (SCH26-01); EN offen = ein (max. 6,5 V)")
 			)
 			(libsource
 				(lib "Bienen")
@@ -3544,6 +3529,114 @@
 				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
 			)
 			(tstamps "33c9c4bc-e11e-5eb5-bad0-067c64775028")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R307")
+			(value "33k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "VBUS-Teiler AN4879: 5 V → 3,6 V an PB13 (5-V-tolerant); D+-Pull-up nur bei gestecktem Kabel")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "VBUS-Teiler AN4879: 5 V → 3,6 V an PB13 (5-V-tolerant); D+-Pull-up nur bei gestecktem Kabel")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "MCU")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mcu.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/MCU/")
+				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
+			)
+			(tstamps "643128d3-4ebe-5d13-a903-0590e1dbf1f0")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R308")
+			(value "82k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "VBUS-Teiler AN4879; 43 µA nur bei gestecktem USB")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "VBUS-Teiler AN4879; 43 µA nur bei gestecktem USB")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "MCU")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mcu.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/MCU/")
+				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
+			)
+			(tstamps "9d044108-5f78-569f-ad5f-983045c1258b")
 			(units
 				(unit
 					(name "A")
@@ -8210,7 +8303,7 @@
 			(ref "J704")
 			(value "Erweiterung")
 			(footprint "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical")
-			(description "= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1)")
+			(description "= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1); Pin 11 frei, seit HW-05 ist PB13 die VBUS-Erkennung")
 			(fields
 				(field
 					(name "Footprint") "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical")
@@ -8218,7 +8311,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1)")
+					(name "Description") "= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1); Pin 11 frei, seit HW-05 ist PB13 die VBUS-Erkennung")
 			)
 			(libsource
 				(lib "Connector_Generic")
@@ -8447,6 +8540,1176 @@
 						)
 						(pin
 							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "BT801")
+			(value "18650 3,6 V")
+			(footprint "Battery:BatteryHolder_Keystone_1042_1x18650")
+			(description "Keystone 1042 (SMD), HW-02; seit HW-06 auf der Hauptplatine; Pad 1 = Plus; LCSC-Nummer [P]")
+			(fields
+				(field
+					(name "Footprint") "Battery:BatteryHolder_Keystone_1042_1x18650")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Keystone 1042 (SMD), HW-02; seit HW-06 auf der Hauptplatine; Pad 1 = Plus; LCSC-Nummer [P]")
+			)
+			(libsource
+				(lib "Device")
+				(part "Battery_Cell")
+				(description "Single-cell battery")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "battery cell")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "a83d53ff-21b6-55f3-8c12-a521dc5631e8")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C801")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "HYCON C1")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "HYCON C1")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "09885c36-c89f-5f80-82a5-45d8a78df404")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C802")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "68aad5fd-f689-54ad-9f4d-5b577f1c4036")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C803")
+			(value "100n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "e5aedaa2-315d-5d02-a799-99ee1e66e642")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J801")
+			(value "Strommessung")
+			(footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
+			(description "nur bei Bedarf bestücken")
+			(fields
+				(field
+					(name "Footprint") "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "nur bei Bedarf bestücken")
+			)
+			(libsource
+				(lib "Connector_Generic")
+				(part "Conn_01x02")
+				(description "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "dnp")
+			)
+			(property
+				(name "ki_keywords")
+				(value "connector")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "Connector*:*_1x??_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "6963b67c-632a-5acc-9e0b-fd4ffe414067")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "JP801")
+			(value "Messbrücke B+")
+			(footprint "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm")
+			(description "Zum Strommessen auftrennen, Amperemeter an J801")
+			(fields
+				(field
+					(name "Footprint") "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Zum Strommessen auftrennen, Amperemeter an J801")
+			)
+			(libsource
+				(lib "Jumper")
+				(part "SolderJumper_2_Bridged")
+				(description "Solder Jumper, 2-pole, closed/bridged")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "exclude_from_bom")
+			)
+			(property
+				(name "ki_keywords")
+				(value "solder jumper SPST")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SolderJumper*Bridged*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "7f92f96b-b99b-5945-81fe-131661dee816")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "Q801")
+			(value "FS8205")
+			(footprint "Package_TO_SOT_SMD:SOT-23-6")
+			(description "M1 Entladen (G1, S1 an B−), M2 Laden (G2, S2 an P−)")
+			(fields
+				(field
+					(name "LCSC") "C32254")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "M1 Entladen (G1, S1 an B−), M2 Laden (G2, S2 an P−)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "FS8205")
+				(description "Doppel-N-MOSFET mit gemeinsamem Drain, 20 V, ca. 30 mΩ")
+			)
+			(property
+				(name "LCSC")
+				(value "C32254")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "f87e50eb-8bd5-51fe-aa0f-4b48f5f74a54")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "Q802")
+			(value "AO3400A")
+			(footprint "Package_TO_SOT_SMD:SOT-23")
+			(description "leitet → CE low → Laden erlaubt (gegen R205 100 kΩ nach SYS)")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "leitet → CE low → Laden erlaubt (gegen R205 100 kΩ nach SYS)")
+			)
+			(libsource
+				(lib "Transistor_FET")
+				(part "AO3400A")
+				(description "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "N-Channel MOSFET")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "bfa14ed5-2094-5a93-acb8-721ccf9f2668")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "Q803")
+			(value "AO3400A")
+			(footprint "Package_TO_SOT_SMD:SOT-23")
+			(description "leitet → NTC wirkt; sperrt (zu heiß oder TMP_VCC fehlt) → TS offen → BQ25185 sperrt")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "leitet → NTC wirkt; sperrt (zu heiß oder TMP_VCC fehlt) → TS offen → BQ25185 sperrt")
+			)
+			(libsource
+				(lib "Transistor_FET")
+				(part "AO3400A")
+				(description "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "N-Channel MOSFET")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "SOT?23*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "c46d4702-3e74-531f-864a-6a5fec30b2d9")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R801")
+			(value "100")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "HYCON-Anwendungsschaltung R1")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "HYCON-Anwendungsschaltung R1")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "33372c9f-0202-5657-9a2e-04b1aad4227d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R802")
+			(value "2k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "HYCON R2 (CS an P−)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "HYCON R2 (CS an P−)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "a969a021-1c49-5f5c-ba03-d2bb1c356dc0")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R803")
+			(value "2,49k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "TMP390 Tab. 7-1: 42 °C")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TMP390 Tab. 7-1: 42 °C")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "12614506-f5f2-5918-a5a9-c5a1ae487467")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R804")
+			(value "18,7k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "TMP390 Tab. 7-2: +5 °C, Hysterese 5 °C")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TMP390 Tab. 7-2: +5 °C, Hysterese 5 °C")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "8b7b0c01-c4ad-5e95-a11d-7180deaa0a26")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R805")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Gate-Pull-up an TMP_VCC: Leckstrom TMP390 ±0,1 µA → 10 mV (SCH26-02)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Gate-Pull-up an TMP_VCC: Leckstrom TMP390 ±0,1 µA → 10 mV (SCH26-02)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "d7c83964-fd72-5c74-83d1-e614ad6207dd")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R806")
+			(value "2,49k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "TMP390 Tab. 7-1: 42 °C")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "TMP390 Tab. 7-1: 42 °C")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "765a0c25-4730-53c3-8680-371536bfeab2")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R807")
+			(value "18,7k 1%")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Hysterese 5 °C (Kanal B ungenutzt)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Hysterese 5 °C (Kanal B ungenutzt)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "49581ea3-dd30-52b5-ba48-5f9cca76193f")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R808")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Gate-Pull-up Q803")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Gate-Pull-up Q803")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "5871dd00-b8b6-5d90-adc6-ad209b5d40b0")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "TH801")
+			(value "10k B3435")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Layout: unter der Zelle, Wärmeleitpad; B = 3435 K (BQ25185-Schwellen)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Layout: unter der Zelle, Wärmeleitpad; B = 3435 K (BQ25185-Schwellen)")
+			)
+			(libsource
+				(lib "Device")
+				(part "Thermistor_NTC")
+				(description "Temperature dependent resistor, negative temperature coefficient")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "thermistor NTC resistor sensor RTD")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_* RV_*")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "bb6451a5-3d7b-56c9-b34d-0abc64c7ce9c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U801")
+			(value "HY2111-GB")
+			(footprint "Package_TO_SOT_SMD:SOT-23-6")
+			(fields
+				(field
+					(name "LCSC") "C82747")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "Bienen")
+				(part "HY2111-GB")
+				(description "Li-Ion-Schutz 1 Zelle: 4,28 V / 2,90 V, Freigabe nach Tiefentladung nur durch Laden")
+			)
+			(property
+				(name "LCSC")
+				(value "C82747")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "e8294cb5-a8c7-55ea-9b0c-5003227f2729")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U802")
+			(value "TMP390A2DRL")
+			(footprint "Package_TO_SOT_SMD:SOT-563")
+			(description "OUTA heiß 42 °C, OUTB kalt +5 °C, Hysterese 5 °C; Ausgänge verbunden (wired-OR)")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-563")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "OUTA heiß 42 °C, OUTB kalt +5 °C, Hysterese 5 °C; Ausgänge verbunden (wired-OR)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "TMP390")
+				(description "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "4c48ec38-c947-514f-842d-545ae404646f")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U803")
+			(value "TMP390A2DRL")
+			(footprint "Package_TO_SOT_SMD:SOT-563")
+			(description "nur Kanal A (heiß 42 °C, Hysterese 5 °C); OUTB offen (Datenblatt: erlaubt)")
+			(fields
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-563")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "nur Kanal A (heiß 42 °C, Hysterese 5 °C); OUTB offen (Datenblatt: erlaubt)")
+			)
+			(libsource
+				(lib "Bienen")
+				(part "TMP390")
+				(description "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			)
+			(property
+				(name "Sheetname")
+				(value "Akku")
+			)
+			(property
+				(name "Sheetfile")
+				(value "akku.kicad_sch")
+			)
+			(sheetpath
+				(names "/Akku/")
+				(tstamps "/0ad9dc02-ad1f-5cd6-a7f3-812c3cf000fd/")
+			)
+			(tstamps "a38a7887-066a-508e-9807-7f83f96d633e")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "4")
 						)
 					)
 				)
@@ -8684,6 +9947,106 @@
 		)
 		(libpart
 			(lib "Bienen")
+			(part "FS8205")
+			(description "Doppel-N-MOSFET mit gemeinsamem Drain, 20 V, ca. 30 mΩ")
+			(docs "https://www.lcsc.com/datasheet/C32254.pdf")
+			(fields
+				(field
+					(name "Reference") "Q")
+				(field
+					(name "Value") "FS8205")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet") "https://www.lcsc.com/datasheet/C32254.pdf")
+				(field
+					(name "Description") "Doppel-N-MOSFET mit gemeinsamem Drain, 20 V, ca. 30 mΩ")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "S1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "D12")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "S2")
+					(type "passive")
+				)
+				(pin
+					(num "4")
+					(name "G2")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "D12")
+					(type "passive")
+				)
+				(pin
+					(num "6")
+					(name "G1")
+					(type "input")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "HY2111-GB")
+			(description "Li-Ion-Schutz 1 Zelle: 4,28 V / 2,90 V, Freigabe nach Tiefentladung nur durch Laden")
+			(docs "https://www.lcsc.com/datasheet/C82747.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "HY2111-GB")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-6")
+				(field
+					(name "Datasheet") "https://www.lcsc.com/datasheet/C82747.pdf")
+				(field
+					(name "Description") "Li-Ion-Schutz 1 Zelle: 4,28 V / 2,90 V, Freigabe nach Tiefentladung nur durch Laden")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "OD")
+					(type "output")
+				)
+				(pin
+					(num "2")
+					(name "CS")
+					(type "input")
+				)
+				(pin
+					(num "3")
+					(name "OC")
+					(type "output")
+				)
+				(pin
+					(num "4")
+					(name "NC")
+					(type "no_connect")
+				)
+				(pin
+					(num "5")
+					(name "VDD")
+					(type "power_in")
+				)
+				(pin
+					(num "6")
+					(name "VSS")
+					(type "power_in")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
 			(part "RT9080-33GJ5")
 			(description "LDO 3,3 V 600 mA, 2 µA Ruhestrom, EN nicht offen lassen")
 			(docs "https://www.richtek.com/assets/product_file/RT9080/DS9080-03.pdf")
@@ -8824,6 +10187,56 @@
 					(num "16")
 					(name "GND")
 					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Bienen")
+			(part "TMP390")
+			(description "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			(docs "https://www.ti.com/lit/ds/symlink/tmp390.pdf")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TMP390")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-563")
+				(field
+					(name "Datasheet") "https://www.ti.com/lit/ds/symlink/tmp390.pdf")
+				(field
+					(name "Description") "Temperaturschalter, 2 Schwellen per Widerstand (Tab. 7-1/7-2), Open-Drain aktiv low, 0,5 µA")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "SETA")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "SETB")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "4")
+					(name "~{OUTB}")
+					(type "open_collector")
+				)
+				(pin
+					(num "5")
+					(name "VDD")
+					(type "power_in")
+				)
+				(pin
+					(num "6")
+					(name "~{OUTA}")
+					(type "open_collector")
 				)
 			)
 		)
@@ -9431,6 +10844,43 @@
 		)
 		(libpart
 			(lib "Device")
+			(part "Battery_Cell")
+			(description "Single-cell battery")
+			(fields
+				(field
+					(name "Reference") "BT")
+				(field
+					(name "Value") "Battery_Cell")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Single-cell battery")
+				(field
+					(name "Sim.Device") "V")
+				(field
+					(name "Sim.Type") "DC")
+				(field
+					(name "Sim.Pins") "1=+ 2=-")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "+")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "-")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Device")
 			(part "C")
 			(description "Unpolarized capacitor")
 			(footprints
@@ -9728,6 +11178,41 @@
 			)
 		)
 		(libpart
+			(lib "Device")
+			(part "Thermistor_NTC")
+			(description "Temperature dependent resistor, negative temperature coefficient")
+			(footprints
+				(fp "R_*")
+				(fp "RV_*")
+			)
+			(fields
+				(field
+					(name "Reference") "TH")
+				(field
+					(name "Value") "Thermistor_NTC")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Temperature dependent resistor, negative temperature coefficient")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
 			(lib "Diode")
 			(part "SMAJ12A")
 			(description "400W unidirectional Transient Voltage Suppressor, 12.0Vr, SMA(DO-214AC)")
@@ -9789,6 +11274,40 @@
 				(pin
 					(num "2")
 					(name "A")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "Jumper")
+			(part "SolderJumper_2_Bridged")
+			(description "Solder Jumper, 2-pole, closed/bridged")
+			(footprints
+				(fp "SolderJumper*Bridged*")
+			)
+			(fields
+				(field
+					(name "Reference") "JP")
+				(field
+					(name "Value") "SolderJumper_2_Bridged")
+				(field
+					(name "Footprint")
+				)
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Solder Jumper, 2-pole, closed/bridged")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "A")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "B")
 					(type "passive")
 				)
 			)
@@ -10489,6 +12008,44 @@
 				)
 			)
 		)
+		(libpart
+			(lib "Transistor_FET")
+			(part "AO3400A")
+			(description "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			(docs "http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf")
+			(footprints
+				(fp "SOT?23*")
+			)
+			(fields
+				(field
+					(name "Reference") "Q")
+				(field
+					(name "Value") "AO3400A")
+				(field
+					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
+				(field
+					(name "Datasheet") "http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf")
+				(field
+					(name "Description") "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "G")
+					(type "input")
+				)
+				(pin
+					(num "2")
+					(name "S")
+					(type "passive")
+				)
+				(pin
+					(num "3")
+					(name "D")
+					(type "passive")
+				)
+			)
+		)
 	)
 	(libraries
 		(library
@@ -10546,6 +12103,10 @@
 		(library
 			(logical "Transistor_BJT")
 			(uri "${KICAD10_SYMBOL_DIR}/Transistor_BJT.kicad_sym")
+		)
+		(library
+			(logical "Transistor_FET")
+			(uri "${KICAD10_SYMBOL_DIR}/Transistor_FET.kicad_sym")
 		)
 	)
 	(nets
@@ -10725,6 +12286,280 @@
 		)
 		(net
 			(code "2")
+			(name "/Akku/B+")
+			(class "Default")
+			(node
+				(ref "BT801")
+				(pin "1")
+				(pinfunction "+_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J801")
+				(pin "1")
+				(pinfunction "Pin_1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "JP801")
+				(pin "1")
+				(pinfunction "A_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R801")
+				(pin "1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "3")
+			(name "/Akku/B-")
+			(class "Default")
+			(node
+				(ref "BT801")
+				(pin "2")
+				(pinfunction "-_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C801")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q801")
+				(pin "1")
+				(pinfunction "S1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U801")
+				(pin "6")
+				(pinfunction "VSS_6")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "4")
+			(name "/Akku/D12")
+			(class "Default")
+			(node
+				(ref "Q801")
+				(pin "2")
+				(pinfunction "D12_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q801")
+				(pin "5")
+				(pinfunction "D12_5")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "5")
+			(name "/Akku/GATE_CE")
+			(class "Default")
+			(node
+				(ref "Q802")
+				(pin "1")
+				(pinfunction "G_1")
+				(pintype "input")
+			)
+			(node
+				(ref "R805")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U802")
+				(pin "4")
+				(pinfunction "~{OUTB}_4")
+				(pintype "open_collector")
+			)
+			(node
+				(ref "U802")
+				(pin "6")
+				(pinfunction "~{OUTA}_6")
+				(pintype "open_collector")
+			)
+		)
+		(net
+			(code "6")
+			(name "/Akku/GATE_ENTL")
+			(class "Default")
+			(node
+				(ref "Q801")
+				(pin "6")
+				(pinfunction "G1_6")
+				(pintype "input")
+			)
+			(node
+				(ref "U801")
+				(pin "1")
+				(pinfunction "OD_1")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "7")
+			(name "/Akku/GATE_LADE")
+			(class "Default")
+			(node
+				(ref "Q801")
+				(pin "4")
+				(pinfunction "G2_4")
+				(pintype "input")
+			)
+			(node
+				(ref "U801")
+				(pin "3")
+				(pinfunction "OC_3")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "8")
+			(name "/Akku/GATE_NTC")
+			(class "Default")
+			(node
+				(ref "Q803")
+				(pin "1")
+				(pinfunction "G_1")
+				(pintype "input")
+			)
+			(node
+				(ref "R808")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U803")
+				(pin "6")
+				(pinfunction "~{OUTA}_6")
+				(pintype "open_collector")
+			)
+		)
+		(net
+			(code "9")
+			(name "/Akku/HY_CS")
+			(class "Default")
+			(node
+				(ref "R802")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U801")
+				(pin "2")
+				(pinfunction "CS_2")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "10")
+			(name "/Akku/HY_VDD")
+			(class "Default")
+			(node
+				(ref "C801")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R801")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U801")
+				(pin "5")
+				(pinfunction "VDD_5")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "11")
+			(name "/Akku/NTC_FUSS")
+			(class "Default")
+			(node
+				(ref "Q803")
+				(pin "3")
+				(pinfunction "D_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "TH801")
+				(pin "2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "12")
+			(name "/Akku/SETA1")
+			(class "Default")
+			(node
+				(ref "R803")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U802")
+				(pin "1")
+				(pinfunction "SETA_1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "13")
+			(name "/Akku/SETA2")
+			(class "Default")
+			(node
+				(ref "R806")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U803")
+				(pin "1")
+				(pinfunction "SETA_1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "14")
+			(name "/Akku/SETB1")
+			(class "Default")
+			(node
+				(ref "R804")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U802")
+				(pin "2")
+				(pinfunction "SETB_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "15")
+			(name "/Akku/SETB2")
+			(class "Default")
+			(node
+				(ref "R807")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U803")
+				(pin "2")
+				(pinfunction "SETB_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "16")
 			(name "/Funk + Flash/FLASH_HOLD")
 			(class "Default")
 			(node
@@ -10740,7 +12575,7 @@
 			)
 		)
 		(net
-			(code "3")
+			(code "17")
 			(name "/Funk + Flash/FLASH_WP")
 			(class "Default")
 			(node
@@ -10756,7 +12591,7 @@
 			)
 		)
 		(net
-			(code "4")
+			(code "18")
 			(name "/Funk + Flash/RF_MISO")
 			(class "Default")
 			(node
@@ -10772,7 +12607,7 @@
 			)
 		)
 		(net
-			(code "5")
+			(code "19")
 			(name "/Funk + Flash/RF_MOSI")
 			(class "Default")
 			(node
@@ -10788,7 +12623,7 @@
 			)
 		)
 		(net
-			(code "6")
+			(code "20")
 			(name "/Funk + Flash/RF_NSS")
 			(class "Default")
 			(node
@@ -10804,7 +12639,7 @@
 			)
 		)
 		(net
-			(code "7")
+			(code "21")
 			(name "/Funk + Flash/RF_SCK")
 			(class "Default")
 			(node
@@ -10820,7 +12655,7 @@
 			)
 		)
 		(net
-			(code "8")
+			(code "22")
 			(name "/Funk + Flash/RXEN_MOD")
 			(class "Default")
 			(node
@@ -10837,7 +12672,7 @@
 			)
 		)
 		(net
-			(code "9")
+			(code "23")
 			(name "/Funk + Flash/TXEN_MOD")
 			(class "Default")
 			(node
@@ -10854,7 +12689,7 @@
 			)
 		)
 		(net
-			(code "10")
+			(code "24")
 			(name "/MCU/BOOT0")
 			(class "Default")
 			(node
@@ -10876,7 +12711,7 @@
 			)
 		)
 		(net
-			(code "11")
+			(code "25")
 			(name "/MCU/BOOT1")
 			(class "Default")
 			(node
@@ -10892,7 +12727,7 @@
 			)
 		)
 		(net
-			(code "12")
+			(code "26")
 			(name "/MCU/HSE_IN")
 			(class "Default")
 			(node
@@ -10914,7 +12749,7 @@
 			)
 		)
 		(net
-			(code "13")
+			(code "27")
 			(name "/MCU/HSE_OUT")
 			(class "Default")
 			(node
@@ -10936,7 +12771,7 @@
 			)
 		)
 		(net
-			(code "14")
+			(code "28")
 			(name "/MCU/LED")
 			(class "Default")
 			(node
@@ -10953,7 +12788,7 @@
 			)
 		)
 		(net
-			(code "15")
+			(code "29")
 			(name "/MCU/LED_A")
 			(class "Default")
 			(node
@@ -10969,7 +12804,7 @@
 			)
 		)
 		(net
-			(code "16")
+			(code "30")
 			(name "/MCU/LSE_IN")
 			(class "Default")
 			(node
@@ -10991,7 +12826,7 @@
 			)
 		)
 		(net
-			(code "17")
+			(code "31")
 			(name "/MCU/LSE_OUT")
 			(class "Default")
 			(node
@@ -11013,7 +12848,7 @@
 			)
 		)
 		(net
-			(code "18")
+			(code "32")
 			(name "/MCU/NRST")
 			(class "Default")
 			(node
@@ -11041,7 +12876,7 @@
 			)
 		)
 		(net
-			(code "19")
+			(code "33")
 			(name "/MCU/SWCLK")
 			(class "Default")
 			(node
@@ -11058,7 +12893,7 @@
 			)
 		)
 		(net
-			(code "20")
+			(code "34")
 			(name "/MCU/SWDIO")
 			(class "Default")
 			(node
@@ -11075,7 +12910,7 @@
 			)
 		)
 		(net
-			(code "21")
+			(code "35")
 			(name "/MCU/USB_CC1")
 			(class "Default")
 			(node
@@ -11091,7 +12926,7 @@
 			)
 		)
 		(net
-			(code "22")
+			(code "36")
 			(name "/MCU/USB_CC2")
 			(class "Default")
 			(node
@@ -11107,7 +12942,7 @@
 			)
 		)
 		(net
-			(code "23")
+			(code "37")
 			(name "/MCU/USB_DM")
 			(class "Default")
 			(node
@@ -11142,7 +12977,7 @@
 			)
 		)
 		(net
-			(code "24")
+			(code "38")
 			(name "/MCU/USB_DP")
 			(class "Default")
 			(node
@@ -11177,7 +13012,28 @@
 			)
 		)
 		(net
-			(code "25")
+			(code "39")
+			(name "/MCU/VBUS_SENSE")
+			(class "Default")
+			(node
+				(ref "R307")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R308")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U301")
+				(pin "26")
+				(pinfunction "PB13_26")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "40")
 			(name "/MCU/VCAP")
 			(class "Default")
 			(node
@@ -11193,7 +13049,7 @@
 			)
 		)
 		(net
-			(code "26")
+			(code "41")
 			(name "/MCU/VDDA")
 			(class "Default")
 			(node
@@ -11219,7 +13075,7 @@
 			)
 		)
 		(net
-			(code "27")
+			(code "42")
 			(name "/MCU/WAKE")
 			(class "Default")
 			(node
@@ -11247,7 +13103,7 @@
 			)
 		)
 		(net
-			(code "28")
+			(code "43")
 			(name "/Mikrofon/3V3_ANA")
 			(class "Default")
 			(node
@@ -11295,7 +13151,7 @@
 			)
 		)
 		(net
-			(code "29")
+			(code "44")
 			(name "/Mikrofon/MIC_FB")
 			(class "Default")
 			(node
@@ -11310,7 +13166,7 @@
 			)
 		)
 		(net
-			(code "30")
+			(code "45")
 			(name "/Mikrofon/MIC_HP")
 			(class "Default")
 			(node
@@ -11330,7 +13186,7 @@
 			)
 		)
 		(net
-			(code "31")
+			(code "46")
 			(name "/Mikrofon/MIC_IN")
 			(class "Default")
 			(node
@@ -11345,7 +13201,7 @@
 			)
 		)
 		(net
-			(code "32")
+			(code "47")
 			(name "/Mikrofon/MIC_OP")
 			(class "Default")
 			(node
@@ -11371,7 +13227,7 @@
 			)
 		)
 		(net
-			(code "33")
+			(code "48")
 			(name "/Mikrofon/MIC_OUT_K")
 			(class "Default")
 			(node
@@ -11393,7 +13249,7 @@
 			)
 		)
 		(net
-			(code "34")
+			(code "49")
 			(name "/Mikrofon/MIC_SK1")
 			(class "Default")
 			(node
@@ -11413,7 +13269,7 @@
 			)
 		)
 		(net
-			(code "35")
+			(code "50")
 			(name "/Mikrofon/MIC_SK2")
 			(class "Default")
 			(node
@@ -11434,7 +13290,7 @@
 			)
 		)
 		(net
-			(code "36")
+			(code "51")
 			(name "/Mikrofon/MIC_VREF")
 			(class "Default")
 			(node
@@ -11459,34 +13315,7 @@
 			)
 		)
 		(net
-			(code "37")
-			(name "/Versorgung/CE_LADEN")
-			(class "Default")
-			(node
-				(ref "C206")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "J203")
-				(pin "3")
-				(pinfunction "Pin_3_3")
-				(pintype "passive")
-			)
-			(node
-				(ref "R205")
-				(pin "2")
-				(pintype "passive")
-			)
-			(node
-				(ref "U201")
-				(pin "4")
-				(pinfunction "~{CE}_4")
-				(pintype "input")
-			)
-		)
-		(net
-			(code "38")
+			(code "52")
 			(name "/Versorgung/ILIM")
 			(class "Default")
 			(node
@@ -11502,7 +13331,7 @@
 			)
 		)
 		(net
-			(code "39")
+			(code "53")
 			(name "/Versorgung/ISET")
 			(class "Default")
 			(node
@@ -11518,7 +13347,7 @@
 			)
 		)
 		(net
-			(code "40")
+			(code "54")
 			(name "/Versorgung/LADE_STAT1")
 			(class "Default")
 			(node
@@ -11535,7 +13364,7 @@
 			)
 		)
 		(net
-			(code "41")
+			(code "55")
 			(name "/Versorgung/LADE_STAT2")
 			(class "Default")
 			(node
@@ -11552,24 +13381,7 @@
 			)
 		)
 		(net
-			(code "42")
-			(name "/Versorgung/NTC")
-			(class "Default")
-			(node
-				(ref "J203")
-				(pin "2")
-				(pinfunction "Pin_2_2")
-				(pintype "passive")
-			)
-			(node
-				(ref "U201")
-				(pin "6")
-				(pinfunction "TS/~{MR}_6")
-				(pintype "bidirectional")
-			)
-		)
-		(net
-			(code "43")
+			(code "56")
 			(name "/Versorgung/PV1")
 			(class "Default")
 			(node
@@ -11586,7 +13398,7 @@
 			)
 		)
 		(net
-			(code "44")
+			(code "57")
 			(name "/Versorgung/PV2")
 			(class "Default")
 			(node
@@ -11603,7 +13415,7 @@
 			)
 		)
 		(net
-			(code "45")
+			(code "58")
 			(name "/Versorgung/SW_CT")
 			(class "Default")
 			(node
@@ -11619,7 +13431,7 @@
 			)
 		)
 		(net
-			(code "46")
+			(code "59")
 			(name "/Versorgung/SW_QOD")
 			(class "Default")
 			(node
@@ -11635,56 +13447,7 @@
 			)
 		)
 		(net
-			(code "47")
-			(name "/Versorgung/TMP_VCC")
-			(class "Default")
-			(node
-				(ref "C212")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "J203")
-				(pin "4")
-				(pinfunction "Pin_4_4")
-				(pintype "passive")
-			)
-			(node
-				(ref "U204")
-				(pin "5")
-				(pinfunction "OUT_5")
-				(pintype "power_out")
-			)
-		)
-		(net
-			(code "48")
-			(name "/Versorgung/VBAT")
-			(class "Default")
-			(node
-				(ref "C205")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "J203")
-				(pin "5")
-				(pinfunction "Pin_5_5")
-				(pintype "passive")
-			)
-			(node
-				(ref "R206")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "U201")
-				(pin "2")
-				(pinfunction "BAT_2")
-				(pintype "power_in")
-			)
-		)
-		(net
-			(code "49")
+			(code "60")
 			(name "/Versorgung/VIN_LADER")
 			(class "Default")
 			(node
@@ -11740,7 +13503,7 @@
 			)
 		)
 		(net
-			(code "50")
+			(code "61")
 			(name "/Waage/5V_WAAGE")
 			(class "Default")
 			(node
@@ -11772,7 +13535,7 @@
 			)
 		)
 		(net
-			(code "51")
+			(code "62")
 			(name "/Waage/HX_AVDD")
 			(class "Default")
 			(node
@@ -11809,7 +13572,7 @@
 			)
 		)
 		(net
-			(code "52")
+			(code "63")
 			(name "/Waage/HX_BASE")
 			(class "Default")
 			(node
@@ -11826,7 +13589,7 @@
 			)
 		)
 		(net
-			(code "53")
+			(code "64")
 			(name "/Waage/HX_DOUT_IC")
 			(class "Default")
 			(node
@@ -11842,7 +13605,7 @@
 			)
 		)
 		(net
-			(code "54")
+			(code "65")
 			(name "/Waage/HX_INB")
 			(class "Default")
 			(node
@@ -11864,7 +13627,7 @@
 			)
 		)
 		(net
-			(code "55")
+			(code "66")
 			(name "/Waage/HX_INN")
 			(class "Default")
 			(node
@@ -11895,7 +13658,7 @@
 			)
 		)
 		(net
-			(code "56")
+			(code "67")
 			(name "/Waage/HX_INP")
 			(class "Default")
 			(node
@@ -11921,7 +13684,7 @@
 			)
 		)
 		(net
-			(code "57")
+			(code "68")
 			(name "/Waage/HX_PD_SCK")
 			(class "Default")
 			(node
@@ -11937,7 +13700,7 @@
 			)
 		)
 		(net
-			(code "58")
+			(code "69")
 			(name "/Waage/HX_VBG")
 			(class "Default")
 			(node
@@ -11953,7 +13716,7 @@
 			)
 		)
 		(net
-			(code "59")
+			(code "70")
 			(name "/Waage/HX_VFB")
 			(class "Default")
 			(node
@@ -11974,7 +13737,7 @@
 			)
 		)
 		(net
-			(code "60")
+			(code "71")
 			(name "/Waage/L_5V")
 			(class "Default")
 			(node
@@ -11991,7 +13754,7 @@
 			)
 		)
 		(net
-			(code "61")
+			(code "72")
 			(name "/Waage/VSUP_HX")
 			(class "Default")
 			(node
@@ -12023,7 +13786,7 @@
 			)
 		)
 		(net
-			(code "62")
+			(code "73")
 			(name "/Waage/ZELLE_EP")
 			(class "Default")
 			(node
@@ -12045,7 +13808,7 @@
 			)
 		)
 		(net
-			(code "63")
+			(code "74")
 			(name "/Waage/ZELLE_SN")
 			(class "Default")
 			(node
@@ -12067,7 +13830,7 @@
 			)
 		)
 		(net
-			(code "64")
+			(code "75")
 			(name "/Waage/ZELLE_SP")
 			(class "Default")
 			(node
@@ -12089,7 +13852,7 @@
 			)
 		)
 		(net
-			(code "65")
+			(code "76")
 			(name "3V3_SW")
 			(class "Default")
 			(node
@@ -12177,7 +13940,7 @@
 			)
 		)
 		(net
-			(code "66")
+			(code "77")
 			(name "ADC_AKKU")
 			(class "Default")
 			(node
@@ -12203,7 +13966,7 @@
 			)
 		)
 		(net
-			(code "67")
+			(code "78")
 			(name "ADC_SOLAR")
 			(class "Default")
 			(node
@@ -12229,7 +13992,34 @@
 			)
 		)
 		(net
-			(code "68")
+			(code "79")
+			(name "CE_LADEN")
+			(class "Default")
+			(node
+				(ref "C206")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q802")
+				(pin "3")
+				(pinfunction "D_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "R205")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "4")
+				(pinfunction "~{CE}_4")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "80")
 			(name "DBG_RX")
 			(class "Default")
 			(node
@@ -12252,7 +14042,7 @@
 			)
 		)
 		(net
-			(code "69")
+			(code "81")
 			(name "DBG_TX")
 			(class "Default")
 			(node
@@ -12275,7 +14065,7 @@
 			)
 		)
 		(net
-			(code "70")
+			(code "82")
 			(name "EXT_PA15")
 			(class "Default")
 			(node
@@ -12292,7 +14082,7 @@
 			)
 		)
 		(net
-			(code "71")
+			(code "83")
 			(name "EXT_PB12")
 			(class "Default")
 			(node
@@ -12309,24 +14099,7 @@
 			)
 		)
 		(net
-			(code "72")
-			(name "EXT_PB13")
-			(class "Default")
-			(node
-				(ref "J704")
-				(pin "11")
-				(pinfunction "Pin_11_11")
-				(pintype "passive")
-			)
-			(node
-				(ref "U301")
-				(pin "26")
-				(pinfunction "PB13_26")
-				(pintype "bidirectional")
-			)
-		)
-		(net
-			(code "73")
+			(code "84")
 			(name "FLASH_CS")
 			(class "Default")
 			(node
@@ -12348,7 +14121,7 @@
 			)
 		)
 		(net
-			(code "74")
+			(code "85")
 			(name "GND")
 			(class "Default")
 			(node
@@ -12572,6 +14345,16 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "C802")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C803")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
 				(ref "D204")
 				(pin "2")
 				(pinfunction "A2_2")
@@ -12621,12 +14404,6 @@
 			)
 			(node
 				(ref "J202")
-				(pin "1")
-				(pinfunction "Pin_1_1")
-				(pintype "passive")
-			)
-			(node
-				(ref "J203")
 				(pin "1")
 				(pinfunction "Pin_1_1")
 				(pintype "passive")
@@ -12734,6 +14511,24 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "Q801")
+				(pin "3")
+				(pinfunction "S2_3")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q802")
+				(pin "2")
+				(pinfunction "S_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "Q803")
+				(pin "2")
+				(pinfunction "S_2")
+				(pintype "passive")
+			)
+			(node
 				(ref "R202")
 				(pin "2")
 				(pintype "passive")
@@ -12784,6 +14579,11 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "R308")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
 				(ref "R501")
 				(pin "2")
 				(pintype "passive")
@@ -12800,6 +14600,31 @@
 			)
 			(node
 				(ref "R604")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R802")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R803")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R804")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R806")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R807")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -12936,6 +14761,18 @@
 				(pintype "power_in")
 			)
 			(node
+				(ref "U802")
+				(pin "3")
+				(pinfunction "GND_3")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U803")
+				(pin "3")
+				(pinfunction "GND_3")
+				(pintype "power_in")
+			)
+			(node
 				(ref "Y301")
 				(pin "2")
 				(pinfunction "G_2")
@@ -12949,7 +14786,7 @@
 			)
 		)
 		(net
-			(code "75")
+			(code "86")
 			(name "HX_DOUT")
 			(class "Default")
 			(node
@@ -12965,7 +14802,7 @@
 			)
 		)
 		(net
-			(code "76")
+			(code "87")
 			(name "HX_SCK")
 			(class "Default")
 			(node
@@ -12981,7 +14818,7 @@
 			)
 		)
 		(net
-			(code "77")
+			(code "88")
 			(name "I2C_SCL")
 			(class "Default")
 			(node
@@ -13015,7 +14852,7 @@
 			)
 		)
 		(net
-			(code "78")
+			(code "89")
 			(name "I2C_SDA")
 			(class "Default")
 			(node
@@ -13049,7 +14886,7 @@
 			)
 		)
 		(net
-			(code "79")
+			(code "90")
 			(name "LORA_BUSY")
 			(class "Default")
 			(node
@@ -13066,7 +14903,7 @@
 			)
 		)
 		(net
-			(code "80")
+			(code "91")
 			(name "LORA_DIO1")
 			(class "Default")
 			(node
@@ -13083,7 +14920,7 @@
 			)
 		)
 		(net
-			(code "81")
+			(code "92")
 			(name "LORA_NSS")
 			(class "Default")
 			(node
@@ -13104,7 +14941,7 @@
 			)
 		)
 		(net
-			(code "82")
+			(code "93")
 			(name "LORA_RST")
 			(class "Default")
 			(node
@@ -13121,7 +14958,7 @@
 			)
 		)
 		(net
-			(code "83")
+			(code "94")
 			(name "LORA_RXEN")
 			(class "Default")
 			(node
@@ -13138,7 +14975,7 @@
 			)
 		)
 		(net
-			(code "84")
+			(code "95")
 			(name "LORA_TXEN")
 			(class "Default")
 			(node
@@ -13155,7 +14992,7 @@
 			)
 		)
 		(net
-			(code "85")
+			(code "96")
 			(name "MIC_ADC")
 			(class "Default")
 			(node
@@ -13176,7 +15013,23 @@
 			)
 		)
 		(net
-			(code "86")
+			(code "97")
+			(name "NTC")
+			(class "Default")
+			(node
+				(ref "TH801")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "6")
+				(pinfunction "TS/~{MR}_6")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "98")
 			(name "ONEWIRE")
 			(class "Default")
 			(node
@@ -13210,7 +15063,7 @@
 			)
 		)
 		(net
-			(code "87")
+			(code "99")
 			(name "SENSOR_EIN")
 			(class "Default")
 			(node
@@ -13232,7 +15085,7 @@
 			)
 		)
 		(net
-			(code "88")
+			(code "100")
 			(name "SPI_MISO")
 			(class "Default")
 			(node
@@ -13254,7 +15107,7 @@
 			)
 		)
 		(net
-			(code "89")
+			(code "101")
 			(name "SPI_MOSI")
 			(class "Default")
 			(node
@@ -13276,7 +15129,7 @@
 			)
 		)
 		(net
-			(code "90")
+			(code "102")
 			(name "SPI_SCK")
 			(class "Default")
 			(node
@@ -13298,7 +15151,7 @@
 			)
 		)
 		(net
-			(code "91")
+			(code "103")
 			(name "SYS")
 			(class "Default")
 			(node
@@ -13353,7 +15206,88 @@
 			)
 		)
 		(net
-			(code "92")
+			(code "104")
+			(name "TMP_VCC")
+			(class "Default")
+			(node
+				(ref "C212")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C802")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C803")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R805")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R808")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U204")
+				(pin "5")
+				(pinfunction "OUT_5")
+				(pintype "power_out")
+			)
+			(node
+				(ref "U802")
+				(pin "5")
+				(pinfunction "VDD_5")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U803")
+				(pin "5")
+				(pinfunction "VDD_5")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "105")
+			(name "VBAT")
+			(class "Default")
+			(node
+				(ref "C205")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "J801")
+				(pin "2")
+				(pinfunction "Pin_2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "JP801")
+				(pin "2")
+				(pinfunction "B_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R206")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U201")
+				(pin "2")
+				(pinfunction "BAT_2")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "106")
 			(name "VBUS")
 			(class "Default")
 			(node
@@ -13387,6 +15321,11 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "R307")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
 				(ref "U302")
 				(pin "5")
 				(pinfunction "VBUS_5")
@@ -13394,7 +15333,7 @@
 			)
 		)
 		(net
-			(code "93")
+			(code "107")
 			(name "WAAGE_EIN")
 			(class "Default")
 			(node
@@ -13416,7 +15355,7 @@
 			)
 		)
 		(net
-			(code "94")
+			(code "108")
 			(name "unconnected-(D501-D2--Pad5)")
 			(class "Default")
 			(node
@@ -13427,7 +15366,7 @@
 			)
 		)
 		(net
-			(code "95")
+			(code "109")
 			(name "unconnected-(D501-NC-Pad6)")
 			(class "Default")
 			(node
@@ -13438,7 +15377,7 @@
 			)
 		)
 		(net
-			(code "96")
+			(code "110")
 			(name "unconnected-(D501-NC-Pad7)")
 			(class "Default")
 			(node
@@ -13449,7 +15388,7 @@
 			)
 		)
 		(net
-			(code "97")
+			(code "111")
 			(name "unconnected-(D501-NC-Pad9)")
 			(class "Default")
 			(node
@@ -13460,7 +15399,7 @@
 			)
 		)
 		(net
-			(code "98")
+			(code "112")
 			(name "unconnected-(D501-NC-Pad10)")
 			(class "Default")
 			(node
@@ -13471,7 +15410,7 @@
 			)
 		)
 		(net
-			(code "99")
+			(code "113")
 			(name "unconnected-(D601-K-Pad4)")
 			(class "Default")
 			(node
@@ -13482,7 +15421,7 @@
 			)
 		)
 		(net
-			(code "100")
+			(code "114")
 			(name "unconnected-(D601-K-Pad5)")
 			(class "Default")
 			(node
@@ -13493,7 +15432,7 @@
 			)
 		)
 		(net
-			(code "101")
+			(code "115")
 			(name "unconnected-(D701-K-Pad4)")
 			(class "Default")
 			(node
@@ -13504,7 +15443,7 @@
 			)
 		)
 		(net
-			(code "102")
+			(code "116")
 			(name "unconnected-(D701-K-Pad5)")
 			(class "Default")
 			(node
@@ -13515,7 +15454,7 @@
 			)
 		)
 		(net
-			(code "103")
+			(code "117")
 			(name "unconnected-(D702-K-Pad5)")
 			(class "Default")
 			(node
@@ -13526,7 +15465,7 @@
 			)
 		)
 		(net
-			(code "104")
+			(code "118")
 			(name "unconnected-(J301-SBU1-PadA8)")
 			(class "Default")
 			(node
@@ -13537,7 +15476,7 @@
 			)
 		)
 		(net
-			(code "105")
+			(code "119")
 			(name "unconnected-(J301-SBU2-PadB8)")
 			(class "Default")
 			(node
@@ -13548,7 +15487,7 @@
 			)
 		)
 		(net
-			(code "106")
+			(code "120")
 			(name "unconnected-(J703-Pin_6-Pad6)")
 			(class "Default")
 			(node
@@ -13559,7 +15498,18 @@
 			)
 		)
 		(net
-			(code "107")
+			(code "121")
+			(name "unconnected-(J704-Pin_11-Pad11)")
+			(class "Default")
+			(node
+				(ref "J704")
+				(pin "11")
+				(pinfunction "Pin_11_11")
+				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "122")
 			(name "unconnected-(U202-NC-Pad4)")
 			(class "Default")
 			(node
@@ -13570,7 +15520,7 @@
 			)
 		)
 		(net
-			(code "108")
+			(code "123")
 			(name "unconnected-(U204-EN-Pad3)")
 			(class "Default")
 			(node
@@ -13581,7 +15531,7 @@
 			)
 		)
 		(net
-			(code "109")
+			(code "124")
 			(name "unconnected-(U204-NC-Pad4)")
 			(class "Default")
 			(node
@@ -13592,7 +15542,7 @@
 			)
 		)
 		(net
-			(code "110")
+			(code "125")
 			(name "unconnected-(U401-ANT-Pad1)")
 			(class "Default")
 			(node
@@ -13603,7 +15553,7 @@
 			)
 		)
 		(net
-			(code "111")
+			(code "126")
 			(name "unconnected-(U401-DIO2-Pad7)")
 			(class "Default")
 			(node
@@ -13614,7 +15564,7 @@
 			)
 		)
 		(net
-			(code "112")
+			(code "127")
 			(name "unconnected-(U401-DIO3-Pad8)")
 			(class "Default")
 			(node
@@ -13625,7 +15575,7 @@
 			)
 		)
 		(net
-			(code "113")
+			(code "128")
 			(name "unconnected-(U502-XO-Pad13)")
 			(class "Default")
 			(node
@@ -13633,6 +15583,28 @@
 				(pin "13")
 				(pinfunction "XO_13")
 				(pintype "passive+no_connect")
+			)
+		)
+		(net
+			(code "129")
+			(name "unconnected-(U801-NC-Pad4)")
+			(class "Default")
+			(node
+				(ref "U801")
+				(pin "4")
+				(pinfunction "NC_4")
+				(pintype "no_connect")
+			)
+		)
+		(net
+			(code "130")
+			(name "unconnected-(U803-~{OUTB}-Pad4)")
+			(class "Default")
+			(node
+				(ref "U803")
+				(pin "4")
+				(pinfunction "~{OUTB}_4")
+				(pintype "open_collector+no_connect")
 			)
 		)
 	)

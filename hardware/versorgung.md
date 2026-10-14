@@ -31,12 +31,12 @@ Die Rechnung zur Energiebilanz ist reproduzierbar: `python3 hardware/energiebila
                                  │ BAT                                   │                  └─► TPS22917 ─► Sensorschiene 3,3 V
                                  │                                       │                       (HX711-DVDD, DS18B20, BME280,
                                  │                                       │                        Mikrofon, Pull-ups)
-          Akku-Platine am Halter │                                       └─► TPS61240 5 V (EN = PB10, nur beim Wiegen)
+     Zelle + Schutz (Blatt Akku) │                                       └─► TPS61240 5 V (EN = PB10, nur beim Wiegen)
                                  │                                            └─► Filter ─► HX711 VSUP → AVDD 4,3 V → H40A
        ┌─────────────────────────┴───┐
        │ Stecker ─ HY2111 + 8205 ─ Zelle 18650 │    NTC 10 k an der Zelle → TS des BQ25185 (2. Stufe)
        │ 2 × TMP390 + N-FET an der Zelle ──────│──► CE_FREI → CE (Stufe 1) / NTC-Fuß (Stufe 2), versorgt aus TMP_VCC
-       VIN_LADER → TPS70933 → TMP_VCC 3,3 V (nur bei Sonne/USB) ──► Akku-Platine
+       VIN_LADER → TPS70933 → TMP_VCC 3,3 V (nur bei Sonne/USB) ──► Ladesperre (Blatt Akku)
        │ (Verpolschutz, Strommessbrücke)       │
        └───────────────────────────────┘
  Akkuspannung: Teiler 2 × 2,2 MΩ + 100 nF → ADC; VREFINT zur Korrektur
@@ -89,7 +89,7 @@ Bei **50 °C im Gehäuse** und 150 mA bleibt das „6-V“-Panel bei etwa 81 °C
 
 Regeln:
 - Ladestrom 150 mA.
-- Der Laderegler sitzt **nicht** neben der Zelle (Zelle auf der Akku-Platine), Thermal-Pad mit Durchkontaktierungen auf L2: Das Pad misst nur 0,9 × 1,5 mm; TI zeigt im Layoutbeispiel 2 Vias Ø 0,2 mm, verfüllt oder abgedeckt (DLH0010A, 4226298/A). Die früher genannten 6–9 Vias passen nicht auf das Pad (REG26-08, 13.10.2026). Bei 150 mA Ladestrom reicht das [A]; Via-in-Pad bei JLCPCB im Angebot prüfen [P].
+- Der Laderegler sitzt **nicht** neben der Zelle (seit HW-06 liegt die Zelle auf der Hauptplatine: Abstand halten), Thermal-Pad mit Durchkontaktierungen auf L2: Das Pad misst nur 0,9 × 1,5 mm; TI zeigt im Layoutbeispiel 2 Vias Ø 0,2 mm, verfüllt oder abgedeckt (DLH0010A, 4226298/A). Die früher genannten 6–9 Vias passen nicht auf das Pad (REG26-08, 13.10.2026). Bei 150 mA Ladestrom reicht das [A]; Via-in-Pad bei JLCPCB im Angebot prüfen [P].
 - **[P]** Am Muster bei Sonne die Gehäusetemperatur am IC messen.
 
 **Eingangsbereich geklärt:** Die TI-Produktseite nennt „3.0V to 18V input voltage operating range“, „25V tolerant input voltage“ und „solar input support“ [V, ti.com/product/BQ25185, 08.10.2026]. Die abweichende Zeile „2,7–5,5 V“ in der Empfehlungstabelle des Datenblatts widerspricht dem. Ich halte sie für einen Fehler im Datenblatt, belegt ist das nicht. Maßgeblich für uns sind die Betriebsdaten 3,6–18 V und die Produktseite.
@@ -129,7 +129,7 @@ Versorgung der Sperre (geändert nach Schaltplan-Review SCH26-01):
 1. **Stufe 1, TMP390 U2 → CE des BQ25185**
    - TMP390 (TI): zwei Schwellen über je einen Widerstand; heiß 30–124 °C in 2-°C-Schritten (OUTA), kalt −50 … +25 °C in 5-°C-Schritten (OUTB); Ausgänge **Open-Drain, aktiv Low**, Leckstrom ±0,1 µA; 0,5 µA; Genauigkeit A2 ±1,5 °C von 0 bis 70 °C bei 2,5–5,5 V [V: TI SBOS904A].
    - **Heiß 42 °C (R3 = 2,49 kΩ), kalt +5 °C, Hysterese 5 °C (R4 = 18,7 kΩ)** [V: Tab. 7-1/7-2]. Mit Toleranz: Sperre spätestens bei 43,5 °C, frühestens unter 6,5 °C.
-   - Schaltung auf der Akku-Platine: OUTA und OUTB verbunden am Gate von Q2 (AO3400A), Gate-Pull-up **100 kΩ** nach TMP_VCC. Q2 zieht die Leitung **CE_FREI** zur Hauptplatine auf Low. Dort zieht **R205 = 100 kΩ** CE nach SYS.
+   - Schaltung (Blatt Akku, seit HW-06 auf der Hauptplatine; Bauteile 8xx): OUTA und OUTB verbunden am Gate von Q802 (früher Q2, AO3400A), Gate-Pull-up **100 kΩ** nach TMP_VCC. Q802 zieht **CE_LADEN** (früher Leitung CE_FREI über das Kabel) auf Low. Dort zieht **R205 = 100 kΩ** CE nach SYS.
    - Temperatur im Fenster → Q2 leitet → CE Low → Laden erlaubt. Außerhalb → TMP390 zieht das Gate auf Low → CE High → gesperrt.
 2. **Stufe 2, zweiter TMP390 U3 → NTC-Kreis (SCH26-03)**
    - U3 mit **42 °C (R6 = 2,49 kΩ)**, Hysterese 5 °C; nur Kanal A, OUTB offen (laut Datenblatt erlaubt).
@@ -160,13 +160,15 @@ Versorgung der Sperre (geändert nach Schaltplan-Review SCH26-01):
 | NTC-Leitung offen | TS offen → gesperrt |
 | NTC-Leitung kurzgeschlossen | TS auf Masse → **Werksmodus**, Akku getrennt, bis wieder eine Quelle anliegt [V]; Stufe 1 sperrt bei falscher Temperatur trotzdem |
 
-**Wärmekopplung:** U2, U3 und NTC sitzen auf der Akku-Platine **direkt unter der Zelle**, mit Wärmeleitpad, nicht neben dem Laderegler. **[P]** Verzug der Erwärmung 42 → 45 °C am Muster messen.
+**Wärmekopplung:** U802, U803 und TH801 (früher U2, U3, NTC der Akku-Platine) sitzen **direkt unter der Zelle**, mit Wärmeleitpad, nicht neben dem Laderegler. **[P]** Verzug der Erwärmung 42 → 45 °C am Muster messen.
 
 **Prüfung am Muster [P]** (Versuchsplan, Einzelfehleranalyse und Grenzen der Unabhängigkeit: [`sicherheit-akku.md`](sicherheit-akku.md)): Temperaturen 0/4/5/7/36/37/42/44/45/55/60 °C; jeden Fehlerfall der Tabelle einzeln; Wiederanlauf nach Tiefentladung **nur mit strombegrenztem Zell-Emulator, nicht mit einer absichtlich tiefentladenen 18650**.
 
 Die Kältesperre steigt damit von +1,7 °C auf +5 °C. Im Winter lädt der Logger seltener. Bei 128 Tagen Reichweite ohne Laden ist das unkritisch [A].
 
-### 3.4 Akku-Platine am Halter (neu)
+### 3.4 Zelle und Zellschutz am Halter (bis 14.10.2026: eigene Akku-Platine)
+
+> **HW-06 (Philipp, 14.10.2026): eine Platine.** Die unten beschriebene Schaltung (Halter, HY2111 + FS8205, NTC, 2 × TMP390, Messbrücke) liegt jetzt auf dem Blatt „Akku“ der Hauptplatine (Bauteile 8xx: BT801, U801, Q801, U802, U803, TH801 …). Kabel und JST-Stecker entfallen; damit auch das ungeschützte Kabel aus der Beobachtung unten. Layoutregeln: B− nur als kleine Insel zwischen Halter, U801 und Q801 (GND = P−); TH801/U802/U803 unter der Zelle; Halter nicht an der Funkkante. Der folgende Text beschreibt den Stand bis HW-06 und gilt für die Schaltung unverändert.
 
 **Beobachtung:** Der Akku hängt per Kabel an der Hauptplatine. Liegt der Schutz auf der Hauptplatine, ist das Kabel zwischen Zelle und Schutz **ungeschützt**. Ein Kurzschluss im Kabel wird dann aus einer ungeschützten Zelle gespeist. Der beelogger umgeht das, indem er Zellen mit eingebauter Schutzschaltung vorschreibt.
 
@@ -243,7 +245,7 @@ Der Steckverbinder ist verpolsicher kodiert. Zusätzlich P-MOSFET (AO3401A) in B
 |---|---|---|---|---|---|
 | VIN_LADER | Panels über D201/D202, USB über D203 | 0–12 V dauernd, Störung bis 25 V | BQ25185 abs. 25 V, OVP 18,5 V; TVS 12 V [V] | folgt der Sonne | Lader, TPS70933, Teiler 3,2 µA |
 | TMP_VCC | U204 TPS70933 aus VIN_LADER | 3,3 V, sobald VIN > ca. 3,5 V [A] | Ausgangsgenauigkeit laut Datenblatt prüfen [P] | **nur bei Sonne/USB**; nachts aus | Ladesperre, max. ca. 80 µA (Pull-ups) |
-| VBAT | Zelle über Zellschutz und Akku-Platine | 3,0 (BUVLO) … 4,1 V | HY2111 2,9 / 4,28 V | dauernd | Lader-Ruhestrom, Teiler 0,9 µA |
+| VBAT | Zelle über Zellschutz (Blatt Akku) | 3,0 (BUVLO) … 4,1 V | HY2111 2,9 / 4,28 V | dauernd | Lader-Ruhestrom, Teiler 0,9 µA |
 | SYS | BQ25185: bei Quelle 4,5 V geregelt, sonst VBAT über 115 mΩ | 3,0–4,5 V | – | dauernd, solange VBAT > BUVLO oder Quelle da | RT9080, 5-V-Wandler der Waage |
 | +3V3 | U202 RT9080 aus SYS, EN an SYS | 3,3 V bei SYS ≥ ca. 3,4 V; darunter folgt sie SYS | Abfall 0,31 V bei 600 mA [V] | folgt SYS (kein eigener Startablauf) | MCU, Funk (bis 140 mA), SPI-Flash |
 | 3V3_SW | U203 TPS22917 aus +3V3 | wie +3V3 | Anstieg ca. 1,7 ms (CT 1 nF), aktive Entladung über QOD | **nur auf Befehl der MCU** (PB5); Standby aus | Sensoren und alle Pull-ups |
@@ -319,7 +321,7 @@ Nutzbare Kapazität: 3350 mAh × 0,9 (Ladeschluss 4,1 V) × 0,95 (bis 3,3 V) × 
 
 | Nr. | beelogger macht es so | Quelle | Regel für unsere Platine |
 |---|---|---|---|
-| 1 | Kein Schutz auf der Platine; **Zelle mit Schutzschaltung „zwingend erforderlich“** | beelogger.de, Bauteile STM32 / Akku-Shield | Schutz in Hardware, und zwar **an der Zelle** (Akku-Platine 3.4), damit auch das Kabel geschützt ist |
+| 1 | Kein Schutz auf der Platine; **Zelle mit Schutzschaltung „zwingend erforderlich“** | beelogger.de, Bauteile STM32 / Akku-Shield | Schutz in Hardware, und zwar **an der Zelle** (3.4; seit HW-06 auf der Hauptplatine direkt am Halter, kein Kabel mehr), damit auch das Kabel geschützt ist |
 | 2 | CN3065-Modul, davor Schottky 1N5818, **Z-Diode 5,6 V** und 1,5–2,2 Ω | beelogger.de, Beschaltung und Aufbau | Den Eingang nicht mit einer Z-Diode begrenzen (verheizt Leistung, schützt nur knapp). Laderegler mit **Eingangsreserve über der kalten Leerlaufspannung** wählen. |
 | 3 | Früher SPV1040 (MPPT), ab V1.3 entfernt; empfindlich gegen Panelspannung und Ladeschluss | beelogger.de, Platinenversionen | MPPT nur, wenn nötig. Bei 40-facher Reserve genügt Eingangsspannungsregelung. |
 | 4 | LDO MCP1702-3302, ca. 2 µA | beelogger.de, Schaltung | LDO mit Ruhestrom im niedrigen µA-Bereich, aber **mit Reserve für den Funk** (MCP1702: 250 mA) |

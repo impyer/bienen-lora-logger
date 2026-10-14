@@ -1,5 +1,24 @@
 # Änderungen
 
+## 2026-10-14 – Aufräumen vor der Layout-Übergabe
+
+- Restbezüge auf die entfallene Akku-Platine bereinigt: Beschreibung U204 („Ladesperre (Blatt Akku)“), R808 und #FLG805 mit neuen Bezeichnern; `sicherheit-akku.md` Prüfaufbau und Rückverfolgbarkeit LH-V1 auf HW-06, Zuordnung alte → neue Bezeichner in Abschnitt 10 (Abschnitte 1–9 bleiben als Analyse zum Bezugsstand `2076c20`).
+- `README.md`: Stand der SMD-Platine (Schaltplan V0.1, Platzierung, Layout extern) und Regelwerk 1.1; `hardware/README.md`: nicht existierenden Pfad `hardware/logger-platine/production/` entfernt.
+- GitHub (Maintainer): Branches `review/2026-10-10-4c12b6d-hardware-audit` (vollständig in `main`), `review/claude-regelwerk-e1-e12` (durch Regelwerk 1.1/ADR-0002 ersetzt) und `automation/claude-codex-pr-pipeline` (nicht übernommener Vorschlag) werden vom Maintainer gelöscht; Issues #4, #5, #7 (SCH26-09/-10/-12, im Entwurf behoben) werden geschlossen, #6 (SCH26-11) bleibt offen. Status führt weiter nur das Befundregister.
+- Nachweis: `pruefen.sh` lokal (KiCad 10): reproduzierbar, ERC 0, Netzprüfung 168/168, Pin/Footprint 0 Abweichungen (T0/T3, keine Hardwaremessung).
+
+## 2026-10-14 – Eine Platine (HW-06) und USB für Programmierung/Kommunikation (HW-05)
+
+- **HW-06 (Philipp):** Zelle 18650 (Halter Keystone 1042), Zellschutz HY2111 + FS8205, NTC und Temperatur-Ladesperre auf die Hauptplatine (Blatt „Akku“, Bauteile 8xx, Schaltung unverändert). Akku-Platine, Kabel und Stecker J1/J203 entfallen (`akku_platine.py` und `akku-platine/` entfernt). Netzprüfung neu: Zelle B− ist nicht GND. D3-Nachtrag in `sicherheit-akku.md` Abschnitt 10.
+- **HW-05 (Philipp, ersetzt HW-01):** USB auch für Programmierung und Kommunikation (USB-CDC); VBUS-Erkennung nach ST AN4879 mit R307 33 kΩ / R308 82 kΩ an PB13; J704 Pin 11 frei.
+- Prüfungen: ERC 0, Netzprüfung 168/168, Pin-/Footprint 161/0, `alle_tests_linux.sh` rc = 0. Platine neu platziert (Halter unter dem Funkmodul, Zellschutz am Minuspol), DRC 0, **nicht geroutet** – das Layout übernimmt ein Layouter. Bericht: `docs/testberichte/2026-10-14-hw05-hw06-schaltplan.md`.
+
+## 2026-10-13 – Routing der Hauptplatine, Platzierung aus den Routing-Erfahrungen optimiert
+
+- Neu `platine_routen.py` (Freerouting 1.9.0 über Specctra DSN/SES, Innenlagen als Flächenlagen, Signale auf L1/L4), `platine_nachrouten.py` (Gitter-Router A* für Restverbindungen), `platine_aufraeumen.py` (überflüssige GND-Bahnen, lose Enden, Bestückungsdruck, Klemmenbeschriftung).
+- Platzierung verbessert: Abblockkondensatoren an die STM32-Ecken (Seiten frei für die Signale), Quarze/VCAP/VDDA von Hand verlegt, alle BQ25185-Pins und die TPS61240-Schleife vorverlegt, Freiraum um U201, J704 und SW303 näher an die MCU (Luftlinie −8 %).
+- Ergebnis: 196 von 202 Verbindungen geroutet, DRC 0 Verstöße, Schaltplanabgleich 0. 6 STM32-Verbindungen bleiben für den interaktiven Router in KiCad (Liste im Bericht `docs/testberichte/2026-10-13-platine-routing.md`).
+
 ## 2026-10-13 – Fanout GND/+3V3 zu den Innenlagen
 
 - Neu `hardware/kicad/werkzeug/platine_fanout.py`: jedes SMD-Pad an GND und an +3V3 (über der +3V3-Fläche) mit kurzer Leiterbahn und eigener Via an L2/L3; kein Via unter fremden Bauteilen oder in den Lochsperren. 120 Anbindungen, DRC 0, Schaltplanabgleich 0, offene Verbindungen 322 → 202. Bericht: `docs/testberichte/2026-10-13-platine-fanout.md`.

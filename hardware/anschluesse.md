@@ -16,33 +16,22 @@ Bezug:
 |---|---|---|---|---|---|
 | J1 (Platine: J201) | Solarpanel 1 | steckbare Klemme 3,5 mm, 2-polig | 1 GND, 2 +PV | Schottky je Panel, TVS SMAJ12A gemeinsam (versorgung.md 3.1) | Panelkabel |
 | J2 (Platine: J202) | Solarpanel 2 | wie J1 | 1 GND, 2 +PV | wie J1 | Panelkabel |
-| J3 (Platine: J203) | Akku-Platine | **JST PH 5-polig** (B5B-PH-K stehend), Kabel im Gehäuse | 1 P− (GND), 2 NTC, 3 CE_FREI, 4 TMP_VCC, 5 P+ | Zellschutz und Ladesperre auf der Akku-Platine (versorgung.md 3.3/3.4); Leitungsbruch an CE_FREI oder TMP_VCC sperrt das Laden | kurz, im Gehäuse, Kabelplan 1.1 |
+| ~~J3 (Platine: J203)~~ | ~~Akku-Platine~~ | **entfällt (HW-06, 14.10.2026):** Zelle, Zellschutz und Ladesperre liegen auf der Hauptplatine (Blatt „Akku“, BT801) | – | – | Halter Keystone 1042 innen auf der Hauptplatine |
 | J4 (Platine: J501) | Wägezelle H40A | steckbare Klemme 3,5 mm, 5-polig | 1 Schirm, 2 E−, 3 S−, 4 S+, 5 E+ | **TPD4E05U06** an E+, S+, S− (E− ist Masse); Ferrit ≤ 0,1 Ω in E+; 100 Ω in S±, 100 nF S+/S−, 10 nF je S nach Masse (waage.md 4) | Originalkabel 1,8 m |
 | J5 (Platine: J601) | Mikrofon | steckbare Klemme 3,5 mm, 4-polig | 1 Schirm, 2 GND, 3 OUT, 4 VCC (3V3_ANA) | **ESDS304** an OUT und VCC; 100 Ω in OUT (mikrofon.md 2) | LiYCY 3 × 0,14, ≤ 2 m |
 | J6 (Platine: J701) | DS18B20 Nr. 1 (TempIn) | steckbare Klemme 3,5 mm, 3-polig | 1 GND, 2 DQ, 3 3V3_SW | **ESDS304** (ein Array für J6 + J7) | Fühlerkabel |
 | J7 (Platine: J702) | DS18B20 Nr. 2 (TempIn2) | wie J6, am selben 1-Wire-Bus | 1 GND, 2 DQ, 3 3V3_SW | wie J6 | Fühlerkabel |
 | J8 (Platine: J703) | BME280 (Strahlungsschutz) | steckbare Klemme 3,5 mm, **6-polig** | 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (nur Verwechslungsschutz) | **ESDS304** an SDA, SCL, 3V3_SW | **Outdoor-Netzwerkkabel** (Cat 5e/6, PE-Mantel), Paare SDA+GND, SCL+GND, 3V3+GND, Schirm falls vorhanden an Pin 1; **≤ 1 m** (siehe 3.1, HW26-09) |
-| J9 (Platine: J301) | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – | USBLC6-2SC6 | nur am Tisch |
+| J9 (Platine: J301) | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – | USBLC6-2SC6 | am Tisch: Laden, Aufspielen und Kommunikation (USB-CDC, HW-05); VBUS-Erkennung an PB13 |
 | J10 (Platine: J302) | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen; Pinfolge siehe 1.2 (SCH26-09) |
-| J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 PA15, 10 PB12, 11 PB13, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1) |
+| J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 PA15, 10 PB12, 11 frei, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1); Pin 11 frei, weil PB13 seit HW-05 die VBUS-Erkennung ist |
 | – | Antenne | IPEX am Funkmodul | – | – | FPC-Antenne innen (mcu-funk.md 2.3) |
 
 Die Nummern J1–J11 sind die Anschlussnummern dieses Dokuments; in Klammern steht die Referenz im KiCad-Schaltplan. Steht ein Stecker schon auf einem Schaltplanblatt, vergleicht `hardware/kicad/werkzeug/netz_tests.py` die Spalte „Pins“ mit der KiCad-Netzliste (SCH26-09). Eine Änderung der Pinfolge gehört deshalb immer in diese Tabelle **und** in den Generator.
 
-### 1.1 Kabelplan Akku-Platine ↔ Hauptplatine (SCH26-06)
+### 1.1 ~~Kabelplan Akku-Platine ↔ Hauptplatine (SCH26-06)~~
 
-| Ader | Hauptplatine J203 | Akku-Platine J1 | Netz | Farbe (Vorschlag) |
-|---|---|---|---|---|
-| 1 | Pin 1 | Pin 1 | P− / GND | schwarz |
-| 2 | Pin 2 | Pin 2 | NTC | gelb |
-| 3 | Pin 3 | Pin 3 | CE_FREI | weiß |
-| 4 | Pin 4 | Pin 4 | TMP_VCC | blau |
-| 5 | Pin 5 | Pin 5 | P+ | rot |
-
-- **1:1 verdrahtet**: Pin n auf Pin n. Beide Seiten haben dasselbe Crimpgehäuse JST **PHR-5** mit Kontakten **SPH-002T-P0.5S** (28–24 AWG) [A, JST-Katalog; Bestellnummern beim Bestellen prüfen]. Fertig konfektionierte Kabel „PH 2,0 mm 5-polig, beidseitig, gleichsinnig“ gibt es zu kaufen; **beim Kauf auf gleichsinnig (nicht gekreuzt) achten**.
-- Pin 1 ist auf beiden Platinen im Bestückungsdruck markiert; Plus liegt außen an Pin 5, Masse außen an Pin 1. Ein um 180° gedrehter Stecker ist durch das Gehäuse mechanisch ausgeschlossen.
-- Erstinbetriebnahme: Kabel zuerst ohne Zelle mit dem Durchgangsprüfer prüfen (Tabelle oben), dann mit **strombegrenztem Netzteil** (z. B. 4,0 V, 50 mA) statt Zelle an P+/P−.
-- Die Netzprüfung `hardware/kicad/werkzeug/netz_tests.py` vergleicht die Pin-Belegung beider Stecker in den Netzlisten.
+Entfällt mit HW-06 (14.10.2026): Die Zelle sitzt im Halter Keystone 1042 auf der Hauptplatine, Zellschutz und Ladesperre direkt daneben (Blatt „Akku“). Es gibt kein Akkukabel mehr; der frühere Kabelplan J203 ↔ J1 steht in der Git-Historie. Erstinbetriebnahme weiter mit **strombegrenztem Netzteil** (z. B. 4,0 V, 50 mA) statt Zelle an B+/B− des Halters (sicherheit-akku.md).
 
 Die Klemmen-Pinbelegung folgt drei Regeln:
 - **Masse bzw. Schirm immer an Pin 1**, die Versorgung immer am anderen Ende. Ein um einen Pin versetzter Stecker legt so keine Versorgung auf einen Signaleingang.
@@ -78,7 +67,7 @@ Die Klemmen-Pinbelegung folgt drei Regeln:
 | Gegenstecker | **DEGSON 15EDGK-3.5-0nP-14-00A(H)** (Schraubstecker) passend zur Polzahl: 2-polig C5632692 (3771), 3-polig C7603431 (**0**), 4-polig C7603432 (890), 5-polig C7603433 (800), 6-polig bei JLCPCB nicht gefunden | JLCPCB-Teilesuche 13.10.2026 [V] | Stecker werden lose bestellt (nicht bestückt); 3- und 6-polig bei LCSC/Mouser beschaffen [P] |
 | ESD 3,6 V | **TI ESDS304DBVR**, 4 Kanäle, SOT-23-5. VRWM 3,6 V, ±30 kV, **Leckstrom 3 nA typ., 50 nA max.** bei 3,6 V und 25 °C, 2,3 pF | TI-Datenblatt | [V]; LCSC-Nummer **[P]** |
 | ESD 5,5 V (Wägezelle) | **TI TPD4E05U06DQAR**, 4 Kanäle, USON-10. VRWM 5,5 V, **Leckstrom 0,01 nA typ., 10 nA max.** (bei 2,5 V), 0,5 pF, ±12 kV Kontakt | TI-Datenblatt; LCSC/JLCPCB **C138714** (Extended) | [V] |
-| Akku-Stecker | JST PH **5-polig**, Akku-Platine gewinkelt (S5B-PH-K-S), Hauptplatine stehend (B5B-PH-K-S) | – | **[P]** LCSC-Nummern (2-polig gewinkelt ist C265016) |
+| ~~Akku-Stecker~~ | entfällt (HW-06) | – | – |
 
 Warum zwei ESD-Typen:
 - An der Wägezelle liegt E+ bei 4,3 V. Das ist über der Arbeitsspannung des ESDS304 (3,6 V). Der TPD4E05U06 hält 5,5 V.
@@ -130,7 +119,7 @@ Bewertung:
   - Beide liegen weit weg vom 5-V-Wandler und vom Funkmodul (A3).
 - **Der ESD-Schutz sitzt direkt hinter der Klemme**, vor allen anderen Bauteilen. Der Masseanschluss geht auf kürzestem Weg mit mehreren Durchkontaktierungen auf die Massefläche (L2).
 - Das Funkmodul mit der IPEX-Buchse sitzt an der **gegenüberliegenden** Kante, die Antenne an der Wand daneben.
-- Der Akkustecker J3 und USB J9 sitzen innen, gut erreichbar beim Öffnen.
+- USB J9 sitzt innen, gut erreichbar beim Öffnen. Der Akkuhalter liegt auf der Hauptplatine (HW-06), Zellwechsel nach dem Öffnen.
 - **Lichtleiter-LED und Reedkontakt** sitzen an einer Seitenkante (mcu-funk.md 3.3).
 - Grobplatzierung (13.10.2026, `werkzeug/platine_bestuecken.py`): Die 7 Klemmen füllen 102,7 der 103,2 mm zwischen den unteren Befestigungslöchern, Körperabstand 1,4 mm. **[P]** Mit gesteckten 15EDGK-Steckern am Muster prüfen, ob sie nebeneinander passen und sich lösen lassen.
 
