@@ -1,7 +1,7 @@
 # PCB Layout Specification – Beehive Logger Main Board PCB-MAIN-0.1
 
 **Client:** Philipp Schnabel (GitHub `impyer`) · **Project:** open-hardware beehive logger, repository `impyer/bienen-lora-logger`
-**Document status:** issue 1, 14 Oct 2026 · Schematic revision: V0.1 draft (decisions HW-01 … HW-08)
+**Document status:** issue 2, 14 Oct 2026 (issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: V0.1 draft (decisions HW-01 … HW-08)
 **License of the result:** CERN-OHL-S-2.0 (see section 10)
 
 > **Kurzfassung (Deutsch):** Auftrag an einen externen Layouter: Platzierung, Routing und JLCPCB-Fertigungsdaten
@@ -115,7 +115,7 @@ continuous GND plane – not split, no signal tracks**; every signal layer has a
 
 ### 5.2 Design rules (JLCPCB standard 4- or 6-layer; check current JLCPCB capabilities)
 
-Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm drill / 0.6 mm pad, copper to board edge ≥ 0.3 mm, hole clearance 0.25 mm. These values are set in the project; keep DRC at **0 errors**.
+Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm drill / 0.6 mm pad, copper to board edge ≥ 0.3 mm, hole clearance 0.25 mm. These values are set in the KiCad board frame; transfer them to your tool and keep DRC at **0 errors**.
 
 ### 5.3 Net-specific requirements
 
