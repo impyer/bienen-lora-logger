@@ -35,13 +35,21 @@ $msg = json_decode($roh, true);
 if (!is_array($msg)) le_ende(400, 'kein JSON');
 
 $geraet = isset($msg['end_device_ids']['device_id']) ? (string)$msg['end_device_ids']['device_id'] : '';
-if (isset($msg['uplink_message'])) le_log($cfg, array('geraet' => $geraet, 'art' => 'uplink', 'id' => le_nachricht_id($msg), 'nachricht' => $msg));
+// Rohprotokoll vor jeder Verarbeitung (PLT26-02, R-1). Schlägt es fehl, wird trotzdem verarbeitet,
+// damit der Messwert nicht verloren geht; der Fehler steht dann in der Antwort an TTN und im PHP-Fehlerprotokoll (R-2).
+$roh_ok = true;
+if (isset($msg['uplink_message'])) {
+    $roh_ok = le_log($cfg, array('geraet' => $geraet, 'art' => 'uplink', 'id' => le_nachricht_id($msg),
+        'roh_sha256' => hash('sha256', $roh), 'nachricht' => $msg));
+    if (!$roh_ok) error_log('bienen lora_eingang: Rohprotokoll nicht geschrieben, Kennung ' . le_nachricht_id($msg));
+}
+$warnung = $roh_ok ? '' : ' | WARNUNG: Rohprotokoll nicht geschrieben';
 
 $e = le_verarbeiten($cfg, $msg);
 if (in_array($e['klasse'], array('fehler_endpunkt', 'fehler_einrichtung'), true)) {
     if (le_nachholen_ablegen($cfg, $msg, le_nachricht_id($msg))) {
-        le_ende(202, 'zwischengespeichert, wird nachgeholt (' . $e['klasse'] . '): ' . $e['text']);
+        le_ende(202, 'zwischengespeichert, wird nachgeholt (' . $e['klasse'] . '): ' . $e['text'] . $warnung);
     }
-    le_ende($e['code'], $e['text'] . ' | Zwischenspeichern fehlgeschlagen');
+    le_ende($e['code'], $e['text'] . ' | Zwischenspeichern fehlgeschlagen' . $warnung);
 }
-le_ende($e['code'], $e['text']);
+le_ende($e['code'], $e['text'] . $warnung);

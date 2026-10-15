@@ -30,6 +30,8 @@
    - Ergebnis der Speicherung
    - Schlägt das Schreiben fehl, steht die Zeile im Protokoll („zusatz_fehler“) und die Antwort an TTN trägt eine Warnung (SRV26-04).
 7. Er protokolliert jede Webhook-Nachricht als JSON-Zeile in `lora_log/JJJJ-MM.jsonl`.
+   - Uplinks **vor** der Verarbeitung, vollständig, mit `roh_sha256` (SHA-256 des empfangenen Textes). Das ist das Rohprotokoll der Datenplattform (PLT26-02).
+   - Scheitert das Schreiben, wird die Nachricht trotzdem verarbeitet; die Antwort an TTN endet dann auf `| WARNUNG: Rohprotokoll nicht geschrieben`, und im PHP-Fehlerprotokoll steht die Kennung.
 
 ### Zuordnung der Werte
 

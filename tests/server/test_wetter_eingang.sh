@@ -102,6 +102,17 @@ PIDS=""; for i in 1 2 3 4 5; do senden "$M" > "$W/par_$i.txt" & PIDS="$PIDS $!";
 pruefe "parallel: genau einmal gespeichert" "$(cat "$W"/par_*.txt | grep -c gespeichert)" "1"
 pruefe "parallel: Zeilenzahl" "$(wc -l < "$CSV" | tr -d ' ')" "4"
 
+# PLT26-02: Rohprotokoll (R-1 Prüfsumme je Uplink, R-2 Fehler sichtbar, Messwert bleibt erhalten)
+U=$(cat "$W"/log/*.jsonl | grep -c '"art":"uplink"')
+pruefe "R-1: jede Rohzeile mit Prüfsumme des Eingangs" "$(cat "$W"/log/*.jsonl | grep '"art":"uplink"' | grep -c '"roh_sha256":"[0-9a-f]\{64\}"')" "$U"
+M=$(ls "$W/log"/*.jsonl | tail -n 1); mv "$M" "$W/log_sicher.jsonl"; mkdir "$M"
+R=$(senden "$(nachricht wetterstation-01 $HEX1 2026-10-10T03:36:48Z 10)")
+enthaelt "R-2: Rohprotokoll gescheitert → Warnung in der Antwort" "$R" "WARNUNG: Rohprotokoll nicht geschrieben"
+enthaelt "R-2: Messwert trotzdem gespeichert" "$R" "gespeichert"
+pruefe "R-2: Zeile in der Wetter-CSV" "$(wc -l < "$CSV" | tr -d ' ')" "5"
+grep -q "Rohprotokoll nicht geschrieben" "$W/server.log" && ok "R-2: Eintrag im PHP-Fehlerprotokoll" || nok "R-2: Eintrag im PHP-Fehlerprotokoll"
+rmdir "$M"; mv "$W/log_sicher.jsonl" "$M"
+
 kill "$SPID" 2>/dev/null; wait "$SPID" 2>/dev/null; SPID=
 echo "$( [ $FEHLER -eq 0 ] && echo OK || echo FEHLER ): Wetter-Eingang $((ANZ-FEHLER)) von $ANZ Prüfungen bestanden"
 [ $FEHLER -eq 0 ]

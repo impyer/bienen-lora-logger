@@ -12,11 +12,14 @@ ini_set('display_errors', '0');
 date_default_timezone_set('Europe/Berlin');
 require __DIR__ . '/wetter_funktionen.php';
 
+$WE_WARNUNG = '';   // wird an jede Antwort angehängt (PLT26-02, R-2)
+
 function we_ende($code, $text)
 {
+    global $WE_WARNUNG;
     http_response_code($code);
     header('Content-Type: text/plain; charset=UTF-8');
-    echo $text . "\n";
+    echo $text . $WE_WARNUNG . "\n";
     exit;
 }
 
@@ -28,12 +31,16 @@ function we_verz_sicher($dir)
     return true;
 }
 
+// Rückgabe: true nur, wenn die ganze Zeile geschrieben wurde (PLT26-02)
 function we_log($cfg, $eintrag)
 {
-    if (!we_verz_sicher($cfg['log_verzeichnis'])) return;
+    if (!we_verz_sicher($cfg['log_verzeichnis'])) return false;
     $eintrag['log_zeit'] = gmdate('Y-m-d\TH:i:s\Z');
-    @file_put_contents($cfg['log_verzeichnis'] . '/' . gmdate('Y-m') . '.jsonl',
-        json_encode($eintrag, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND | LOCK_EX);
+    $json = json_encode($eintrag, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
+    if ($json === false) return false;
+    $zeile = $json . "\n";
+    $n = @file_put_contents($cfg['log_verzeichnis'] . '/' . gmdate('Y-m') . '.jsonl', $zeile, FILE_APPEND | LOCK_EX);
+    return $n === strlen($zeile);
 }
 
 // ---------- Konfiguration ----------
@@ -50,14 +57,19 @@ $hkey = 'HTTP_' . strtoupper(str_replace('-', '_', $cfg['header']));
 $token = isset($_SERVER[$hkey]) ? $_SERVER[$hkey] : '';
 if (!is_string($token) || !hash_equals($cfg['token'], $token)) we_ende(401, 'Token falsch');
 
-$msg = json_decode(file_get_contents('php://input', false, null, 0, 65536), true);
+$roh = file_get_contents('php://input', false, null, 0, 65536);
+$msg = json_decode($roh, true);
 if (!is_array($msg)) we_ende(400, 'kein JSON');
 
 $station = isset($msg['end_device_ids']['device_id']) ? (string)$msg['end_device_ids']['device_id'] : '';
 if (!isset($msg['uplink_message']) || !is_array($msg['uplink_message'])) we_ende(200, 'ignoriert: keine Uplink-Nachricht');
 $up = $msg['uplink_message'];
 $id = le_nachricht_id($msg);
-we_log($cfg, array('station' => $station, 'art' => 'uplink', 'id' => $id, 'nachricht' => $msg));
+// Rohprotokoll vor jeder Verarbeitung (PLT26-02, R-1); Fehler sichtbar machen (R-2), Verarbeitung läuft weiter
+if (!we_log($cfg, array('station' => $station, 'art' => 'uplink', 'id' => $id, 'roh_sha256' => hash('sha256', $roh), 'nachricht' => $msg))) {
+    $WE_WARNUNG = ' | WARNUNG: Rohprotokoll nicht geschrieben';
+    error_log('bienen wetter_eingang: Rohprotokoll nicht geschrieben, Kennung ' . $id);
+}
 
 $stand = we_stand_fuer($cfg, $station);
 if ($stand === null) we_ende(200, 'ignoriert: Station nicht in wetter_config.php: ' . $station);

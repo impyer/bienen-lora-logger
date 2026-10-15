@@ -1,5 +1,6 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
--- Bienen-Plattform – Datenbankschema 0.2 (PostgreSQL 16)
+-- Bienen-Plattform – Datenbankschema 0.3 (PostgreSQL 16)
+-- 0.3 (15.10.2026): Review Issue #11 – Zeitgenauigkeit, Kalibrierreferenz, Berechnungsversionen, Zuordnungsprüfung
 -- Grundlage: docs/architektur/konzept-plattform-v02.md (Fassung 0.2.5), Abschnitt 5
 -- Status: ENTWURF, D0/T1 (Tests gegen PostgreSQL 16 in tests/datenbank/). Keine Produktivfreigabe.
 --
@@ -165,6 +166,7 @@ CREATE TABLE durchsicht (
   volk_id               int NOT NULL REFERENCES volk,
   zeit                  timestamptz NOT NULL,
   erfasst_am            timestamptz NOT NULL DEFAULT now(),
+  zeitgenauigkeit       text NOT NULL DEFAULT 'exakt' CHECK (zeitgenauigkeit IN ('exakt','geschaetzt','nur_datum')),
   checkliste_version_id int REFERENCES checkliste_version,
   notiz                 text,
   quelle                text NOT NULL DEFAULT 'eigen' CHECK (quelle IN ('eigen','beep_import'))
@@ -188,6 +190,7 @@ CREATE TABLE massnahme (
   art           text NOT NULL CHECK (art IN ('behandlung','fuetterung','ernte','zarge_auf','zarge_ab',
                                              'umsetzen','tarieren','sonstiges')),
   zeitraum      zeitraum NOT NULL,
+  zeitgenauigkeit text NOT NULL DEFAULT 'exakt' CHECK (zeitgenauigkeit IN ('exakt','geschaetzt','nur_datum')),
   menge         numeric,
   einheit       text,
   mittel        text,                           -- z. B. 'Ameisensäure 60 %'
@@ -201,6 +204,7 @@ CREATE TABLE varroa_messung (
   id        serial PRIMARY KEY,
   volk_id   int NOT NULL REFERENCES volk,
   zeitraum  zeitraum NOT NULL,                  -- Windel: Einlegen bis Auszählen
+  zeitgenauigkeit text NOT NULL DEFAULT 'exakt' CHECK (zeitgenauigkeit IN ('exakt','geschaetzt','nur_datum')),
   methode   text NOT NULL CHECK (methode IN ('windel','puderzucker','auswaschung')),
   milben    int  NOT NULL CHECK (milben >= 0),
   anmerkung text,
@@ -294,6 +298,9 @@ CREATE TABLE kanal (
   versatz          double precision NOT NULL DEFAULT 0,
   gueltig          zeitraum NOT NULL,
   status           text NOT NULL DEFAULT 'ungeprueft' CHECK (status IN ('geprueft','ungeprueft')),
+  kalibriert_am    timestamptz,                -- letzte Kalibrierung, die für diesen Zeitraum gilt
+  kalibrierung     text,                       -- Verfahren und Referenz, z. B. 'Prüfgewicht 10,00 kg, Firmware-Faktor 21,43'
+  sensor           text,                       -- Bauteil/Seriennr., falls bekannt, z. B. 'DS18B20 28-0316…'
   EXCLUDE USING gist (geraet_id WITH =, quellfeld WITH =, gueltig WITH &&)
 );
 
@@ -328,6 +335,20 @@ CREATE TABLE quellfeld_ohne_kanal (
   PRIMARY KEY (geraet_id, quellfeld)
 );
 
+-- Versionen der Berechnungen (Provenienz abgeleiteter Werte)
+CREATE TABLE berechnung (
+  code         text NOT NULL,
+  version      int  NOT NULL,
+  beschreibung text NOT NULL,                   -- Formel, Fenster, Filter
+  quelle       text,                            -- z. B. 'Grundgerüst 3.4 Nr. 1'
+  gueltig_ab   date NOT NULL,
+  PRIMARY KEY (code, version)
+);
+INSERT INTO berechnung VALUES
+ ('gewicht_tagesreferenz', 1, 'Median aller Gewichtswerte mit qualitaet=ok von 00:00 bis 04:00 Ortszeit Europe/Berlin je Volk und Tag', 'beelogger-datenanalyse-grundgeruest 3.4 Nr. 1', '2026-10-15'),
+ ('gewicht_tagesbilanz',   1, 'Tagesreferenz(t) − Tagesreferenz(t−1); mit_eingriff = Maßnahme zwischen 00:00 (t−1) und 04:00 (t)', 'beelogger-datenanalyse-grundgeruest 3.4 Nr. 2, Leitplanke L8', '2026-10-15'),
+ ('varroa_pro_tag',        1, 'Milben der Windelzählung ÷ Liegedauer in Tagen', 'beep-stockkarte-setup, Mapping 911', '2026-10-15');
+
 -- =====================================================================
 -- Sichten
 -- =====================================================================
@@ -353,7 +374,8 @@ CREATE VIEW gewicht_tagesreferenz AS
 SELECT volk_id,
        (zeit AT TIME ZONE 'Europe/Berlin')::date AS tag,
        percentile_cont(0.5) WITHIN GROUP (ORDER BY wert) AS referenz_kg,
-       count(*) AS werte
+       count(*) AS werte,
+       'gewicht_tagesreferenz@1'::text AS berechnung
 FROM messwert_bezug
 WHERE messgroesse_code = 'gewicht' AND volk_id IS NOT NULL AND qualitaet = 'ok'
   AND extract(hour FROM zeit AT TIME ZONE 'Europe/Berlin') < 4
@@ -366,7 +388,8 @@ SELECT r.volk_id, r.tag, r.referenz_kg,
        EXISTS (SELECT 1 FROM massnahme mn
                WHERE mn.volk_id = r.volk_id
                  AND mn.zeitraum && tstzrange((v.tag::timestamp) AT TIME ZONE 'Europe/Berlin',
-                                              (r.tag::timestamp + time '04:00') AT TIME ZONE 'Europe/Berlin')) AS mit_eingriff
+                                              (r.tag::timestamp + time '04:00') AT TIME ZONE 'Europe/Berlin')) AS mit_eingriff,
+       'gewicht_tagesbilanz@1'::text AS berechnung
 FROM gewicht_tagesreferenz r
 JOIN gewicht_tagesreferenz v ON v.volk_id = r.volk_id AND v.tag = r.tag - 1;
 
@@ -374,6 +397,20 @@ JOIN gewicht_tagesreferenz v ON v.volk_id = r.volk_id AND v.tag = r.tag - 1;
 CREATE VIEW varroa_pro_tag AS
 SELECT id, volk_id, lower(zeitraum) AS von, upper(zeitraum) AS bis, milben,
        round(milben / (extract(epoch FROM upper(zeitraum) - lower(zeitraum)) / 86400.0)::numeric, 1) AS milben_pro_tag,
-       anmerkung, quelle
+       anmerkung, quelle, zeitgenauigkeit,
+       'varroa_pro_tag@1'::text AS berechnung
 FROM varroa_messung
 WHERE methode = 'windel' AND upper(zeitraum) IS NOT NULL;
+
+-- Prüfung: Stockmesssystem einem Volk zugeordnet, das im Zeitraum aufgelöst ist oder keine Beute belegt
+-- (fängt vergessene Zuordnungsenden ab, Akzeptanzfall HB-09)
+CREATE VIEW pruefung_geraet_zuordnung AS
+SELECT z.id AS zuordnung_id, g.name AS geraet, v.name AS volk, z.gueltig,
+       CASE WHEN v.aufgeloest_am IS NOT NULL AND z.gueltig @> v.aufgeloest_am THEN 'volk_aufgeloest'
+            WHEN v.aufgeloest_am IS NOT NULL AND lower(z.gueltig) >= v.aufgeloest_am THEN 'volk_aufgeloest'
+            ELSE 'ohne_belegung' END AS befund
+FROM geraet_zuordnung z
+JOIN geraet g ON g.id = z.geraet_id
+JOIN volk v ON v.id = z.volk_id
+WHERE (v.aufgeloest_am IS NOT NULL AND (z.gueltig @> v.aufgeloest_am OR lower(z.gueltig) >= v.aufgeloest_am))
+   OR NOT EXISTS (SELECT 1 FROM belegung b WHERE b.volk_id = z.volk_id AND b.gueltig && z.gueltig);

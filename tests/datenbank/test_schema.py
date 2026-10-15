@@ -125,7 +125,7 @@ def t_geraet_ziel(cur):
     assert abgelehnt(cur, "INSERT INTO geraet_zuordnung(geraet_id,volk_id,stand_id,gueltig) VALUES (%s,%s,%s,'[2028-01-01,)')", (g, v2, s))
 
 
-@test("Waage am Volk: Umsetzen in neue Beute ändert die Zuordnung der Messwerte nicht")
+@test("HB-01 Waage am Volk: Umsetzen in neue Beute ändert die Zuordnung der Messwerte nicht")
 def t_umsetzen(cur):
     messgroessen(cur)
     s1, s2 = stand(cur), stand(cur, "Außenstand")
@@ -176,8 +176,9 @@ def t_boden(cur):
     g = geraet(cur, "lsn50v2-d23", "boden")
     cur.execute("INSERT INTO geraet_zuordnung(geraet_id,stand_id,gueltig) VALUES (%s,%s,'[2026-10-14,)')", (g, s))
     ids = []
-    for i, tiefe in enumerate((10, 30, 50), start=1):
-        ms = eins(cur, "INSERT INTO messstelle(stand_id,zone,tiefe_cm) VALUES (%s,'boden',%s) RETURNING id", (s, tiefe))
+    for i, (tiefe, farbe) in enumerate(((5, "weiß"), (20, "rot"), (50, "schwarz")), start=1):  # bestätigt 15.10.2026
+        ms = eins(cur, "INSERT INTO messstelle(stand_id,zone,tiefe_cm,bezeichnung) VALUES (%s,'boden',%s,%s) RETURNING id",
+                  (s, tiefe, f"Sonde {farbe}"))
         ids.append(kanal(cur, g, f"Temp{i}", "temperatur", "2026-10-14", messstelle=ms))
     for k, w in zip(ids, (11.9, 12.6, 13.1)):
         mw(cur, k, "2026-10-15 09:00+02", w)
@@ -310,6 +311,67 @@ def t_unbekannt(cur):
     cur.execute(sql, (g, "2026-10-15 07:15+00", "2026-10-15 07:15+00"))
     assert cur.execute("SELECT anzahl FROM quellfeld_ohne_kanal").fetchone()[0] == 2
     assert eins(cur, "SELECT count(*) FROM messwert") == 0
+
+
+@test("HB-02/HB-03 Beute wird leer und neu besetzt: keine Vermischung der Völker")
+def t_hb02_03(cur):
+    messgroessen(cur)
+    v1, v2 = volk(cur, "Volk 11"), volk(cur, "Volk 22")
+    b = beute(cur, "B11")
+    cur.execute("INSERT INTO belegung(volk_id,beute_id,gueltig) VALUES (%s,%s,'[2026-04-01 00:00+00,2026-08-20 00:00+00)'),(%s,%s,'[2026-09-01 00:00+00,)')", (v1, b, v2, b))
+    g = geraet(cur, "L05")
+    cur.execute("""INSERT INTO geraet_zuordnung(geraet_id,volk_id,gueltig) VALUES
+                   (%s,%s,'[2026-04-01 00:00+00,2026-08-20 00:00+00)'),(%s,%s,'[2026-09-01 00:00+00,)')""", (g, v1, g, v2))
+    k = kanal(cur, g, "Gewicht", "gewicht", "2026-04-01 00:00+00")
+    mw(cur, k, "2026-08-10 00:00+00", 45.0)   # Volk 11
+    mw(cur, k, "2026-08-25 00:00+00", 12.0)   # leere Beute
+    mw(cur, k, "2026-09-05 00:00+00", 20.0)   # Volk 22
+    cur.execute("SELECT volk_id FROM messwert_bezug ORDER BY zeit")
+    assert [r[0] for r in cur.fetchall()] == [v1, None, v2]
+
+
+@test("HB-04 Beute wechselt den Stand: Umweltbezug folgt dem Stand zum Zeitpunkt")
+def t_hb04(cur):
+    s1, s2 = stand(cur), stand(cur, "Wanderstand Raps")
+    v = volk(cur, "Volk 6")
+    b = beute(cur, "B6")
+    cur.execute("INSERT INTO belegung(volk_id,beute_id,gueltig) VALUES (%s,%s,'[2026-01-01 00:00+00,)')", (v, b))
+    cur.execute("""INSERT INTO aufstellung(beute_id,stand_id,gueltig) VALUES
+                   (%s,%s,'[2026-01-01 00:00+00,2026-04-20 00:00+00)'),(%s,%s,'[2026-04-20 00:00+00,2026-05-20 00:00+00)'),
+                   (%s,%s,'[2026-05-20 00:00+00,)')""", (b, s1, b, s2, b, s1))
+    assert [eins(cur, "SELECT stand_von_volk(%s,%s)", (v, t)) for t in
+            ("2026-04-01 00:00+00", "2026-05-01 00:00+00", "2026-06-01 00:00+00")] == [s1, s2, s1]
+
+
+@test("HB-09 Volk aufgelöst, Waagenzuordnung vergessen: Prüfsicht meldet es")
+def t_hb09(cur):
+    v = volk(cur, "Volk 3")
+    b = beute(cur, "B3")
+    cur.execute("INSERT INTO belegung(volk_id,beute_id,gueltig) VALUES (%s,%s,'[2026-03-01 00:00+00,2026-08-20 00:00+00)')", (v, b))
+    g = geraet(cur, "L03")
+    cur.execute("INSERT INTO geraet_zuordnung(geraet_id,volk_id,gueltig) VALUES (%s,%s,'[2026-03-01 00:00+00,)')", (g, v))
+    assert eins(cur, "SELECT count(*) FROM pruefung_geraet_zuordnung") == 0
+    cur.execute("UPDATE volk SET aufgeloest_am='2026-08-20 00:00+00' WHERE id=%s", (v,))
+    assert eins(cur, "SELECT befund FROM pruefung_geraet_zuordnung") == "volk_aufgeloest"
+
+
+@test("Zeitgenauigkeit: neue Einträge exakt, Altdaten als nur_datum kennzeichenbar")
+def t_zeitgenau(cur):
+    v = volk(cur, "Volk 8")
+    cur.execute("INSERT INTO durchsicht(volk_id,zeit) VALUES (%s,'2026-11-02 14:35+01')", (v,))
+    cur.execute("INSERT INTO durchsicht(volk_id,zeit,quelle,zeitgenauigkeit) VALUES (%s,'2026-10-07 12:00+02','beep_import','nur_datum')", (v,))
+    cur.execute("SELECT quelle, zeitgenauigkeit FROM durchsicht ORDER BY zeit")
+    assert cur.fetchall() == [("beep_import", "nur_datum"), ("eigen", "exakt")]
+    assert abgelehnt(cur, "INSERT INTO durchsicht(volk_id,zeit,zeitgenauigkeit) VALUES (%s,now(),'ungefaehr')", (v,))
+
+
+@test("Provenienz: abgeleitete Werte tragen ihre Berechnungsversion")
+def t_berechnung(cur):
+    v = volk(cur, "Volk 8")
+    cur.execute("INSERT INTO varroa_messung(volk_id,zeitraum,methode,milben) VALUES (%s,'[2026-10-12 12:00+02,2026-10-13 12:00+02)','windel',67)", (v,))
+    code = eins(cur, "SELECT berechnung FROM varroa_pro_tag")
+    name, ver = code.split("@")
+    assert eins(cur, "SELECT count(*) FROM berechnung WHERE code=%s AND version=%s", (name, int(ver))) == 1
 
 
 def main():

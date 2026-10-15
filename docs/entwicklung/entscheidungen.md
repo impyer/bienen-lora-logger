@@ -1,7 +1,7 @@
 # Projektentscheidungen, Governance- und Ausnahmeregister
 
 **Stand:** 10.10.2026 · **Entwicklungsregelwerk:** Version 1.1, ANGENOMMEN.
-**Beschlüsse:** [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) (Regelwerk 1.0), [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md) (Fassung 1.1).
+**Beschlüsse:** [ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md) (Regelwerk 1.0), [ADR-0002](entscheidungen/ADR-0002-regelwerk-1-1.md) (Fassung 1.1), [ADR-0003](entscheidungen/ADR-0003-datenplattform-grundentscheidungen.md) (Datenplattform, 15.10.2026).
 **Maintainer:** Philipp Schnabel (GitHub `impyer`).
 
 Das Register trennt angenommene Verfahrensregeln von noch offenen Sachentscheidungen. **Offen** bedeutet nicht **bestanden**. Die Projektleitung trifft die formale Entscheidung; eine KI ersetzt weder die nötige unabhängige Sicherheitsprüfung noch einen Labornachweis. Der Stand einzelner technischer Befunde steht **nur** im [Befundregister](../testberichte/befunde.md).

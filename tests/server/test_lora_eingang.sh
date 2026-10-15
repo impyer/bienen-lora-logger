@@ -296,5 +296,24 @@ else
   fi
 fi
 
+# --- PLT26-02: Rohprotokoll (R-1 vollständig vor Verarbeitung, R-2 Fehler sichtbar) ---
+rohzeilen() { cat "$W"/log/*.jsonl 2>/dev/null | grep -c '"art":"uplink"'; }
+L0=$(rohzeilen)
+T0R=$(( $(zeitstempel) + 3600 ))
+for i in 1 2 3 4 5; do nachricht "$W/r$i.json" $((600+i)) $((T0R+i*900)); senden_datei "$W/r$i.json" > /dev/null; done
+for i in 1 2 3 4 5; do senden "{\"geraet\":\"unbekannt-$i\",\"fport\":2,\"f_cnt\":$((700+i)),\"empfang\":\"2026-10-08T1$i:00:00Z\",\"hex\":\"00\"}" > /dev/null; done
+pruefe "R-1: 10 Uplinks (davon 5 unbekannte Geräte) → 10 Rohzeilen" "$(( $(rohzeilen) - L0 ))" "10"
+pruefe "R-1: jede Rohzeile mit Prüfsumme des Eingangs" "$(cat "$W"/log/*.jsonl | grep '"art":"uplink"' | grep -c '"roh_sha256":"[0-9a-f]\{64\}"')" "$(rohzeilen)"
+grep -q "\"roh_sha256\":\"$(sha256sum "$W/r1.json" | cut -d' ' -f1)\"" "$W"/log/*.jsonl && ok "R-1: Prüfsumme = SHA-256 des empfangenen Textes" || nok "R-1: Prüfsumme = SHA-256 des empfangenen Textes"
+grep '"art":"uplink"' "$W"/log/*.jsonl | grep -q '"geraet":"unbekannt-3".*"uplink_message"' && ok "R-1: unbekanntes Gerät vollständig protokolliert" || nok "R-1: unbekanntes Gerät vollständig protokolliert"
+M=$(ls "$W"/log/*.jsonl | tail -n 1); mv "$M" "$W/log_sicher.jsonl"; mkdir "$M"
+nachricht "$W/r6.json" 606 $((T0R+6*900))
+A=$(senden_datei "$W/r6.json")
+enthaelt "R-2: Rohprotokoll gescheitert → Warnung in der Antwort" "$A" "WARNUNG: Rohprotokoll nicht geschrieben"
+enthaelt "R-2: Messwert trotzdem gespeichert (HTTP 200)" "$A" "[200]"
+pruefe "R-2: Datensatz in week.csv" "$(zeitstempel)" "$((T0R+6*900))"
+grep -q "Rohprotokoll nicht geschrieben" "$W/server.log" && ok "R-2: Eintrag im PHP-Fehlerprotokoll" || nok "R-2: Eintrag im PHP-Fehlerprotokoll"
+rmdir "$M"; mv "$W/log_sicher.jsonl" "$M"
+
 echo "$((ANZ-FEHLER)) von $ANZ Prüfungen bestanden"
 [ $FEHLER -eq 0 ] || { echo "--- Server-Log ---"; tail -20 "$W/server.log"; exit 1; }

@@ -44,12 +44,18 @@ function le_verz_sicher($dir)
     return true;
 }
 
+// Eine Zeile an das Monatsprotokoll anhängen. Rückgabe: true nur, wenn die ganze Zeile geschrieben wurde (PLT26-02).
+// Das Protokoll ist das Rohprotokoll der Plattform: Ein Fehler darf nicht unbemerkt bleiben.
 function le_log($cfg, $eintrag)
 {
     $dir = $cfg['log_verzeichnis'];
-    if (!le_verz_sicher($dir)) return;
+    if (!le_verz_sicher($dir)) return false;
     $eintrag['log_zeit'] = gmdate('Y-m-d\TH:i:s\Z');
-    @file_put_contents($dir . '/' . gmdate('Y-m') . '.jsonl', json_encode($eintrag, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND | LOCK_EX);
+    $json = json_encode($eintrag, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION);
+    if ($json === false) return false;
+    $zeile = $json . "\n";
+    $n = @file_put_contents($dir . '/' . gmdate('Y-m') . '.jsonl', $zeile, FILE_APPEND | LOCK_EX);
+    return $n === strlen($zeile);
 }
 
 function le_ergebnis($code, $klasse, $text)

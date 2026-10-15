@@ -1,5 +1,13 @@
 # Änderungen
 
+## 2026-10-15 – Datenplattform: Konzept, Schema, Review #11, Rohprotokoll
+
+- Neu `docs/architektur/konzept-plattform-v02.md` (Fassung 0.2.7): Gesamtkonzept eigene Plattform (Stockkarte, Messdaten, Umwelt, Auswertung) auf Basis der ChatGPT-Architekturdokumente; Abgleich, Vereinfachungen, Zielarchitektur, Datenmodell, Migration von BEEP, Zugriff und Veröffentlichung, Bewertung Review #11.
+- Neu ADR-0003 (Datenplattform-Grundentscheidungen 15.10.2026, Maintainer): u. a. Beute/Volk höchstens 1:1, Waage am Volk, Python für API/Analyse, ThinkStation + PostgreSQL, Anmeldung auch im Heimnetz, öffentliche Lese-API über den Webhoster, Bodensonden 5/20/50 cm.
+- Neu `server/datenbank/schema.sql` 0.3 (PostgreSQL 16) mit `tests/datenbank/test_schema.py`: 24/24 auf Testinstanz (T1), Sitzungszeitzonen Europe/Berlin, UTC, America/New_York.
+- Befundregister: Familie PLT26 (Review [Issue #11](https://github.com/impyer/bienen-lora-logger/issues/11)); Bewertung `docs/testberichte/2026-10-15-plattform-review-issue11.md`.
+- **PLT26-02:** LoRa- und Wetter-Eingang melden Fehler beim Rohprotokoll (Warnung in der Antwort, PHP-Fehlerprotokoll), Rohzeilen mit `roh_sha256`; neue E2E-Prüfungen R-1/R-2. Bericht `docs/testberichte/2026-10-15-plt26-02-rohprotokoll.md`. Nachweis T2: `alle_tests_linux.sh` rc 0, LoRa 81/81 (Serveruhr 05:00/14:00 je 82/82, original 64/64), Wetter 29/29.
+
 ## 2026-10-14 – Pflichtenheft für den Layout-Auftrag
 
 - Neu `hardware/layout-auftrag/PFLICHTENHEFT.md` (englisch, deutsche Kurzfassung): Umfang (Platzierung, Routing, LCSC-Auswahl für 151 von 172 Teilen, JLCPCB-Gerber/Bohrdaten/BOM/CPL), Mechanik, Platzierungs- und Routingregeln (u. a. B− ≠ GND, ANT ohne Leiterbahn, L2 durchgehende Masse, PDM/Mikrofon), Meilensteine mit Platzierungsfreigabe vor dem Routing, Abnahme (DRC 0, Netzvergleich IPC-D-356, JLCPCB-DFM), Lizenz CERN-OHL-S-2.0.

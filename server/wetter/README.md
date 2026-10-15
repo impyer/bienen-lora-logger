@@ -16,7 +16,7 @@ Webhook-Ziel für The Things Stack. Speichert **alle** Werte der Wetterstation j
 4. Doppelte Zustellung erkennen (Kennung wie im LoRa-Eingang, Sperre je Station).
 5. Eine Zeile anhängen an `<daten_verzeichnis>/<stand>/<station>_<JJJJ-MM>.csv` (Monat in UTC, Trennzeichen `;`).
 6. `<daten_verzeichnis>/staende.json` schreiben: je Stand Name, zugehörige beelogger-Verzeichnisse und Stationen (ohne Token). Damit ordnet die Auswertung Logger und Station einander zu.
-7. Jede Webhook-Nachricht als JSON-Zeile in `<log_verzeichnis>/JJJJ-MM.jsonl` protokollieren.
+7. Jede Webhook-Nachricht als JSON-Zeile in `<log_verzeichnis>/JJJJ-MM.jsonl` protokollieren, Uplinks vor der Verarbeitung mit `roh_sha256` (PLT26-02). Scheitert das Schreiben, endet die Antwort auf `| WARNUNG: Rohprotokoll nicht geschrieben` und das PHP-Fehlerprotokoll nennt die Kennung; gespeichert wird trotzdem.
 
 Zeitstempel ist die Empfangszeit `received_at` von TTN; die S2120 sendet keine eigene Messzeit.
 
