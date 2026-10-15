@@ -49,3 +49,7 @@ bash hardware/kicad/pruefen.sh   # KiCad 10: Reproduzierbarkeit, ERC gegen erc_e
 - Bei Hardwareabhängigkeit **HiL-Aufgabe konkret notieren**, keine Messwerte erfinden.
 - Testbericht nach neuer Revision **als neue datierte Version** ergänzen; historische Ergebnisse und ihre Prüfbasis erhalten.
 - `CHANGELOG.md` nur oben ergänzen.
+
+## Webplattform / neue Oberfläche (ab 15.10.2026)
+
+Für UI-, BEEP-Stockkarten-, Sensorregister-, Boden-/Umwelt- und Analysearbeiten zusätzlich **zuerst** [docs/webplattform/README.md](docs/webplattform/README.md) und [docs/webplattform/claude-arbeitsauftrag.md](docs/webplattform/claude-arbeitsauftrag.md) lesen. Das sind Arbeitsentwürfe, keine stillschweigende Abnahme neuer SQL-/API-Strukturen. Bestehende bestätigte Fachentscheidungen unter `docs/architektur/` haben Vorrang; **keine** Daten oder Gerätezuordnungen halluzinieren. Keine Produktivmigration ohne Freigabe. Änderungen isoliert auf eigener Branch und mit dokumentierten Tests an ChatGPT zur unabhängigen Review übergeben.
