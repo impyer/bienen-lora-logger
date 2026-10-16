@@ -8,6 +8,8 @@ Die ältere Einzelseiten-Datei enthält das zusammengeführte JavaScript direkt 
 
 **Fix:** Build aus `index.html`, `style.css` und `app.js` mit dem reproducible `build_single.py`. Das Skript fügt Styles in den `head` und JavaScript **nach die DOM-Elemente ans Ende des `body`** ein. Dadurch startet die gelieferte Einzeldatei ohne externe Skripte.
 
+Ergänzter Fehlerfall: Wird JavaScript von einer Dateivorschau gesperrt, erscheint statt der bisher leeren Hauptansicht eine verständliche Öffnungsanleitung. Der Fallback wurde mit deaktiviertem JavaScript getestet.
+
 Weitere Korrekturen: einzelner Messwert korrekt auf der Zeitachse und nur ein Datumslabel; fehlende FFT-Werte werden nicht in 0 umgewandelt; Importstatus der Völkerübersicht folgt tatsächlich importierten Reihen; Eingabe-Datumsfelder verwenden den lokalen Berlin-Tag.
 
 ## Ausgeführte Prüfungen
