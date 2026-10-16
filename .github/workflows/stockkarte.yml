@@ -31,6 +31,7 @@ jobs:
           node tests/server/test_stockkarte_native.js
           node tests/server/test_stockkarte_values.js
           node tests/server/test_beep_catalog_adapter.js
+          node tests/server/test_stockkarte_catalog_editor.js
       - name: Offline-HTML aus Quellen reproduzieren
         run: |
           python3 prototype/claude-ui/build_single.py

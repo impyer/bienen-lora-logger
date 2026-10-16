@@ -109,6 +109,56 @@ function prepare(payload){
   for(const item of roots)walk(item,null,0);
   return nodes;
 }
+
+const ownPrefix='bl:';
+const fieldInputs=new Set(['text','boolean','number_0_decimals','number_2_decimals','number_percentage','date','score','select','options','list']);
+function cloneNodes(nodes){return nodes.map(n=>({...n,children:[...n.children]}));}
+function labelCheck(label){const s=String(label??'').trim();if(s.length<2||s.length>120)throw Error('Bezeichnung muss 2 bis 120 Zeichen enthalten');return s;}
+function idCheck(nodes,id){
+  const s=String(id||'');
+  if(!/^bl:[A-Za-z0-9_.:-]{4,90}$/.test(s)||nodes.some(n=>n.id===s))throw Error('Lokale ID ungültig oder bereits vorhanden');
+  return s;
+}
+function nodeShape(id,label,parent,depth,input,required=false){
+  return {id,label,parent,depth,input,required,min:null,max:null,decimals:null,unit:'',children:[],sourceId:null,description:'Eigene Bienenlogger-Kategorie'};
+}
+function addGroup(nodes,{id,label}){
+  if(nodes.length>=5000)throw Error('Kategorienlimit erreicht');
+  const key=idCheck(nodes,id),name=labelCheck(label);
+  return [...cloneNodes(nodes),nodeShape(key,name,null,0,'label')];
+}
+function addField(nodes,{id,parentId,label,input='text',required=false}){
+  if(nodes.length>=5000)throw Error('Kategorienlimit erreicht');
+  const key=idCheck(nodes,id),name=labelCheck(label),parent=nodes.find(n=>n.id===String(parentId));
+  if(!parent||parent.input!=='label'||parent.depth>=16)throw Error('Neue Felder benötigen eine gültige Kategoriegruppe');
+  if(!fieldInputs.has(input))throw Error('Eingabetyp nicht unterstützt');
+  const out=cloneNodes(nodes),p=out.find(n=>n.id===parent.id);
+  p.children.push(key);
+  return [...out,nodeShape(key,name,parent.id,parent.depth+1,input,required===true)];
+}
+function addOption(nodes,{id,parentId,label}){
+  if(nodes.length>=5000)throw Error('Kategorienlimit erreicht');
+  const key=idCheck(nodes,id),name=labelCheck(label),parent=nodes.find(n=>n.id===String(parentId));
+  if(!parent||!choices.has(parent.input)||parent.depth>=16)throw Error('Auswahloption benötigt ein Auswahlfeld');
+  const out=cloneNodes(nodes),p=out.find(n=>n.id===parent.id);
+  p.children.push(key);
+  return [...out,nodeShape(key,name,parent.id,parent.depth+1,'label')];
+}
+function renameOwnNode(nodes,id,label){
+  const key=String(id??''),name=labelCheck(label);
+  if(!key.startsWith(ownPrefix))throw Error('Importierte BEEP-Kategorien bleiben unverändert');
+  if(!nodes.some(n=>n.id===key))throw Error('Kategorie nicht gefunden');
+  return nodes.map(n=>({...n,label:n.id===key?name:n.label,children:[...n.children]}));
+}
+function exportCatalog(nodes,templates){
+  if(!Array.isArray(nodes)||!Array.isArray(templates))throw Error('Ungültiges Katalogformat');
+  return {schema:'bienenlogger-katalog-v1',created_at:new Date().toISOString(),
+    categories:nodes.map(n=>({id:n.id,parent:n.parent??'#',name:n.label,input:n.input,
+      required:n.required,min:n.min,max:n.max,decimals:n.decimals,unit:n.unit,
+      description:n.description})),
+    checklists:templates.map(t=>({id:t.id,name:t.name,category_ids:[...t.category_ids]}))};
+}
+
 function fallback(labels){
   const nodes=[],grps=new Map();
   for(const label of labels){
@@ -270,5 +320,5 @@ function collect(form,nodes,selectedIds){
   return validateValues(nodes,selectedIds,raw);
 }
 
-return {normalizeCatalog,prepare,catalogReport,fallback,paths,template,checklistNormalize,selectedLeaves,renderFields,validateValues,collect,escape};
+return {normalizeCatalog,prepare,catalogReport,addGroup,addField,addOption,renameOwnNode,exportCatalog,fallback,paths,template,checklistNormalize,selectedLeaves,renderFields,validateValues,collect,escape};
 });
