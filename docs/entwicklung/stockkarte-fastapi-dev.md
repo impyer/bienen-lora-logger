@@ -30,3 +30,5 @@ Die API ist strikt: keine freie Quellkennzeichnung als BEEP-Import, keine DELETE
 Der getrennte PostgreSQL-16-CI-Job prüft mit FastAPI TestClient die Authentifizierung, Schreibrechte, Format- und Datenbankvalidierung, stabile Historie, die Königinnenkorrektur und API-Fehlerfälle. Die Testdatenbank ist ausschließlich bienen_test; das alte Schema mit DROP SCHEMA wird außerhalb dieser Datenbank nicht angewandt.
 
 Die Claude-Weboberfläche bleibt noch Offline-Testoberfläche und ist NICHT mit der API gekoppelt. Eine echte Browseranbindung erfordert zunächst nutzerbezogene Authentifizierung und Rechte, damit keine lang gültigen Diensttokens im Frontend stehen. Die experimentellen sk_-Tabellen sind vor Produktionsfreigabe mit den bisherigen Stockkarten-Entwurfstabellen zu konsolidieren.
+
+CI-Abnahme nach Erstimplementierung: https://github.com/impyer/bienen-lora-logger/actions/runs/38929227784 (PostgreSQL + FastAPI, Fachlogik, Chromium – erfolgreich). Die API ist weiterhin nur als Entwicklungsbaustein freigegeben.

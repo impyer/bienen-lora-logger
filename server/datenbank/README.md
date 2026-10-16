@@ -49,3 +49,11 @@ Zeitangaben beim Schreiben immer mit Zeitzone angeben. Die Tests laufen mit den 
 **WARNUNG:** Die bestehende schema.sql löscht alle bisherigen bienen-Tabellen. Bei vorhandenen Serverdaten niemals ausführen! SK-001 allein enthält keinen Löschbefehl, ist aber keine Freigabe zur Migration der ThinkStation.
 
 Details: docs/entwicklung/stockkarte-persistenz-sk001.md.
+## Stockkarten-HTTP-Schnittstelle (ausschließlich Entwicklung)
+
+Die eigene FastAPI unter `server/datenbank/stockkarte_api.py` bietet Lesen und Schreiben von Durchsichten sowie Königinnen-Revisionsgeschichte über das bestehende PostgreSQL-Datenmodell. Die API verweigert ohne `BIENEN_API_DEV_MODE=1`, konfigurierte DSN und getrennte, ausreichend lange Tokens jede Anfrage. Sie ist **keine Mehrbenutzeranmeldung** und darf derzeit nur auf `127.0.0.1` in einer isolierten Testumgebung verwendet werden.
+
+- Detaillierter Vertrag: `docs/entwicklung/stockkarte-fastapi-dev.md`.
+- PostgreSQL-16-Test: `tests/datenbank/test_stockkarte_api.py`, ausschließlich mit anonymisierten Testdaten und der wegwerfbaren Datenbank `bienen_test`.
+- Bisherige Browser-Oberfläche bleibt vom API-Dienst getrennt, bis nutzerbezogene Rechte, sichere Sessions und eine geprüfte Migration vorhanden sind.
+- Niemals Datenbankpasswörter oder die Read-/Write-Tokens in GitHub, HTML-Dateien oder URLs ablegen.

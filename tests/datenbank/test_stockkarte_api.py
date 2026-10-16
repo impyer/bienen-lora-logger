@@ -24,6 +24,10 @@ def expect(response,code):
 def main():
     with TestClient(create_app(read_token="short",write_token="short",dsn=DSN,enabled=True)) as closed:
         expect(closed.get("/api/v1/stockkarte/voelker"),503)
+    with TestClient(create_app(read_token=READER,write_token=WRITER,dsn=DSN,enabled=False)) as closed:
+        expect(closed.get("/api/v1/stockkarte/voelker"),503)
+    with TestClient(create_app(read_token=READER,write_token=READER,dsn=DSN,enabled=True)) as closed:
+        expect(closed.get("/api/v1/stockkarte/voelker"),503)
     with psycopg.connect(DSN,autocommit=True) as conn:
         setup(conn)
         volk=conn.execute("INSERT INTO bienen.volk(name) VALUES ('Fiktives Volk') RETURNING id").fetchone()[0]
@@ -51,7 +55,8 @@ def main():
         expect(client.get(path),401)
         expect(client.get(path,headers={"Authorization":"Bearer invalid"}),401)
         expect(client.get(path,headers=read),200)
-        expect(client.get(path.replace(str(volk),str(volk+9999)),headers=read),404)
+        expect(client.get(f"/api/v1/stockkarte/voelker/{volk+9999}/durchsichten",headers=read),404)
+        expect(client.get(path,headers=write),200)
         expect(client.get("/openapi.json"),404)
         assert "access-control-allow-origin" not in client.get(path,headers=read).headers
         assert client.get(path,headers=read).headers["cache-control"]=="no-store"
