@@ -19,7 +19,7 @@ const scores=new Set(['score','score_amount','score_quality','grade','smileys_3'
 const yesNo=new Set(['boolean','boolean_yes_red','list_item']);
 const unsupportedRefs=new Set(['select_hive','select_location','select_apiary','select_hive_layer','select_hive_layer_frame','select_country','select_continent','sample_code']);
 const supported=new Set(['label','text','string','date','color_picker','file','image',...choices,...yesNo,...decimal,...scores]);
-function isBlocked(n,nodes){return unsupportedRefs.has(n.input)||!supported.has(n.input)||(choices.has(n.input)&&!n.children.some(id=>nodes.some(x=>x.id===id)));}
+function isBlocked(n,nodes){return n.input==='image'||n.input==='file'||unsupportedRefs.has(n.input)||!supported.has(n.input)||(choices.has(n.input)&&!n.children.some(id=>nodes.some(x=>x.id===id)));}
 function catalogReport(nodes){return {total:nodes.length,blocked:nodes.filter(n=>n.input!=='label'&&isBlocked(n,nodes)).map(n=>({id:n.id,type:n.input,name:n.label}))};}
 
 function title(o){
