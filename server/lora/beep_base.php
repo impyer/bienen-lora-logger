@@ -134,6 +134,7 @@ function bb_speichern(array $cfg, array $msg)
             'quelle' => 'beep_base', 'device_id' => $device,
             'f_cnt' => isset($up['f_cnt']) ? $up['f_cnt'] : null,
             'gewicht_roh' => $gewicht, 'gewicht_kg' => $kg,
+            'kalibrierung' => $kg === null ? null : array('offset' => (float)$geraet['gewicht_offset'], 'faktor' => (float)$geraet['gewicht_faktor']),
             'temperatur_c' => count($decoded['temperaturen_c']) ? $decoded['temperaturen_c'][0] : null,
             'temperaturen_c' => $decoded['temperaturen_c'],
             'fft_baender' => $decoded['fft_baender'],
