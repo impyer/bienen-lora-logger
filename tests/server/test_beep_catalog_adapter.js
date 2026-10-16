@@ -26,7 +26,8 @@ eq(s.catalogReport(categories).blocked.map(x=>x.id),['7','8']);
 const valid=s.validateValues(categories,['2','3','4'],{'2':'0','3':'1','4':'6'});
 eq(valid.errors,[]);eq(valid.values,{'2':false,'3':true,'4':'6'});
 eq(s.renderFields(categories,['3']).includes('>Ja</option>'),true);
-eq(s.validateValues(categories,['8'],{}).errors.some(x=>x.includes('Feldtyp')),true);
+eq(s.validateValues(categories,['8'],{}).errors,[]);
+eq(s.validateValues(categories,['8'],{'8':'unbelegte-beute'}).errors.some(x=>x.includes('Feldtyp')),true);
 for(const bad of [
 {categories:[{id:1,parent:2},{id:2,parent:1}]},
 {categories:[{id:1,parent:99}]},

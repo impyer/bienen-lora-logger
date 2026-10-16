@@ -232,7 +232,7 @@ function validateValues(nodes, ids, raw) {
   const values={},errors=[];
   const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
   for(const n of fields) {
-    if(isBlocked(n,nodes)){errors.push(n.label+': Feldtyp oder Optionen fehlen');continue;}
+    if(isBlocked(n,nodes)){if(n.required||(Object.prototype.hasOwnProperty.call(src,n.id)&&src[n.id]!=null&&src[n.id]!==''))errors.push(n.label+': Feldtyp oder Optionen fehlen');continue;}
     const present=Object.prototype.hasOwnProperty.call(src,n.id);
     const v=src[n.id];
     const missing=!present||v==null||v===''||(Array.isArray(v)&&v.length===0);
@@ -334,7 +334,7 @@ function collect(form,nodes,selectedIds){
   const fields=selectedLeaves(nodes,selectedIds),raw={};
   for(const n of fields){
     const inputs=Array.from(form.querySelectorAll('[data-native-category]')).filter(x=>x.dataset.nativeCategory===n.id);
-    if(!inputs.length){if(isBlocked(n,nodes))raw[n.id]='__unsupported__';continue;}
+    if(!inputs.length)continue;
     raw[n.id]=multi.has(n.input)?inputs.filter(x=>x.checked).map(x=>x.value):inputs[0].value.trim();
   }
   return validateValues(nodes,selectedIds,raw);
