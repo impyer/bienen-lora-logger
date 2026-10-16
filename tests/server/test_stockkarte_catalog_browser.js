@@ -30,7 +30,7 @@ async function main(){
    await page.locator('#nativeOptionForm [name="parentId"]').selectOption({label:'Lokale Prüfgruppe > Prüfbehandlung'});
    await page.locator('#nativeOptionForm [name="label"]').fill('Oxalsäure');
    await page.locator('#nativeOptionForm button[type="submit"]').click();
-   await page.locator('#nativeRenameForm [name="id"]').selectOption({label:'Lokale Prüfgruppe > Prüfbehandlung > Oxalsäure'});
+   await page.locator('#nativeRenameForm [name="entryId"]').selectOption({label:'Lokale Prüfgruppe > Prüfbehandlung > Oxalsäure'});
    await page.locator('#nativeRenameForm [name="label"]').fill('Oxalsäurelösung');
    await page.locator('#nativeRenameForm button[type="submit"]').click();
    const state=await page.evaluate(()=>({href:location.href,modal:document.getElementById('modalRoot')?.innerText?.slice(0,300),forms:Array.from(document.forms).map(f=>f.id),exportButton:!!document.querySelector('[data-action="export-native-catalog"]'),toast:document.getElementById('statusToast')?.textContent}));
