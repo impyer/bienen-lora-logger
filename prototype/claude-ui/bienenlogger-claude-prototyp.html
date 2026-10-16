@@ -11,7 +11,6 @@
 @media(max-width:1080px){.side{width:210px;flex-basis:210px}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-mark{display:none}}@media(max-width:820px){.side{position:fixed;z-index:10;transform:translateX(-101%);transition:transform .15s;box-shadow:10px 0 24px #09241614}.side.open{transform:translateX(0)}.mobile-menu{display:block}.layout-two,.layout-equal{grid-template-columns:1fr}.topbar{padding:12px 18px}.colony-grid{grid-template-columns:repeat(auto-fit,minmax(235px,1fr))}}@media(max-width:480px){main{padding:21px 15px}.kpi-grid{gap:9px}.card{padding:14px}.kpi-number{font-size:22px}.colony-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.intro{flex-direction:column}h1{font-size:24px}.panel{padding:15px}.page-footer{padding:22px 15px}.top-button{font-size:11px}}
 /* Mobile: no horizontal page drift from wide charts and tables. */
 body{overflow-x:hidden}.panel,.card{min-width:0}.content-wrap{overflow-x:clip}
-
   </style>
 </head>
 <body>
@@ -174,7 +173,6 @@ $('#menuBtn').addEventListener('click',()=>$('.side').classList.toggle('open'));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 render();
 })();
-
   </script>
 </body>
 </html>
