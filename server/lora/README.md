@@ -109,3 +109,49 @@ Warum 202 statt 5xx bei vorübergehenden Fehlern (SRV26-02): The Things Stack wi
   - Zeitbasis-Matrix: altes/eigenes `beelogger_log.php` × Merkmal im Hauptordner × `utc_zeit`
   - BEEP über eine lokale Nachbildung (nur `eigen`): genau eine Übertragung je gespeichertem Datensatz, keine bei „abgelehnt“, „doppelt“ oder Platzhalter-ID
   - Grafik im Browser mit Playwright; mit `BROWSER_PFLICHT=1` (CI) schlägt der Test fehl, wenn Playwright fehlt
+
+
+## BEEP Base: gemeinsamer Eingang, neue Stockansicht (Prototyp, Oktober 2026)
+
+Der **bestehende** TTN-Eingang `lora_eingang.php` nimmt jetzt auch BEEP-Base-Messframes auf **FPort 3** entgegen. Ein separater BEEP-Empfangsendpunkt wird **nicht** eingesetzt. Der interne Decoder steht in `beep_base.php`.
+
+Der M.40-CSV-Pfad bleibt für die klassischen beelogger erhalten. BEEP-Messwerte werden in der ersten Ausbaustufe verlustfrei über das gemeinsame TTN-Rohprotokoll und zusätzlich als normalisierte JSONL-Reihe unter `<log_verzeichnis>/beep/<SHA256(dev_eui)>/JJJJ-MM.jsonl` erfasst. **Die PostgreSQL-Übernahme ist noch nicht implementiert.** Diese Zwischenablage ist bewusst kein eigenes, dauerhaft getrenntes BEEP-Datensystem. Die neue Oberfläche liest sie direkt zum Bewerten der Anzeige.
+
+### Lokale Konfiguration (nicht in GitHub)
+
+Die beiden BEEP Bases müssen in der TTN-Anwendung mit ihren tatsächlichen **device_id** und **DevEUI** registriert sein. In `lora_config.php` ergänzen:
+
+```php
+'beep_geraete' => array(
+    'TTN-DEVICE-ID-1' => array(
+        'dev_eui' => 'DEV-EUI-16-HEX-ZEICHEN',
+        'name' => 'BEEP Base 1',
+        'volk' => 'Volk 1',
+        'stand' => 'Standname',
+        'gewicht_offset' => 0,       // REALES gerätespezifisches Offset eintragen
+        'gewicht_faktor' => 0.0,     // REALEN Kalibrierfaktor eintragen (muss >0 sein)
+    ),
+),
+'dashboard_passwort_hash' => 'HIER-DEN-PASSWORT-HASH-EINTRAGEN',
+```
+
+**Die Platzhalter sind ausdrücklich nicht betriebsfertig.** Das Dashboard zeigt ohne gültige Gewichtskalibrierung kein kg-Gewicht an. Die Originalwerte werden trotzdem gespeichert. Kalibrierungen dürfen für alte Messdaten nicht stillschweigend rückwirkend geändert werden: Da Offset und Faktor beim Eingang angewendet werden, historische Kalibrierwechsel dokumentieren.
+
+Ein Hash für ein starkes Dashboard-Passwort:
+
+```bash
+php -r 'echo password_hash("HIER-EIN-EIGENES-STARKES-PASSWORT", PASSWORD_DEFAULT), PHP_EOL;'
+```
+
+Den Hash nur in `lora_config.php` eintragen, das Klartextpasswort **niemals** in GitHub, Konfigurationsdateien oder URL hinterlegen.
+
+**TTN**: In der BEEP-Anwendung unter *Integrations → Webhooks* einen **zusätzlichen** Custom-JSON-Webhook anlegen: URL `https://<server>/<beelogger-pfad>/lora/lora_eingang.php`, nur *Uplink message*, Header `X-Bienen-Token` wie in der lokalen `lora_config.php`. Der bestehende BEEP-Webhook bleibt **unverändert**. Der eigene Eingang sendet BEEP-Base-Messungen **nicht** erneut an BEEP. Für zwei BEEP Bases in derselben TTN-Anwendung ist nur ein neuer Webhook nötig.
+
+**Ansicht:** `https://<server>/<beelogger-pfad>/lora/beep_dashboard.php`. Zugriff erst nach Anmeldung mit dem Dashboard-Passwort. Die Oberfläche zeigt eine Karte je konfiguriertem Volk, Gewicht (kg), Temperatur (°C), Batteriestatus, Zeitverlauf und zehn FFT-Frequenzbänder. Es werden keine fiktiven Zeitreihen erzeugt. ECharts 5.6 wird für diesen Prototyp über jsDelivr geladen; die endgültige Oberfläche sollte die Bibliothek lokal ausliefern.
+
+**Sicherheit:** Nur HTTPS, zusätzlich Zugriff aus dem eigenen Heimnetz/VPN empfohlen. Apache berücksichtigt die mitgelieferte `.htaccess`; bei nginx den Zugriff auf Konfiguration und Datenverzeichnisse explizit verbieten. `lora_log/` nach Möglichkeit **außerhalb des Webroots** einrichten und Schreibberechtigungen auf PHP beschränken. Das Dashboard hat ein separates Login, verwendet weder TTN- noch BEEP-Token im Browser.
+
+**Test:** `php tests/server/test_beep_base.php`. Enthält einen anonymisierten realen FPort-3-Payload für Decoder, Kalibrierung, FFT, Duplikaterkennung und JSONL-Eintrag. Für die eigentliche Feldabnahme sind danach zwei reale TTN-Uplinks und der Abgleich der angezeigten kg-Werte mit BEEP nötig. Kein automatisches Deployment.
+
+**Grenzen:** Momentan FPort 3 (Messdaten), keine BEEP-Start-/Alarmnachrichten (FPort 2/4), keine Datenrückholung aus BEEP, keine Datenbank-Importer. Bei Geräten mit zwei Gewichtszellen wird kein Gesamtgewicht erfunden; die Rohwerte bleiben gespeichert, die kg-Gesamtmessung bleibt zunächst leer. Frequenzbänder sind relative FFT-Rohwerte, keine dB und keine einzelne dominante Frequenz.
+

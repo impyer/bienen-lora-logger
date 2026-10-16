@@ -33,6 +33,9 @@ if (!is_string($token) || !hash_equals($cfg['token'], $token)) le_ende(401, 'Tok
 $roh = file_get_contents('php://input', false, null, 0, 65536);
 $msg = json_decode($roh, true);
 if (!is_array($msg)) le_ende(400, 'kein JSON');
+// In TTN-Live-Data kopierte Events enthalten die ApplicationUp teilweise unter 'data'.
+// TTN-Custom-Webhooks senden normalerweise die ApplicationUp direkt.
+if (isset($msg['data']['uplink_message']) && is_array($msg['data'])) $msg = $msg['data'];
 
 $geraet = isset($msg['end_device_ids']['device_id']) ? (string)$msg['end_device_ids']['device_id'] : '';
 // Rohprotokoll vor jeder Verarbeitung (PLT26-02, R-1). Schlägt es fehl, wird trotzdem verarbeitet,

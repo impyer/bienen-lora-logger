@@ -149,7 +149,7 @@ Das neue Zielbild widerspricht mehreren Festlegungen vom 12. und 13.10. Diese m�
 ```
                         ┌──────────────── Eingänge (bestehend, PHP, getestet) ───────────────┐
  Logger L01–L10  ─┐     │ lora_eingang.php   → beelogger M.40 (bleibt parallel) + lora_log/*.jsonl │
- BEEP Base 1/2   ─┼TTN─▶│ [neu] beep_base-Eingang → base_log/*.jsonl         [PRÜFEN Weg]       │
+ BEEP Base 1/2   ─┼TTN─▶│ lora_eingang.php → BEEP-Decoder → lora_log/beep/*.jsonl [ENTWURF]    │
  S2120           ─┤     │ wetter_eingang.php → Wetter-CSV + Protokoll-JSONL                       │
  LSN50v2-D23     ─┘     │ [neu] boden-Eingang (oder wetter_eingang verallgemeinert)               │
                         └───────────────┬────────────────────────────────────────────────────────┘
@@ -166,6 +166,8 @@ Das neue Zielbild widerspricht mehreren Festlegungen vom 12. und 13.10. Diese m�
 1. **[VORSCHLAG] Die getesteten Eingänge bleiben, ein separater Importer liest deren Rohprotokolle in die Datenbank.**
    - Voraussetzung: verlustfreies Rohprotokoll nach §4a. R-1/R-2 sind seit 15.10. im Entwurf behoben (T2), R-4 bis R-6 kommen mit dem Importer (Befund PLT26-02).
    - Der Import ist wiederholbar; die Kennung gegen Doppelzustellung existiert schon (SRV26-03).
+**[BESTÄTIGT, 16.10.2026] BEEP Base, klassischer beelogger und eigener Logger sind alternative primäre Stockmessgeräte (maximal eines je Volk). BEEP Base wird über denselben `lora_eingang.php` empfangen wie ein beelogger, mit internem Decoder; komplementäre Zusatzsensoren können weitere Größen liefern. Für die erste Ansicht stehen Gewicht, Temperatur und akustische FFT-Frequenzbänder im Fokus. Die BEEP-Base-JSONL-Zwischenablage bleibt Übergangslösung bis zum PostgreSQL-Importer; direkte Rückübertragung derselben Uplinks an BEEP ist nicht erlaubt.**
+
 2. **[VORSCHLAG] beelogger M.40 läuft weiter**, bis die eigene Oberfläche alles kann. Danach wird er abgeschaltet oder bleibt als reine Referenz.
 3. **[BESTÄTIGT] Eine Datenbank: PostgreSQL** auf der ThinkStation. TimescaleDB erst bei Bedarf. Bei ca. 4–5 Mio. Werten pro Jahr reicht normales PostgreSQL mit Index auf (kanal, zeit).
 4. **[BESTÄTIGT, 15.10.] Python für Lese-API und Analyse** (FastAPI, pandas/numpy/scipy, später scikit-learn).

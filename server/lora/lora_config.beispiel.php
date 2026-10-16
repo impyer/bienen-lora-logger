@@ -23,6 +23,17 @@ return array(
         'beelogger-10' => array('verzeichnis' => 'beelogger10'),
     ),
 
+    // BEEP Bases: gleiche Eingangs-URL wie der klassische beelogger, aber interner Base-Decoder.
+    // Echte DevEUIs/Kalibrierwerte nur in die lokale, nicht versionierte lora_config.php schreiben!
+    // Beispiel (NICHT aktiv): 'my-beep-base-2' => array('dev_eui'=>'...', 'volk'=>'Volk 8',
+    //    'name'=>'BEEPBASE-5A76', 'stand'=>'Hauptstand', 'gewicht_offset'=>..., 'gewicht_faktor'=>...)
+    'beep_geraete' => array(),
+
+    // Passwort-Hash für die interne Vorschau /lora/beep_dashboard.php.
+    // Erzeugen: php -r 'echo password_hash("EIN-STARKES-PASSWORT", PASSWORD_DEFAULT), PHP_EOL;'
+    // In der lokalen lora_config.php ersetzen; keinesfalls Klartext-Passwort eintragen.
+    'dashboard_passwort_hash' => '',
+
     // Welche Formatter-Werte in die beelogger-Spalten Aux1, Aux2, Aux3 kommen ('' = leer lassen).
     // Vorgabe wie beim WLAN-beelogger: Aux1 Luftdruck, Aux2 FFT-Frequenz, Aux3 FFT-Pegel.
     // Beispiel für die Deckeltemperatur bei Einzel-Loggern: 3 => 'TempIn2'
