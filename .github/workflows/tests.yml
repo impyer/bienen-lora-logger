@@ -103,6 +103,10 @@ jobs:
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Portable HTML aus Quellstand reproduzierbar erzeugen
+        run: |
+          python3 prototype/claude-ui/build_single.py
+          git diff --exit-code -- prototype/claude-ui/bienenlogger-claude-prototyp.html
       - name: Claude-basierter Bienenlogger-UI-Prototyp (Browser-Smoke-Test)
         run: |
           node --check prototype/claude-ui/app.js
