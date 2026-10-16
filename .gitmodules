@@ -1,0 +1,3 @@
+[submodule "integrations/beep-vue-app"]
+	path = integrations/beep-vue-app
+	url = https://github.com/beepnl/beep-vue-app.git
