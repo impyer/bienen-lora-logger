@@ -97,6 +97,7 @@ jobs:
         run: |
           php tests/server/test_lora_funktionen.php
           php tests/server/test_wetter_funktionen.php
+          php tests/server/test_beep_base.php
       - name: Wetter-Eingang Ende-zu-Ende
         run: bash tests/server/test_wetter_eingang.sh
       - name: Playwright mit Chromium für die Grafikprüfung (SRV26-08)
