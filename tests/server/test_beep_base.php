@@ -46,6 +46,7 @@ bb_check('Verarbeitung gespeichert', $r['klasse'], 'gespeichert');
 $rows=bb_zeilen($cfg,'0123456789abcdef');
 bb_check('eine Zeile', count($rows), 1);
 bb_check('Zeile Gewicht', abs($rows[0]['gewicht_kg']-31.418508912366825)<1e-9, true);
+bb_check('Kalibrierung im Messwert erhalten', $rows[0]['kalibrierung'], array('offset'=>101109.0,'faktor'=>0.000024211515512725));
 $r=le_verarbeiten($cfg,$msg);
 bb_check('Duplikat erkannt', $r['klasse'], 'doppelt');
 bb_check('Duplikat nicht angehängt', count(bb_zeilen($cfg,'0123456789abcdef')), 1);
