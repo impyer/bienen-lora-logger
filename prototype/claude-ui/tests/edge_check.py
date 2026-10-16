@@ -11,9 +11,7 @@ with sync_playwright() as p:
  errors=[];page.on('pageerror',lambda e: errors.append(str(e)))
  page.set_content(html)
  def nav(s):
-  if page.evaluate('innerWidth') <= 820:
-   page.locator('#menuBtn').click()
-  page.locator('.nav-link[data-view="'+s+'"]').click()
+   page.locator('.nav-link[data-view="'+s+'"]').click()
  checks=0
  def ok(desc,pred=True):
   global checks
@@ -30,7 +28,7 @@ with sync_playwright() as p:
  with page.expect_file_chooser() as fc:page.locator('[data-action="import"]').first.click()
  fc.value.set_files({'name':'null.json','mimeType':'application/json','buffer':json.dumps(bogus).encode()})
  page.wait_for_timeout(120)
- nav('volk');page.locator('[data-choose-volk="5"]').click()
+ nav('volk');page.locator('#colonyPicker').select_option('5')
  ok('null weight not shown as 0', '0,000 kg' not in page.locator('main').inner_text())
  ok('invalid FFT bands removed', '1 Bänder' in page.locator('main').inner_text())
  nav('stockkarte');page.locator('[data-action="new-inspection"]').click()
@@ -48,7 +46,7 @@ with sync_playwright() as p:
   page.set_viewport_size({'width':width,'height':780})
   for s in ['stand','volk','stockkarte','beute','analyse','umwelt','quellen']:
    nav(s)
-   # Observe horizontal overflow, scrollWidth can drift because of long sidebar.
+   # Keine scrollWidth-Regression durch die horizontale mobile Navigation.
    geom=page.evaluate('({a:document.documentElement.scrollWidth,b:window.innerWidth})')
    if geom['a']>geom['b']+3: print('OVERFLOW',width,s,geom)
   ok('all views render at '+str(width),not errors)
