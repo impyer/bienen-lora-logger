@@ -83,17 +83,77 @@ main{max-width:1360px;width:100%;margin:0 auto;padding:20px 24px 32px;min-height
 'use strict';
 const escape=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 const multi=new Set(['list']);
-const choices=new Set(['select','options','list','list_item','bee_subspecies']);
+const choices=new Set(['select','options','list','bee_subspecies']);
 const decimal=new Set(['number','number_0_decimals','number_1_decimals','number_2_decimals','number_3_decimals','number_positive','number_negative','number_percentage','number_degrees','slider']);
 const scores=new Set(['score','score_amount','score_quality','grade','smileys_3']);
-const yesNo=new Set(['boolean','boolean_yes_red']);
+const yesNo=new Set(['boolean','boolean_yes_red','list_item']);
+const unsupportedRefs=new Set(['select_hive','select_location','select_apiary','select_hive_layer','select_hive_layer_frame','select_country','select_continent','sample_code']);
+const supported=new Set(['label','text','string','date','color_picker','file','image',...choices,...yesNo,...decimal,...scores]);
+function isBlocked(n,nodes){return unsupportedRefs.has(n.input)||!supported.has(n.input)||(choices.has(n.input)&&!n.children.some(id=>nodes.some(x=>x.id===id)));}
+function catalogReport(nodes){return {total:nodes.length,blocked:nodes.filter(n=>n.input!=='label'&&isBlocked(n,nodes)).map(n=>({id:n.id,type:n.input,name:n.label}))};}
+
 function title(o){
   const t=o?.trans;
   if(t&&typeof t==='object')return String(t.de||t.de_DE||t.en||o.name||o.text||'Unbenannt');
   return String(o?.text||o?.name||'Unbenannt');
 }
+
+function normalizeCatalog(payload){
+  if(Array.isArray(payload))return {taxonomy:payload,checklists:[]};
+  if(!payload||typeof payload!=='object')throw Error('Katalog muss ein Objekt sein');
+  let roots=payload.taxonomy??payload.categories??[];
+  const rows=payload.categoryinputs??payload.category_inputs??[];
+  if(!Array.isArray(roots)||!Array.isArray(rows))throw Error('Kategorien und Eingabetypen müssen Listen sein');
+  const types=new Map();
+  for(const r of rows){
+    if(!r||r.id==null||!r.type||types.has(String(r.id)))throw Error('Ungültige oder doppelte Eingabetyp-ID');
+    types.set(String(r.id),r);
+  }
+  function copy(r){
+    if(!r||typeof r!=='object'||Array.isArray(r))throw Error('Ungültige Kategorie');
+    const n={...r},typeId=r.category_input_id??r.categoryInputId;
+    const info=typeId==null?null:types.get(String(typeId));
+    if(typeId!=null&&!info&&!n.input&&!n.input_type)throw Error('Fehlende Eingabetyp-Definition: '+typeId);
+    if(info){
+      if(!n.input&&!n.input_type)n.input=info.type;
+      for(const p of ['min','max','decimals'])if(n[p]==null&&info[p]!=null)n[p]=info[p];
+    }
+    if(Array.isArray(r.children))n.children=r.children.map(copy);
+    return n;
+  }
+  roots=roots.map(copy);
+  if(roots.some(r=>r.parent_id!=null||r.parent!=null)&&roots.every(r=>!Array.isArray(r.children))){
+    const by=new Map(),top=[];
+    for(const n of roots){
+      const key=String(n.id??n.category_id??'');
+      if(!key||by.has(key))throw Error('Doppelte oder fehlende Kategorie-ID: '+key);
+      n.children=[];by.set(key,n);
+    }
+    for(const n of roots){
+      const parent=n.parent_id??n.parent;
+      if(parent==null||parent==='#'||parent===0||parent==='0')top.push(n);
+      else{
+        const p=by.get(String(parent));
+        if(!p||p===n)throw Error('Ungültige Elternkategorie: '+parent);
+        p.children.push(n);
+      }
+    }
+    const visited=new Set();
+    function check(n,ancestors=new Set()){
+      const id=String(n.id??n.category_id);
+      if(ancestors.has(id)||visited.has(id))throw Error('Zyklischer oder mehrfach referenzierter Kategorienbaum: '+id);
+      visited.add(id);
+      const next=new Set(ancestors);next.add(id);
+      n.children.forEach(c=>check(c,next));
+    }
+    top.forEach(n=>check(n));
+    if(visited.size!==by.size)throw Error('Verwaiste Kategorien oder Zyklus');
+    roots=top;
+  }
+  return {taxonomy:roots,checklists:payload.checklists??[]};
+}
 function prepare(payload){
-  let roots=Array.isArray(payload)?payload:payload?.taxonomy||payload?.categories||[];
+  let roots=normalizeCatalog(payload).taxonomy;
   if(!Array.isArray(roots))throw Error('Katalog muss ein Array von Kategorien enthalten');
   if(roots.length>5000)throw Error('Zu viele Kategorien (max. 5000)');
   const nodes=[], ids=new Set();
@@ -106,7 +166,7 @@ function prepare(payload){
     let input=String(item.input||item.input_type||item.inputType||item.category_input?.type||'');
     // In BEEP 'type' is taxonomy provenance ('system' etc.) and not the input widget.
     if(!input)input=kids.length?'label':'text';
-    const node={id,label:title(item).slice(0,250),parent,depth,input,required:Boolean(item.required),
+    const node={id,label:title(item).slice(0,250),parent,depth,input,required:(item.required===true||item.required===1||item.required==='1'),
       min:Number.isFinite(Number(item.min))&&item.min!==null?Number(item.min):null,
       max:Number.isFinite(Number(item.max))&&item.max!==null?Number(item.max):null,
       decimals:Number.isInteger(Number(item.decimals))?Number(item.decimals):null,
@@ -172,6 +232,7 @@ function validateValues(nodes, ids, raw) {
   const values={},errors=[];
   const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
   for(const n of fields) {
+    if(isBlocked(n,nodes)){errors.push(n.label+': Feldtyp oder Optionen fehlen');continue;}
     const present=Object.prototype.hasOwnProperty.call(src,n.id);
     const v=src[n.id];
     const missing=!present||v==null||v===''||(Array.isArray(v)&&v.length===0);
@@ -222,7 +283,9 @@ function widget(node,nodes,priorValue){
   const val=priorValue===null||priorValue===undefined?'':String(priorValue);
   const pick=(value)=>val===String(value)?' selected':'';
   let html='';
-  if(yesNo.has(node.input)){
+  if(isBlocked(node,nodes)){
+    html='<p class="small muted">BEEP-Feldtyp noch nicht implementiert oder Optionen fehlen. Keine Freitext-Ersatzspeicherung.</p>';
+  } else if(yesNo.has(node.input)){
     const yn=priorValue===true||priorValue==='true'? '1':priorValue===false||priorValue==='false'?'0':val;
     html=`<select name="${escape(nm)}" ${att}${required}><option value="">Nicht erfasst</option><option value="1"${yn==='1'?' selected':''}>Ja</option><option value="0"${yn==='0'?' selected':''}>Nein</option></select>`;
   } else if(choices.has(node.input)){
@@ -244,7 +307,7 @@ function widget(node,nodes,priorValue){
     html=`<input type="date" name="${escape(nm)}" ${att} value="${escape(val.slice(0,10))}"${required}>`;
   } else if(node.input==='color_picker'){
     html=`<input type="text" pattern="#[a-fA-F0-9]{6}" name="${escape(nm)}" ${att} value="${escape(val)}" placeholder="#FFFFFF"${required}>`;
-  } else if(node.input==='text'){
+  } else if(node.input==='text'||node.input==='string'){
     html=`<textarea name="${escape(nm)}" ${att} maxlength="4000"${required}>${escape(val)}</textarea>`;
   } else if(node.input==='image'||node.input==='file'){
     html='<p class="small muted">Bild-/Dateiupload benötigt eine geschützte eigene Datenablage. Hier keine Fake-Speicherung.</p>';
@@ -271,13 +334,13 @@ function collect(form,nodes,selectedIds){
   const fields=selectedLeaves(nodes,selectedIds),raw={};
   for(const n of fields){
     const inputs=Array.from(form.querySelectorAll('[data-native-category]')).filter(x=>x.dataset.nativeCategory===n.id);
-    if(!inputs.length)continue;
+    if(!inputs.length){if(isBlocked(n,nodes))raw[n.id]='__unsupported__';continue;}
     raw[n.id]=multi.has(n.input)?inputs.filter(x=>x.checked).map(x=>x.value):inputs[0].value.trim();
   }
   return validateValues(nodes,selectedIds,raw);
 }
 
-return {prepare,fallback,paths,template,checklistNormalize,selectedLeaves,renderFields,validateValues,collect,escape};
+return {normalizeCatalog,prepare,catalogReport,fallback,paths,template,checklistNormalize,selectedLeaves,renderFields,validateValues,collect,escape};
 });
 
   </script>
@@ -597,11 +660,11 @@ function saveTemplate(form){
 async function importNativeSchema(file){
  if(!file||file.size>4*1024*1024)return toast('Maximal 4 MB JSON-Katalog');
  try{
-  const raw=JSON.parse(await file.text());const nodes=Native.prepare(raw);
+  const raw=JSON.parse(await file.text());const nodes=Native.prepare(raw);const report=Native.catalogReport(nodes);
   if(!nodes.length)throw Error('Keine Kategorien');
   const imported=Native.checklistNormalize(raw,nodes);
   data.nativeNodes=nodes;data.nativeTemplates=imported.length?imported:[Native.template('Alle importierten Kategorien',nodes.filter(n=>n.input!=='label'&&!(['select','options','list'].includes(nodes.find(p=>p.id===n.parent)?.input))).map(n=>n.id),'native-import')];
-  data.activeNativeTemplate=data.nativeTemplates[0].id;persist();render();toast(nodes.length+' Kategorien und '+data.nativeTemplates.length+' Checklisten lokal importiert.');
+  data.activeNativeTemplate=data.nativeTemplates[0].id;persist();render();toast(nodes.length+' Kategorien importiert. '+(report.blocked.length?report.blocked.length+' Feldtypen/Optionen noch nicht nutzbar.':'Keine blockierten Felder.'));
  }catch(e){toast('Katalogimport fehlgeschlagen: '+e.message);}
 }
 function openInspection(id=''){

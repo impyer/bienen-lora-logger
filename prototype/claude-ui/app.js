@@ -313,11 +313,11 @@ function saveTemplate(form){
 async function importNativeSchema(file){
  if(!file||file.size>4*1024*1024)return toast('Maximal 4 MB JSON-Katalog');
  try{
-  const raw=JSON.parse(await file.text());const nodes=Native.prepare(raw);
+  const raw=JSON.parse(await file.text());const nodes=Native.prepare(raw);const report=Native.catalogReport(nodes);
   if(!nodes.length)throw Error('Keine Kategorien');
   const imported=Native.checklistNormalize(raw,nodes);
   data.nativeNodes=nodes;data.nativeTemplates=imported.length?imported:[Native.template('Alle importierten Kategorien',nodes.filter(n=>n.input!=='label'&&!(['select','options','list'].includes(nodes.find(p=>p.id===n.parent)?.input))).map(n=>n.id),'native-import')];
-  data.activeNativeTemplate=data.nativeTemplates[0].id;persist();render();toast(nodes.length+' Kategorien und '+data.nativeTemplates.length+' Checklisten lokal importiert.');
+  data.activeNativeTemplate=data.nativeTemplates[0].id;persist();render();toast(nodes.length+' Kategorien importiert. '+(report.blocked.length?report.blocked.length+' Feldtypen/Optionen noch nicht nutzbar.':'Keine blockierten Felder.'));
  }catch(e){toast('Katalogimport fehlgeschlagen: '+e.message);}
 }
 function openInspection(id=''){
