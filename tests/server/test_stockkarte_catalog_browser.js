@@ -33,6 +33,9 @@ async function main(){
    await page.locator('#nativeRenameForm [name="id"]').selectOption({label:'Lokale Prüfgruppe > Prüfbehandlung > Oxalsäure'});
    await page.locator('#nativeRenameForm [name="label"]').fill('Oxalsäurelösung');
    await page.locator('#nativeRenameForm button[type="submit"]').click();
+   const state=await page.evaluate(()=>({href:location.href,modal:document.getElementById('modalRoot')?.innerText?.slice(0,300),forms:Array.from(document.forms).map(f=>f.id),exportButton:!!document.querySelector('[data-action="export-native-catalog"]'),toast:document.getElementById('statusToast')?.textContent}));
+   console.log('KATALOG-DEBUG: '+JSON.stringify(state));
+   assert.ok(state.exportButton,'Katalogfenster nach Optionsumbenennung verloren: '+JSON.stringify(state));
    await page.evaluate(()=>{
     window.__exportTrace=[];
     const original=URL.createObjectURL.bind(URL);
