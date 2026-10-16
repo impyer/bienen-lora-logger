@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Bienenlogger · Prototyp auf Basis Claude</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><div class="brand-icon">⬡</div><div><strong>Bienenlogger</strong><span>Stockkarte · Messdaten · Analyse</span></div></div>
+    <div class="side-label">ARBEITSBEREICH</div>
+    <nav aria-label="Hauptnavigation" id="nav">
+      <button class="nav-link active" data-view="stand"><span class="nav-icon">▦</span>Bienenstand</button>
+      <button class="nav-link" data-view="volk"><span class="nav-icon">⌁</span>Volk-Cockpit</button>
+      <button class="nav-link" data-view="stockkarte"><span class="nav-icon">▤</span>Stockkarte</button>
+      <button class="nav-link" data-view="beute"><span class="nav-icon">▥</span>Beutenkonfiguration</button>
+      <button class="nav-link" data-view="analyse"><span class="nav-icon">▥</span>Analysen & Vergleich</button>
+      <button class="nav-link" data-view="umwelt"><span class="nav-icon">☀</span>Umwelt & Tracht</button>
+      <button class="nav-link" data-view="quellen"><span class="nav-icon">⌘</span>Datenquellen & Kanäle</button>
+    </nav>
+    <div class="sidebar-foot"><div class="tiny"><span class="status-dot"></span>Lokaler Testprototyp</div><div>Nach Claude-Oberfläche · 16.10.2026</div><div>Keine Verbindung zum BEEP-Konto</div></div>
+  </aside>
+  <div class="content-wrap">
+    <header class="topbar"><button id="menuBtn" class="mobile-menu" aria-label="Menü öffnen">☰</button><div id="breadcrumbs" class="crumbs">Teststand / Bienenstand</div><div class="top-actions"><span class="mode-mark" id="modeMark">Echte Beispielmessung · keine Liveverbindung</span><button id="dataToggle" class="top-button">Musteranalyse aktivieren</button></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="page-footer">Prototyp · Die BEEP-Stockkarte bleibt führende Quelle für Beutenaufbau und Durchsichten. Testeinträge werden ausschließlich im Browser gespeichert.</footer>
+  </div>
+</div>
+<div id="modalRoot"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
