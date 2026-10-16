@@ -54,3 +54,4 @@ jobs:
         run: |
           node tests/server/test_claude_ui.js
           node tests/server/test_native_stockkarte_browser.js
+          node tests/server/test_stockkarte_catalog_browser.js
