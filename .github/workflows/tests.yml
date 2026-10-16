@@ -97,7 +97,7 @@ jobs:
         run: |
           php tests/server/test_lora_funktionen.php
           php tests/server/test_wetter_funktionen.php
-      - name: Originale BEEP-Stockkarte: Submodul und Vue-Routen prüfen
+      - name: "Originale BEEP-Stockkarte: Submodul und Vue-Routen prüfen"
         run: |
           node tests/server/test_beep_original_routes.js
           git ls-tree HEAD integrations/beep-vue-app | grep -F '160000 commit 24fd68890d62495a94090b242e686ad811b714cb'
