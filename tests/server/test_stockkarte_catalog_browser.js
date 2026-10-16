@@ -33,10 +33,18 @@ async function main(){
    await page.locator('#nativeRenameForm [name="id"]').selectOption({label:'Lokale Prüfgruppe > Prüfbehandlung > Oxalsäure'});
    await page.locator('#nativeRenameForm [name="label"]').fill('Oxalsäurelösung');
    await page.locator('#nativeRenameForm button[type="submit"]').click();
-   const dl=page.waitForEvent('download',{timeout:7000});
+   await page.evaluate(()=>{
+    window.__exportTrace=[];
+    const original=URL.createObjectURL.bind(URL);
+    URL.createObjectURL=(blob)=>{window.__exportTrace.push({size:blob.size,type:blob.type});return original(blob)};
+   });
+   const dl=page.waitForEvent('download',{timeout:4000}).catch(()=>null);
    await page.locator('[data-action="export-native-catalog"]').click();
-   if(errors.length)throw Error('Browser-Fehler beim Export: '+errors.join('; '));
    const download=await dl;
+   if(!download){
+    const trace=await page.evaluate(()=>({urls:window.__exportTrace,actions:document.querySelectorAll('[data-action="export-native-catalog"]').length}));
+    throw Error('Katalogexport: kein Download. Browserfehler='+JSON.stringify(errors)+' Trace='+JSON.stringify(trace));
+   }
    assert.match(download.suggestedFilename(),/bienenlogger-stockkarte-katalog\.json/);
    const catalog=JSON.parse(fs.readFileSync(await download.path(),'utf8'));
    assert.ok(catalog.categories.some(x=>x.name==='Oxalsäurelösung'&&x.id.startsWith('bl:')));
