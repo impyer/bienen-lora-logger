@@ -232,7 +232,7 @@ function validateValues(nodes, ids, raw) {
   const values={},errors=[];
   const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
   for(const n of fields) {
-    if(isBlocked(n,nodes)){if(n.required||(Object.prototype.hasOwnProperty.call(src,n.id)&&src[n.id]!=null&&src[n.id]!==''))errors.push(n.label+': Feldtyp oder Optionen fehlen');continue;}
+    if(isBlocked(n,nodes)){if(n.required||(Object.prototype.hasOwnProperty.call(src,n.id)&&src[n.id]!=null&&src[n.id]!==''))errors.push(n.label+': '+(n.input==='file'||n.input==='image'?'Dateianhang nicht unterstützt':'Feldtyp oder Optionen fehlen'));continue;}
     const present=Object.prototype.hasOwnProperty.call(src,n.id);
     const v=src[n.id];
     const missing=!present||v==null||v===''||(Array.isArray(v)&&v.length===0);
