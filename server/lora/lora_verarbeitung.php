@@ -13,6 +13,7 @@
 // "nachholen": Die Nachricht wird zwischengespeichert und von lora_nachholen.php erneut verarbeitet.
 
 require_once __DIR__ . '/lora_funktionen.php';
+require_once __DIR__ . '/beep_base.php';
 
 function le_cfg_laden()
 {
@@ -26,6 +27,8 @@ function le_cfg_laden()
         'waegezellen_temp' => 'TempOut',
         'max_zeitabweichung_s' => 900,
         'log_verzeichnis' => __DIR__ . '/lora_log',
+        'beep_geraete' => array(),
+        'dashboard_passwort_hash' => '',
         'beelogger_verzeichnis' => dirname(__DIR__),
         'tls_pruefen' => true,
         'zeitlimit_s' => 20,
@@ -82,6 +85,9 @@ function le_verarbeiten(array $cfg, array $msg)
     }
     $up = $msg['uplink_message'];
     $id = le_nachricht_id($msg);
+
+    // Gleiches TTN-Endpoint, gerätespezifischer interner Decoder statt separatem BEEP-Webhook-Empfänger.
+    if (isset($cfg['beep_geraete'][$geraet])) return bb_speichern($cfg, $msg);
 
     if (!isset($cfg['geraete'][$geraet])) return le_ergebnis(200, 'ignoriert', 'ignoriert: Gerät nicht in lora_config.php: ' . $geraet);
     $verz = (string)$cfg['geraete'][$geraet]['verzeichnis'];
