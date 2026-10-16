@@ -1,10 +1,14 @@
 # Bienenlogger UI – Claude-basierter interaktiver Prototyp
 
-Stand: 16.10.2026 · UI-/Bedienprototyp **ohne Produktionsfreigabe**
+Stand: 16.10.2026 · **Fehlerbereinigte Version 0.2** · UI-/Bedienprototyp **ohne Produktionsfreigabe**
 
 ## Start
 
-`index.html` direkt im Browser öffnen, oder `python3 -m http.server 8000` und `http://localhost:8000` besuchen. Keine Pakete / kein CDN erforderlich. Auf kleinen Bildschirmen Menü-Symbol verwenden.
+**Empfohlen (Einzeldatei):** `bienenlogger-claude-prototyp.html` herunterladen und lokal in Firefox/Chrome/Edge öffnen. Sie enthält HTML, CSS und JS vollständig und benötigt **keine** anderen Dateien. Wenn die Vorschau innerhalb einer Chat-/Datei-App Skripte blockiert, bitte die Datei **herunterladen statt nur vorzuschauen**.
+
+**ZIP-/Quellversion:** ZIP entpacken, danach `bienenlogger_prototyp/index.html` öffnen. Nicht nur `index.html` einzeln aus dem ZIP herausziehen: Sie benötigt die Dateien `style.css` und `app.js` im selben Ordner. Alternativ im Verzeichnis `bienenlogger_prototyp` `python3 -m http.server 8000` ausführen und `http://localhost:8000` öffnen. Keine Pakete / kein CDN erforderlich. Auf kleinen Bildschirmen Menü-Symbol verwenden.
+
+**Achtung:** Das ist ein **Offline-Prototyp** mit Browser-Testentwürfen und wenigen Muster-/Einzelmesswerten; kein aktiver Zugriff auf TTN, BEEP, PostgreSQL oder deinen eigenen Server.
 
 ## Datenquellen und Grenzen
 
@@ -41,4 +45,16 @@ Stand: 16.10.2026 · UI-/Bedienprototyp **ohne Produktionsfreigabe**
 - Die Test-Checkliste lässt sich um eigene Merkmale erweitern. Durchsichten speichern die ausgewählten Merkmale im lokalen Entwurf.
 - Eine simulierte Beutenänderung erzeugt zugleich einen lokalen Stockkarten-Ereigniseintrag, damit die fachliche Beziehung sichtbar wird.
 - In der Gewichtsanalyse werden Entwurfseinträge im betrachteten Zeitraum als **gestrichelte Datumslinien** markiert; bei fehlender Uhrzeit ist dies ausdrücklich keine exakte Zeitzuordnung.
-GitHub-Version: Die Standortbezeichnung ist anonymisiert (`Teststand`). Reale Zuordnungen gehören ausschließlich in die geschützte lokale Konfiguration.
+
+## Fehlerbehebung und Regressionstests – Version 0.2
+
+- Behoben: Einzeldatei führte das integrierte JavaScript fälschlich im HTML-`head` aus, bevor `#main` und die Buttons existierten. Symptom: leere Hauptansicht, `Cannot read properties of null (reading 'addEventListener')`. Das Build-Skript `build_single.py` erzeugt die Datei jetzt aus **derselben** `index.html` + `style.css` + `app.js`-Quelle und bindet JavaScript **am Ende des `body`** ein.
+- Behoben: Position des einzigen Messpunkts in der SVG-Gewichtskurve, ein einzelnes statt dreifachem identischem Datumslabel.
+- Behoben: JSON-Import macht aus fehlenden oder leeren FFT-Feldern keine fiktiven Nullwerte. Ungültige FFT-Bänder werden verworfen, echte Null-Rohwerte bleiben zulässig.
+- Verbessert: Datums-Vorgaben verwenden den aktuellen Kalendertag in Europe/Berlin; der Importstatus der Völkeransicht folgt den importierten Daten.
+- Getestet: 25 Interaktionstests mit Chromium am **ausgelieferten HTML**, sowie 15 ergänzende Prüfungen einschließlich Datenimport, XSS-Escaping, Browserexport, Validierung und 42 Ansichts-/Bildschirmbreiten-Kombinationen (320–1440 px). Keine JavaScript-Laufzeitfehler in diesen Tests.
+- Einschränkung der lokalen Testumgebung: der Chromium-Browser blockiert Navigation zu `file://` und `localhost` durch eine Administratorrichtlinie. Für die lokale Browserprüfung wurde deshalb die Datei **als Dokumentinhalt** geladen; GitHub Actions testet zusätzlich die HTTP-ausgelieferte Version. Der Testlauf beweist noch keine problemlose Ausführung innerhalb jeder Chat-internen Dateivorschau oder jedes Browsers.
+
+Bauen: `python3 build_single.py`. Die erzeugte Einzeldatei und die Quellversion müssen auf denselben getesteten Quellen beruhen.
+Testskripte für eine Umgebung mit Python-Playwright: `python tests/browser_check.py` und `python tests/edge_check.py`.
+GitHub-Fassung: Der reale Standortname wurde in App und Einzeldatei zu `Teststand` anonymisiert.
