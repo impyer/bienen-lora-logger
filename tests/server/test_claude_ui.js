@@ -7,7 +7,7 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'../../prototype/claude-ui');
-const names=new Set(['/','/index.html','/app.js','/style.css']);
+const names=new Set(['/','/index.html','/app.js','/style.css','/bienenlogger-claude-prototyp.html']);
 const server=http.createServer((req,res)=>{
  const url=new URL(req.url,'http://localhost');
  if(!names.has(url.pathname)){res.writeHead(404);res.end();return;}
@@ -20,10 +20,11 @@ async function main(){
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try {
+  for (const filename of ['/', '/bienenlogger-claude-prototyp.html']) {
   const page=await browser.newPage({viewport:{width:1365,height:900}});
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:'+server.address().port);
+  await page.goto('http://127.0.0.1:'+server.address().port+filename);
   assert.match(await page.locator('h1').innerText(),/Teststand/);
   assert.equal(await page.locator('.colony').count(),2);
   assert.match(await page.locator('main').innerText(),/31,419 kg/);
@@ -48,7 +49,9 @@ async function main(){
   await page.locator('#menuBtn').click();
   assert.equal(await page.locator('.side').evaluate(el=>el.classList.contains('open')),true);
   assert.deepEqual(errors,[]);
-  console.log('Claude UI: Browser-Smoke-Test bestanden');
+  console.log('Claude UI: Browser-Smoke-Test bestanden: '+filename);
+  await page.close();
+  }
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;server.close();});
