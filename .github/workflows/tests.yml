@@ -103,6 +103,14 @@ jobs:
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Portable HTML aus Quellstand reproduzierbar erzeugen
+        run: |
+          python3 prototype/claude-ui/build_single.py
+          git diff --exit-code -- prototype/claude-ui/bienenlogger-claude-prototyp.html
+      - name: Claude-basierter Bienenlogger-UI-Prototyp (Browser-Smoke-Test)
+        run: |
+          node --check prototype/claude-ui/app.js
+          node tests/server/test_claude_ui.js
       - name: libfaketime für feste Serveruhr (CI26-01)
         run: sudo apt-get update -q && sudo apt-get install -y -q faketime
       # beelogger kürzt week.csv nur vor 08:00 Uhr Serverzeit. Beide Fälle fest prüfen, unabhängig von der Laufzeit der CI.
