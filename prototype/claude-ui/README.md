@@ -49,6 +49,7 @@ Stand: 16.10.2026 · **Fehlerbereinigte Version 0.2** · UI-/Bedienprototyp **oh
 ## Fehlerbehebung und Regressionstests – Version 0.2
 
 - Behoben: Einzeldatei führte das integrierte JavaScript fälschlich im HTML-`head` aus, bevor `#main` und die Buttons existierten. Symptom: leere Hauptansicht, `Cannot read properties of null (reading 'addEventListener')`. Das Build-Skript `build_single.py` erzeugt die Datei jetzt aus **derselben** `index.html` + `style.css` + `app.js`-Quelle und bindet JavaScript **am Ende des `body`** ein.
+- Ergänzt: JavaScript-blockierende Vorschauen zeigen statt eines leeren Inhalts eine verständliche Download-Anleitung. Der Fallback wurde mit deaktiviertem JavaScript geprüft.
 - Behoben: Position des einzigen Messpunkts in der SVG-Gewichtskurve, ein einzelnes statt dreifachem identischem Datumslabel.
 - Behoben: JSON-Import macht aus fehlenden oder leeren FFT-Feldern keine fiktiven Nullwerte. Ungültige FFT-Bänder werden verworfen, echte Null-Rohwerte bleiben zulässig.
 - Verbessert: Datums-Vorgaben verwenden den aktuellen Kalendertag in Europe/Berlin; der Importstatus der Völkeransicht folgt den importierten Daten.
