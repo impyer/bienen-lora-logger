@@ -25,7 +25,7 @@ html = html.replace('<link rel="stylesheet" href="style.css">',
                     '  <style>\n' + css.replace('</style', '<\\/style') + '\n  </style>')
 html = html.replace('<script defer src="stockkarte_native.js"></script>', '')
 html = html.replace('<script defer src="app.js"></script>', '')
-html = html.replace('</body>', '  <script>\n' + js.replace('</script', '<\\/script') + '\n  </script>\n</body>')
+html = html.replace('</body>', '  <script>\n' + native.replace('</script', '<\\/script') + '\n  </script>\n  <script>\n' + js.replace('</script', '<\\/script') + '\n  </script>\n</body>')
 output = a.output or source_dir / 'bienenlogger-claude-prototyp.html'
 output.write_text(html, encoding='utf-8')
 print('Created:', output, '('+str(output.stat().st_size)+' bytes)')
