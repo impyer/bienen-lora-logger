@@ -35,4 +35,10 @@ Stand: 16.10.2026 · UI-/Bedienprototyp **ohne Produktionsfreigabe**
 7. Browseransicht mobil prüfen.
 
 **Nächste Integrationsstufe:** FastAPI-Lese-API und PostgreSQL-Importer nach `server/datenbank/schema.sql` (Schema derzeit Entwurf), BEEP-Stockkarte read-only importieren, Authentifizierung und Versionshistorie; die Liveanzeige nicht ungeprüft an öffentliches Web anbinden.
+
+### Zusätzliche Interaktionen (Stand 16.10.2026)
+
+- Die Test-Checkliste lässt sich um eigene Merkmale erweitern. Durchsichten speichern die ausgewählten Merkmale im lokalen Entwurf.
+- Eine simulierte Beutenänderung erzeugt zugleich einen lokalen Stockkarten-Ereigniseintrag, damit die fachliche Beziehung sichtbar wird.
+- In der Gewichtsanalyse werden Entwurfseinträge im betrachteten Zeitraum als **gestrichelte Datumslinien** markiert; bei fehlender Uhrzeit ist dies ausdrücklich keine exakte Zeitzuordnung.
 GitHub-Version: Die Standortbezeichnung ist anonymisiert (`Teststand`). Reale Zuordnungen gehören ausschließlich in die geschützte lokale Konfiguration.
