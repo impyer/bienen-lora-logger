@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'prototype/claude-ui/**'
+      - 'server/datenbank/**'
+      - 'tests/datenbank/test_stockkarte_persistenz.py'
       - 'tests/server/test_claude_ui.js'
       - 'tests/server/test_stockkarte_native.js'
       - 'tests/server/test_stockkarte_values.js'
@@ -55,3 +57,32 @@ jobs:
           node tests/server/test_claude_ui.js
           node tests/server/test_native_stockkarte_browser.js
           node tests/server/test_stockkarte_catalog_browser.js
+  datenbank:
+    name: 'Stockkarte - PostgreSQL 16 / Revisionen'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: bienen_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: testonly
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d bienen_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      BIENEN_TEST_DSN: 'host=127.0.0.1 port=5432 dbname=bienen_test user=postgres password=testonly'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Psycopg installieren
+        run: python -m pip install 'psycopg[binary]>=3.2,<4'
+      - name: Additive Stockkartenmigration und Revisionsverhalten testen
+        run: python tests/datenbank/test_stockkarte_persistenz.py
