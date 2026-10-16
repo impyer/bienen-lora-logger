@@ -178,20 +178,19 @@ def main():
             lambda: write_inspection(con,**{**imported,"volk_id":v2}),
             "Gleiche BEEP-ID darf nicht einem zweiten Volk gehören"
         )
-        with con.transaction():
-            try:
-                con.execute("UPDATE bienen.sk_durchsicht_revision SET notiz='verändert' WHERE durchsicht_id=%s", (entry,))
-            except errors.CheckViolation:
-                check(True, "SQL-UPDATE einer historischen Revision wird verhindert")
-            else:
-                check(False, "SQL-UPDATE einer historischen Revision muss scheitern")
-        with con.transaction():
-            try:
-                con.execute("DELETE FROM bienen.sk_durchsicht_revision WHERE durchsicht_id=%s", (entry,))
-            except errors.CheckViolation:
-                check(True, "SQL-DELETE historischer Revisionen wird verhindert")
-            else:
-                check(False, "SQL-DELETE historischer Revisionen muss scheitern")
+        def forbidden_sql(statement):
+            with con.transaction():
+                con.execute(statement, (entry,))
+        must_fail(
+            lambda: forbidden_sql("UPDATE bienen.sk_durchsicht_revision SET notiz='verändert' WHERE durchsicht_id=%s"),
+            "SQL-UPDATE einer historischen Revision wird verhindert",
+            errors.CheckViolation
+        )
+        must_fail(
+            lambda: forbidden_sql("DELETE FROM bienen.sk_durchsicht_revision WHERE durchsicht_id=%s"),
+            "SQL-DELETE historischer Revisionen wird verhindert",
+            errors.CheckViolation
+        )
         q1 = write_queen_revision(con,queen_id=queen,details={"name":"Demo","farbe":"weiß"},
                                    author="demo",reason="Eintrag")
         q2 = write_queen_revision(con,queen_id=queen,details={"name":"Demo","farbe":"rot"},
