@@ -52,6 +52,11 @@ async function main(){
   console.log('Claude UI: Browser-Smoke-Test bestanden: '+filename);
   await page.close();
   }
+  const noJs=await browser.newContext({javaScriptEnabled:false});
+  const blocked=await noJs.newPage();
+  await blocked.goto('http://127.0.0.1:'+server.address().port+'/bienenlogger-claude-prototyp.html');
+  assert.match(await blocked.locator('h1').innerText(),/Interaktive Ansicht benötigt JavaScript/);
+  await noJs.close();
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;server.close();});
