@@ -15,12 +15,15 @@ source_dir = a.dir
 html = (source_dir / 'index.html').read_text(encoding='utf-8')
 css = (source_dir / 'style.css').read_text(encoding='utf-8')
 js = (source_dir / 'app.js').read_text(encoding='utf-8')
+native = (source_dir / 'stockkarte_native.js').read_text(encoding='utf-8')
 assert html.count('<link rel="stylesheet" href="style.css">') == 1
 assert html.count('<script defer src="app.js"></script>') == 1
+assert html.count('<script defer src="stockkarte_native.js"></script>') == 1
 assert html.count('</body>') == 1
 # Inline CSS remains in head. JavaScript must be at the END OF BODY.
 html = html.replace('<link rel="stylesheet" href="style.css">',
                     '  <style>\n' + css.replace('</style', '<\\/style') + '\n  </style>')
+html = html.replace('<script defer src="stockkarte_native.js"></script>', '')
 html = html.replace('<script defer src="app.js"></script>', '')
 html = html.replace('</body>', '  <script>\n' + js.replace('</script', '<\\/script') + '\n  </script>\n</body>')
 output = a.output or source_dir / 'bienenlogger-claude-prototyp.html'

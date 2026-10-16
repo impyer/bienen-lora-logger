@@ -111,6 +111,11 @@ jobs:
         run: |
           node --check prototype/claude-ui/app.js
           node tests/server/test_claude_ui.js
+      - name: Bienenlogger Stockkarte eigene Kategorien-Engine und Browser-Regression
+        run: |
+          node --check prototype/claude-ui/stockkarte_native.js
+          node tests/server/test_stockkarte_native.js
+          node tests/server/test_native_stockkarte_browser.js
       - name: libfaketime für feste Serveruhr (CI26-01)
         run: sudo apt-get update -q && sudo apt-get install -y -q faketime
       # beelogger kürzt week.csv nur vor 08:00 Uhr Serverzeit. Beide Fälle fest prüfen, unabhängig von der Laufzeit der CI.
