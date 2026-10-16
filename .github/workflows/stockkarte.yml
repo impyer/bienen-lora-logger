@@ -1,0 +1,54 @@
+name: stockkarte-fast
+on:
+  pull_request:
+    paths:
+      - 'prototype/claude-ui/**'
+      - 'tests/server/test_claude_ui.js'
+      - 'tests/server/test_stockkarte_native.js'
+      - 'tests/server/test_stockkarte_values.js'
+      - 'tests/server/test_native_stockkarte_browser.js'
+      - '.github/workflows/stockkarte.yml'
+  workflow_dispatch:
+concurrency:
+  group: stockkarte-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  fachlogik:
+    name: 'Stockkarte - Domain-Engine und Offline-Build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Schema und Eingabewerte
+        run: |
+          node --check prototype/claude-ui/stockkarte_native.js
+          node --check prototype/claude-ui/app.js
+          node tests/server/test_stockkarte_native.js
+          node tests/server/test_stockkarte_values.js
+      - name: Offline-HTML aus Quellen reproduzieren
+        run: |
+          python3 prototype/claude-ui/build_single.py
+          git diff --exit-code -- prototype/claude-ui/bienenlogger-claude-prototyp.html
+  bedienung:
+    name: 'Stockkarte - Browser-Bedienabläufe ohne Pixel-Snapshots'
+    needs: fachlogik
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Modulare Ansicht und Offline-Einzeldatei
+        run: |
+          node tests/server/test_claude_ui.js
+          node tests/server/test_native_stockkarte_browser.js

@@ -166,6 +166,57 @@ function selectedLeaves(nodes,ids){
   ids.forEach(visit);
   return out;
 }
+
+function validateValues(nodes, ids, raw) {
+  const fields=selectedLeaves(nodes,ids), by=new Map(nodes.map(n=>[n.id,n]));
+  const values={},errors=[];
+  const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+  for(const n of fields) {
+    const present=Object.prototype.hasOwnProperty.call(src,n.id);
+    const v=src[n.id];
+    const missing=!present||v==null||v===''||(Array.isArray(v)&&v.length===0);
+    if(n.input==='image'||n.input==='file') {
+      if(n.required||!missing)errors.push(n.label+': Dateianhang hier nicht unterstützt');
+      continue;
+    }
+    if(missing) {if(n.required)errors.push(n.label+': Pflichtfeld');continue;}
+    if(yesNo.has(n.input)) {
+      if(v===true||v===1||v==='1'||v==='true')values[n.id]=true;
+      else if(v===false||v===0||v==='0'||v==='false')values[n.id]=false;
+      else errors.push(n.label+': ungültiger Ja/Nein-Wert');
+    } else if(choices.has(n.input)) {
+      const allowed=new Set(n.children.filter(id=>by.has(id)).map(String));
+      if(!allowed.size)errors.push(n.label+': Optionen fehlen');
+      else if(multi.has(n.input)) {
+        if(!Array.isArray(v)||v.some(x=>!allowed.has(String(x))))errors.push(n.label+': ungültige Mehrfachauswahl');
+        else values[n.id]=[...new Set(v.map(String))];
+      } else if(!allowed.has(String(v)))errors.push(n.label+': ungültige Auswahl');
+      else values[n.id]=String(v);
+    } else if(decimal.has(n.input)||scores.has(n.input)) {
+      const str=String(v).trim();
+      const num=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(str)?Number(str):NaN;
+      const min=n.min!==null?n.min:(n.input==='number_positive'||n.input==='number_percentage'?0:n.input==='smileys_3'?1:null);
+      const max=n.max!==null?n.max:(n.input==='number_percentage'?100:n.input==='smileys_3'?3:null);
+      const digits=n.decimals!==null?n.decimals:(/^number_([0-3])_decimals$/.test(n.input)?Number(n.input.match(/^number_([0-3])_decimals$/)[1]):null);
+      const goodDigits=digits===null||(digits>=0&&digits<=8&&Math.abs(num*10**digits-Math.round(num*10**digits))<1e-7);
+      if(!Number.isFinite(num)||(min!==null&&num<min)||(max!==null&&num>max)||(scores.has(n.input)&&!Number.isInteger(num))||!goodDigits)
+        errors.push(n.label+': ungültiger Zahlenwert');
+      else values[n.id]=num;
+    } else if(n.input==='date') {
+      const s=String(v),d=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+'T00:00:00Z'):null;
+      if(!d||Number.isNaN(d.getTime())||d.toISOString().slice(0,10)!==s)errors.push(n.label+': ungültiges Kalenderdatum');
+      else values[n.id]=s;
+    } else if(n.input==='color_picker') {
+      if(!/^#[a-f\d]{6}$/i.test(String(v)))errors.push(n.label+': ungültiger Farbwert');
+      else values[n.id]=String(v);
+    } else {
+      const s=String(v).trim();
+      if(s.length>(n.input==='text'?4000:600))errors.push(n.label+': Text zu lang');
+      else values[n.id]=s;
+    }
+  }
+  return {values,errors};
+}
 function widget(node,nodes,priorValue){
   const nm='tax_'+node.id,att='data-native-category="'+escape(node.id)+'"',required=node.required?' required':'';
   const val=priorValue===null||priorValue===undefined?'':String(priorValue);
@@ -217,22 +268,16 @@ function renderFields(nodes,selectedIds,prior={}){
   return html||'<p class="small muted">Keine Kategorien in dieser Checkliste. Checkliste bearbeiten.</p>';
 }
 function collect(form,nodes,selectedIds){
-  const leaves=selectedLeaves(nodes,selectedIds),result={},errors=[];
-  for(const n of leaves){
+  const fields=selectedLeaves(nodes,selectedIds),raw={};
+  for(const n of fields){
     const inputs=Array.from(form.querySelectorAll('[data-native-category]')).filter(x=>x.dataset.nativeCategory===n.id);
     if(!inputs.length)continue;
-    let v;
-    if(multi.has(n.input))v=inputs.filter(x=>x.checked).map(x=>x.value);
-    else v=inputs[0].value.trim();
-    if(v===''||(Array.isArray(v)&&!v.length)){if(n.required)errors.push(n.label+': Pflichtfeld');continue;}
-    if(decimal.has(n.input)||scores.has(n.input)){
-      const num=Number(v);if(!Number.isFinite(num)||(n.min!==null&&num<n.min)||(n.max!==null&&num>n.max))errors.push(n.label+': ungültiger Zahlenwert');else result[n.id]=num;
-    }else if(yesNo.has(n.input))result[n.id]=v==='1';
-    else result[n.id]=v;
+    raw[n.id]=multi.has(n.input)?inputs.filter(x=>x.checked).map(x=>x.value):inputs[0].value.trim();
   }
-  return {values:result,errors};
+  return validateValues(nodes,selectedIds,raw);
 }
-return {prepare,fallback,paths,template,checklistNormalize,selectedLeaves,renderFields,collect,escape};
+
+return {prepare,fallback,paths,template,checklistNormalize,selectedLeaves,renderFields,validateValues,collect,escape};
 });
 
   </script>
