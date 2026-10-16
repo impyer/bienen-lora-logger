@@ -12,9 +12,9 @@ async function test(){await new Promise(resolve=>server.listen(0,'127.0.0.1',res
  for(const file of ['index.html','bienenlogger-claude-prototyp.html']){
  const page=await browser.newPage({viewport:{width:390,height:850}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:'+server.address().port+'/'+file);
- await page.locator('[data-view="stockkarte"]').first.click();
+ await page.locator('[data-view="stockkarte"]').first().click();
  assert.equal(await page.locator('[data-action="manage-templates"]').count(),1);
- await page.locator('[data-action="new-inspection"]').first.click();
+ await page.locator('[data-action="new-inspection"]').first().click();
  assert.equal(await page.locator('[data-native-category="demo-queen"]').count(),1);
  await page.locator('[data-native-category="demo-queen"]').selectOption('1');
  await page.locator('[data-native-category="demo-varroa"]').selectOption('demo-sugar');
