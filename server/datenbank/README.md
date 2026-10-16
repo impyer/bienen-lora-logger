@@ -37,3 +37,15 @@ BIENEN_TEST_DSN="host=localhost dbname=bienen_test user=..." python3 tests/daten
 Zeitangaben beim Schreiben immer mit Zeitzone angeben. Die Tests laufen mit den Sitzungszeitzonen Europe/Berlin, UTC und America/New_York gleich.
 
 **Änderungen 0.3 (15.10.2026, Review Issue #11):** `zeitgenauigkeit` in Durchsicht, Maßnahme und Varroa-Messung; Kalibrierangaben am Kanal; Tabelle `berechnung` und Versionsangabe in den Sichten; Prüfsicht für vergessene Waagenzuordnungen. Bewertung: `docs/testberichte/2026-10-15-plattform-review-issue11.md`.
+
+## Additive native Stockkartenmigration SK-001 (Entwicklungsstand)
+
+- Migration: server/datenbank/migrations/001_stockkarte.sql (nur additiv; setzt die Basis-Tabellen bienen.volk und bienen.koenigin voraus).
+- Speicherbaustein: server/datenbank/stockkarte_store.py, psycopg 3, transaktional und mit serverseitiger Wertevalidierung.
+- Integrationstest: tests/datenbank/test_stockkarte_persistenz.py, ausschließlich auf einer wegwerfbaren PostgreSQL-16-Datenbank namens bienen_test.
+- Die Browseransicht ist weiterhin nicht mit diesem Speicher verbunden. Keine HTTP-API, keine Anmeldung und keine produktive Datenübertragung implementiert.
+- Die neuen sk_-Tabellen und der bisherige Stockkarten-Schemaentwurf müssen vor einem Produktiv-Release zusammengeführt werden.
+
+**WARNUNG:** Die bestehende schema.sql löscht alle bisherigen bienen-Tabellen. Bei vorhandenen Serverdaten niemals ausführen! SK-001 allein enthält keinen Löschbefehl, ist aber keine Freigabe zur Migration der ThinkStation.
+
+Details: docs/entwicklung/stockkarte-persistenz-sk001.md.
