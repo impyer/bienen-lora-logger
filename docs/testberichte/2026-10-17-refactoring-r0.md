@@ -223,6 +223,11 @@ seine Existenz oder Lesbarkeit wurde hier nicht geprüft. Solange kein
 autorisierter Datenzugang vorliegt, ausschließlich ausdrücklich synthetische
 Fixtures nutzen; eine Echtdaten-Abnahme bleibt gesperrt.
 
+**Betreiberentscheidung 17.10.2026:** Für den nächsten R1-Schritt zunächst
+synthetische Testdateien verwenden. Damit ist die technische Implementierung
+ohne Zugriff auf reale CSV-Dateien planbar; ein Echtdaten-Nachweis wird dadurch
+nicht ersetzt. Die gesonderte R0-Gateentscheidung bleibt davon getrennt.
+
 ## R1-Entwurf und Abnahmeübergabe
 
 Der [ADR-0004-Vorschlag](../entwicklung/entscheidungen/ADR-0004-umwelt-datenstrecke.md)

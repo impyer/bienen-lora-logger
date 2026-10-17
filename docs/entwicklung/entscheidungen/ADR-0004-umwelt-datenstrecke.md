@@ -117,6 +117,8 @@ R1 erst nach A-01/A-02/A-04/A-05 über echte DB/FastAPI/Caddy/ECharts zur Abnahm
 Rechteentzug, Cookie-Wechsel und Erhaltung alter Stockkarteneinträge prüfen.
 Synthetische Fixtures sind Testdaten. Echte Messdaten benötigen autorisierte
 Kopien und Betreiberprüfung; Cloud-Browser ersetzen keinen physischen LAN-Client.
+Der Betreiber hat am 17.10.2026 bestätigt, zunächst synthetische Testdateien
+zu verwenden. Dies ist keine Echtdaten- oder Produktivabnahme.
 
 Vor manueller Änderung vorhandener Testdaten: Backup und Restore in eine
 separate neue DB, Bestandsinhalte vergleichen. Migration auf Kopie prüfen.
