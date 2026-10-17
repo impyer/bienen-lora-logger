@@ -102,6 +102,15 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Shell-Syntax und statische Installationskontrollen
+        run: |
+          for script in deploy/heimnetz-test/start.sh             deploy/heimnetz-test/initdb.sh             deploy/heimnetz-test/backup.sh             deploy/heimnetz-test/verify-restore.sh; do
+            sh -n "$script"
+          done
+          bash -n tests/deploy/test_https_api.sh
+          if command -v shellcheck >/dev/null 2>&1; then
+            shellcheck -S warning               deploy/heimnetz-test/start.sh               deploy/heimnetz-test/initdb.sh               deploy/heimnetz-test/backup.sh               deploy/heimnetz-test/verify-restore.sh               tests/deploy/test_https_api.sh
+          fi
       - name: Synthetische Testkonfiguration erzeugen
         run: |
           cat > deploy/heimnetz-test/.env <<'EOF'
