@@ -3,7 +3,11 @@
 Diese Anleitung gehört zu ADR-0004 und zum Refactoring-Auftrag R1
 (A-01/A-02/A-04/A-05). Änderungsklasse **D2**: additive Datenmigration und
 erweiterter Sitzungsvertrag; Nachweise T0/T1/T2/T3, Entwicklungs-Gate G1.
-Die Freigabe des R1-PR ist eine Betreiberentscheidung. Der
+Der Betreiber hat am **17.10.2026** den synthetisch geprüften Entwicklungsstand
+aus [PR #22](https://github.com/impyer/bienen-lora-logger/pull/22),
+`d672d853a3af5341dc0438756266532a66258620`, ausdrücklich freigegeben.
+Die Entscheidung ist in [ADR-0004](entscheidungen/ADR-0004-umwelt-datenstrecke.md#r1-entwicklungsstand-freigegeben)
+festgehalten. Echte Sensor-/LAN-Abnahme und Produktionsfreigabe bleiben offen. Der
 [Prüfbericht](../testberichte/2026-10-17-refactoring-r1.md) beschreibt die
 tatsächlich geprüfte Konfiguration. Aktuelle Befundstände stehen ausschließlich
 im [Register](../testberichte/befunde.md#refactoring-webplattform-r0).
@@ -192,7 +196,8 @@ separatem `bienenlogger_test`-Volume, Zertifikatsvolume und explizitem Projekt.
    Ein nicht freigegebener Stand liefert 404, fehlende Sitzung 401.
 6. Nach gesichertem Neustart DB/App/Proxy/Importer Messwerte, alte Durchsichten,
    Zertifikat und Sitzung vergleichen. Ergebnis mit SHA und Browser dokumentieren.
-   Erst danach R1-Gate entscheiden. Echte Sensordaten benötigen einen eigenen
+   Die fachliche LAN-Abnahme gesondert dokumentieren; die erteilte R1-Freigabe
+   betrifft den synthetischen Entwicklungsstand. Echte Sensordaten benötigen einen eigenen
    autorisierten Anschluss- und fachlichen Abnahmenachweis.
 
 ## API-Grenzen und Rückfall

@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2026-10-17 – Betreiberfreigabe des synthetischen R1-Entwicklungsstands
+
+- Ausdrückliche Freigabe von PR #22 auf `d672d853a3af5341dc0438756266532a66258620` in ADR-0004, R1-Anleitung und Befundregister festgehalten (D0/T0).
+- Echte Sensor-/LAN-Abnahme und Produktionsfreigabe bleiben offen; keine Anwendungsänderung, kein Merge oder ThinkStation-Deployment.
+
 ## 2026-10-17 – Refactoring R1: Umwelt-Datenstrecke mit synthetischen CSV
 
 - Wetter-/Bodenadapter, atomarer Read-only-Import mit Herkunft und Korrekturrevisionen, additive explizite Migration 003 und Schutz von Kanalgültigkeit/Kalibrierhistorie ergänzt.
