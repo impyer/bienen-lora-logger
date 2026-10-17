@@ -103,6 +103,27 @@ Teststufen T0–T6 und Gates G0–G4: [tests-freigaben.md](../entwicklung/tests-
 | PLT26-09 | P2 | BEEP-Import ohne autorisierten Integrationstest; 512 als feste Erwartung | **analysiert**; Wortlaut korrigiert | T0 | Integrationstest im Importer-Schritt | [Bewertung 15.10.](2026-10-15-plattform-review-issue11.md), [Issue #11](https://github.com/impyer/bienen-lora-logger/issues/11) |
 | PLT26-10 | P2 | Bodentiefen nicht verifiziert | **analysiert** – Tiefen vom Betreiber bestätigt (15.10.): 5 cm weiß, 20 cm rot, 50 cm schwarz; Zuordnung Sondenkabel ↔ Decoderfeld an echten Daten prüfen | T0 | Kanalzuordnung beim Anschluss | [Bewertung 15.10.](2026-10-15-plattform-review-issue11.md), [Issue #11](https://github.com/impyer/bienen-lora-logger/issues/11) |
 
+## Refactoring Webplattform (R0)
+
+Erfasst am 17.10.2026 auf `034c9e1d31612679dcc3cc15155208b9c0c82e72`.
+Nachweise und Grenzen: [R0-Bericht](2026-10-17-refactoring-r0.md).
+RF-01–RF-07 verwenden die Auftragskennungen, RF-08–RF-12 ergänzen die Analyse.
+
+| ID | Prio | Kurzbeschreibung | Status | Höchster Nachweis | Gesperrtes Gate / nächster Schritt | Quellen |
+|---|---|---|---|---|---|---|
+| RF-01 | P1 | Lokale Völker/Entwürfe neben PostgreSQL-Identitäten | analysiert – bestätigt | T0, bestehende Browserprüfungen | R2/R3: kanonische Stammdaten, kontrollierter Offline-Modus | R0, `app.js:18–106` |
+| RF-02 | P1 | Anmeldung/Server-Völkerwahl im separaten Stockkartenmodal | analysiert – bestätigt | T0/T2, realer Login 200 | R1 gemeinsamer Zugriff, R3 konsolidierte Navigation | R0, `stockkarte_live.js:30–76` |
+| RF-03 | P1 | Umweltseite ohne API-Zeitreihen/ECharts, feste Boden-Einzelwerte | analysiert – bestätigt | T2: Browser, ECharts fehlt | R1: A-01/A-02/A-04/A-05 | R0, `app.js:221–223` |
+| RF-04 | P1 | Kein Wetter-/Boden-Dateiimport im Teststack | analysiert – bestätigt | T0, Umweltpfad 404 über echtes HTTPS | R1: lesender idempotenter Import und Abfrage | R0, Compose/Dockerfile |
+| RF-05 | P1 | Synthetischer Beispielkatalog statt vollständiger BEEP-Taxonomie | analysiert – bestätigt | T0, sechs Kategorien in `seed_demo` | R4: autorisierte Referenz und Fachtests | R0, `stockkarte_admin.py:31–63` |
+| RF-06 | P1 | Browser-API-Brücke simuliert Antworten; kein vollständiger Umwelt-Browser-E2E | analysiert – bestätigt | T0/T2; Teilproben mit echter API/DB/TLS | R1: A-05 mit Messkurven; kein Ersatz für LAN-Feldtest | R0, `test_stockkarte_live_browser.js:2–44` |
+| RF-07 | P1 | Destruktives Grundschema, zwei Stockkartenmodelle, kein allgemeiner Updatevertrag | analysiert – bestätigt; Testinitialisierung hat Namens-/Leerschema-Schutz | T0/T1 | R1/R4: additive Migration, Bestands-/Restore-Test, kein Rebuild | R0, `schema.sql:16,132–183`, Migration 001 |
+| RF-08 | P1 | Cookie nur Stockkartenpfad, explizite Umwelt-Standrechte fehlen | analysiert – bestätigt als R1-Erweiterungsbedarf; kein belegter Zugriffsbypass | T0 | R1: getestete Cookie-Erweiterung und Stand-ACL | R0, Session-API, Migration 002 |
+| RF-09 | P1 | Messwert außerhalb `kanal.gueltig` akzeptiert und normalisiert angezeigt | analysiert – bestätigt | T1: SQL mit Rollback, eine unzulässige Zeile sichtbar | R1/R2: Schreib-/Leseinvariante und Regression | R0, `schema.sql:291–325,356–362` |
+| RF-10 | P1 | Faktor-/Versatzänderung verändert historische Sicht ohne Messrevision | analysiert – bestätigt | T1: 12.5 → 25 nach Faktoränderung, Rollback | R1/R2: Kalibrierabschnitte/Revisionen | R0, `schema.sql:297–303,358` |
+| RF-11 | P2 | Laufzeitabhängigkeiten mit Versionsbereichen, Container ohne Digest-Lock | analysiert – bestätigt | T0, Versionsabweichung bei bestandenen Tests | R1 reproduzierbare Locks, R5 Betriebsnachweis | R0, Dockerfile/Compose/CI |
+| RF-12 | P2 | Katalog-SQL/DTOs und Fachvalidierung mehrfach, kein vollständiger Konformitätskorpus | analysiert – bestätigt als Wartungsrisiko, kein pauschaler Funktionsdefekt | T0, vorhandene Teiltests PASS | R1/R4 gezielte gemeinsame Verträge; gute Bausteine erhalten | R0, API/Session/Store/native JS |
+
 ## Prozess und Regelwerk
 
 | ID | Prio | Kurzbeschreibung | Status | Höchster Nachweis | Gesperrtes Gate / nächster Schritt | Quellen |

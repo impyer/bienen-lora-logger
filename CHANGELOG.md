@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-17 – Refactoring R0: Bestandsaufnahme der Webplattform
+
+- Codebasis `034c9e1d31612679dcc3cc15155208b9c0c82e72` untersucht: Ist-Datenflüsse, getrennte lokale/SQL-Datenwelten, fehlende Umweltstrecke und Nachweisgrenzen dokumentiert; Befunde RF-01–RF-12 im zentralen Register.
+- Bestehende Host-, PHP-, Stockkarten- und Browserprüfungen lokal ausgeführt. Eine echte Caddy-/FastAPI-/PostgreSQL-/Browserprobe bestätigt Login und die fehlende Umweltfunktion; SQL-Proben zeigen Risiken bei Kanalgültigkeit und rückwirkender Kalibrieränderung.
+- ADR-0004 zur vertikalen Umwelt-Erweiterung vorgeschlagen. Keine Anwendungs-/Schemaänderung, kein ThinkStation-Deployment und keine R1-/Produktivfreigabe.
+
 ## 2026-10-15 – Datenplattform: Konzept, Schema, Review #11, Rohprotokoll
 
 - Neu `docs/architektur/konzept-plattform-v02.md` (Fassung 0.2.7): Gesamtkonzept eigene Plattform (Stockkarte, Messdaten, Umwelt, Auswertung) auf Basis der ChatGPT-Architekturdokumente; Abgleich, Vereinfachungen, Zielarchitektur, Datenmodell, Migration von BEEP, Zugriff und Veröffentlichung, Bewertung Review #11.
