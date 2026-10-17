@@ -1,6 +1,6 @@
 # ADR-0004: erste Umwelt-Datenstrecke im bestehenden Teststack
 
-**Status:** vorgeschlagen; Betreiberentscheidung im R0-Gate ausstehend
+**Status:** angenommen am 17.10.2026 durch ausdrückliche Betreiberfreigabe von R0 und des R1-Ansatzes in der Projektunterhaltung
 
 **Datum:** 2026-10-17 · **Autor:** Codex · **Entscheidend:** Maintainer
 
@@ -133,5 +133,7 @@ Lizenz und Herkunft. Noch keine Betriebsfreigabe oder BEEP-Parität.
 
 ## Entscheidung
 
-Noch nicht angenommen. Maintainerentscheidung zum R0-Gate und offene
-Quellen-/Rechtezuordnungen festhalten; anschließend R1 implementieren.
+Der Betreiber hat R0 und diesen R1-Ansatz am 17.10.2026 ausdrücklich freigegeben:
+„R0 freigeben; R1 mit synthetischen CSV-Dateien starten“. Damit ist die
+Implementierung im isolierten Entwicklungszweig autorisiert; Echtdatenabnahme,
+ThinkStation-Deployment und spätere Gates bleiben davon getrennt.

@@ -8,9 +8,9 @@ Das Register trennt angenommene Verfahrensregeln von noch offenen Sachentscheidu
 
 ## Governance
 
-Zur R0-Prüfung vorgeschlagen, noch nicht angenommen:
+Nach ausdrücklicher R0-Freigabe des Betreibers am 17.10.2026 angenommen:
 [ADR-0004 – erste Umwelt-Datenstrecke im bestehenden Teststack](entscheidungen/ADR-0004-umwelt-datenstrecke.md).
-Angenommene ADRs und Betreiberentscheidungen bleiben maßgeblich.
+Die Freigabe betrifft R1 mit synthetischen Testdateien, kein ThinkStation-Deployment.
 
 | ID | Stand | Entscheidung bzw. offene Aufgabe |
 |---|---|---|
