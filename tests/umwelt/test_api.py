@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -22,7 +23,9 @@ class ApiTests(unittest.TestCase):
         self.stand = self.conn.execute('SELECT id FROM bienen.stand').fetchone()[0]
         self.uid = self.conn.execute('INSERT INTO bienen.sk_benutzer(benutzername,passwort_hash) VALUES (%s,%s) RETURNING id', ('synthetic', PasswordHasher().hash('Synthetic-only-test-password'))).fetchone()[0]
         self.conn.execute('INSERT INTO bienen.sk_benutzer_stand VALUES (%s,%s,true)', (self.uid, self.stand))
-        self.client = TestClient(create_session_app(dsn=self.conn.info.dsn, enabled=True, secret='synthetic-session-secret-'*3), base_url='https://testserver')
+        # ConnectionInfo.dsn deliberately omits passwords; reuse the guarded
+        # original test configuration for the app's separate connections.
+        self.client = TestClient(create_session_app(dsn=os.environ['BIENEN_TEST_DSN'], enabled=True, secret='synthetic-session-secret-'*3), base_url='https://testserver')
         self.base = '/api/v1/umwelt'
         self.query = {'stand_id':self.stand,'von':'2026-10-25T00:00:00Z','bis':'2026-10-26T00:00:00Z'}
 
