@@ -30,8 +30,18 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   const weather=await context.request.get(config.origin+'/api/v1/umwelt/messreihen?'+new URLSearchParams({stand_id:config.stand_id,von:config.from,bis:config.to}));
   assert.equal(weather.status(),200);
   const api=await weather.json();
-  assert.equal(api.series.find(s=>s.channel.field==='t').points[0].value,-2.5);
+  const temperature=api.series.find(s=>s.channel.field==='t');
+  assert.equal(temperature.points.length,2); // duplicate removed, invalid time rejected
+  assert.equal(temperature.points[0].value,-2.5);
+  assert.equal(temperature.points[1].value,null);
+  assert.ok(temperature.points[1].quality.includes('ungueltige_zahl:t'));
+  assert.equal(temperature.points[0].time_quality,'empfang');
+  const humidity=api.series.find(s=>s.channel.field==='h');
+  assert.equal(humidity.points[0].value,null);
+  assert.equal(humidity.points[1].value,0);
   assert.equal(api.series.find(s=>s.channel.field==='rain_mm').channel.semantics,'unbekannte_summe');
+  const weatherPlot=await page.locator('.um-chart[aria-label*="Lufttemperatur"]').evaluate(node=>window.echarts.getInstanceByDom(node).getOption());
+  assert.deepEqual(weatherPlot.series[0].data.map(p=>p.value[1]),[-2.5,null]);
   // The regular 30-second browser poll must display a real newly imported row.
   fs.appendFileSync(config.soil_file,config.new_row);
   // The independently running 5-second CSV watcher performs the actual import.

@@ -82,10 +82,18 @@ def main():
         soil = work/'synthetic-soil.csv'
         soil.write_text(SOIL_HEADER + f'{first.isoformat()};synthetic;synthetic-soil;12;;13;3.2;0;1;2;msg-1\n' + f'{second.isoformat()};synthetic;synthetic-soil;14;15;16;3.2;0;2;2;msg-2\n')
         weather = work/'synthetic-weather.csv'
-        weather.write_text(WEATHER_HEADER + f'{first.isoformat()};synthetic;synthetic-weather;-2.5;;1013;0;0;0;359;0;0;7;1;3;AA\n')
+        weather_row = f'{first.isoformat()};synthetic;synthetic-weather;-2.5;;1013;0;0;0;359;0;0;7;1;3;AA;retained\n'
+        weather.write_text(WEATHER_HEADER.rstrip('\n') + ';unknown_sensor\n' + weather_row * 2
+            + f'{second.isoformat()};synthetic;synthetic-weather;invalid;0;NaN;0;0;0;1;0;0;7;2;3;BB;retained\n'
+            + 'invalid-time;synthetic;synthetic-weather;999;0;1013;0;0;0;1;0;0;7;3;3;CC;retained\n')
         sid = source(conn, soil, stand_id=stand)
         wid = source(conn, weather, 's2120', 'weather', stand_id=stand)
-        import_source(conn, sid);import_source(conn, wid)
+        import_source(conn, sid)
+        weather_report = import_source(conn, wid)
+        assert any(x['code'] == 'ungueltiger_zeitstempel' for x in weather_report['fehler'])
+        assert weather_report['unbekannte_spalten'] == ['unknown_sensor']
+        assert conn.execute('SELECT count(*) FROM bienen.um_rohdatensatz WHERE quelle_id=%s', (wid,)).fetchone()[0] == 2
+        assert conn.execute("SELECT count(*) FROM bienen.um_rohdatensatz WHERE quelle_id=%s AND felder->>'unknown_sensor'='retained'", (wid,)).fetchone()[0] == 2
         password = secrets.token_urlsafe(30)
         uid = conn.execute('INSERT INTO bienen.sk_benutzer(benutzername,passwort_hash) VALUES (%s,%s) RETURNING id', ('r1_e2e', PasswordHasher().hash(password))).fetchone()[0]
         for colony in colonies:
