@@ -158,6 +158,8 @@ test "$state_before" = "$state_after"
 dc cp proxy:/data/caddy/pki/authorities/local/root.crt "$work/root-after.crt"
 cmp "$work/root-before.crt" "$work/root-after.crt"
 printf 'Container restart: %s current values retained; same CA and authenticated session: PASS\n' "$after"
+importer_started=$(docker inspect "$importer_id" --format '{{.State.StartedAt}}')
+dc restart db
 # A genuinely new record must arrive through the periodic restricted watcher
 # after restart, without an explicit CLI import or a simulated API response.
 python3 - "$work" "$R11_ARCHIVE" <<'PY'
@@ -173,6 +175,7 @@ for _ in $(seq 1 30); do
  sleep 1
 done
 test "$observed" = "$expected_after"
+test "$importer_started" = "$(docker inspect "$importer_id" --format '{{.State.StartedAt}}')"
 echo 'Periodic import resumes after full restart: PASS'
 dc stop importer proxy app db
 echo 'Owned test project stopped; all volumes and synthetic fixture files retained.'
