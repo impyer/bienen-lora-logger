@@ -1,0 +1,9 @@
+# Ein HTTPS-Endpunkt auf der ausdrücklich gewählten privaten LAN-IP.
+https://{$LAN_BIND_IP}:8443 {
+    tls internal
+    @heimnetz remote_ip {$LAN_ALLOWED_CIDR}
+    handle @heimnetz {
+        reverse_proxy app:8765
+    }
+    respond "Nicht freigegeben" 403
+}

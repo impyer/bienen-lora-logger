@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Separater Heimnetz-TESTSTACK. Keine Host-Ports für Datenbank oder FastAPI.
+name: bienenlogger-lan-test
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bienenlogger_test
+      POSTGRES_USER: bienenlogger
+      POSTGRES_PASSWORD: ${BL_DB_PASSWORD:?Set BL_DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb.sh:/docker-entrypoint-initdb.d/10_bienenlogger.sh:ro
+      - ../../server/datenbank/schema.sql:/bl_init/00_schema.sql:ro
+      - ../../server/datenbank/migrations/001_stockkarte.sql:/bl_init/01_stockkarte.sql:ro
+      - ../../server/datenbank/migrations/002_stockkarte_benutzer.sql:/bl_init/02_benutzer.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bienenlogger -d bienenlogger_test"]
+      interval: 5s
+      timeout: 4s
+      retries: 18
+    networks: [internal]
+
+  app:
+    build:
+      context: ../..
+      dockerfile: deploy/heimnetz-test/Dockerfile
+    restart: unless-stopped
+    environment:
+      BIENEN_AUTH_DSN: "host=db port=5432 dbname=bienenlogger_test user=bienenlogger password=${BL_DB_PASSWORD:?Set BL_DB_PASSWORD}"
+      BIENEN_AUTH_SECRET: ${BL_SESSION_SECRET:?Set BL_SESSION_SECRET}
+      BIENEN_AUTH_DEV_MODE: "1"
+      BIENEN_AUTH_TRUST_DOCKER_PROXY: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8765/',timeout=4).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      LAN_BIND_IP: ${LAN_BIND_IP:?Set LAN_BIND_IP in .env}
+      LAN_ALLOWED_CIDR: ${LAN_ALLOWED_CIDR:?Set LAN_ALLOWED_CIDR in .env}
+    ports:
+      - "${LAN_BIND_IP:?Set LAN_BIND_IP}:${LAN_PORT:-8443}:8443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    networks: [internal, edge]
+
+networks:
+  internal:
+    internal: true
+  edge: {}
+volumes:
+  pgdata: {}
+  caddydata: {}
+  caddyconfig: {}
