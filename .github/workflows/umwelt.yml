@@ -67,6 +67,10 @@ jobs:
           PY
       - name: Real Caddy HTTPS, CSV watcher, FastAPI, PostgreSQL and ECharts browser
         run: python tests/umwelt/e2e.py --output build/r1-e2e
+      - name: Long windows, real paging, live CSV append and restricted importer
+        run: python tests/umwelt/e2e.py --long-history --output build/r11-e2e
+      - name: Synthetic yearly archive and bounded API resource profile
+        run: python tests/umwelt/year_load.py --output build/r11-year
       - name: Synthetic evidence only; never upload private CA keys or credentials
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,12 +80,17 @@ jobs:
             build/r1-e2e/result.json
             build/r1-e2e/environment-mobile.png
             build/r1-e2e/browser.log
+            build/r11-e2e/result.json
+            build/r11-e2e/environment-mobile.png
+            build/r11-e2e/browser.log
+            build/r11-year/result.json
           if-no-files-found: warn
   container-restart:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      COMPOSE_PROJECT_NAME: bienenlogger-r1-ci
+      COMPOSE_PROJECT_NAME: bienenlogger-r1-ci-r11
+      R11_ARCHIVE: '1'
     steps:
       - uses: actions/checkout@v4
       - name: Private configuration for a fresh synthetic CI project
@@ -94,8 +103,8 @@ jobs:
           p.chmod(0o600)
           with open(os.environ['GITHUB_ENV'],'a') as f: f.write('R1_COMPOSE_ENV='+str(p)+'\n')
           PY
-      - name: Build, two read-only files, authenticated HTTPS and full container restart
+      - name: Build, restricted importer, two RO staging directories, restore and full restart
         run: bash tests/umwelt/test_compose.sh
       - name: Stop only this job's project; preserve volumes
         if: always()
-        run: docker ps -q --filter label=com.docker.compose.project=bienenlogger-r1-ci | xargs --no-run-if-empty docker stop
+        run: docker ps -q --filter label=com.docker.compose.project=bienenlogger-r1-ci-r11 | xargs --no-run-if-empty docker stop

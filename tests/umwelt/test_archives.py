@@ -115,8 +115,22 @@ class ArchiveTests(unittest.TestCase):
         result=self.run_import();self.assertEqual(result['fehler_anzahl'],121)
         self.assertEqual(len(result['fehler']),50);self.assertEqual(len(self.latest()),1)
 
+    def test_failed_month_does_not_block_later_month_and_inventory_is_read_only(self):
+        from umwelt.inventory import inspect_config
+        before=self.scalar('SELECT count(*) FROM bienen.um_import_lauf')
+        report=inspect_config(self.config)
+        self.assertEqual(report['details'][0]['records'],1)
+        self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_import_lauf'),before)
+        self.assertNotIn(str(self.root),str(report))
+        self.file.write_text('broken;header\n')
+        (self.root/'soil-2026-11.csv').write_text(SOIL_HEADER+soil_row('2026-11-01T00:30Z','8;9;10','next'))
+        with self.assertRaises(SourceFormatError):self.run_import()
+        self.assertEqual(self.latest()[0][1],8)
+        self.assertFalse(self.scalar('SELECT erfolgreich FROM bienen.um_import_lauf ORDER BY id DESC LIMIT 1'))
+
     def test_restricted_real_login_imports_but_cannot_access_stockkarte_or_admin(self):
         password=secrets.token_urlsafe(32);role='bl_um_archive_test'
+        provision_importer(self.conn,role,password)
         provision_importer(self.conn,role,password)
         dsn=psycopg.conninfo.make_conninfo(os.environ['BIENEN_TEST_DSN'],user=role,password=password)
         with psycopg.connect(dsn,autocommit=True) as restricted:
@@ -131,6 +145,10 @@ class ArchiveTests(unittest.TestCase):
                 'SELECT * FROM bienen.schema_migration']:
                 with self.subTest(statement=statement),self.assertRaises(psycopg.errors.InsufficientPrivilege):restricted.execute(statement)
         self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_messwert_revision'),5)
+        self.conn.execute('GRANT SELECT(passwort_hash) ON bienen.sk_benutzer TO bl_um_archive_test')
+        try:
+            with self.assertRaisesRegex(ValueError,'Tabellenrechte'):provision_importer(self.conn,role,password)
+        finally:self.conn.execute('REVOKE SELECT(passwort_hash) ON bienen.sk_benutzer FROM bl_um_archive_test')
 
     def test_weather_monthly_stream_uses_same_discovery_and_provenance(self):
         weather=self.root/'weather-2026-10.csv'

@@ -25,16 +25,38 @@ p=Path(sys.argv[2])
 for f in p.iterdir(): f.chmod(0o644)
 PY
 export BL_WETTER_CSV="$work/wetter.csv" BL_BODEN_CSV="$work/boden.csv"
-export R1_TEST_PASSWORD
+export R1_TEST_PASSWORD R1_IMPORT_PASSWORD
 R1_TEST_PASSWORD=$(python3 -c 'import secrets;print(secrets.token_urlsafe(32))')
-dc(){ docker compose --env-file "$R1_COMPOSE_ENV" -f deploy/heimnetz-test/compose.yaml -f deploy/heimnetz-test/compose.umwelt.yaml "$@"; }
+R1_IMPORT_PASSWORD=$(python3 -c 'import secrets;print(secrets.token_hex(32))')
+export BL_IMPORT_DSN="host=db port=5432 dbname=bienenlogger_test user=bl_um_container password=$R1_IMPORT_PASSWORD"
+export BIENEN_AUTH_DSN
+BIENEN_AUTH_DSN=$(python3 - "$R1_COMPOSE_ENV" <<'PY'
+from pathlib import Path
+import sys
+password=next(x.split('=',1)[1] for x in Path(sys.argv[1]).read_text().splitlines() if x.startswith('BL_DB_PASSWORD='))
+print('host=db port=5432 dbname=bienenlogger_test user=bienenlogger password='+password)
+PY
+)
+overlay=deploy/heimnetz-test/compose.umwelt.yaml
+export R11_ARCHIVE="${R11_ARCHIVE:-0}"
+if [ "$R11_ARCHIVE" = 1 ]; then
+ mkdir "$work/soil" "$work/weather"
+ chmod 777 "$work/soil" "$work/weather"
+ cp "$work/boden.csv" "$work/soil/soil-2026-10.csv"
+ cp "$work/wetter.csv" "$work/weather/weather-2026-10.csv"
+ chmod 644 "$work/soil/soil-2026-10.csv" "$work/weather/weather-2026-10.csv"
+ export BL_BODEN_STAGING="$work/soil" BL_WETTER_STAGING="$work/weather"
+ overlay=deploy/heimnetz-test/compose.umwelt-archive.yaml
+fi
+dc(){ docker compose --env-file "$R1_COMPOSE_ENV" -f deploy/heimnetz-test/compose.yaml -f "$overlay" "$@"; }
 dc config --quiet
 if [ "${R1_SKIP_BUILD:-0}" = 1 ]; then dc up -d --no-build db app proxy; else dc up -d --build db app proxy; dc build importer; fi
 dc exec -T app python -m umwelt.cli migrate
-dc run --rm --no-deps -T -e R1_TEST_PASSWORD importer python - <<'PY'
+dc run --rm --no-deps -T -e R1_TEST_PASSWORD -e R1_IMPORT_PASSWORD -e R11_ARCHIVE -e BIENEN_AUTH_DSN importer python - <<'PY'
 import os,psycopg
 from argon2 import PasswordHasher
 from umwelt.ingest import register_source,import_source
+from umwelt.roles import provision_importer
 with psycopg.connect(os.environ['BIENEN_AUTH_DSN'],autocommit=True) as c:
  assert c.info.dbname=='bienenlogger_test'
  if c.execute('SELECT count(*) FROM bienen.stand').fetchone()[0]:
@@ -43,15 +65,51 @@ with psycopg.connect(os.environ['BIENEN_AUTH_DSN'],autocommit=True) as c:
  for key,profile,path,kind in [('soil','boden','/sources/boden.csv','boden'),('weather','s2120','/sources/wetter.csv','wetter')]:
   device=c.execute('INSERT INTO bienen.geraet(name,art) VALUES (%s,%s)',('synthetic-'+key,kind))
   did=c.execute('SELECT id FROM bienen.geraet WHERE name=%s',('synthetic-'+key,)).fetchone()[0]
-  sid=register_source(c,key=key,profile=profile,path=path,stand_id=stand,device_id=did,source_stand='synthetic',source_device='synthetic-'+key,synthetic=True,valid_from='2026-01-01T00:00:00Z',time_quality='empfang' if profile=='s2120' else 'unbekannt')
+  extra={}
+  if os.environ['R11_ARCHIVE']=='1':
+   path='/sources/'+('soil' if key=='soil' else 'weather')
+   extra={'pattern':('soil' if key=='soil' else 'weather')+'-{YYYY}-{MM}.csv'}
+  sid=register_source(c,key=key,profile=profile,path=path,stand_id=stand,device_id=did,source_stand='synthetic',source_device='synthetic-'+key,synthetic=True,valid_from='2026-01-01T00:00:00Z',time_quality='empfang' if profile=='s2120' else 'unbekannt',**extra)
   import_source(c,sid)
  user=c.execute('INSERT INTO bienen.sk_benutzer(benutzername,passwort_hash) VALUES (%s,%s) RETURNING id',('r1_container',PasswordHasher().hash(os.environ['R1_TEST_PASSWORD']))).fetchone()[0]
  c.execute('INSERT INTO bienen.sk_benutzer_stand VALUES (%s,%s,true)',(user,stand))
+ provision_importer(c,'bl_um_container',os.environ['R1_IMPORT_PASSWORD'])
  print('Synthetic CSV records imported; explicit stand permission created')
 PY
 dc up -d --no-build importer
 importer_id=$(dc ps -q importer)
 docker inspect "$importer_id" --format '{{json .Mounts}}' | python3 -c 'import json,sys;m=[x for x in json.load(sys.stdin) if x["Destination"].startswith("/sources/")];assert len(m)==2 and all(not x["RW"] for x in m);print("Two explicit read-only source mounts: PASS")'
+dc exec -T importer python - <<'PY'
+import os,psycopg
+assert 'BIENEN_AUTH_DSN' not in os.environ and 'BIENEN_AUTH_SECRET' not in os.environ
+with psycopg.connect(os.environ['BIENEN_IMPORT_DSN'],autocommit=True) as c:
+ assert c.execute('SELECT current_user').fetchone()[0]=='bl_um_container'
+ try:c.execute('SELECT * FROM bienen.sk_benutzer')
+ except psycopg.errors.InsufficientPrivilege:pass
+ else:raise AssertionError('Importer can read private users')
+ print('Restricted runtime DSN and no app/session secret: PASS')
+PY
+if [ "$R11_ARCHIVE" = 1 ]; then
+ dc exec -T importer python - <<'PY'
+from pathlib import Path
+try:Path('/sources/soil/forbidden').write_text('synthetic')
+except OSError as e:assert e.errno==30,e
+else:raise AssertionError('Source mount is writable')
+print('Kernel rejects source writes (EROFS): PASS')
+PY
+ # Deliberate changes by this test's fixture writer, never by the importer.
+ python3 - "$work" <<'PY'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1])/'soil'/'soil-2026-10.csv'
+p.write_text(p.read_text().replace(';12;;13;', ';22;;13;'))
+(p.parent/'soil-2026-11.csv').write_text('time_utc;stand;device_id;temp_5cm;temp_20cm;temp_50cm;battery_v;alarm_status;message_id\n2026-11-01T00:00:00Z;synthetic;synthetic-soil;8;9;10;3.2;0;november\n')
+(p.parent/'soil-2026-11.csv').chmod(0o644)
+PY
+ dc exec -T importer python -m umwelt.cli import --source-id 1
+ history=$(dc exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc 'SELECT count(*) FROM bienen.um_rohdatensatz')
+ test "$history" = 4
+fi
 dc cp proxy:/data/caddy/pki/authorities/local/root.crt "$work/root-before.crt"
 port=$(python3 - "$R1_COMPOSE_ENV" <<'PY'
 from pathlib import Path
@@ -76,6 +134,13 @@ PY
 sql_count='SELECT count(*) FROM bienen.um_messwert_aktuell'
 before=$(dc exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc "$sql_count")
 test "$before" -gt 3
+dc exec -T db pg_dump -U bienenlogger -d bienenlogger_test -Fc --no-owner --no-privileges > "$work/before-restart.dump"
+dc exec -T db createdb -U bienenlogger bienen_r11_container_restore
+dc exec -T db pg_restore -U bienenlogger -d bienen_r11_container_restore --no-owner --no-privileges < "$work/before-restart.dump"
+restored=$(dc exec -T db psql -U bienenlogger -d bienen_r11_container_restore -Atqc "$sql_count")
+test "$before" = "$restored"
+state_sql="SELECT md5(string_agg(row_to_json(t)::text,',' ORDER BY row_to_json(t)::text)) FROM (SELECT 'raw' AS kind,to_jsonb(r) AS data FROM bienen.um_rohdatensatz r UNION ALL SELECT 'event',to_jsonb(e) FROM bienen.um_ereignis_revision e UNION ALL SELECT 'revision',to_jsonb(m) FROM bienen.um_messwert_revision m UNION ALL SELECT 'checkpoint',to_jsonb(c) FROM bienen.um_archiv_datei c UNION ALL SELECT 'user',to_jsonb(u) FROM bienen.sk_benutzer u) t"
+state_before=$(dc exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc "$state_sql")
 dc restart db app proxy importer
 for _ in $(seq 1 40); do
  if curl --fail --silent --cacert "$work/root-before.crt" -b "$work/cookies" "$origin/api/v1/umwelt/staende" -o "$work/after.json"; then break; fi
@@ -87,6 +152,8 @@ assert len(json.load(open(sys.argv[1])))==1
 PY
 after=$(dc exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc "$sql_count")
 test "$before" = "$after"
+state_after=$(dc exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc "$state_sql")
+test "$state_before" = "$state_after"
 dc cp proxy:/data/caddy/pki/authorities/local/root.crt "$work/root-after.crt"
 cmp "$work/root-before.crt" "$work/root-after.crt"
 printf 'Container restart: %s current values retained; same CA and authenticated session: PASS\n' "$after"

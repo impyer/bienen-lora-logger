@@ -18,6 +18,8 @@ def main():
     sub = parser.add_subparsers(dest='operation', required=True)
     sub.add_parser('migrate', help='Additive Migration explizit anwenden, nach Backup/Restore')
     sub.add_parser('inventory', help='Nur lesende DB-Inventur, keine Dateipfade oder Geheimnisse')
+    inspect=sub.add_parser('inspect-config',help='Explizite synthetische CSV-Konfiguration nur lesend inventarisieren')
+    inspect.add_argument('--config',required=True)
     login = sub.add_parser('import-login', help='Expliziter Admin-Schritt für isolierten Import-Login')
     login.add_argument('--role',required=True)
     login.add_argument('--password-stdin',action='store_true',required=True)
@@ -31,6 +33,11 @@ def main():
     grant.add_argument('--username', required=True)
     grant.add_argument('--stand-id', required=True, type=int)
     args = parser.parse_args()
+    if args.operation=='inspect-config':
+        from .inventory import inspect_config
+        with open(args.config,encoding='utf-8') as file:config=json.load(file)
+        print(json.dumps(inspect_config(config),ensure_ascii=False))
+        return
     dsn = os.environ.get('BIENEN_IMPORT_DSN') if args.operation in {'import','watch'} else os.environ.get('BIENEN_AUTH_DSN') or os.environ.get('BIENEN_TEST_DSN')
     if not dsn:
         parser.error('Import/watch benötigt BIENEN_IMPORT_DSN; Admin benötigt BIENEN_AUTH_DSN oder BIENEN_TEST_DSN')

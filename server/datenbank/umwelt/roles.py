@@ -21,6 +21,20 @@ def provision_importer(conn,role,password):
         if existing and any(existing):raise ValueError('Bestehende privilegierte Rolle nicht umstellen')
         if existing and conn.execute('SELECT 1 FROM pg_auth_members WHERE member=(SELECT oid FROM pg_roles WHERE rolname=%s)',(role,)).fetchone():
             raise ValueError('Bestehende Rollenmitgliedschaften untersuchen')
+        if existing:
+            allowed={table:{'SELECT'} for table in READ}
+            for table in APPEND:allowed[table].add('INSERT')
+            for table in CHECKPOINT:allowed[table].update({'INSERT','UPDATE'})
+            privileges=conn.execute('''SELECT table_schema,table_name,privilege_type
+                FROM information_schema.table_privileges WHERE grantee=%s
+                UNION SELECT table_schema,table_name,privilege_type
+                FROM information_schema.column_privileges WHERE grantee=%s''',(role,role)).fetchall()
+            if any(schema!='bienen' or privilege not in allowed.get(table,set()) for schema,table,privilege in privileges):
+                raise ValueError('Bestehende zusätzliche Tabellenrechte untersuchen')
+            if conn.execute('SELECT 1 FROM pg_namespace WHERE has_schema_privilege(%s,oid,\'CREATE\') AND nspname NOT LIKE \'pg_temp_%%\' AND nspname NOT LIKE \'pg_toast_temp_%%\' LIMIT 1',(role,)).fetchone():
+                raise ValueError('Bestehende permanente Schema-Erstellrechte untersuchen')
+            if conn.execute("SELECT has_database_privilege(%s,current_database(),'CREATE')",(role,)).fetchone()[0]:
+                raise ValueError('Bestehende Datenbank-Erstellrechte untersuchen')
         identifier=sql.Identifier(role)
         if not existing:conn.execute(sql.SQL('CREATE ROLE {} LOGIN').format(identifier))
         verifier=conn.pgconn.encrypt_password(password.encode(),role.encode(),b'scram-sha-256').decode()
