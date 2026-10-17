@@ -119,7 +119,18 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
         if not isinstance(presented, str) or not hmac.compare_digest(presented, expected):
             raise HTTPException(403, "CSRF-Schutz: gültiger X-CSRF-Token erforderlich")
         origin = request.headers.get("origin")
-        if origin and origin.rstrip("/") != str(request.base_url).rstrip("/"):
+        # Uvicorn verwirft absichtlich X-Forwarded-For, so dass der echte
+        # Backend-TCP-Peer (= interner Caddy-Container) die ACL steuert.
+        # Für Origin-Vergleich hinter TLS ist dagegen das durch Caddy
+        # gesetzte X-Forwarded-Proto nötig. Dienst ist intern unpubliziert.
+        proxy_mode = os.environ.get("BIENEN_AUTH_TRUST_DOCKER_PROXY") == "1"
+        if proxy_mode:
+            if request.headers.get("x-forwarded-proto") != "https":
+                raise HTTPException(403, "Nur HTTPS am Reverse-Proxy erlaubt")
+            expected_origin = "https://" + request.headers.get("host", "")
+        else:
+            expected_origin = str(request.base_url).rstrip("/")
+        if origin and origin.rstrip("/") != expected_origin:
             raise HTTPException(403, "Cross-Origin-Schreibzugriff verweigert")
 
     @app.post("/api/v1/stockkarte/session/login")

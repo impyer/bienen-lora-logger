@@ -6,7 +6,7 @@
 }
 
 # Ein HTTPS-Endpunkt auf der ausdrücklich gewählten privaten LAN-IP.
-https://{$LAN_BIND_IP}:8443 {
+https://{$LAN_BIND_IP}:{$LAN_PORT} {
     tls internal
     @heimnetz remote_ip {$LAN_ALLOWED_CIDR}
     handle @heimnetz {

@@ -12,4 +12,4 @@ USER bienenlogger
 EXPOSE 8765
 CMD ["uvicorn", "stockkarte_dev_web:app", "--app-dir", "/srv/bienenlogger/server/datenbank", \
      "--host", "0.0.0.0", "--port", "8765", "--no-access-log", \
-     "--proxy-headers", "--forwarded-allow-ips", "*"]
+     "--no-proxy-headers"]

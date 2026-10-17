@@ -75,6 +75,13 @@ function valuesOf(root){
 async function openEditor({id,canWrite,entry,fetcher,csrfToken,onSaved,onCancel}){
  if(!canWrite)return;
  const root=document.getElementById('liveBody');if(!root)return;
+ // Vorläufig kann die Maske nur Kalendertag-Einträge verlustfrei revidieren.
+ // Exakte oder geschätzte Zeitstempel niemals stillschweigend löschen.
+ if(entry && (entry.accuracy!=='nur_datum'||entry.event_time!=null)){
+  const status=document.getElementById('liveError');
+  if(status)status.textContent='Diese Durchsicht enthält eine Uhrzeit oder geschätzte Zeit. Korrektur hier gesperrt, um Zeitangaben zu bewahren.';
+  return;
+ }
  const status=document.getElementById('liveError');
  const notice=txt=>{if(status)status.textContent=txt;};
  try{
@@ -88,8 +95,10 @@ async function openEditor({id,canWrite,entry,fetcher,csrfToken,onSaved,onCancel}
   const tpl=$('select');tpl.id='serverChecklist';tplLabel.append(tpl);
   const empty=$('option','Ohne Checkliste');empty.value='';tpl.append(empty);
   for(const item of catalog.checklists||[]){const option=$('option',item.name+' · v'+item.version);option.value=item.id+':'+item.version;tpl.append(option);}
-  if(entry?.checklist_id)tpl.value=entry.checklist_id+':'+entry.checklist_version;
-  else if(tpl.options.length>1)tpl.selectedIndex=tpl.options.length-1;
+  if(entry){
+   tpl.value=entry.checklist_id?entry.checklist_id+':'+entry.checklist_version:'';
+   tpl.disabled=true; // keine heimliche Umstellung beim Korrigieren
+  }else if(tpl.options.length>1)tpl.selectedIndex=tpl.options.length-1;
   if(entry?.checklist_id&&!tpl.value)throw Error('Historische Checklisten-Version fehlt.');
   const fields=add(form,'div',undefined,'form-grid');fields.id='serverEntryFields';
   const note=inputField(form,'Notiz','textarea',entry?.note||'',{maxLength:10000});
@@ -104,9 +113,24 @@ async function openEditor({id,canWrite,entry,fetcher,csrfToken,onSaved,onCancel}
    const ids=selected?selected.fields.slice().sort((a,b)=>a.position-b.position).map(x=>x.category_id):
     (catalog.categories||[]).filter(x=>x.input!=='label').map(x=>x.id);
    const byId=new Map((catalog.categories||[]).map(x=>[x.id,x]));
+   const mandatory=new Map((selected?.fields||[]).map(x=>[x.category_id,!!x.required]));
    for(const fieldId of ids){
-    const definition=byId.get(fieldId);if(!definition)continue;
-    const item=renderCategory(fields,definition,entry?.values?.[fieldId],catalog.options||[]);
+    const definition=byId.get(fieldId);
+    if(!definition){
+     add(fields,'p','Katalogfeld '+fieldId+' fehlt – Korrektur gesperrt.','small muted');
+     blocked=true;continue;
+    }
+    const field={...definition,required:definition.required||mandatory.get(fieldId)};
+    const original=entry?.values?.[fieldId];
+    if(entry && original!=null && ['select','options','bee_subspecies','list'].includes(field.input)){
+     const choices=(catalog.options||[]).filter(x=>x.category_id===fieldId&&!x.inactive).map(x=>x.id);
+     const keys=Array.isArray(original)?original:[original];
+     if(keys.some(x=>!choices.includes(x))){
+      add(fields,'p','Historische Auswahl '+field.name+' ist nicht mehr verfügbar – Korrektur gesperrt.','small muted');
+      blocked=true;continue;
+     }
+    }
+    const item=renderCategory(fields,field,original,catalog.options||[]);
     blocked=blocked||item.unsupported;
    }
    if(entry&&Object.keys(entry.values||{}).some(x=>!ids.includes(x))){
