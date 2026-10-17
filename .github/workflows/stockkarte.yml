@@ -166,6 +166,30 @@ jobs:
             exit 1
           fi
           echo 'Mehrfach-Restore fail-closed: PASS'
+      - name: Neustart und Volume-Persistenz ohne Datenverlust pruefen
+        run: |
+          cp_cmd="docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml"
+          $cp_cmd cp proxy:/data/caddy/pki/authorities/local/root.crt /tmp/test-root-before.crt
+          before=$($cp_cmd exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc \
+            'SELECT count(*) FROM bienen.sk_durchsicht_revision')
+          test "$before" -ge 2
+          $cp_cmd down
+          $cp_cmd up -d db app proxy
+          for i in $(seq 1 20); do
+            if curl -ksS --fail --max-time 4 https://127.0.0.1:8443/ -o /tmp/after-restart; then break; fi
+            sleep 2
+          done
+          grep -q 'Claude-Design' /tmp/after-restart
+          after=$($cp_cmd exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc \
+            'SELECT count(*) FROM bienen.sk_durchsicht_revision')
+          test "$before" = "$after"
+          $cp_cmd cp proxy:/data/caddy/pki/authorities/local/root.crt /tmp/test-root-after.crt
+          cmp /tmp/test-root-before.crt /tmp/test-root-after.crt
+          $cp_cmd exec -T app python /srv/bienenlogger/server/datenbank/stockkarte_admin.py seed-demo
+          again=$($cp_cmd exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc \
+            "SELECT count(*) FROM bienen.volk WHERE name IN ('Testvolk A','Testvolk B')")
+          test "$again" = 2
+          echo 'Restart + persistente Durchsichten + gleiche TLS-CA + idempotente Seeds PASS'
       - name: Verbotene Quellnetze und alternativen HTTPS-Port pruefen
         run: |
           sed -i 's|LAN_ALLOWED_CIDR=172.16.0.0/12|LAN_ALLOWED_CIDR=192.168.222.0/24|' deploy/heimnetz-test/.env
