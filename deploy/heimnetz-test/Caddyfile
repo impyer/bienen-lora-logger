@@ -1,3 +1,10 @@
+# Für Browser-Zugriff über eine numerische Heimnetz-IP:
+# Bei TLS-Clients ohne SNI die konfigurierten IP-Zertifikate verwenden.
+{
+    default_sni {$LAN_BIND_IP}
+    skip_install_trust
+}
+
 # Ein HTTPS-Endpunkt auf der ausdrücklich gewählten privaten LAN-IP.
 https://{$LAN_BIND_IP}:8443 {
     tls internal
