@@ -149,6 +149,38 @@ def main():
         verify(guest.post(path,json=body,headers={"X-CSRF-Token":csrf}),404)
         verify(guest.post(revisions,json=latest,headers={"X-CSRF-Token":csrf}),404)
         verify(guest.get(base+f"/voelker/{b}/durchsichten"),404)
+        # Eine laufende Sitzung darf nach Entzug eines Volkrechts nicht
+        # weiter auf Daten dieses Volkes zugreifen.
+        with psycopg.connect(DSN) as conn:
+            conn.execute(
+                "DELETE FROM bienen.sk_benutzer_volk WHERE benutzer_id=%s AND volk_id=%s",
+                (reader,a),
+            )
+        assert verify(guest.get(base+"/voelker"),200).json()==[]
+        checks+=1
+        verify(guest.get(path),404)
+        verify(guest.get(revisions),404)
+        verify(guest.post(path,json=body,headers={"X-CSRF-Token":csrf}),404)
+        # Nach ausdrücklichem Widerruf aller Sitzungen muss auch /session
+        # ohne auf Nutzer-Datenbank-Caches angewiesen zu sein blockieren.
+        with psycopg.connect(DSN) as conn:
+            conn.execute(
+                """UPDATE bienen.sk_sitzung SET widerrufen_am=now()
+                   WHERE benutzer_id=%s AND widerrufen_am IS NULL""",
+                (reader,),
+            )
+        verify(guest.get(base+"/session"),401)
+    # Auch wiederholte fehlgeschlagene Anmeldungen sind begrenzt.
+    with TestClient(app,base_url="https://testserver") as brute:
+        for _ in range(5):
+            verify(brute.post(base+"/session/login",json={
+                "username":"unbekannter_pruefnutzer",
+                "password":"Wrong-synthetic-password",
+            }),401)
+        verify(brute.post(base+"/session/login",json={
+            "username":"unbekannter_pruefnutzer",
+            "password":"Wrong-synthetic-password",
+        }),429)
     with psycopg.connect(DSN) as conn:
         stored=conn.execute(
             "SELECT autor FROM bienen.sk_durchsicht_revision WHERE durchsicht_id=%s ORDER BY revision",
