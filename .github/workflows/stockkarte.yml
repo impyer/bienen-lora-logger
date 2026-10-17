@@ -95,3 +95,50 @@ jobs:
           python tests/datenbank/test_stockkarte_persistenz.py
           python tests/datenbank/test_stockkarte_api.py
           python tests/datenbank/test_stockkarte_session.py
+
+  heimnetz_paket:
+    name: 'Heimnetz - Compose, Image, isolierte Testdatenbank'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Synthetische Testkonfiguration erzeugen
+        run: |
+          cat > deploy/heimnetz-test/.env <<'EOF'
+          LAN_BIND_IP=127.0.0.1
+          LAN_ALLOWED_CIDR=172.16.0.0/12
+          LAN_PORT=8443
+          BL_DB_PASSWORD=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+          BL_SESSION_SECRET=abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+          EOF
+          chmod 600 deploy/heimnetz-test/.env
+      - name: Compose-Bereitstellung mit separaten Volumes validieren
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml config --quiet
+          python3 - <<'PY'
+          import yaml
+          cfg=yaml.safe_load(open('deploy/heimnetz-test/compose.yaml'))
+          assert 'ports' not in cfg['services']['db']
+          assert 'ports' not in cfg['services']['app']
+          assert cfg['networks']['internal']['internal'] is True
+          assert 'ports' in cfg['services']['proxy']
+          print('Separate Testdatenbank, interner Datenbank- und FastAPI-Zugang: PASS')
+          PY
+      - name: Python-Image aufbauen und eigene Testdatenbank starten
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml up -d --build db app
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T app \
+            python /srv/bienenlogger/server/datenbank/stockkarte_admin.py seed-demo
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
+            psql -U bienenlogger -d bienenlogger_test -Atqc \
+            'SELECT count(*) FROM bienen.sk_kategorie'
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T app \
+            python -c "import urllib.request; assert b'Claude' in urllib.request.urlopen('http://127.0.0.1:8765/').read()"
+      - name: Fehlersuche bei Fehlschlag
+        if: failure()
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml ps || true
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml logs --tail=120 db app || true
+      - name: Testcontainer ohne Volume-Löschung beenden
+        if: always()
+        run: docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml down || true
