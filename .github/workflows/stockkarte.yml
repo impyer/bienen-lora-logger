@@ -134,6 +134,29 @@ jobs:
             'SELECT count(*) FROM bienen.sk_kategorie'
           docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T app \
             python -c "import urllib.request; assert b'Claude' in urllib.request.urlopen('http://127.0.0.1:8765/').read()"
+      - name: Lokalen HTTPS-Reverse-Proxy mit interner Test-CA pruefen
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml up -d proxy
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T proxy caddy validate --config /etc/caddy/Caddyfile
+          for i in $(seq 1 15); do
+            if curl --fail --silent --show-error --insecure --max-time 4 \
+              https://127.0.0.1:8443/ -o /tmp/bienenlogger-lan-index.html; then break; fi
+            sleep 2
+          done
+          grep -q 'Claude-Design' /tmp/bienenlogger-lan-index.html
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml cp \
+            proxy:/data/caddy/pki/authorities/local/root.crt /tmp/bienenlogger-test-root.crt
+          test -s /tmp/bienenlogger-test-root.crt
+          echo 'Heimnetz-HTTPS auf eigener IP und lokale CA: PASS'
+      - name: Backup pruefen ohne Produktivdaten
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
+            pg_dump -U bienenlogger -d bienenlogger_test -Fc --no-owner --no-privileges \
+            > /tmp/stockkarte-test-ci.dump
+          test -s /tmp/stockkarte-test-ci.dump
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
+            pg_restore --list < /tmp/stockkarte-test-ci.dump > /dev/null
+          echo 'PostgreSQL-Test-Backup lesbar: PASS'
       - name: Fehlersuche bei Fehlschlag
         if: failure()
         run: |
