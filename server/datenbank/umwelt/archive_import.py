@@ -48,6 +48,8 @@ def import_stream_source(conn,source_id):
 def _file(conn,descriptor,name,source_id,device_id,profile,stand,device,time_quality):
     # The read_file context exits (and checks inode/stat) BEFORE transaction commit.
     with conn.transaction():
+        conn.execute("SET LOCAL lock_timeout='5000'")
+        conn.execute("SET LOCAL statement_timeout='60000'")
         conn.execute('SELECT pg_advisory_xact_lock(714004,%s)',(device_id,))
         with read_file(descriptor,name) as (stream,before):
             deadline=time.monotonic()+FILE_SECONDS

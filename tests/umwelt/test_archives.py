@@ -110,6 +110,14 @@ class ArchiveTests(unittest.TestCase):
             self.assertEqual(self.scalar('SELECT count(*) FROM bienen.'+table),0)
         self.run_import();self.assertEqual(len(self.latest()),2)
 
+    def test_contended_device_lock_times_out_and_recovers_without_checkpoint(self):
+        with psycopg.connect(os.environ['BIENEN_TEST_DSN']) as blocker:
+            blocker.execute('SELECT pg_advisory_xact_lock(714004,%s)',(self.config['device_id'],))
+            with self.assertRaises(psycopg.errors.LockNotAvailable):self.run_import()
+            self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_archiv_datei'),0)
+            self.assertFalse(self.scalar('SELECT erfolgreich FROM bienen.um_import_lauf ORDER BY id DESC LIMIT 1'))
+        self.run_import();self.assertEqual(len(self.latest()),1)
+
     def test_diagnostics_are_bounded_and_invalid_records_are_visible(self):
         self.file.write_text(SOIL_HEADER+('broken\n'*120)+soil_row(device='wrong')+soil_row())
         result=self.run_import();self.assertEqual(result['fehler_anzahl'],121)
