@@ -44,6 +44,7 @@ def main():
     parser.add_argument('--caddy', default=shutil.which('caddy'))
     parser.add_argument('--pg-bin', type=Path)
     parser.add_argument('--output', type=Path, default=Path(tempfile.mkdtemp(prefix='bienen-r1-e2e-')))
+    parser.add_argument('--long-history', action='store_true', help='35 days, >5000 values through the real stack')
     args = parser.parse_args()
     if not args.caddy:
         parser.error('Caddy executable required')
@@ -81,6 +82,14 @@ def main():
         first, second = now-timedelta(minutes=45), now-timedelta(minutes=15)
         soil = work/'synthetic-soil.csv'
         soil.write_text(SOIL_HEADER + f'{first.isoformat()};synthetic;synthetic-soil;12;;13;3.2;0;1;2;msg-1\n' + f'{second.isoformat()};synthetic;synthetic-soil;14;15;16;3.2;0;2;2;msg-2\n')
+        if args.long_history:
+            with soil.open('w') as output:
+                output.write(SOIL_HEADER)
+                for i in range(5040):
+                    stamp = second-timedelta(minutes=10*(5039-i))
+                    value = 77.125 if i == 5039 else (i % 50)-5
+                    middle = '' if i % 31 == 0 else str(value+1)
+                    output.write(f'{stamp.isoformat()};synthetic;synthetic-soil;{value};{middle};{value+2};3.2;0;{i};2;long-{i}\n')
         weather = work/'synthetic-weather.csv'
         weather_row = f'{first.isoformat()};synthetic;synthetic-weather;-2.5;;1013;0;0;0;359;0;0;7;1;3;AA;retained\n'
         weather.write_text(WEATHER_HEADER.rstrip('\n') + ';unknown_sensor\n' + weather_row * 2
@@ -136,11 +145,13 @@ def main():
             'new_row':f'{now.isoformat()};synthetic;synthetic-soil;29.5;18;19;3.2;0;3;2;msg-live\n',
             'from':(now-timedelta(days=1)).isoformat(),'to':(now+timedelta(minutes=5)).isoformat(),
             'ca_pins':','.join(pins),'screenshot':str(work/'environment-mobile.png')}
+        browser_input['last_known'] = second.isoformat()
         bundle=work/'node-trusted-ca.pem'
         existing_ca=Path(os.environ['NODE_EXTRA_CA_CERTS']).read_bytes() if os.environ.get('NODE_EXTRA_CA_CERTS') else b''
         bundle.write_bytes(existing_ca+b'\n'+ca.read_bytes())
         browser_env=dict(env,R1_PYTHON=sys.executable,R1_BROWSER_INPUT=json.dumps(browser_input),NODE_EXTRA_CA_CERTS=str(bundle))
-        result=subprocess.run(['node',str(ROOT/'tests/umwelt/browser_e2e.js')],env=browser_env,cwd=ROOT,capture_output=True,text=True,timeout=100)
+        browser_script = 'long_browser_e2e.js' if args.long_history else 'browser_e2e.js'
+        result=subprocess.run(['node',str(ROOT/'tests/umwelt'/browser_script)],env=browser_env,cwd=ROOT,capture_output=True,text=True,timeout=150)
         safe_output=re.sub(r'(?im)^.*(?:cookie|authorization):.*$', '[sensitive header redacted]', result.stdout+result.stderr)
         (work/'browser.log').write_text(safe_output)
         if result.returncode:
