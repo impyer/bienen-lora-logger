@@ -4,6 +4,7 @@ on:
     paths:
       - 'prototype/claude-ui/**'
       - 'server/datenbank/**'
+      - 'deploy/heimnetz-test/**'
       - 'tests/datenbank/test_stockkarte_api.py'
       - 'tests/datenbank/test_stockkarte_session.py'
       - 'tests/datenbank/test_stockkarte_persistenz.py'
@@ -32,6 +33,8 @@ jobs:
         run: |
           node --check prototype/claude-ui/stockkarte_native.js
           node --check prototype/claude-ui/app.js
+          node --check prototype/claude-ui/stockkarte_live.js
+          node --check prototype/claude-ui/stockkarte_edit.js
           node tests/server/test_stockkarte_native.js
           node tests/server/test_stockkarte_values.js
           node tests/server/test_beep_catalog_adapter.js

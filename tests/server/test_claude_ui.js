@@ -7,7 +7,7 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'../../prototype/claude-ui');
-const names=new Set(['/','/index.html','/app.js','/style.css','/stockkarte_native.js','/bienenlogger-claude-prototyp.html']);
+const names=new Set(['/','/index.html','/app.js','/style.css','/stockkarte_native.js','/stockkarte_live.js','/stockkarte_edit.js','/bienenlogger-claude-prototyp.html']);
 const server=http.createServer((req,res)=>{
  const url=new URL(req.url,'http://localhost');
  if(!names.has(url.pathname)){res.writeHead(404);res.end();return;}
