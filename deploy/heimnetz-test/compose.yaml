@@ -3,7 +3,7 @@
 name: bienenlogger-lan-test
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
     restart: unless-stopped
     environment:
       POSTGRES_DB: bienenlogger_test
@@ -16,7 +16,7 @@ services:
       - ../../server/datenbank/migrations/001_stockkarte.sql:/bl_init/01_stockkarte.sql:ro
       - ../../server/datenbank/migrations/002_stockkarte_benutzer.sql:/bl_init/02_benutzer.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bienenlogger -d bienenlogger_test"]
+      test: ["CMD-SHELL", "pg_isready -U bienenlogger -d bienenlogger_test && psql -U bienenlogger -d bienenlogger_test -Atqc \"SELECT to_regclass('bienen.sk_sitzung') IS NOT NULL\" | grep -qx t"]
       interval: 5s
       timeout: 4s
       retries: 18
@@ -43,7 +43,7 @@ services:
     networks: [internal]
 
   proxy:
-    image: caddy:2-alpine
+    image: caddy:2-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
     restart: unless-stopped
     environment:
       LAN_BIND_IP: ${LAN_BIND_IP:?Set LAN_BIND_IP in .env}
