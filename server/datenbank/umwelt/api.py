@@ -7,64 +7,22 @@ import json
 import psycopg
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.openapi.utils import get_openapi
-from pydantic import BaseModel
 
 from .parser import utc_time
 
 
-class Point(BaseModel):
-    time: datetime
-    value: float | None
-    quality: list[str]
-    time_quality: str
-    revision: int
-    source: str
-    synthetic: bool
-    raw_value: float | None
-    record_sha256: str
-    record_line: int
-    interpretation: str
-    imported_at: datetime
-    event_revision: int
-
-
-class Channel(BaseModel):
-    id: int
-    name: str
-    field: str
-    quantity: str
-    unit: str
-    semantics: str
-    display: str
-    depth_cm: float | None
-    profile: str
-    interval_seconds: int | None
-    device_id: int
-    device_name: str
-    position_id: int | None
-    status: str
-    calibration: str | None
-
-
-class Series(BaseModel):
-    channel: Channel
-    points: list[Point]
-
-
-class Measurements(BaseModel):
-    timezone: str = 'Europe/Berlin'
-    resolution: str = 'raw'
-    series: list[Series]
-    truncated: bool
-    next_cursor: str | None
+from .models import Point, Channel, Series, Measurements
+from .series_api import register_series_routes
 
 
 def register_routes(app, connection, principal):
     router = APIRouter(prefix='/api/v1/umwelt', tags=['Umwelt'])
 
-    def connect():
+    def connect(snapshot=False):
         try:
             conn = connection()
+            if snapshot:
+                conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             if not conn.execute("SELECT to_regclass('bienen.um_quelle') IS NOT NULL").fetchone()[0]:
                 conn.close()
                 raise HTTPException(503, 'Umweltmigration noch nicht eingerichtet')
@@ -106,9 +64,9 @@ def register_routes(app, connection, principal):
     def sources(stand_id: int = Query(gt=0), actor=Depends(principal)):
         with connect() as conn:
             permitted(conn, actor, stand_id)
-            return [dict(zip(('id','key','profile','synthetic','last_checked','success','report','last_value'), row)) for row in conn.execute('''
+            return [dict(zip(('id','key','profile','synthetic','last_checked','success','report','last_value','interval_seconds'), row)) for row in conn.execute('''
                 SELECT q.id,q.schluessel,q.profil,q.synthetisch,l.geprueft_am,l.erfolgreich,l.bericht,
-                  (SELECT max(m.zeit) FROM bienen.um_messwert_aktuell m WHERE m.quelle_id=q.id AND m.wert IS NOT NULL)
+                  (SELECT max(m.zeit) FROM bienen.um_messwert_aktuell m WHERE m.quelle_id=q.id AND m.wert IS NOT NULL),q.intervall_s
                 FROM bienen.um_quelle q LEFT JOIN LATERAL
                   (SELECT geprueft_am,erfolgreich,bericht FROM bienen.um_import_lauf WHERE quelle_id=q.id ORDER BY id DESC LIMIT 1) l ON true
                 WHERE q.stand_id=%s ORDER BY q.id''', (stand_id,)).fetchall()]
@@ -162,6 +120,8 @@ def register_routes(app, connection, principal):
         if truncated and rows:
             next_cursor = base64.urlsafe_b64encode(json.dumps([rows[-1][1].isoformat(), rows[-1][0]]).encode()).decode()
         return Measurements(series=list(series.values()), truncated=truncated, next_cursor=next_cursor)
+
+    register_series_routes(router, connect, permitted, channels, principal)
 
     @router.get('/openapi.json', include_in_schema=False)
     def schema(actor=Depends(principal)):
