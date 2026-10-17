@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Opt-in, isolated staging copies only. Provision the importer login explicitly.
+services:
+  importer:
+    profiles: [umwelt]
+    build:
+      context: ../..
+      dockerfile: deploy/heimnetz-test/Dockerfile
+    restart: unless-stopped
+    environment:
+      BIENEN_IMPORT_DSN: ${BL_IMPORT_DSN:?Set separate restricted importer DSN}
+    command: ["python", "-m", "umwelt.cli", "watch", "--interval", "60"]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal]
+    volumes:
+      - type: bind
+        source: ${BL_WETTER_STAGING:?Set isolated weather staging directory}
+        target: /sources/weather
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${BL_BODEN_STAGING:?Set isolated soil staging directory}
+        target: /sources/soil
+        read_only: true
+        bind:
+          create_host_path: false

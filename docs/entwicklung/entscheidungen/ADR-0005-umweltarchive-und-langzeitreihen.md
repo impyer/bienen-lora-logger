@@ -1,6 +1,7 @@
 # ADR-0005: Monatsarchive und begrenzte vollständige Zeitreihen
 
-**Status:** Vorschlag zur Betreiberentscheidung, 17.10.2026.
+**Status:** Vom Betreiber für synthetische Cloud-/CI-Implementierung angenommen,
+17.10.2026: „Entwurf für synthetische Tests freigeben“.
 **Klasse/Gate:** D2, R1.1/G1. **Bezug:** R1.1-01/02/04/05/06,
 R11-A01–A10, [ADR-0004](ADR-0004-umwelt-datenstrecke.md).
 

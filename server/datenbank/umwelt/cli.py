@@ -3,18 +3,24 @@
 import argparse
 import json
 import os
+import sys
 import time
 
 import psycopg
 
 from .ingest import import_source, register_source
 from .migrate import migrate
+from .roles import provision_importer
 
 
 def main():
     parser = argparse.ArgumentParser(description='Bienenlogger Umwelt-Teststack verwalten')
     sub = parser.add_subparsers(dest='operation', required=True)
     sub.add_parser('migrate', help='Additive Migration explizit anwenden, nach Backup/Restore')
+    sub.add_parser('inventory', help='Nur lesende DB-Inventur, keine Dateipfade oder Geheimnisse')
+    login = sub.add_parser('import-login', help='Expliziter Admin-Schritt für isolierten Import-Login')
+    login.add_argument('--role',required=True)
+    login.add_argument('--password-stdin',action='store_true',required=True)
     add = sub.add_parser('source', help='Eine ausdrücklich freigegebene Datei registrieren')
     add.add_argument('--config', required=True, help='Lokale JSON-Datei mit expliziten IDs und Pfad')
     run = sub.add_parser('import')
@@ -25,14 +31,25 @@ def main():
     grant.add_argument('--username', required=True)
     grant.add_argument('--stand-id', required=True, type=int)
     args = parser.parse_args()
-    dsn = os.environ.get('BIENEN_AUTH_DSN') or os.environ.get('BIENEN_TEST_DSN')
+    dsn = os.environ.get('BIENEN_IMPORT_DSN') if args.operation in {'import','watch'} else os.environ.get('BIENEN_AUTH_DSN') or os.environ.get('BIENEN_TEST_DSN')
     if not dsn:
-        parser.error('BIENEN_AUTH_DSN oder BIENEN_TEST_DSN erforderlich')
+        parser.error('Import/watch benötigt BIENEN_IMPORT_DSN; Admin benötigt BIENEN_AUTH_DSN oder BIENEN_TEST_DSN')
     with psycopg.connect(dsn, autocommit=True) as conn:
         if conn.info.dbname not in {'bienen_test', 'bienenlogger_test'}:
             parser.error('R1-CLI nur auf expliziter isolierter Testdatenbank erlaubt')
         if args.operation == 'migrate':
             print(json.dumps({'migration_applied': migrate(conn)}))
+        elif args.operation == 'inventory':
+            print(json.dumps({
+                'stands':conn.execute('SELECT id,name FROM bienen.stand ORDER BY id').fetchall(),
+                'devices':conn.execute('SELECT id,name,art FROM bienen.geraet ORDER BY id').fetchall(),
+                'sources':conn.execute('SELECT id,schluessel,profil,stand_id,geraet_id,synthetisch,archiv_muster FROM bienen.um_quelle ORDER BY id').fetchall(),
+                'channels':conn.execute('SELECT id,geraet_id,quellfeld,messgroesse_code,status FROM bienen.kanal ORDER BY id').fetchall()
+            },ensure_ascii=False))
+        elif args.operation == 'import-login':
+            password=sys.stdin.readline(202).removesuffix('\n')
+            provision_importer(conn,args.role,password)
+            print('Eingeschränktes Import-Login eingerichtet')
         elif args.operation == 'source':
             with open(args.config, encoding='utf-8') as file:
                 config = json.load(file)

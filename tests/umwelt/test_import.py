@@ -91,7 +91,7 @@ class ImportTests(unittest.TestCase):
 
     def test_migration_repeat_is_idempotent(self):
         self.assertFalse(migrate(self.conn))
-        self.assertEqual(self.scalar('SELECT count(*) FROM bienen.schema_migration'), 1)
+        self.assertEqual(self.scalar('SELECT count(*) FROM bienen.schema_migration'), 2)
 
     def test_missing_base_schema_refused_without_rebuild(self):
         self.assertEqual(self.conn.info.dbname, 'bienen_test')

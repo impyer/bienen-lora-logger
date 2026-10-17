@@ -2,9 +2,16 @@
 # Explicit opt-in only. Exactly two files, read-only; no parent directory mounts.
 services:
   importer:
-    extends:
-      file: compose.yaml
-      service: app
+    build:
+      context: ../..
+      dockerfile: deploy/heimnetz-test/Dockerfile
+    restart: unless-stopped
+    environment:
+      BIENEN_IMPORT_DSN: ${BL_IMPORT_DSN:?Set separate restricted importer DSN}
+    networks: [internal]
+    depends_on:
+      db:
+        condition: service_healthy
     profiles: [umwelt]
     command: ["python", "-m", "umwelt.cli", "watch", "--interval", "60"]
     healthcheck:
@@ -14,7 +21,11 @@ services:
         source: ${BL_WETTER_CSV:?Set explicit weather CSV path}
         target: /sources/wetter.csv
         read_only: true
+        bind:
+          create_host_path: false
       - type: bind
         source: ${BL_BODEN_CSV:?Set explicit soil CSV path}
         target: /sources/boden.csv
         read_only: true
+        bind:
+          create_host_path: false

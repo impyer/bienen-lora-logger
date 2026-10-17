@@ -31,6 +31,7 @@ from stockkarte_admin import seed_demo
 from stockkarte_store import write_inspection
 from umwelt.ingest import import_source
 from umwelt.migrate import migrate
+from umwelt.roles import provision_importer
 
 
 def free_port():
@@ -90,6 +91,11 @@ def main():
                     value = 77.125 if i == 5039 else (i % 50)-5
                     middle = '' if i % 31 == 0 else str(value+1)
                     output.write(f'{stamp.isoformat()};synthetic;synthetic-soil;{value};{middle};{value+2};3.2;0;{i};2;long-{i}\n')
+                # Distinct sub-millisecond observations must survive browser
+                # page-order checks even though chart pixels use milliseconds.
+                for i in (1,2):
+                    stamp=second+timedelta(microseconds=i)
+                    output.write(f'{stamp.isoformat()};synthetic;synthetic-soil;{77+i/8};18;19;3.2;0;{5040+i};2;micro-{i}\n')
         weather = work/'synthetic-weather.csv'
         weather_row = f'{first.isoformat()};synthetic;synthetic-weather;-2.5;;1013;0;0;0;359;0;0;7;1;3;AA;retained\n'
         weather.write_text(WEATHER_HEADER.rstrip('\n') + ';unknown_sensor\n' + weather_row * 2
@@ -109,6 +115,8 @@ def main():
             conn.execute('INSERT INTO bienen.sk_benutzer_volk VALUES (%s,%s,true,true)', (uid,colony))
         for apiary in (stand,empty):
             conn.execute('INSERT INTO bienen.sk_benutzer_stand VALUES (%s,%s,true)', (uid,apiary))
+        importer_password=secrets.token_urlsafe(32)
+        provision_importer(conn,'bl_um_e2e',importer_password)
     finally:
         conn.close()
     port, tls_port = free_port(), free_port()
@@ -116,6 +124,8 @@ def main():
     env.update(BIENEN_AUTH_DEV_MODE='1',BIENEN_AUTH_DSN=os.environ['BIENEN_TEST_DSN'],
         BIENEN_AUTH_SECRET=secrets.token_urlsafe(48),BIENEN_AUTH_TRUST_DOCKER_PROXY='1',
         XDG_DATA_HOME=str(work/'data'),XDG_CONFIG_HOME=str(work/'config'))
+    import_env=dict(env,BIENEN_IMPORT_DSN=psycopg.conninfo.make_conninfo(os.environ['BIENEN_TEST_DSN'],user='bl_um_e2e',password=importer_password))
+    import_env.pop('BIENEN_AUTH_DSN',None);import_env.pop('BIENEN_AUTH_SECRET',None);import_env.pop('BIENEN_TEST_DSN',None)
     config=work/'Caddyfile'
     config.write_text(f'{{\n admin off\n skip_install_trust\n auto_https disable_redirects\n default_sni 127.0.0.1\n}}\nhttps://127.0.0.1:{tls_port} {{\n tls internal\n reverse_proxy 127.0.0.1:{port}\n}}\n')
     processes=[]
@@ -124,7 +134,9 @@ def main():
         commands=[([sys.executable,'-m','uvicorn','stockkarte_dev_web:app','--app-dir',str(ROOT/'server/datenbank'),'--host','127.0.0.1','--port',str(port),'--no-access-log','--no-proxy-headers'],'app.log'),([args.caddy,'run','--config',str(config),'--adapter','caddyfile'],'caddy.log'),([sys.executable,'-m','umwelt.cli','watch','--interval','5'],'importer.log')]
         for command,name in commands:
             with (work/name).open('w') as output:
-                processes.append(subprocess.Popen(command,env=env,stdout=output,stderr=subprocess.STDOUT,cwd=ROOT))
+                process_env=import_env if name=='importer.log' else env
+                process_env['PYTHONPATH']=str(ROOT/'server/datenbank')
+                processes.append(subprocess.Popen(command,env=process_env,stdout=output,stderr=subprocess.STDOUT,cwd=ROOT))
         ca=work/'data/caddy/pki/authorities/local/root.crt'
         for _ in range(100):
             try:
@@ -145,7 +157,8 @@ def main():
             'new_row':f'{now.isoformat()};synthetic;synthetic-soil;29.5;18;19;3.2;0;3;2;msg-live\n',
             'from':(now-timedelta(days=1)).isoformat(),'to':(now+timedelta(minutes=5)).isoformat(),
             'ca_pins':','.join(pins),'screenshot':str(work/'environment-mobile.png')}
-        browser_input['last_known'] = second.isoformat()
+        browser_input['last_known'] = (second+timedelta(microseconds=2) if args.long_history else second).isoformat()
+        browser_input['last_value'] = 77.25 if args.long_history else 14
         bundle=work/'node-trusted-ca.pem'
         existing_ca=Path(os.environ['NODE_EXTRA_CA_CERTS']).read_bytes() if os.environ.get('NODE_EXTRA_CA_CERTS') else b''
         bundle.write_bytes(existing_ca+b'\n'+ca.read_bytes())
