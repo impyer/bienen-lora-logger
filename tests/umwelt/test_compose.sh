@@ -29,6 +29,7 @@ export R1_TEST_PASSWORD R1_IMPORT_PASSWORD
 R1_TEST_PASSWORD=$(python3 -c 'import secrets;print(secrets.token_urlsafe(32))')
 R1_IMPORT_PASSWORD=$(python3 -c 'import secrets;print(secrets.token_hex(32))')
 export BL_IMPORT_DSN="host=db port=5432 dbname=bienenlogger_test user=bl_um_container password=$R1_IMPORT_PASSWORD"
+export BL_IMPORT_INTERVAL=5
 export BIENEN_AUTH_DSN
 BIENEN_AUTH_DSN=$(python3 - "$R1_COMPOSE_ENV" <<'PY'
 from pathlib import Path
@@ -157,5 +158,21 @@ test "$state_before" = "$state_after"
 dc cp proxy:/data/caddy/pki/authorities/local/root.crt "$work/root-after.crt"
 cmp "$work/root-before.crt" "$work/root-after.crt"
 printf 'Container restart: %s current values retained; same CA and authenticated session: PASS\n' "$after"
+# A genuinely new record must arrive through the periodic restricted watcher
+# after restart, without an explicit CLI import or a simulated API response.
+python3 - "$work" "$R11_ARCHIVE" <<'PY'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1])/('soil/soil-2026-11.csv' if sys.argv[2]=='1' else 'boden.csv')
+with p.open('a') as f:f.write('2026-11-02T00:00:00Z;synthetic;synthetic-soil;33;34;35;3.2;0;after-restart\n')
+PY
+expected_after=$((after+5))
+for _ in $(seq 1 30); do
+ observed=$(dc exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc "$sql_count")
+ if [ "$observed" = "$expected_after" ]; then break; fi
+ sleep 1
+done
+test "$observed" = "$expected_after"
+echo 'Periodic import resumes after full restart: PASS'
 dc stop importer proxy app db
 echo 'Owned test project stopped; all volumes and synthetic fixture files retained.'

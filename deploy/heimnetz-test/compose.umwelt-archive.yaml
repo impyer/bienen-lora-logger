@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     environment:
       BIENEN_IMPORT_DSN: ${BL_IMPORT_DSN:?Set separate restricted importer DSN}
-    command: ["python", "-m", "umwelt.cli", "watch", "--interval", "60"]
+    command: ["python", "-m", "umwelt.cli", "watch", "--interval", "${BL_IMPORT_INTERVAL:-60}"]
     depends_on:
       db:
         condition: service_healthy

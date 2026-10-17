@@ -13,6 +13,24 @@ from .migrate import migrate
 from .roles import provision_importer
 
 
+def watch_sources(dsn,interval):
+    """Short-lived connections also recover after DB restart without Docker."""
+    while True:
+        try:
+            with psycopg.connect(dsn,autocommit=True) as conn:
+                if conn.info.dbname not in {'bienen_test','bienenlogger_test'}:
+                    raise ValueError('Watcher nur auf expliziter isolierter Testdatenbank erlaubt')
+                for (source_id,) in conn.execute('SELECT id FROM bienen.um_quelle ORDER BY id').fetchall():
+                    try:
+                        report=import_source(conn,source_id)
+                        print(json.dumps({'source_id':source_id,'result':report}),flush=True)
+                    except Exception:
+                        print(json.dumps({'source_id':source_id,'error':'Import fehlgeschlagen; Status in der Umweltansicht prüfen'}),flush=True)
+        except psycopg.OperationalError:
+            print(json.dumps({'error':'Importdatenbank nicht erreichbar; erneuter Versuch im nächsten Intervall'}),flush=True)
+        time.sleep(interval)
+
+
 def main():
     parser = argparse.ArgumentParser(description='Bienenlogger Umwelt-Teststack verwalten')
     sub = parser.add_subparsers(dest='operation', required=True)
@@ -41,6 +59,11 @@ def main():
     dsn = os.environ.get('BIENEN_IMPORT_DSN') if args.operation in {'import','watch'} else os.environ.get('BIENEN_AUTH_DSN') or os.environ.get('BIENEN_TEST_DSN')
     if not dsn:
         parser.error('Import/watch benötigt BIENEN_IMPORT_DSN; Admin benötigt BIENEN_AUTH_DSN oder BIENEN_TEST_DSN')
+    if args.operation=='watch':
+        if not 5<=args.interval<=3600:
+            parser.error('Importintervall muss zwischen 5 und 3600 Sekunden liegen')
+        watch_sources(dsn,args.interval)
+        return
     with psycopg.connect(dsn, autocommit=True) as conn:
         if conn.info.dbname not in {'bienen_test', 'bienenlogger_test'}:
             parser.error('R1-CLI nur auf expliziter isolierter Testdatenbank erlaubt')
@@ -70,17 +93,6 @@ def main():
             conn.execute('''INSERT INTO bienen.sk_benutzer_stand(benutzer_id,stand_id,darf_lesen)
                 VALUES (%s,%s,true) ON CONFLICT (benutzer_id,stand_id) DO UPDATE SET darf_lesen=true''', (user[0], args.stand_id))
             print('Explizites Stand-Leserecht eingerichtet')
-        else:
-            if not 5 <= args.interval <= 3600:
-                parser.error('Importintervall muss zwischen 5 und 3600 Sekunden liegen')
-            while True:
-                for (source_id,) in conn.execute('SELECT id FROM bienen.um_quelle ORDER BY id').fetchall():
-                    try:
-                        report = import_source(conn, source_id)
-                        print(json.dumps({'source_id':source_id, 'result':report}), flush=True)
-                    except Exception:
-                        print(json.dumps({'source_id':source_id, 'error':'Import fehlgeschlagen; Status in der Umweltansicht prüfen'}), flush=True)
-                time.sleep(args.interval)
 
 
 if __name__ == '__main__':

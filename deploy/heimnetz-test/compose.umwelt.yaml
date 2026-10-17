@@ -13,7 +13,7 @@ services:
       db:
         condition: service_healthy
     profiles: [umwelt]
-    command: ["python", "-m", "umwelt.cli", "watch", "--interval", "60"]
+    command: ["python", "-m", "umwelt.cli", "watch", "--interval", "${BL_IMPORT_INTERVAL:-60}"]
     healthcheck:
       disable: true
     volumes:
