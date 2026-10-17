@@ -1,5 +1,13 @@
 # Claude-Arbeitskontext – Bienenlogger UI-Prototyp (16.10.2026)
 
+**Ergänzung 17.10.2026 (R1):** Die Umweltseite ist im explizit eingerichteten
+HTTPS-Teststack an PostgreSQL/FastAPI angebunden und nutzt lokale Apache ECharts.
+Die Offline-Einzeldatei enthält keine Servermessdaten. Andere lokale Ansichten
+und die bisherige Stockkarten-Modalnavigation sind weiterhin Prototyp/R3-Arbeit.
+Die folgenden Aussagen zum ursprünglichen UI-Stand sind entsprechend zeitlich
+einzuordnen. Anleitung und Nachweise: [Umwelt R1](../../docs/entwicklung/umwelt-r1.md),
+[Prüfbericht](../../docs/testberichte/2026-10-17-refactoring-r1.md).
+
 ## Auftrag und Referenz
 
 Diese Oberfläche basiert gestalterisch und in der Navigation auf der vom Betreiber am 16.10.2026 übergebenen Claude-Datei `Bienenlogger Weboberfläche.html` mit den Referenzansichten:

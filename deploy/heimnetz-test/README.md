@@ -1,5 +1,10 @@
 # Bienenlogger – eigenständige Stockkarte im Heimnetz testen
 
+**Erweiterung R1:** Für die optionale Umweltstrecke, explizite additive Migration,
+zwei Read-only-CSV-Mounts, gemeinsame Sitzung und manuelle Abnahme gilt zusätzlich
+die [R1-Anleitung](../../docs/entwicklung/umwelt-r1.md). Der Basisstart allein
+registriert keine Quellen und führt Migration 003 nicht automatisch aus.
+
 **Status: separater HEIMNETZ-TEST, nicht produktive Freigabe.** Diese Installation startet ausschließlich eine neue PostgreSQL-Testdatenbank, den eigenen FastAPI-Stockkartendienst und den HTTPS-Reverse-Proxy. Sie hat keine Verbindung zum bestehenden Bienenlogger-/TTN-Erfassungspfad, zu BEEP oder zu dessen Server. Die grafische Oberfläche verwendet das bestehende Claude-Layout und eigenen Bienenlogger-Code.
 
 ## Voraussetzungen
