@@ -49,7 +49,9 @@ if [ "$R11_ARCHIVE" = 1 ]; then
  export BL_BODEN_STAGING="$work/soil" BL_WETTER_STAGING="$work/weather"
  overlay=deploy/heimnetz-test/compose.umwelt-archive.yaml
 fi
-dc(){ docker compose --env-file "$R1_COMPOSE_ENV" -f deploy/heimnetz-test/compose.yaml -f "$overlay" "$@"; }
+extra_files=()
+if [ -n "${R1_NETWORK_OVERRIDE:-}" ]; then extra_files=(-f "$R1_NETWORK_OVERRIDE"); fi
+dc(){ docker compose --env-file "$R1_COMPOSE_ENV" -f deploy/heimnetz-test/compose.yaml -f "$overlay" "${extra_files[@]}" "$@"; }
 dc config --quiet
 if [ "${R1_SKIP_BUILD:-0}" = 1 ]; then dc up -d --no-build db app proxy; else dc up -d --build db app proxy; dc build importer; fi
 dc exec -T app python -m umwelt.cli migrate
