@@ -72,6 +72,7 @@ async function main(){
    assert.match(await page.locator('#serverInspections').innerText(),/Brutkontrolle/);
    assert.match(await page.locator('#serverInspections').innerText(),/Futterprüfung/);
    await page.locator('#serverInspections .row-small button').first().click();
+   await page.locator('#serverInspections .live-revisions').first().waitFor();
    assert.match(await page.locator('#serverInspections').innerText(),/Erstanlage/);
    assert.match(await page.locator('#serverInspections').innerText(),/Korrektur/);
    const privacy=await page.evaluate(()=>({
