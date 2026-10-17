@@ -79,7 +79,12 @@ const server=http.createServer(async(req,res)=>{
  if(url.pathname===api+'/voelker/123/durchsichten')return json(res,200,[
   ...inserted,
    {id:33,event_date:'2026-10-16',accuracy:'nur_datum',event_time:null,note:'Brutkontrolle',revision:2,values:{'bl:frames':5}},
-   {id:32,event_date:'2026-10-12',accuracy:'nur_datum',event_time:null,note:'Futterprüfung',revision:1,values:{}}
+   {id:32,event_date:'2026-10-12',accuracy:'nur_datum',event_time:null,note:'Futterprüfung',revision:1,values:{}},
+  {id:31,event_date:'2026-10-11',accuracy:'exakt',event_time:'2026-10-11T11:00:00+02:00',
+   note:'Uhrzeit-Durchsicht',revision:1,values:{'bl:frames':2}},
+  {id:30,event_date:'2026-10-10',accuracy:'nur_datum',event_time:null,
+   note:'Ehemalige Auswahl',revision:1,checklist_id:1,checklist_version:1,
+   values:{'bl:frames':3,'bl:method':'bl:retired'}}
  ]);
  if(url.pathname===api+'/durchsichten/33/revisionen')return json(res,200,[
    {revision:1,event_date:'2026-10-16',accuracy:'nur_datum',reason:'Erstanlage',author:'tester'},
@@ -126,6 +131,17 @@ async function main(){
    await page.locator('#serverEntryForm textarea').last().fill('Testdurchsicht korrigiert');
    await page.locator('#serverEntryForm button[type="submit"]').click();
    await page.locator('#serverInspections').getByText('Testdurchsicht korrigiert').waitFor();
+   await page.locator('#serverInspections .row-small').filter({hasText:'Uhrzeit-Durchsicht'})
+     .getByRole('button',{name:'Korrigieren'}).click();
+   await page.waitForFunction(()=>document.querySelector('#liveError')?.textContent.includes('Uhrzeit'));
+   assert.equal(await page.locator('#serverEntryForm').count(),0);
+   await page.locator('#serverInspections .row-small').filter({hasText:'Ehemalige Auswahl'})
+     .getByRole('button',{name:'Korrigieren'}).click();
+   await page.locator('#serverEntryForm').waitFor();
+   assert.equal(await page.locator('#serverEntryForm button[type="submit"]').isDisabled(),true);
+   assert.match(await page.locator('#serverEntryFields').innerText(),/Historische Auswahl/);
+   await page.locator('#serverEntryForm button').filter({hasText:'Abbrechen'}).click();
+   await page.locator('#serverInspections').getByText('Futterprüfung').waitFor();
 
    const privacy=await page.evaluate(()=>({
     leaked:JSON.stringify(localStorage).includes('local-test-password') ||
@@ -140,7 +156,29 @@ async function main(){
    console.log(filename+': Login, Völkerwahl, Durchsichten, Revisionen, Logout PASS');
    await page.close();
   }
-  assert.equal(logins,2);assert.equal(logouts,2);
+
+  // Schmaler Handy-Bildschirm: Anmeldung und Eingabefeld müssen ohne
+  // horizontales Abschneiden benutzbar sein.
+  const phone=await browser.newPage({viewport:{width:390,height:844}});
+  const base='http://127.0.0.1:'+server.address().port;
+  await phone.goto(base+'/index.html');
+  await phone.locator('[data-view="stockkarte"]').first().click();
+  await phone.locator('[data-action="server-preview"]').click();
+  await phone.locator('#serverLoginForm [name="username"]').fill('tester');
+  await phone.locator('#serverLoginForm [name="password"]').fill('local-test-password');
+  await phone.locator('#serverLoginForm button[type="submit"]').click();
+  await phone.locator('#serverInspections button').filter({hasText:'+ Durchsicht erfassen'}).click();
+  await phone.locator('#serverEntryForm').waitFor();
+  const sizes=await phone.evaluate(()=>{
+    const modal=document.querySelector('#modalRoot .modal'),form=document.querySelector('#serverEntryForm');
+    return {width:innerWidth,modal:modal?.getBoundingClientRect().width,form:form?.getBoundingClientRect().width};
+  });
+  assert.ok(sizes.modal<=sizes.width&&sizes.form<=sizes.width,JSON.stringify(sizes));
+  await phone.locator('#serverEntryForm button').filter({hasText:'Abbrechen'}).click();
+  await phone.locator('#liveBody button').filter({hasText:'Abmelden'}).click();
+  await phone.locator('#serverLoginForm').waitFor();
+  await phone.close();
+  assert.equal(logins,3);assert.equal(logouts,3);
   assert.equal(created,2);assert.equal(corrected,2);
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
