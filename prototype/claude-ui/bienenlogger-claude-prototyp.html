@@ -408,9 +408,10 @@ return {normalizeCatalog,prepare,catalogReport,addGroup,addField,addOption,renam
 const API='/api/v1/umwelt',AUTH='/api/v1/stockkarte/session';
 const POLL_MS=30000;
 let root=null,session=null,sites=[],site=null,timer=null,generation=0,loading=false;
-let days=1,fixed=null,selected=null,charts=[],latestSeries=[];
+let days=1,fixed=null,selected=null,charts=[],latestSeries=[],resolution='auto';
 let activeRequest=null,registrySignature='';
 const timeLabel=t=>new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',timeZoneName:'shortOffset'}).format(new Date(t));
+function timeOrder(t){const m=/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,6}))?Z$/.exec(t);if(!m)throw Error('Ungültige UTC-Zeit im Diagrammvertrag.');return m[1]+'.'+(m[2]||'').padEnd(6,'0');}
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function make(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
 function clearCharts(){for(const chart of charts)chart.dispose();charts=[];}
@@ -422,7 +423,7 @@ async function request(url,{method='GET',body,csrf,signal}={}){
  if(csrf)headers['X-CSRF-Token']=csrf;
  const response=await fetch(url,{method,headers,signal,credentials:'same-origin',cache:'no-store',redirect:'error',body:body===undefined?undefined:JSON.stringify(body)});
  let value;try{value=await response.json();}catch{value={};}
- if(!response.ok){const error=Error(response.status===401?'Sitzung fehlt oder ist abgelaufen':response.status===404?'Stand nicht freigegeben oder nicht vorhanden':response.status===503?'Umwelt-Teststack noch nicht eingerichtet':typeof value.detail==='string'?value.detail:'Anfrage fehlgeschlagen ('+response.status+')');error.status=response.status;throw error;}
+ if(!response.ok){const error=Error(response.status===401?'Sitzung fehlt oder ist abgelaufen':response.status===404?'Stand nicht freigegeben oder nicht vorhanden':typeof value.detail==='string'?value.detail:'Anfrage fehlgeschlagen ('+response.status+')');error.status=response.status;throw error;}
  return value;
 }
 function notice(text){if(root){const target=root.querySelector('#umStatus');if(target)target.textContent=text;}}
@@ -458,6 +459,10 @@ function buildControls(){
  const label=make('label','Stand '),select=make('select');select.id='umStand';select.setAttribute('aria-label','Freigegebenen Umweltstand auswählen');
  for(const item of sites){const o=make('option',item.name);o.value=String(item.id);select.append(o);}select.value=String(site);label.append(select);toolbar.append(label);
  select.addEventListener('change',()=>{site=Number(select.value);selected=null;reload();});
+ const resolutionLabel=make('label','Darstellung '),resolutionSelect=make('select');resolutionSelect.id='umResolution';
+ for(const [value,text] of [['auto','Automatisch mit Min/Max'],['raw','Alle Rohwerte']]){const option=make('option',text);option.value=value;resolutionSelect.append(option);}
+ resolutionSelect.value=resolution;resolutionLabel.append(resolutionSelect);toolbar.append(resolutionLabel);
+ resolutionSelect.addEventListener('change',()=>{resolution=resolutionSelect.value;reload(false);});
  root.append(toolbar);
  const mode=make('p','Quellen werden geprüft …','note');mode.id='umMode';root.append(mode);
  const ranges=make('div',undefined,'toolbar');
@@ -546,7 +551,7 @@ async function completeSeries(params,signal){
      const target=series.get(item.channel.id);if(!target)throw Error('Kanalregister während Paging verändert.');
      for(const point of item.points){
       const key=item.channel.id+':'+point.time;
-      if(seen.has(key)||target.points.length&&Date.parse(target.points.at(-1).time)>=Date.parse(point.time))throw Error('Doppelte oder unsortierte Diagrammpunkte.');
+      if(seen.has(key)||target.points.length&&timeOrder(target.points.at(-1).time)>=timeOrder(point.time))throw Error('Doppelte oder unsortierte Diagrammpunkte.');
       seen.add(key);target.points.push(point);received++;
      }
     }
@@ -556,7 +561,7 @@ async function completeSeries(params,signal){
    }while(cursor);
    if(count!==first.total_points)throw Error('Diagrammpunkte fehlen nach Paging.');
    for(const item of series.values()){
-    if(item.summary.last_time&&Date.parse(item.points.at(-1)?.time)!==Date.parse(item.summary.last_time))throw Error('Jüngster Quellwert fehlt.');
+    if(item.summary.last_time&&timeOrder(item.points.at(-1)?.time)!==timeOrder(item.summary.last_time))throw Error('Jüngster Quellwert fehlt.');
    }
    return {...first,series:[...series.values()],pages};
   }catch(error){if(error.status===410&&!attempt){notice('Snapshot abgelaufen; Abfrage wird einmal neu begonnen.');continue;}throw error;}
@@ -594,15 +599,15 @@ async function refresh(token,rebuild=false){
   if(selected.size>30)throw Error('Höchstens 30 Messkanäle auswählen.');
   if(!selected.size){clearCharts();latestSeries=[];root.querySelector('#umPlots').replaceChildren(make('p','Keine ausgewählten Messkanäle.','empty'));notice(registry.length?'Messkanäle auswählen (höchstens 30).':'Für diesen Stand sind keine Kanäle registriert.');return;}
   const [from,to]=windowParams();
-  const params=new URLSearchParams({stand_id:site,von:from,bis:to,limit:'5000',resolution:'auto'});
+  const params=new URLSearchParams({stand_id:site,von:from,bis:to,limit:'5000',resolution});
   for(const id of [...selected].sort((a,b)=>a-b))params.append('kanal_id',id);
   const result=await completeSeries(params,controller.signal);
   if(token!==generation||!root)return;
   await loadEcharts();if(token!==generation||!root)return;
   latestSeries=result.series;renderPlots(latestSeries);
   const aggregated=result.series.some(s=>s.summary.method!=='raw');
-  const first=result.series.map(s=>s.summary.first_time).filter(Boolean).sort()[0];
-  const last=result.series.map(s=>s.summary.last_time).filter(Boolean).sort().at(-1);
+  const first=result.series.map(s=>s.summary.first_time).filter(Boolean).sort((a,b)=>timeOrder(a).localeCompare(timeOrder(b)))[0];
+  const last=result.series.map(s=>s.summary.last_time).filter(Boolean).sort((a,b)=>timeOrder(a).localeCompare(timeOrder(b))).at(-1);
   notice('Vollständig geladen · '+(aggregated?'fachlich verdichtet':'Rohwerte')+' · '+result.source_points+' Quellwerte → '+result.total_points+' Originalpunkte · '+result.pages+' Seiten · Quellenzeitraum: '+(first?timeLabel(first)+' – '+timeLabel(last):'leer')+' · Snapshot: '+timeLabel(result.as_of)+' · letzte erfolgreiche Abfrage: '+timeLabel(new Date()));
  }catch(exc){if(token!==generation||!root||exc.name==='AbortError')return;if(exc.status===401){loginForm(exc.message);}else{clearCharts();root.querySelector('#umPlots')?.replaceChildren(make('p','Keine Datenanzeige nach fehlgeschlagener Abfrage.','empty'));notice(exc.message);}}
  finally{if(token===generation){loading=false;activeRequest=null;}}

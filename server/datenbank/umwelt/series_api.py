@@ -14,12 +14,12 @@ from .snapshots import SnapshotStore, CursorError, SnapshotGone, SnapshotDenied,
 
 ROW_QUERY = '''SELECT m.kanal_id,m.zeit,m.wert*k.faktor+k.versatz,m.qualitaet,
     m.zeitqualitaet,m.revision,q.schluessel,q.synthetisch,m.wert,r.sha256,r.zeile,
-    m.interpretation,m.importiert_am,e.revision
+    m.interpretation,m.importiert_am,(SELECT max(e.revision) FROM bienen.um_ereignis_revision e
+      WHERE e.quelle_id=r.quelle_id AND e.ereignis_schluessel=r.ereignis_schluessel)
     FROM bienen.um_messwert_aktuell m
     JOIN bienen.kanal k ON k.id=m.kanal_id
     JOIN bienen.um_quelle q ON q.id=m.quelle_id
     JOIN bienen.um_rohdatensatz r ON r.id=m.roh_id
-    JOIN bienen.um_ereignis_aktuell e ON e.roh_id=r.id
     WHERE q.stand_id=%s AND m.kanal_id=ANY(%s) AND m.zeit>=%s AND m.zeit<%s
       AND k.gueltig @> m.zeit'''
 
@@ -37,7 +37,7 @@ def register_series_routes(router, connect, permitted, channels, principal):
         if von.tzinfo is None or bis.tzinfo is None or not timedelta(0)<bis-von<=timedelta(days=366):
             raise HTTPException(422, 'Zeitfenster mit expliziten Offsets erforderlich, höchstens 366 Tage')
         query = (stand_id, von.astimezone(timezone.utc).isoformat(), bis.astimezone(timezone.utc).isoformat(),
-                 tuple(sorted(set(kanal_id))) if kanal_id is not None else None, resolution, bucket_seconds)
+                 tuple(sorted(set(kanal_id))) if kanal_id is not None else None, resolution, bucket_seconds,limit)
         try:
             if cursor:
                 # Live permissions are deliberately checked outside the cached snapshot.
@@ -47,6 +47,7 @@ def register_series_routes(router, connect, permitted, channels, principal):
             else:
                 with connect(snapshot=True) as conn:
                     permitted(conn, actor, stand_id)
+                    conn.execute("SET LOCAL TIME ZONE 'UTC'")
                     as_of = conn.execute('SELECT transaction_timestamp()').fetchone()[0]
                     definitions = channels(conn, stand_id)
                     available = {c.id for c in definitions}
