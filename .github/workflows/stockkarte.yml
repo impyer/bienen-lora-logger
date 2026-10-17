@@ -148,6 +148,8 @@ jobs:
             proxy:/data/caddy/pki/authorities/local/root.crt /tmp/bienenlogger-test-root.crt
           test -s /tmp/bienenlogger-test-root.crt
           echo 'Heimnetz-HTTPS auf eigener IP und lokale CA: PASS'
+      - name: HTTPS Login, XFF-Spoofing, CSRF und schreibende API prüfen
+        run: bash tests/deploy/test_https_api.sh
       - name: Backup pruefen ohne Produktivdaten
         run: |
           docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
