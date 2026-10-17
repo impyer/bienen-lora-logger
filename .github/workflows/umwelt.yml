@@ -54,7 +54,17 @@ jobs:
           python prototype/claude-ui/build_single.py
           git diff --exit-code -- prototype/claude-ui/vendor prototype/claude-ui/bienenlogger-claude-prototyp.html
       - name: Parser, actual PostgreSQL transactions and authenticated API
-        run: python -m unittest discover -s tests/umwelt -p 'test_*.py' -v
+        run: |
+          python - <<'PY'
+          import sys, unittest
+          suite = unittest.defaultTestLoader.discover('tests/umwelt', pattern='test_*.py')
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          # Keep fixture-only failures readable through the Checks API as well.
+          for case, detail in result.failures + result.errors:
+              message = (str(case) + '\n' + detail).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print('::error title=Umwelt integration test::' + message, flush=True)
+          sys.exit(0 if result.wasSuccessful() else 1)
+          PY
       - name: Real Caddy HTTPS, CSV watcher, FastAPI, PostgreSQL and ECharts browser
         run: python tests/umwelt/e2e.py --output build/r1-e2e
       - name: Synthetic evidence only; never upload private CA keys or credentials
