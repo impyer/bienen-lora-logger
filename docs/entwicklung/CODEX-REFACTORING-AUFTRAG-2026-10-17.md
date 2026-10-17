@@ -117,7 +117,7 @@ Bestehende produktive TTN-/PHP-Empfänger ──> CSV / JSONL / beelogger M.40
 **Bodentemperatursensor:** Betreiber-Nachweis für Datei
 /var/lib/bienen-logger/boden/hauptstand/erdboden-temperatur_2026-10.csv
 mit Header time_utc;stand;device_id;temp_5cm;temp_20cm;temp_50cm;battery_v;alarm_status;f_cnt;f_port;rssi;snr;payload_base64;message_id.
-Pfad ist ein **belegtes Beispiel**, kein frei erfundener universeller Pfad. Drei Tiefen sind **drei Kanäle derselben Messstelle**, nicht drei separate Stockmessgeräte.
+Pfad ist ein **belegtes Beispiel**, kein frei erfundener universeller Pfad. Drei Tiefen sind getrennte Messkanäle mit Tiefen-/Positionsmetadaten an einem Standort, nicht drei separate Stockmessgeräte.
 
 **beelogger:** Bestehende week.csv / lora_zusatz.csv / lora_log/*.jsonl gemäß server/lora/; **echte Dateipfade und Feldbelegung erst auf der ThinkStation ermitteln**. Kein aus Aux1/2/3 blind erschlossener Messwert; Gewicht ausschließlich bei belegter Kalibrierung als kg anzeigen. BEEP-Base-Daten erst integrieren, wenn der eigene Empfang bzw. eine autorisierte Quelle auf dem Zielsystem bestätigt ist.
 
@@ -179,7 +179,7 @@ Pfad ist ein **belegtes Beispiel**, kein frei erfundener universeller Pfad. Drei
 | A-06 | **Katalog/Stockkarte:** BEEP-Referenzkatalog mit anonymisierten Daten; Auswahl-IDs, Hierarchien, Feldtypen, Mehrfachwahl, Pflichtfelder, null/false/0, Bilder nur bei funktionierender Speicherung; Revisionen/Zeiten unverändert. |
 | A-07 | **Historie:** neues Volk/Ableger/Herkunft, Königinnentausch und Korrektur eines älteren Eintrags, Beutenwechsel ohne ID-Verlust und ohne Überschreiben historischer Zuordnungen. |
 | A-08 | **Robustheit:** unbekannte Spalten, beschädigte CSV/JSONL, fehlende Dateirechte, DST-Doppelstunde, Datenlücken, Importabbruch/Restart, Revisionskonflikt, 401/403/409 und Rechteentzug. |
-| A-09 | **Persistenz/Betrieb:** Backup vor Änderung; Docker-Neustart ohne Volume-Löschung; geprüfter Restore in getrennte DB; Alt-/Neuschema-Migrationsprüfung; bestehender Apache/TNN/beelogger unverändert. |
+| A-09 | **Persistenz/Betrieb:** Backup vor Änderung; Docker-Neustart ohne Volume-Löschung; geprüfter Restore in getrennte DB; Alt-/Neuschema-Migrationsprüfung; bestehender Apache/TTN/beelogger unverändert. |
 | A-10 | **UX-Abnahme:** reales Laptop-/Telefon-Fenster, klare Erst-Anmeldung, direkte Volkauswahl, sichtbare Echt-/Demo-/Offline-Kennzeichnung; keine verschachtelte Server-Stockkarten-Modal-Navigation. Betreiber prüft Fachworkflow. |
 
 **CI-Disziplin:** separate schnelle Domain-/API-/Frontend-Tests, danach Integration mit realen Diensten und vor Integration vollständige betroffene Projektmatrix. Jedes Ergebnis: SHA, Umgebung, Testbefehl, Anzahl, PASS/FAIL/SKIP/NICHT GELAUFEN; kein grüner Gesamttitel bei noch offenen Kernfunktionen. Testabdeckung an **Verhalten und Invarianten**, nicht nur UI-Text oder Renderbarkeit messen. Keine erfundenen Feld-, Hardware- oder Lasttests.
