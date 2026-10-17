@@ -29,6 +29,30 @@ restore_count=$(compose exec -T db psql -U bienenlogger -d "$name" -Atqc 'SELECT
 source_colonies=$(compose exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc 'SELECT count(*) FROM bienen.volk')
 restore_colonies=$(compose exec -T db psql -U bienenlogger -d "$name" -Atqc 'SELECT count(*) FROM bienen.volk')
 [ "$source_colonies" = "$restore_colonies" ] || { echo 'ABBRUCH: Volk-Anzahl unterscheidet sich' >&2; exit 1; }
+
+# Vergleiche auch den tatsächlichen Bestand und inhaltliche Historien:
+# Kategorien-/Volk-Anzahlen allein würden einen fehlenden Revisionsdatensatz übersehen.
+for table in sk_durchsicht sk_durchsicht_revision sk_checkliste_version sk_checkliste_feld sk_benutzer sk_benutzer_volk; do
+    source_rows=$(compose exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc \
+        "SELECT count(*) FROM bienen.$table")
+    target_rows=$(compose exec -T db psql -U bienenlogger -d "$name" -Atqc \
+        "SELECT count(*) FROM bienen.$table")
+    [ "$source_rows" = "$target_rows" ] || { echo "ABBRUCH: $table: $source_rows != $target_rows" >&2; exit 1; }
+done
+sql="SELECT COALESCE(jsonb_agg(jsonb_build_object('id',durchsicht_id,'revision',revision,
+   'datum',ereignis_datum,'zeit',ereignis_zeit,'genauigkeit',zeitgenauigkeit,
+   'werte',werte,'notiz',notiz,'autor',autor,'geloescht',geloescht)
+   ORDER BY durchsicht_id,revision)::text,'[]')
+   FROM bienen.sk_durchsicht_revision"
+original_history=$(compose exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc "$sql")
+restored_history=$(compose exec -T db psql -U bienenlogger -d "$name" -Atqc "$sql")
+[ "$original_history" = "$restored_history" ] || {
+    echo 'ABBRUCH: Wiederhergestellte Revisionshistorie weicht inhaltlich ab' >&2; exit 1;
+}
+[ "$original_history" != '[]' ] || {
+    echo 'ABBRUCH: Es wurden keine Durchsichtsrevisionen für den Restore-Test erfasst' >&2; exit 1;
+}
+
 printf 'Restore erfolgreich in %s: %s Kategorien und %s Völker.\n' "$name" "$restore_count" "$restore_colonies"
 cat <<'MSG'
 Die wiederhergestellte zweite Datenbank wurde absichtlich NICHT gelöscht.
