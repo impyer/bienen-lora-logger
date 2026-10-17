@@ -101,8 +101,31 @@ def main():
         weather.write_text(WEATHER_HEADER.rstrip('\n') + ';unknown_sensor\n' + weather_row * 2
             + f'{second.isoformat()};synthetic;synthetic-weather;invalid;0;NaN;0;0;0;1;0;0;7;2;3;BB;retained\n'
             + 'invalid-time;synthetic;synthetic-weather;999;0;1013;0;0;0;1;0;0;7;3;3;CC;retained\n')
-        sid = source(conn, soil, stand_id=stand)
-        wid = source(conn, weather, 's2120', 'weather', stand_id=stand)
+        if args.long_history:
+            # True monthly directories feed the independently running watcher.
+            # Partition the synthetic 35-day input without changing its records.
+            directory=work/'soil';directory.mkdir()
+            handles={}
+            try:
+                with soil.open() as input_file:
+                    header=next(input_file)
+                    for row in input_file:
+                        month=row[:7]
+                        if month not in handles:
+                            handle=(directory/('soil-'+month+'.csv')).open('w')
+                            handle.write(header);handles[month]=handle
+                        handles[month].write(row)
+            finally:
+                for handle in handles.values():handle.close()
+            soil=directory/('soil-'+second.strftime('%Y-%m')+'.csv')
+            sid=source(conn,directory,stand_id=stand,pattern='soil-{YYYY}-{MM}.csv')
+            directory=work/'weather';directory.mkdir()
+            target=directory/('weather-'+first.strftime('%Y-%m')+'.csv')
+            target.write_bytes(weather.read_bytes())
+            wid=source(conn,directory,'s2120','weather',stand_id=stand,pattern='weather-{YYYY}-{MM}.csv')
+        else:
+            sid = source(conn, soil, stand_id=stand)
+            wid = source(conn, weather, 's2120', 'weather', stand_id=stand)
         import_source(conn, sid)
         weather_report = import_source(conn, wid)
         assert any(x['code'] == 'ungueltiger_zeitstempel' for x in weather_report['fehler'])

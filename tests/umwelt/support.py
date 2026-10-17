@@ -27,13 +27,13 @@ def reset_database(*, migrate_environment=True):
     return conn
 
 
-def source(conn, path, profile='boden', key='soil', stand_id=None, device_id=None):
+def source(conn, path, profile='boden', key='soil', stand_id=None, device_id=None, pattern=None):
     stand_id = stand_id or conn.execute("INSERT INTO bienen.stand(name) VALUES ('Synthetischer Teststand') RETURNING id").fetchone()[0]
     device_id = device_id or conn.execute('INSERT INTO bienen.geraet(name,art) VALUES (%s,%s) RETURNING id', ('synthetic-' + key, 'boden' if profile == 'boden' else 'wetter')).fetchone()[0]
     return register_source(conn, key=key, profile=profile, path=path,
         stand_id=stand_id, device_id=device_id, source_stand='synthetic',
         source_device='synthetic-' + key, synthetic=True,
-        valid_from='2026-01-01T00:00:00Z', time_quality='empfang' if profile == 's2120' else 'unbekannt')
+        valid_from='2026-01-01T00:00:00Z', time_quality='empfang' if profile == 's2120' else 'unbekannt',pattern=pattern)
 
 
 def soil_row(time='2026-10-25T00:30:00Z', values='12;;13', ident='msg-1', device='synthetic-soil'):
