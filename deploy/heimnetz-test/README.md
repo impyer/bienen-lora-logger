@@ -65,6 +65,8 @@ Docker veröffentlicht ausschließlich den gewählten HTTPS-Port an der in `.env
 
 ```sh
 ./backup.sh
+# Anschließend mit dem tatsächlich erzeugten Dateinamen auf separater DB prüfen:
+./verify-restore.sh backups/stockkarte-test-YYYYMMDDTHHMMSSZ.dump
 # Erzeugt ein durch pg_restore --list geprüftes, nur dem Besitzer zugängliches
 # Datenbankbackup unter deploy/heimnetz-test/backups/
 docker compose ps
@@ -76,7 +78,7 @@ docker compose down
 
 **Niemals** beim normalen Stoppen `docker compose down -v` ausführen – das würde die Testdatenbank und die interne HTTPS-CA entfernen. Der vorhandene Bienenlogger ist von `docker compose down` nicht betroffen. Vor einem Update Backup erstellen und bevorzugt einen getesteten Git-Commit auschecken. Zur Rückkehr zu einem vorherigen Stand: `docker compose down`, vorherigen Git-Commit des Testbranches auschecken, `docker compose up -d --build`. Datenbankmigrationen sind nicht automatisch rückgängig zu machen; ein Rücksprung über Schema-Versionen erfordert eine kontrollierte Wiederherstellung des Test-Backups.
 
-Der Stack enthält `backup.sh` zum **Sichern**. Eine destruktive automatische Wiederherstellung wird bewusst **nicht** ausgeliefert; sie muss nach expliziter Bestätigung, Prüfung des Ziel-Datenbanknamens und nach separatem Restore-Test erfolgen.
+Der Stack enthält `backup.sh` zum **Sichern**. Ein **nicht-destruktiver Restore-Test** in einer zusätzlichen Datenbank `bienenlogger_restore_check` wird mitgeliefert und verifiziert Katalog- und Völkeranzahlen. Ein produktiver Restore, der bestehende Tabellen ersetzen würde, ist bewusst nicht automatisiert; dafür sind ausdrückliche Zustimmung und eine gesonderte Rückfallprüfung erforderlich.
 
 ## 5. Was technisch geprüft werden muss
 

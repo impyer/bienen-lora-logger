@@ -157,6 +157,7 @@ jobs:
           docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
             pg_restore --list < /tmp/stockkarte-test-ci.dump > /dev/null
           echo 'PostgreSQL-Test-Backup lesbar: PASS'
+          bash deploy/heimnetz-test/verify-restore.sh /tmp/stockkarte-test-ci.dump
       - name: Fehlersuche bei Fehlschlag
         if: failure()
         run: |
