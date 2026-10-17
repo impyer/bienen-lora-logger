@@ -1,0 +1,14 @@
+{
+  "key": "synthetic-weather-archive",
+  "profile": "s2120",
+  "path": "/sources/weather",
+  "pattern": "weather-{YYYY}-{MM}.csv",
+  "stand_id": 0,
+  "device_id": 0,
+  "source_stand": "synthetic",
+  "source_device": "synthetic-weather",
+  "synthetic": true,
+  "valid_from": "2026-01-01T00:00:00Z",
+  "interval_seconds": 3600,
+  "time_quality": "empfang"
+}

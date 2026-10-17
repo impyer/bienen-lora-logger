@@ -1,0 +1,14 @@
+{
+  "key": "synthetic-soil-archive",
+  "profile": "boden",
+  "path": "/sources/soil",
+  "pattern": "soil-{YYYY}-{MM}.csv",
+  "stand_id": 0,
+  "device_id": 0,
+  "source_stand": "synthetic",
+  "source_device": "synthetic-soil",
+  "synthetic": true,
+  "valid_from": "2026-01-01T00:00:00Z",
+  "interval_seconds": 900,
+  "time_quality": "unbekannt"
+}

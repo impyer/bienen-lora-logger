@@ -4,6 +4,9 @@
 
 Für das Projekt Bienen-logger gelten dieselben Grundsätze für Menschen und Coding-Agents: Änderungen müssen **nachvollziehbar**, **reproduzierbar**, **risikogerecht geprüft** und **lizenzrechtlich sauber** sein. Die folgenden Texte sind der **verabschiedete Projektstandard für Menschen und Coding-Agents**. Er gilt für neue Änderungen und neu beanspruchte Freigaben. Bestehende Entscheidungen und historische Prüfergebnisse werden **nicht** rückwirkend überschrieben. [Beschluss ADR-0001](entscheidungen/ADR-0001-projektregelwerk.md).
 
+R1.1-Umweltworkflow: [Monatsarchive, Upgrade und manuelle Abnahme](umwelt-r1-1.md),
+[Zeitreihen-API](umwelt-zeitreihen-api.md), [ADR-0005](entscheidungen/ADR-0005-umweltarchive-und-langzeitreihen.md).
+
 ## Wo steht was?
 
 | Dokument | Zweck |

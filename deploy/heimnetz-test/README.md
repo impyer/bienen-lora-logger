@@ -100,3 +100,7 @@ Der Stack enthält `backup.sh` zum **Sichern**. Ein **nicht-destruktiver Restore
 ## Vorabnahme – Datenintegrität und Sicherheitsregressionen
 
 Der Vorabnahme-Zweig `audit/thinkstation-lan-20261017` prüft zusätzlich tatsächliche HTTPS-POST-Anfragen, CSRF, manipulierte Forwarding-Header, konkurrierende Korrekturen, aktive Rechteentzüge, unzulässige Quellnetzwerke, veränderte Ports, Neustarts ohne Volume-Löschung und inhaltliche Restore-Vergleiche. Die automatisierte CI ersetzt keinen abschließenden Verbindungstest von einem zweiten Gerät im tatsächlichen Heimnetz.
+
+R1.1 ergänzt [Monatsarchive und kontrollierten Upgrade-/Rückfalltest](../../docs/entwicklung/umwelt-r1-1.md).
+Die beiden Importer-Overlays benötigen auf diesem Branch BL_IMPORT_DSN für ein
+separates eingeschränktes Login; keine App-DSN/Sitzungsgeheimnisse im Importer.

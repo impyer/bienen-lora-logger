@@ -12,7 +12,7 @@ Nach ausdrücklicher R0-Freigabe des Betreibers am 17.10.2026 angenommen:
 [ADR-0004 – erste Umwelt-Datenstrecke im bestehenden Teststack](entscheidungen/ADR-0004-umwelt-datenstrecke.md).
 Die Freigabe betrifft R1 mit synthetischen Testdateien, kein ThinkStation-Deployment.
 
-Zur R1.1-Betreiberentscheidung vorgeschlagen:
+Am 17.10.2026 vom Betreiber ausschließlich für synthetische Cloud-/CI-Tests angenommen:
 [ADR-0005 – Monatsarchive und begrenzte vollständige Zeitreihen](entscheidungen/ADR-0005-umweltarchive-und-langzeitreihen.md).
 
 | ID | Stand | Entscheidung bzw. offene Aufgabe |

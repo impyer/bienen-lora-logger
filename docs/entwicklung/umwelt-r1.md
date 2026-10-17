@@ -1,5 +1,10 @@
 # R1: Wetter- und Bodenmessreihen im isolierten Teststack
 
+**R1.1-Ergänzung:** Für den R1.1-Branch gelten die [neue Archiv-/Upgradeanleitung](umwelt-r1-1.md)
+und der [Zeitreihenvertrag](umwelt-zeitreihen-api.md). Import/watch verlangt dort
+explizit BIENEN_IMPORT_DSN; alte Admin-DSN-Fallbacks gelten nur für den historischen
+R1-Stand. Keine automatische Bestandsumstellung.
+
 Diese Anleitung gehört zu ADR-0004 und zum Refactoring-Auftrag R1
 (A-01/A-02/A-04/A-05). Änderungsklasse **D2**: additive Datenmigration und
 erweiterter Sitzungsvertrag; Nachweise T0/T1/T2/T3, Entwicklungs-Gate G1.

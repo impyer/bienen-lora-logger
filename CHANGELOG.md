@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-17 – R1.1: synthetisch geprüfte Zeitreihen und Monatsarchive
+
+- Vollständiges Snapshot-Paging und serverseitige Auswahl realer Extrema/Null-/Lückengrenzen; Roh-API erhalten, Standrechte je Seite, tatsächliche Kanalfilter und Request-Abbruch im Browser.
+- Nach ausdrücklich freigegebenem ADR-0005 additive Migration 004, sicherer streamender Monatsimport mit Checkpoints/Provenienz/Backfill, separates eingeschränktes Import-Login und lokale Inventur. Import/watch benötigt jetzt explizit BIENEN_IMPORT_DSN; kontrollierter Konfigurationswechsel beschrieben.
+- 54 Umwelt-Tests, echte PostgreSQL-/HTTPS-/ECharts-Tests, Monats-/Jahresprobe und Container-Restore/Neustart lokal geprüft; konkrete SHAs und Grenzen im R1.1-Bericht. Keine Echtdaten-/ThinkStation-/Merge-/Deploymentfreigabe. GitHub-API-Proxy blockiert Implementierungs-PR und Remote-CI derzeit mit CONNECT 403.
+
 ## 2026-10-17 – R1.1: Fehlertests und Archiv-/Zeitreihenentwurf
 
 - Auf R1 `91284796` fehlenden jüngsten Diagrammpunkt bei mehr als 5000 Werten im echten HTTPS-/ECharts-Stack und fehlende Monatsarchivregistrierung reproduziert.
