@@ -5,7 +5,7 @@
 ## Voraussetzungen
 
 - ThinkStation mit Linux und installiertem **Docker Engine + Docker Compose v2**. Der Benutzer muss `docker compose` ausführen können. Die Docker-Gruppe besitzt faktisch Root-Rechte; nur vertrauenswürdige Benutzer dürfen ihr angehören.
-- Git-Zugriff auf das Repository `impyer/bienen-lora-logger`, branch `feature/native-stockkarte-v07-20261016` bzw. nach Review freigegebener Commit.
+- Git-Zugriff auf das Repository `impyer/bienen-lora-logger`, Branch `test/thinkstation-lan-20261017` nach bestandener Vorabnahme. Ausschließlich den freigegebenen Teststand verwenden.
 - Eine feste **private Heimnetz-IP** der ThinkStation und das tatsächliche CIDR deines LAN. Beispiel `192.168.1.50`, Netzwerk `192.168.1.0/24` – **nicht ungeprüft übernehmen**.
 - Ein freier HTTPS-Port (Standard **8443**), keine Portweiterleitung im Router. Der bestehende Bienenlogger benutzt weiterhin seine bisherigen Dienste/Ports.
 - Browser im Heimnetz; für die gültige HTTPS-Verbindung muss das **lokale Test-CA-Zertifikat** auf deinen **eigenen Testgeräten** einmalig als vertrauenswürdig hinzugefügt werden.
@@ -13,7 +13,7 @@
 ## 1. Repository herunterladen und Umgebungsdatei sicher einrichten
 
 ```sh
-git clone -b feature/native-stockkarte-v07-20261016 https://github.com/impyer/bienen-lora-logger.git
+git clone -b test/thinkstation-lan-20261017 https://github.com/impyer/bienen-lora-logger.git
 cd bienen-lora-logger/deploy/heimnetz-test
 cp .env.example .env
 chmod 600 .env
@@ -24,7 +24,7 @@ openssl rand -hex 32      # zweites, anderes Geheimnis -> BL_SESSION_SECRET
 ./start.sh
 ```
 
-`start.sh` prüft private LAN-IP, passendes Heimnetz, Secrets und Port, bevor es Docker Compose startet. Es führt keine Migration gegen eine vorhandene Host-PostgreSQL-Instanz aus. **Weder `server/datenbank/schema.sql` noch die Migrationsdateien manuell auf deinem Produktivserver ausführen.** Die alte Basisschema-Datei enthält `DROP SCHEMA`; das Initialisierungsskript darf sie ausschließlich beim ersten Start eines **neuen dedizierten Docker-Datenbank-Volumes** in `bienenlogger_test` verwenden. Eine nachträgliche Änderung vorhandener Testdaten erfolgt nicht automatisch.
+`start.sh` prüft private LAN-**IPv4** (die tatsächlich der ThinkStation zugeordnet ist), passendes Heimnetz, Secrets und Port, bevor es Docker Compose startet. Nach Erststart legt es eine lokale, git-ignorierte Initialisierungsmarke an. Bei einem späteren Start verweigert es das unbeabsichtigte Neuerzeugen einer zuvor vorhandenen Testdatenbank oder lokalen Caddy-CA, falls deren Docker-Volumes fehlen. In diesem Fall zuerst das Backup prüfen und eine bewusste Wiederherstellung vornehmen. Es führt keine Migration gegen eine vorhandene Host-PostgreSQL-Instanz aus. **Weder `server/datenbank/schema.sql` noch die Migrationsdateien manuell auf deinem Produktivserver ausführen.** Die alte Basisschema-Datei enthält `DROP SCHEMA`; das Initialisierungsskript darf sie ausschließlich beim ersten Start eines **neuen dedizierten Docker-Datenbank-Volumes** in `bienenlogger_test` verwenden. Eine nachträgliche Änderung vorhandener Testdaten erfolgt nicht automatisch.
 
 ## 2. Testvölker, Benutzer und Rechte explizit anlegen
 
@@ -90,3 +90,8 @@ Der Stack enthält `backup.sh` zum **Sichern**. Ein **nicht-destruktiver Restore
 - Backup erstellen und mindestens einmal eine **isolierte Test-Rücksicherung** validieren
 
 **Restgrenzen:** Dies ist die testfähige Erstinstallation, **keine** Zusage für vollständige BEEP-Funktionsparität oder produktive Einsatzreife. Bilder, mehrjährige Beuten-/Königinnen-Referenzabläufe, die komplette BEEP-Taxonomie, administrative Webformulare für den Katalog sowie eine Migration bestehender privater BEEP-Datensätze sind noch nicht abgenommen. Für produktive Verwendung sind außerdem aktualisierte Sicherheitsreviews, vollständige Projekt-CI, Rechte-/Rollback-Tests und Backup-/Restore-Abnahme notwendig.
+
+
+## Vorabnahme – Datenintegrität und Sicherheitsregressionen
+
+Der Vorabnahme-Zweig `audit/thinkstation-lan-20261017` prüft zusätzlich tatsächliche HTTPS-POST-Anfragen, CSRF, manipulierte Forwarding-Header, konkurrierende Korrekturen, aktive Rechteentzüge, unzulässige Quellnetzwerke, veränderte Ports, Neustarts ohne Volume-Löschung und inhaltliche Restore-Vergleiche. Die automatisierte CI ersetzt keinen abschließenden Verbindungstest von einem zweiten Gerät im tatsächlichen Heimnetz.

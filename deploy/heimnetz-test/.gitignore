@@ -1,3 +1,5 @@
 .env
 backups/
 certs/
+
+.bienenlogger-test-initialisiert
