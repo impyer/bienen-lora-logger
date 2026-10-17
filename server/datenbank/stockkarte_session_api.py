@@ -10,6 +10,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 import hashlib
 import hmac
+import ipaddress
 import os
 import re
 import secrets
@@ -49,7 +50,16 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
         # Kein versehentlich im LAN veröffentlichter Dev-Sitzungsdienst.
         # TestClient benutzt "testclient"; echte Zugriffe nur Loopback.
         peer = request.client.host if request.client else ""
-        if peer not in {"127.0.0.1", "::1", "testclient"}:
+        allowed = peer in {"127.0.0.1", "::1", "testclient"}
+        # Der Heimnetz-Test läuft hinter einem TLS-Reverse-Proxy in einem
+        # ausschließlich internen Docker-Netz. Direkte Portfreigabe des
+        # FastAPI-Dienstes bleibt verboten.
+        if not allowed and os.environ.get("BIENEN_AUTH_TRUST_DOCKER_PROXY") == "1":
+            try:
+                allowed = ipaddress.ip_address(peer) in ipaddress.ip_network("172.16.0.0/12")
+            except ValueError:
+                allowed = False
+        if not allowed:
             return JSONResponse(
                 status_code=403, content={"detail":"Nur lokaler Entwicklungsbetrieb"},
                 headers={"Cache-Control":"no-store"},
@@ -179,6 +189,51 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
                 (actor[0],),
             )
             return [{"id":a,"name":b,"can_write":c} for a,b,c in cur.fetchall()]
+
+    @app.get("/api/v1/stockkarte/katalog")
+    def catalog(actor=Depends(principal)):
+        # Gemeinsamer Katalog ohne einzelne Standorte/Volknamen. Nur
+        # eingeloggten und einem Volk berechtigten Personen anzeigen.
+        with db() as conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM bienen.sk_benutzer_volk WHERE benutzer_id=%s AND darf_lesen LIMIT 1",
+                (actor[0],),
+            )
+            if cur.fetchone() is None:
+                return {"categories":[],"options":[],"checklists":[]}
+            cur.execute(
+                """SELECT id,parent_id,bezeichnung,eingabetyp,pflicht,meta
+                   FROM bienen.sk_kategorie ORDER BY id"""
+            )
+            categories=[dict(zip(
+                ("id","parent_id","name","input","required","meta"),row
+            )) for row in cur.fetchall()]
+            cur.execute(
+                """SELECT id,kategorie_id,bezeichnung,reihenfolge,inaktiv
+                   FROM bienen.sk_option ORDER BY kategorie_id,reihenfolge"""
+            )
+            options=[dict(zip(
+                ("id","category_id","name","position","inactive"),row
+            )) for row in cur.fetchall()]
+            cur.execute(
+                """SELECT c.id,c.name,v.version FROM bienen.sk_checkliste c
+                   JOIN bienen.sk_checkliste_version v ON v.checkliste_id=c.id
+                   ORDER BY c.id,v.version"""
+            )
+            checklists=[]
+            for cid,name,version in cur.fetchall():
+                cur.execute(
+                    """SELECT kategorie_id,position,pflicht
+                       FROM bienen.sk_checkliste_feld
+                       WHERE checkliste_id=%s AND version=%s ORDER BY position""",
+                    (cid,version),
+                )
+                checklists.append({
+                    "id":cid,"name":name,"version":version,
+                    "fields":[{"category_id":fid,"position":p,"required":req}
+                              for fid,p,req in cur.fetchall()],
+                })
+        return {"categories":categories,"options":options,"checklists":checklists}
 
     @app.get("/api/v1/stockkarte/voelker/{volk_id}/durchsichten")
     def inspections(volk_id: int = Path(gt=0),

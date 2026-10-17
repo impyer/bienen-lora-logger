@@ -97,6 +97,10 @@ def main():
         assert len(rows)==1 and rows[0]["id"]==a and rows[0]["can_write"]
         checks+=1
         verify(c.get(base+f"/voelker/{b}/durchsichten"),404)
+        permitted_catalog=verify(c.get(base+"/katalog"),200).json()
+        assert len(permitted_catalog["categories"])==2
+        assert permitted_catalog["categories"][0]["id"]=="bl:frames"
+        checks+=1
         verify(c.get(base+f"/voelker/{a}/durchsichten"),200)
         path=base+f"/voelker/{a}/durchsichten"
         body={"event_date":"2026-10-16","values":{"bl:seen":False,"bl:frames":0},
@@ -140,6 +144,7 @@ def main():
         assert len(rows)==1 and rows[0]["id"]==a and not rows[0]["can_write"]
         checks+=1
         verify(guest.get(path),200)
+        verify(guest.get(base+"/katalog"),200)
         verify(guest.get(revisions),200)
         verify(guest.post(path,json=body,headers={"X-CSRF-Token":csrf}),404)
         verify(guest.post(revisions,json=latest,headers={"X-CSRF-Token":csrf}),404)
