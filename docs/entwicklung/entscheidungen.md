@@ -8,6 +8,10 @@ Das Register trennt angenommene Verfahrensregeln von noch offenen Sachentscheidu
 
 ## Governance
 
+Zur R0-Prüfung vorgeschlagen, noch nicht angenommen:
+[ADR-0004 – erste Umwelt-Datenstrecke im bestehenden Teststack](entscheidungen/ADR-0004-umwelt-datenstrecke.md).
+Angenommene ADRs und Betreiberentscheidungen bleiben maßgeblich.
+
 | ID | Stand | Entscheidung bzw. offene Aufgabe |
 |---|---|---|
 | **GOV-01** | **ENTSCHIEDEN 09.10.2026** | Lizenzaufteilung in `hardware/` und `mechanik/`: **Python- und Shell-Skripte** (`*.py`, `*.sh`) unter **GPL-3.0-or-later**; **Schaltpläne, Symbole, Footprints, Layouts, KiCad-Projektdateien und Exporte** unter **CERN-OHL-S-2.0**, auch wenn sie von einem GPL-Skript erzeugt werden. Umsetzung: `LICENSE.md`, `SPDX-License-Identifier` in den Skripten. Rechteinhaber: Philipp Schnabel. |

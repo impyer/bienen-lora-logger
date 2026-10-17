@@ -1,5 +1,7 @@
 # Testberichte und offene Prüfpunkte
 
+- [17.10.2026 – Refactoring R0: Code-/Datenflussanalyse, reproduzierte Umweltlücke, SQL-Grenzfälle und R1-Entwurf](2026-10-17-refactoring-r0.md)
+
 Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt Bienenlogger. Die Berichte sind Dokumentation, keine automatische Fehlerbehebung. Neue Implementierungen sollen Befund-IDs referenzieren und mit Tests gegen die angegebenen Akzeptanzkriterien abgesichert werden.
 
 **Aktueller Stand aller Befunde: [Befundregister](befunde.md)** (einzige Stelle, Regelwerk 1.1 R-05a). Die Berichte unten und die Abschnitte darunter sind historische Snapshots.
