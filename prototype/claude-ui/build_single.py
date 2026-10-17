@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Build the portable, one-file Bienenlogger preview from the canonical sources.
 
 Do not put a live <script> in <head>: inline scripts execute immediately even
@@ -18,20 +19,23 @@ js = (source_dir / 'app.js').read_text(encoding='utf-8')
 live = (source_dir / 'stockkarte_live.js').read_text(encoding='utf-8')
 editor = (source_dir / 'stockkarte_edit.js').read_text(encoding='utf-8')
 native = (source_dir / 'stockkarte_native.js').read_text(encoding='utf-8')
+environment = (source_dir / 'umwelt.js').read_text(encoding='utf-8')
 assert html.count('<link rel="stylesheet" href="style.css">') == 1
 assert html.count('<script defer src="app.js"></script>') == 1
 assert html.count('<script defer src="stockkarte_live.js"></script>') == 1
 assert html.count('<script defer src="stockkarte_edit.js"></script>') == 1
 assert html.count('<script defer src="stockkarte_native.js"></script>') == 1
+assert html.count('<script defer src="umwelt.js"></script>') == 1
 assert html.count('</body>') == 1
 # Inline CSS remains in head. JavaScript must be at the END OF BODY.
 html = html.replace('<link rel="stylesheet" href="style.css">',
                     '  <style>\n' + css.replace('</style', '<\\/style') + '\n  </style>')
 html = html.replace('<script defer src="stockkarte_native.js"></script>', '')
+html = html.replace('<script defer src="umwelt.js"></script>', '')
 html = html.replace('<script defer src="app.js"></script>', '')
 html = html.replace('<script defer src="stockkarte_live.js"></script>', '')
 html = html.replace('<script defer src="stockkarte_edit.js"></script>', '')
-html = html.replace('</body>', '  <script>\n' + native.replace('</script', '<\\/script') + '\n  </script>\n  <script>\n' + js.replace('</script', '<\\/script') + '\n  </script>\n  <script>\n' + live.replace('</script', '<\\/script') + '\n  </script>\n  <script>\n' + editor.replace('</script', '<\\/script') + '\n  </script>\n</body>')
+html = html.replace('</body>', ''.join('  <script>\n' + code.replace('</script', '<\\/script') + '\n  </script>\n' for code in [native, environment, js, live, editor]) + '</body>')
 output = a.output or source_dir / 'bienenlogger-claude-prototyp.html'
 output.write_text(html, encoding='utf-8')
 print('Created:', output, '('+str(output.stat().st_size)+' bytes)')

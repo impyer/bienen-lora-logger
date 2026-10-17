@@ -12,7 +12,7 @@ from stockkarte_session_api import create_session_app
 
 SOURCE = Path(__file__).resolve().parents[2] / "prototype" / "claude-ui"
 ALLOWED = frozenset({
-    "index.html","app.js","style.css","stockkarte_native.js","stockkarte_live.js","stockkarte_edit.js"
+    "index.html","app.js","style.css","stockkarte_native.js","stockkarte_live.js","stockkarte_edit.js","umwelt.js"
 })
 # Plain HTTP nur in ausdrücklich gewünschter, isolierter localhost-Entwicklung.
 # Für HTTPS Secure-Cookies unverändert aktiv.
@@ -43,3 +43,7 @@ def asset(asset_name: str):
         "text/css" if asset_name.endswith(".css") else "text/html"
     )
     return FileResponse(SOURCE / asset_name, media_type=media)
+
+@app.get("/vendor/echarts.min.js", include_in_schema=False)
+def echarts_asset():
+    return FileResponse(SOURCE / "vendor" / "echarts.min.js", media_type="text/javascript")

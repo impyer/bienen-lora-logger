@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
 const http=require('node:http'),path=require('node:path');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'../../prototype/claude-ui');
-const allowed=new Set(['index.html','app.js','style.css','stockkarte_native.js','stockkarte_live.js','stockkarte_edit.js','bienenlogger-claude-prototyp.html']);
+const allowed=new Set(['index.html','app.js','style.css','stockkarte_native.js','stockkarte_live.js','stockkarte_edit.js','umwelt.js','bienenlogger-claude-prototyp.html']);
 const server=http.createServer((req,res)=>{
  const name=(req.url||'/').split('?')[0].slice(1)||'index.html';
  if(!allowed.has(name)){res.writeHead(404);res.end();return;}

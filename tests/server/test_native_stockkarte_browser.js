@@ -6,7 +6,7 @@ const fs=require('node:fs');
 const http=require('node:http');
 const path=require('node:path');
 const { chromium }=require('playwright');
-const root=path.resolve(__dirname,'../../prototype/claude-ui'), names=new Set(['index.html','style.css','app.js','stockkarte_native.js','stockkarte_live.js','stockkarte_edit.js','bienenlogger-claude-prototyp.html']);
+const root=path.resolve(__dirname,'../../prototype/claude-ui'), names=new Set(['index.html','style.css','app.js','stockkarte_native.js','stockkarte_live.js','stockkarte_edit.js','umwelt.js','bienenlogger-claude-prototyp.html']);
 const server=http.createServer((req,res)=>{const n=decodeURIComponent((req.url||'/').split('?')[0]).slice(1)||'index.html';if(!names.has(n)){res.writeHead(404);res.end();return;}res.writeHead(200,{'Content-Type':n.endsWith('.js')?'text/javascript':n.endsWith('.css')?'text/css':'text/html'});res.end(fs.readFileSync(path.join(root,n)))});
 async function test(){await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const browser=await chromium.launch({headless:true,args:['--no-sandbox']});try{
  for(const file of ['index.html','bienenlogger-claude-prototyp.html']){
