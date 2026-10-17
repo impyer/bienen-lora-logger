@@ -62,7 +62,7 @@ const server=http.createServer(async(req,res)=>{
   const body=JSON.parse(raw);
   assert.equal(body.values['bl:frames'],3);
   created++;
-  inserted.push({id:44,event_date:body.event_date,note:body.note,revision:1,
+  inserted.push({id:44,event_date:body.event_date,accuracy:body.accuracy,event_time:null,note:body.note,revision:1,
     values:body.values,checklist_id:1,checklist_version:1});
   return json(res,201,{id:44,revision:1,created:true});
  }
@@ -78,8 +78,8 @@ const server=http.createServer(async(req,res)=>{
  }
  if(url.pathname===api+'/voelker/123/durchsichten')return json(res,200,[
   ...inserted,
-   {id:33,event_date:'2026-10-16',note:'Brutkontrolle',revision:2,values:{'bl:frames':5}},
-   {id:32,event_date:'2026-10-12',note:'Futterprüfung',revision:1,values:{}}
+   {id:33,event_date:'2026-10-16',accuracy:'nur_datum',event_time:null,note:'Brutkontrolle',revision:2,values:{'bl:frames':5}},
+   {id:32,event_date:'2026-10-12',accuracy:'nur_datum',event_time:null,note:'Futterprüfung',revision:1,values:{}}
  ]);
  if(url.pathname===api+'/durchsichten/33/revisionen')return json(res,200,[
    {revision:1,event_date:'2026-10-16',accuracy:'nur_datum',reason:'Erstanlage',author:'tester'},
