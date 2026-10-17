@@ -1,7 +1,9 @@
 # Vorbereiteter PR: R1.1 – vollständige Umwelt-Zeitreihen und sichere Monatsarchive
 
-**Zielbranch:** `refactor/r1-umweltdaten-20261017`  
-**Quellbranch:** `refactor/r1-1-umweltarchive-20261017`  
+**Zielbranch:** `refactor/r1-umweltdaten-20261017`
+
+**Quellbranch:** `refactor/r1-1-umweltarchive-20261017`
+
 **Status:** PR-Erstellung durch CONNECT 403 zu api.github.com blockiert; dieser
 Text ist die reviewbare Übergabe, keine behauptete PR/Remote-CI.
 
@@ -19,9 +21,12 @@ Migration 004 ist additiv, 003 unverändert. Separates Import-Login, Inventur,
 kontrollierte Konfigurationsänderung `BIENEN_IMPORT_DSN`, Backup/Restore und
 manuelle Abnahme sind dokumentiert. Keine automatische Bestandsumstellung.
 
-**Änderungsklasse:** D2, Entwicklungs-Gate G1.  
-**Befunde/Anforderungen:** R1.1-01–06, R11-A01–A11; ADR-0004/0005.  
-**Bericht:** [R1.1-Prüfbericht](2026-10-17-refactoring-r1-1.md).  
+**Änderungsklasse:** D2, Entwicklungs-Gate G1.
+
+**Befunde/Anforderungen:** R1.1-01–06, R11-A01–A11; ADR-0004/0005.
+
+**Bericht:** [R1.1-Prüfbericht](2026-10-17-refactoring-r1-1.md).
+
 **Manuelle Abnahme/Rückfall:** [Betriebsanleitung](../entwicklung/umwelt-r1-1.md).
 
 ## Nachweis
