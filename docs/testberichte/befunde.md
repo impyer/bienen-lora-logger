@@ -130,6 +130,20 @@ RF-01–RF-07 verwenden die Auftragskennungen, RF-08–RF-12 ergänzen die Analy
 | RF-11 | P2 | Laufzeitabhängigkeiten mit Versionsbereichen, Container ohne Digest-Lock | im Entwurf teilweise behoben: Python-/ECharts-Lock und drei Image-Digests für R1 | T3: reproduzierte Browserassets, Containerbuild mit gelockten Wheels | R5: vorhandene weitere CI-Versionen vereinheitlichen, Dauer-/Updatebetrieb prüfen | R0/R1, Dockerfile/Compose/CI |
 | RF-12 | P2 | Katalog-SQL/DTOs und Fachvalidierung mehrfach, kein vollständiger Konformitätskorpus | analysiert – bestätigt als Wartungsrisiko, kein pauschaler Funktionsdefekt | T0, vorhandene Teiltests PASS | R1/R4 gezielte gemeinsame Verträge; gute Bausteine erhalten | R0, API/Session/Store/native JS |
 
+## Refactoring R1.1
+
+Erfasst auf R1 `91284796`, Nachweise: [Bestandsaufnahme](2026-10-17-refactoring-r1-1-bestand.md).
+Die Auftragskennungen bleiben erhalten; kein tatsächlicher Feldnachweis aus synthetischen Daten.
+
+| ID | Prio | Kurzbeschreibung | Status | Höchster Nachweis | Nächster Schritt |
+|---|---|---|---|---|---|
+| R1.1-01 | P1 | Langzeitdiagramm lädt keine Folgeseiten, jüngster Wert fehlt | analysiert – bestätigt | T2: echter Browser, 7 Tage, 25200 Bodenwerte | R11-A01–A03: begrenztes vollständiges Paging/Verdichtung |
+| R1.1-02 | P1 | Fortlaufende Monatsarchive/Rotation fehlen | analysiert – bestätigt | T1/T2: neue Archivkonfiguration abgewiesen | ADR-0005 entscheiden, R11-A04–A06 |
+| R1.1-03 | P1 | Echte Sensor-/LAN-Dateien noch nicht abgenommen | offen | Kein T4/T5 | R11-A11 nach gesonderter Betreibererlaubnis |
+| R1.1-04 | P2 | Vollscan/32-MiB-Grenze und SQL pro Messwert | analysiert – bestätigt | T0, R1-Code | Streaming/Append/Replay und Jahresprofil R11-A10 |
+| R1.1-05 | P2 | Manuelle Quell-/ID-Wechsel ohne Inventur/Diagnose | analysiert – bestätigt | T0, CLI | sichere lokale Inventur und Konfigurationsanleitung |
+| R1.1-06 | P2 | Importer erbt breite DB-/App-Konfiguration | analysiert – bestätigt | T0, Compose | getrennte Rolle und negative SQL-Rechteprüfungen |
+
 ## Prozess und Regelwerk
 
 | ID | Prio | Kurzbeschreibung | Status | Höchster Nachweis | Gesperrtes Gate / nächster Schritt | Quellen |

@@ -1,5 +1,6 @@
 # Testberichte und offene Prüfpunkte
 
+- [17.10.2026 – R1.1: Bestandsaufnahme, reproduzierte Langzeitdiagramm- und Archivlücken](2026-10-17-refactoring-r1-1-bestand.md)
 - [17.10.2026 – Refactoring R1: synthetische CSV durch reale PostgreSQL-/HTTPS-/ECharts-Strecke, Importrevisionen und Containerneustart](2026-10-17-refactoring-r1.md)
 - [17.10.2026 – Refactoring R0: Code-/Datenflussanalyse, reproduzierte Umweltlücke, SQL-Grenzfälle und R1-Entwurf](2026-10-17-refactoring-r0.md)
 

@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2026-10-17 – R1.1: Fehlertests und Archiv-/Zeitreihenentwurf
+
+- Auf R1 `91284796` fehlenden jüngsten Diagrammpunkt bei mehr als 5000 Werten im echten HTTPS-/ECharts-Stack und fehlende Monatsarchivregistrierung reproduziert.
+- Technische Bestandsaufnahme, Befundfamilie R1.1 und ADR-0005 zur gezielten Korrektur ergänzt. Sensibler Import-/Migrationsentwurf zur Entscheidung, noch keine Implementierungs- oder Feldergebnisse behauptet.
+
 ## 2026-10-17 – Betreiberfreigabe des synthetischen R1-Entwicklungsstands
 
 - Ausdrückliche Freigabe von PR #22 auf `d672d853a3af5341dc0438756266532a66258620` in ADR-0004, R1-Anleitung und Befundregister festgehalten (D0/T0).
