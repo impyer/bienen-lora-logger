@@ -48,6 +48,9 @@ main{max-width:1360px;width:100%;margin:0 auto;padding:20px 24px 32px;min-height
 
 .native-order-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);min-width:0;padding:4px 0}.native-order-row .checkline{flex:1}.native-order-row>div{display:flex;gap:4px;flex-shrink:0}
 
+/* R1: server-backed environment slice, responsive without a framework. */
+.um-login{max-width:440px;display:grid;gap:16px}.um-login label,.um-range label{display:grid;gap:5px}.um-range{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:14px 0}.um-range input{max-width:100%;min-width:0}.um-controls{flex-wrap:wrap}.um-controls select{max-width:100%;min-width:0}.um-fields{border:1px solid #dce3d9;border-radius:8px;padding:12px;display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}.um-fields label{display:flex;gap:6px;align-items:center;font-size:13px}.um-fields input{width:auto}.um-plots{display:grid;gap:18px;min-width:0}.um-plots .panel{min-width:0;overflow:hidden}.um-chart{height:380px;width:100%;min-width:0}.um-range button{white-space:normal}@media(max-width:540px){.um-chart{height:340px}.um-range{display:grid;grid-template-columns:1fr}.um-controls{align-items:stretch;flex-direction:column}.um-fields{display:grid;grid-template-columns:1fr}}
+
   </style>
 
 </head><body>
@@ -398,6 +401,179 @@ return {normalizeCatalog,prepare,catalogReport,addGroup,addField,addOption,renam
   </script>
   <script>
 /* SPDX-License-Identifier: GPL-3.0-or-later
+ * Authenticated environment vertical slice. No local measurements or entity IDs.
+ */
+(()=>{
+'use strict';
+const API='/api/v1/umwelt',AUTH='/api/v1/stockkarte/session';
+const POLL_MS=30000;
+let root=null,session=null,sites=[],site=null,timer=null,generation=0,loading=false;
+let days=1,fixed=null,selected=null,charts=[],latestSeries=[];
+const timeLabel=t=>new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',timeZoneName:'shortOffset'}).format(new Date(t));
+const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function make(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function clearCharts(){for(const chart of charts)chart.dispose();charts=[];}
+function reload(rebuild=true){generation++;loading=false;clearCharts();refresh(generation,rebuild);}
+function unmount(){generation++;clearInterval(timer);timer=null;clearCharts();root=null;loading=false;}
+async function request(url,{method='GET',body,csrf}={}){
+ const headers={Accept:'application/json'};
+ if(body!==undefined)headers['Content-Type']='application/json';
+ if(csrf)headers['X-CSRF-Token']=csrf;
+ const response=await fetch(url,{method,headers,credentials:'same-origin',cache:'no-store',redirect:'error',body:body===undefined?undefined:JSON.stringify(body)});
+ let value;try{value=await response.json();}catch{value={};}
+ if(!response.ok){const error=Error(response.status===401?'Sitzung fehlt oder ist abgelaufen':response.status===404?'Stand nicht freigegeben oder nicht vorhanden':response.status===503?'Umwelt-Teststack noch nicht eingerichtet':typeof value.detail==='string'?value.detail:'Anfrage fehlgeschlagen ('+response.status+')');error.status=response.status;throw error;}
+ return value;
+}
+function notice(text){if(root){const target=root.querySelector('#umStatus');if(target)target.textContent=text;}}
+function loginForm(message=''){
+ if(!root)return;
+ generation++;loading=false;
+ clearInterval(timer);clearCharts();session=null;
+ root.replaceChildren();
+ root.append(make('p',message||'Für freigegebene Umweltmessreihen am Testserver anmelden.','note'));
+ const form=make('form',undefined,'um-login');form.id='umLogin';
+ for(const [name,label,type] of [['username','Benutzername','text'],['password','Passwort','password']]){
+  const field=make('label',label);const input=make('input');input.name=name;input.type=type;input.required=true;input.autocomplete=name==='username'?'username':'current-password';field.append(input);form.append(field);
+ }
+ const submit=make('button','Anmelden','btn primary');submit.type='submit';form.append(submit);
+ const error=make('p','');error.setAttribute('role','alert');form.append(error);
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();submit.disabled=true;
+  const username=form.elements.username.value.trim(),password=form.elements.password.value;
+  form.elements.password.value='';
+  const token=generation;
+  try{session=await request(AUTH+'/login',{method:'POST',body:{username,password}});if(token!==generation)return;await initialize(token);}
+  catch(exc){if(token===generation)error.textContent=exc.message;}finally{submit.disabled=false;}
+ });
+ root.append(form);
+}
+function buildControls(){
+ clearCharts();root.replaceChildren();
+ const toolbar=make('div',undefined,'toolbar um-controls');
+ const who=make('span','Angemeldet: '+session.username);toolbar.append(who);
+ const logout=make('button','Abmelden','btn');logout.id='umLogout';logout.type='button';
+ logout.addEventListener('click',async()=>{try{await request(AUTH+'/logout',{method:'POST',csrf:session.csrf_token});loginForm('Abgemeldet.');}catch(exc){notice(exc.message);}});toolbar.append(logout);
+ const label=make('label','Stand '),select=make('select');select.id='umStand';select.setAttribute('aria-label','Freigegebenen Umweltstand auswählen');
+ for(const item of sites){const o=make('option',item.name);o.value=String(item.id);select.append(o);}select.value=String(site);label.append(select);toolbar.append(label);
+ select.addEventListener('change',()=>{site=Number(select.value);selected=null;reload();});
+ root.append(toolbar);
+ const mode=make('p','Quellen werden geprüft …','note');mode.id='umMode';root.append(mode);
+ const ranges=make('div',undefined,'toolbar');
+ for(const [n,labelText] of [[1,'24 h'],[7,'7 Tage'],[30,'30 Tage'],[0,'Saison']]){
+  const button=make('button',labelText,'btn');button.type='button';button.addEventListener('click',()=>{days=n;fixed=null;reload();});ranges.append(button);
+ }
+ const custom=make('form',undefined,'um-range');
+ for(const [name,labelText,value] of [['from','Von (UTC)',new Date(Date.now()-86400000)],['to','Bis (UTC)',new Date()]]){
+  const labelNode=make('label',labelText);const input=make('input');input.name=name;input.type='datetime-local';input.required=true;input.value=value.toISOString().slice(0,16);labelNode.append(input);custom.append(labelNode);
+ }
+ const apply=make('button','Zeitraum anwenden','btn');apply.type='submit';custom.append(apply);
+ custom.addEventListener('submit',e=>{e.preventDefault();fixed=[custom.elements.from.value+'Z',custom.elements.to.value+'Z'];reload();});
+ root.append(ranges,custom);
+ const fields=make('fieldset',undefined,'um-fields');fields.id='umFields';fields.append(make('legend','Messkanäle'));root.append(fields);
+ const status=make('p','','small muted');status.id='umStatus';status.setAttribute('role','status');root.append(status);
+ const quality=make('div');quality.id='umSources';root.append(quality);
+ const plots=make('div',undefined,'um-plots');plots.id='umPlots';root.append(plots);
+ root.append(make('p','Automatische Abfrage alle 30 Sekunden. Rohwerte, keine Interpolation oder Regenzähler-Summe. Zeitangaben: Europe/Berlin. Andere Ansichten bleiben bis R3 ausdrücklich Offline-Prototypen.','small muted'));
+}
+function windowParams(){
+ if(fixed)return fixed;
+ const end=new Date(),start=days?new Date(end.getTime()-days*86400000):new Date(Date.UTC(end.getUTCFullYear(),0,1));
+ return [start.toISOString(),end.toISOString()];
+}
+function plotData(points,interval){
+ const data=[];let previous=null;
+ for(const point of points){
+  const time=Date.parse(point.time);
+  if(previous!==null&&interval&&time-previous>interval*2500){
+   // This null is a line break, explicitly not a synthetic observation.
+   data.push({value:[previous+1,null],meta:{gap:true}});
+  }
+  data.push({value:[time,point.value],meta:point});previous=time;
+ }
+ return data;
+}
+function renderPlots(series){
+ clearCharts();const plots=root.querySelector('#umPlots');plots.replaceChildren();
+ const groups=new Map();
+ for(const item of series){
+  if(!selected.has(item.channel.id))continue;
+  const key=item.channel.profile+' / '+item.channel.unit;
+  if(!groups.has(key))groups.set(key,[]);groups.get(key).push(item);
+ }
+ if(!groups.size){plots.append(make('p','Keine ausgewählten Messkanäle.','empty'));return;}
+ for(const [key,items] of groups){
+  const section=make('section',undefined,'panel');section.append(make('h2',(items[0].channel.profile==='boden'?'Boden':'Wetter')+' · '+items[0].channel.unit));
+  if(!items.some(s=>s.points.some(p=>p.value!==null))){section.append(make('p','Keine Messwerte im ausgewählten Zeitraum.','empty'));plots.append(section);continue;}
+  const div=make('div',undefined,'um-chart');div.dataset.unit=items[0].channel.unit;div.setAttribute('role','img');div.setAttribute('aria-label',items.map(i=>i.channel.name).join(', '));section.append(div);plots.append(section);
+  const chart=window.echarts.init(div);charts.push(chart);
+  chart.setOption({animation:false,aria:{enabled:true},grid:{left:65,right:25,top:70,bottom:75,containLabel:true},
+   legend:{type:'scroll',top:5},toolbox:{feature:{dataZoom:{yAxisIndex:'none'},restore:{}}},
+   xAxis:{type:'time',axisLabel:{formatter:value=>new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value))}},
+   yAxis:{type:'value',name:items[0].channel.unit,scale:true},dataZoom:[{type:'inside'},{type:'slider'}],
+   tooltip:{trigger:'axis',confine:true,formatter:params=>params.map(p=>{
+    const point=p.data?.meta;if(!point||point.gap)return '';
+    return escape(p.seriesName)+'<br>'+escape(timeLabel(point.time))+' · '+(point.value===null?'fehlend':escape(point.value))+' '+escape(items[0].channel.unit)+'<br>Quelle: '+escape(point.source)+' · '+(point.synthetic?'synthetisch':'Messquelle')+' · '+escape(point.time_quality)+' · Revision '+point.revision+(point.quality.length?'<br>QC: '+escape(point.quality.join(', ')):'');
+   }).filter(Boolean).join('<hr>')},
+   series:items.map(item=>({id:String(item.channel.id),name:items.filter(other=>other.channel.name===item.channel.name).length>1?item.channel.name+' · '+item.channel.device_name:item.channel.name,type:item.channel.display==='balken'?'bar':item.channel.display==='punkte'?'scatter':'line',
+    step:item.channel.display==='stufe'?'end':undefined,connectNulls:false,smooth:false,showSymbol:true,symbolSize:5,
+    data:plotData(item.points,item.channel.interval_seconds)}))});
+ }
+}
+async function loadEcharts(){
+ if(window.echarts)return;
+ await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='vendor/echarts.min.js';script.onload=resolve;script.onerror=()=>reject(Error('ECharts konnte nicht geladen werden'));document.head.append(script);});
+}
+async function refresh(token,rebuild=false){
+ if(!root||token!==generation||loading)return;loading=true;
+ try{
+  const [from,to]=windowParams();
+  const params=new URLSearchParams({stand_id:site,von:from,bis:to,limit:'5000'});
+  const [result,sources]=await Promise.all([request(API+'/messreihen?'+params),request(API+'/quellen?stand_id='+site)]);
+  if(token!==generation||!root)return;
+  await loadEcharts();if(token!==generation||!root)return;
+  latestSeries=result.series;
+  const mode=sources.length&&sources.every(s=>s.synthetic)?'SYNTHETISCHE TESTDATEN · keine aktuellen Feldmessungen':sources.some(s=>s.synthetic)?'Gemischte Quellen · Testdaten sind je Punkt gekennzeichnet':'Freigegebene Messquellen';
+  root.querySelector('#umMode').textContent=mode;
+  document.querySelector('#modeMark').textContent=mode;
+  if(selected===null||rebuild){
+   if(selected===null)selected=new Set(result.series.map(s=>s.channel.id));
+   const fields=root.querySelector('#umFields');fields.replaceChildren(make('legend','Messkanäle'));
+   for(const item of result.series){
+    const label=make('label'),input=make('input');input.type='checkbox';input.checked=selected.has(item.channel.id);input.value=String(item.channel.id);
+    input.addEventListener('change',()=>{input.checked?selected.add(item.channel.id):selected.delete(item.channel.id);renderPlots(latestSeries);});
+    label.append(input,document.createTextNode(item.channel.name+' ('+item.channel.unit+' · '+item.channel.device_name+')'));fields.append(label);
+   }
+  }
+  const summaries=root.querySelector('#umSources');summaries.replaceChildren();
+  for(const source of sources){
+   const text=source.key+' · '+(source.last_value?'Letzter Messzeitpunkt: '+timeLabel(source.last_value):'Noch kein gültiger Messwert')+' · '+(source.success===true?'Letzte Importprüfung erfolgreich':source.success===false?'IMPORTFEHLER':'Noch nicht importiert');
+   summaries.append(make('p',text,'small'));
+   if(source.report?.fehler?.length)summaries.append(make('p','Importhinweise: '+JSON.stringify(source.report.fehler),'note warning'));
+  }
+  renderPlots(result.series);
+  notice('Letzte erfolgreiche Abfrage: '+timeLabel(new Date())+(result.truncated?' · Punktlimit erreicht: Zeitraum verkürzen.':'')+' · '+result.series.reduce((n,s)=>n+s.points.length,0)+' Quellwerte');
+ }catch(exc){if(token!==generation||!root)return;if(exc.status===401){loginForm(exc.message);}else{clearCharts();root.querySelector('#umPlots')?.replaceChildren(make('p','Keine Datenanzeige nach fehlgeschlagener Abfrage.','empty'));root.querySelector('#umSources')?.replaceChildren();notice(exc.message);}}
+ finally{if(token===generation)loading=false;}
+}
+async function initialize(token){
+ sites=await request(API+'/staende');if(token!==generation||!root)return;
+ if(!sites.length){root.replaceChildren(make('p','Keine Stände freigegeben. Ein Administrator muss ein ausdrückliches Standrecht einrichten.','empty'));const logout=make('button','Abmelden','btn');logout.addEventListener('click',async()=>{await request(AUTH+'/logout',{method:'POST',csrf:session.csrf_token});loginForm('Abgemeldet.');});root.append(logout);return;}
+ if(!sites.some(s=>s.id===site))site=sites[0].id;
+ selected=null;buildControls();clearInterval(timer);timer=setInterval(()=>refresh(generation),POLL_MS);await refresh(token,true);
+}
+async function mount(node){
+ unmount();root=node;const token=generation;
+ if(location.protocol==='file:'){root.append(make('p','Umwelt-Zeitreihen benötigen den eingerichteten HTTPS-Testserver. Die Offline-Datei enthält keine Servermessdaten.','empty'));return;}
+ root.append(make('p','Sitzung wird geprüft …','small'));
+ try{session=await request(AUTH);if(token===generation)await initialize(token);}catch(exc){if(token===generation)loginForm(exc.message);}
+}
+window.addEventListener('resize',()=>charts.forEach(chart=>chart.resize()));
+window.BienenUmwelt={mount,unmount};
+})();
+
+  </script>
+  <script>
+/* SPDX-License-Identifier: GPL-3.0-or-later
  * Bienenlogger – interaktiver, lokal ausführbarer UI-Prototyp.
  * Nach der Claude-Referenz vom 16.10.2026, ohne Backend-Schreibzugriff.
  * Keine erfundenen Produktivmesswerte: Musterreihen sind separat zuschaltbar.
@@ -617,9 +793,7 @@ function viewsAnalyse(){let v=data.volk;let arr=rows(v);const daily=dailyReferen
 <div class="kpi-grid">${card('Nacht-Referenzwerte',String(daily.length),'Median 00:00–04:00 Uhr, Europe/Berlin')}${card('Letzte Tagesbilanz',kpi(dailyChange(v),'kg',3),'Nur zwei aufeinanderfolgende Tage')}${card('Plausibilitäts-Hinweise',String(anomalies.length+qualityAlerts.length),'Bei Initialmessungen: Medianabweichung > 15 % und > 2 kg')}${card('Messpunkte',String(arr.length),data.mode==='demo'?'Ausschließlich simuliert':'Vorliegende Daten')}</div>
 <div class="section-heading"><h2>Gewichtsanalyse · ${esc(colonyName(v))}</h2></div><div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Gewicht und Tagesentwicklung</h2><div class="panel-subtitle">${data.mode==='demo'?'Musterverlauf':'Realdaten – keine geglätteten oder interpolierten Lücken'}</div></div>${tag('beelogger-Prinzip','blue')}</div>${chartSVG(arr,{labelText:'Messgewicht '+colonyName(v),height:270,events:allEvents(v),valueKey:hasBeepExport?'gewicht_kg_chart':'gewicht_kg'})}</section><section class="panel"><h2>Berechnungsmethodik</h2><div class="stat-list" style="margin-top:14px"><div class="stat-row"><span>Referenz</span><strong>Median 00–04 Uhr</strong></div><div class="stat-row"><span>Tagesbilanz</span><strong>Tag t − Vortag</strong></div><div class="stat-row"><span>Zeitbasis</span><strong>Europe/Berlin</strong></div><div class="stat-row"><span>Eingriffe</span><strong>Separat markieren</strong></div><div class="stat-row"><span>FFT</span><strong>Vektor, keine dB</strong></div></div><hr><div class="note">Gewichtsänderungen können durch Tracht, Wetter oder Eingriffe verursacht sein. Keine automatische Schwarm- oder Varroa-Diagnose aus diesen Kennzahlen.</div></section></div>
 <div class="section-heading"><h2>Völkervergleich am Stand</h2><span>Nacht-Median · bei dieser kurzen Zeitreihe eingeschränkt</span></div><div class="layout-two"><section class="panel"><h2>Tagesreferenz · letzte verfügbare Nacht</h2><div class="compare-bars" style="margin-top:19px">${['5','8'].map(id=>{let d=dailyReference(rows(id)).at(-1);return `<div class="compare-bar"><span>Volk ${id}</span><div class="bar-track"><div class="bar-fill" style="width:${d?Math.min(100,d.weight/45*100):0}%"></div></div><strong>${d?number(d.weight,2)+' kg':'—'}</strong></div>`;}).join('')}</div><p class="small muted" style="margin-top:17px">Nur Nachtwerte. Unterschiedliche Beutenmasse und Kalibrierung sind bei Vergleichen zu berücksichtigen.</p></section><section class="panel"><h2>Tagesbilanzen und Maßnahmen</h2>${deltas.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Tag</th><th>Nachtmedian</th><th>Δ kg</th><th>Eintrag im Entwurf</th></tr></thead><tbody>${deltas.slice(-8).reverse().map(d=>`<tr><td>${esc(d.day)}</td><td>${number(d.weight,3)}</td><td>${kpi(d.delta,'',3)}</td><td>${allEvents(v).filter(e=>e.date===d.day).length?'Ja':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Für eine Tagesbilanz fehlen aufeinanderfolgende Nächte.</div>'}</section></div>`;}
-function viewsUmwelt(){const soil=[['5 cm','12,4 °C'],['20 cm','12,3 °C'],['50 cm','13,1 °C']];return `${head('Umwelt & Tracht','Standortbezogene Messungen – nicht als zusätzliche Stockmessgeräte zählen.')}
-<div class="kpi-grid">${card('Wetterstation','SenseCAP S2120','Vorhandene Datenquelle, aktuelle Daten hier nicht geladen')}${card('Boden 5 cm','12,4 °C','Bekannter Einzelwert vom 14.10.2026')}${card('Boden 20 cm','12,3 °C','Bekannter Einzelwert vom 14.10.2026')}${card('Boden 50 cm','13,1 °C','Bekannter Einzelwert vom 14.10.2026')}</div>
-<div class="section-heading"><h2>Wetter, Phänologie und Tracht</h2></div><div class="layout-two"><section class="panel"><h2>Bodentemperatur und Messpositionen</h2>${soil.map(([t,v])=>`<div class="row-small"><span>Tiefe ${t}</span><strong>${v}</strong></div>`).join('')}<div class="note" style="margin-top:16px">Hier werden nur die im Projekt bereits übermittelten drei Einzelwerte dargestellt. Für echte Zeitverläufe braucht die Oberfläche die Bodenmessreihen des Servers.</div><hr><h3>Temperaturverlauf</h3><div class="empty">Noch keine vollständige Umwelt-Zeitreihe in dieser Offline-Vorschau.</div></section><section class="panel"><h2>Phänologie, Grünlandtemperatursumme und Tracht</h2><div class="stat-list" style="margin-top:15px"><div class="stat-row"><span>Grünlandtemperatursumme</span>${tag('Noch nicht berechenbar','gray')}</div><div class="stat-row"><span>DWD-Phänologie</span>${tag('Anbindung vorbereitet','gray')}</div><div class="stat-row"><span>Blütenprognose</span>${tag('Geplant','gray')}</div><div class="stat-row"><span>Trachtflächen</span>${tag('Noch keine GIS-Daten','gray')}</div></div><hr><div class="note warning">Keine erfundene GTS, Pollenprognose oder Flugkreis-Karte. Eine reale Blütenprognose benötigt Wetterhistorie, DWD-Beobachtungen und eine klar dokumentierte Berechnung.</div></section></div>`;}
+function viewsUmwelt(){return `${head('Umwelt & Tracht','Standbezogene Wetter- und Bodenmessreihen aus PostgreSQL. UTC-Speicherung, Anzeige Europe/Berlin.')}<section class="panel" id="umRoot" aria-label="Authentifizierte Umweltmessreihen"></section>`;}
 function viewsQuellen(){const ch=defaultChannels.concat(data.channels);return `${head('Datenquellen & Kanäle','Nach Claude: Feldnamen, Einheiten, Achsen und Verdichtung werden über ein Kanalregister bestimmt.',actions())}
 <div class="layout-equal"><section class="panel"><h2>Messquellen</h2><div class="stat-list" style="margin-top:16px"><div class="stat-row"><span>BEEP Bases · Stockmessgeräte</span>${tag('2 Geräte','blue')}</div><div class="stat-row"><span>Wetterstation S2120</span>${tag('Am Stand','gray')}</div><div class="stat-row"><span>Bodensonde LSN50v2-D23</span>${tag('5 / 20 / 50 cm','gray')}</div><div class="stat-row"><span>Stockkarte · BEEP</span>${tag('Import noch offen','amber')}</div><div class="stat-row"><span>Klassischer beelogger</span>${tag('Alternatives Primärgerät','gray')}</div></div><hr><div class="note">BEEP Base, klassischer beelogger und Eigenentwicklung sind Alternativen als primäres Gerät. Feuchte, CO₂ oder weitere Messgrößen dürfen ergänzend dazu erfasst werden.</div></section><section class="panel"><h2>Import und Datensicherheit</h2><p class="small muted" style="margin-top:13px">Hier kannst du eine JSON-Datei mit dem Format der geschützten BEEP-Messdaten-API aus Pull Request #13 lokal in die Ansicht laden. Die Datei verlässt den Browser nicht.</p><pre style="background:#f6f8f4;padding:14px;border-radius:9px;overflow:auto;font-size:11px;line-height:1.55">{"devices":[{"volk":"Volk 8", "rows":[
   {"zeit_utc":"2026-10-16T00:51:32Z",
@@ -630,7 +804,7 @@ function viewsQuellen(){const ch=defaultChannels.concat(data.channels);return `$
 <div class="section-heading"><h2>Neuen Kanal vorschlagen</h2></div><section class="panel"><form id="channelForm" class="form-grid"><div class="form-field"><label>Quellfeld-Schlüssel</label><input name="key" placeholder="z. B. co2_ppm" maxlength="40" pattern="[A-Za-z][A-Za-z0-9_]*" required></div><div class="form-field"><label>Bezeichnung</label><input name="name" placeholder="CO₂ im Stock" maxlength="80" required></div><div class="form-field"><label>Einheit</label><input name="unit" placeholder="ppm" maxlength="20" required></div><div class="form-field"><label>Quelle</label><select name="quelle"><option>Zusatzgerät</option><option>Stockmessgerät</option><option>Umweltsensor</option></select></div><div class="form-field full"><button class="btn primary" type="submit">Als lokalen Kanalvorschlag ergänzen</button></div></form><p class="small muted" style="margin-top:12px">Ein neuer Kanal in dieser Vorschau aktiviert noch keinen echten Decoder. Für die Produktivversion müssen Messstellen, Gerätemetadaten und Gültigkeitszeiträume in PostgreSQL geführt werden.</p></section>`;}
 const viewNames={stand:'Bienenstand',volk:'Volk-Cockpit',stockkarte:'Stockkarte',beute:'Beutenkonfiguration',analyse:'Analysen & Vergleich',umwelt:'Umwelt & Tracht',quellen:'Datenquellen & Kanäle'};
 const views={stand:viewsStand,volk:viewsVolk,stockkarte:viewsStockkarte,beute:viewsBeute,analyse:viewsAnalyse,umwelt:viewsUmwelt,quellen:viewsQuellen};
-function render(){main.innerHTML=views[data.view]();$('#breadcrumbs').textContent=(hasBeepExport?beepFixture.stand:'Teststand')+' / '+viewNames[data.view];$('#modeMark').textContent=data.mode==='demo'?'SIMULATION · ausschließlich künstliche Zeitreihen':hasBeepExport?'BEEP-Export · Offline-Test, keine Liveverbindung':'Bekannter BEEP-Messpunkt · kein Livezugriff';$('#dataToggle').textContent=data.mode==='demo'?'Realdaten anzeigen':'Musteranalyse aktivieren';document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.view===data.view));document.title='Bienenlogger · '+viewNames[data.view];}
+function render(){window.BienenUmwelt?.unmount();main.innerHTML=views[data.view]();$('#breadcrumbs').textContent=(hasBeepExport?beepFixture.stand:'Teststand')+' / '+viewNames[data.view];$('#modeMark').textContent=data.mode==='demo'?'SIMULATION · ausschließlich künstliche Zeitreihen':hasBeepExport?'BEEP-Export · Offline-Test, keine Liveverbindung':'Bekannter BEEP-Messpunkt · kein Livezugriff';$('#dataToggle').textContent=data.mode==='demo'?'Realdaten anzeigen':'Musteranalyse aktivieren';document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.view===data.view));document.title='Bienenlogger · '+viewNames[data.view];if(data.view==='umwelt')window.BienenUmwelt?.mount(document.getElementById('umRoot'));}
 function queenHistory(v){
  const entries=data.queens.filter(q=>q.volk===v).sort((a,b)=>String(b.effectiveDate||'').localeCompare(String(a.effectiveDate||'')));
  const b=staticVolker[v]?.queen;

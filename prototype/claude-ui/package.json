@@ -1,0 +1,7 @@
+{
+  "name": "bienenlogger-web-assets",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {"vendor": "node vendor_echarts.cjs"},
+  "dependencies": {"echarts": "5.6.0"}
+}

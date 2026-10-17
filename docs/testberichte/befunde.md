@@ -107,21 +107,27 @@ Teststufen T0–T6 und Gates G0–G4: [tests-freigaben.md](../entwicklung/tests-
 
 Erfasst am 17.10.2026 auf `034c9e1d31612679dcc3cc15155208b9c0c82e72`.
 Nachweise und Grenzen: [R0-Bericht](2026-10-17-refactoring-r0.md).
+R1-Nachweise auf synthetischen Quellen: [R1-Bericht](2026-10-17-refactoring-r1.md).
+**Betreiberentscheidung 17.10.2026:** Der synthetisch geprüfte R1-Entwicklungsstand
+`d672d853a3af5341dc0438756266532a66258620` in PR #22 ist ausdrücklich freigegeben
+([ADR-0004](../entwicklung/entscheidungen/ADR-0004-umwelt-datenstrecke.md#r1-entwicklungsstand-freigegeben)).
+Echte Sensor-/LAN-Abnahme und Produktionsfreigabe bleiben offen. Diese Entscheidung
+schließt die nachfolgend abgegrenzten Befunde nicht pauschal.
 RF-01–RF-07 verwenden die Auftragskennungen, RF-08–RF-12 ergänzen die Analyse.
 
 | ID | Prio | Kurzbeschreibung | Status | Höchster Nachweis | Gesperrtes Gate / nächster Schritt | Quellen |
 |---|---|---|---|---|---|---|
 | RF-01 | P1 | Lokale Völker/Entwürfe neben PostgreSQL-Identitäten | analysiert – bestätigt | T0, bestehende Browserprüfungen | R2/R3: kanonische Stammdaten, kontrollierter Offline-Modus | R0, `app.js:18–106` |
-| RF-02 | P1 | Anmeldung/Server-Völkerwahl im separaten Stockkartenmodal | analysiert – bestätigt | T0/T2, realer Login 200 | R1 gemeinsamer Zugriff, R3 konsolidierte Navigation | R0, `stockkarte_live.js:30–76` |
-| RF-03 | P1 | Umweltseite ohne API-Zeitreihen/ECharts, feste Boden-Einzelwerte | analysiert – bestätigt | T2: Browser, ECharts fehlt | R1: A-01/A-02/A-04/A-05 | R0, `app.js:221–223` |
-| RF-04 | P1 | Kein Wetter-/Boden-Dateiimport im Teststack | analysiert – bestätigt | T0, Umweltpfad 404 über echtes HTTPS | R1: lesender idempotenter Import und Abfrage | R0, Compose/Dockerfile |
+| RF-02 | P1 | Anmeldung/Server-Völkerwahl im separaten Stockkartenmodal | im Entwurf teilweise behoben: sichtbarer Umwelt-Login und gemeinsame Sitzung; Modal bleibt | T2: realer Browser nutzt Stockkarte ohne zweiten Login | R3: konsolidierte Navigation/kanonische Völkerliste; Betreiber-UX-Abnahme | R0/R1, `stockkarte_live.js`, `umwelt.js` |
+| RF-03 | P1 | Umweltseite ohne API-Zeitreihen/ECharts, feste Boden-Einzelwerte | im Entwurf behoben: echte API-/ECharts-Strecke mit synthetischer Kennzeichnung | T2: Wetter und drei Bodentiefen, Null/Lücken, Live-Poll 29,631 bzw. 29,769 s | R1: autorisierte Echtdaten und Laptop-LAN-Abnahme | R0/R1, Umwelt-API/UI |
+| RF-04 | P1 | Kein Wetter-/Boden-Dateiimport im Teststack | im Entwurf behoben: expliziter atomarer Read-only-Import, Provenienz/Revisionen und optionaler Watcher | T1/T2: Idempotenz, Fehler/Restart, zwei RO-Mounts | R1: reale Quell-/Zeit-/Sondenidentitäten bestätigen; R5 Langzeitarchive | R0/R1, `umwelt/`, Compose-Overlay |
 | RF-05 | P1 | Synthetischer Beispielkatalog statt vollständiger BEEP-Taxonomie | analysiert – bestätigt | T0, sechs Kategorien in `seed_demo` | R4: autorisierte Referenz und Fachtests | R0, `stockkarte_admin.py:31–63` |
-| RF-06 | P1 | Browser-API-Brücke simuliert Antworten; kein vollständiger Umwelt-Browser-E2E | analysiert – bestätigt | T0/T2; Teilproben mit echter API/DB/TLS | R1: A-05 mit Messkurven; kein Ersatz für LAN-Feldtest | R0, `test_stockkarte_live_browser.js:2–44` |
-| RF-07 | P1 | Destruktives Grundschema, zwei Stockkartenmodelle, kein allgemeiner Updatevertrag | analysiert – bestätigt; Testinitialisierung hat Namens-/Leerschema-Schutz | T0/T1 | R1/R4: additive Migration, Bestands-/Restore-Test, kein Rebuild | R0, `schema.sql:16,132–183`, Migration 001 |
-| RF-08 | P1 | Cookie nur Stockkartenpfad, explizite Umwelt-Standrechte fehlen | analysiert – bestätigt als R1-Erweiterungsbedarf; kein belegter Zugriffsbypass | T0 | R1: getestete Cookie-Erweiterung und Stand-ACL | R0, Session-API, Migration 002 |
-| RF-09 | P1 | Messwert außerhalb `kanal.gueltig` akzeptiert und normalisiert angezeigt | analysiert – bestätigt | T1: SQL mit Rollback, eine unzulässige Zeile sichtbar | R1/R2: Schreib-/Leseinvariante und Regression | R0, `schema.sql:291–325,356–362` |
-| RF-10 | P1 | Faktor-/Versatzänderung verändert historische Sicht ohne Messrevision | analysiert – bestätigt | T1: 12.5 → 25 nach Faktoränderung, Rollback | R1/R2: Kalibrierabschnitte/Revisionen | R0, `schema.sql:297–303,358` |
-| RF-11 | P2 | Laufzeitabhängigkeiten mit Versionsbereichen, Container ohne Digest-Lock | analysiert – bestätigt | T0, Versionsabweichung bei bestandenen Tests | R1 reproduzierbare Locks, R5 Betriebsnachweis | R0, Dockerfile/Compose/CI |
+| RF-06 | P1 | Browser-API-Brücke simuliert Antworten; kein vollständiger Umwelt-Browser-E2E | im Entwurf behoben: zusätzlicher vollständiger Umwelt-E2E ohne simulierte HTTP-Antworten | T2: echte DB/API/CA-geprüftes HTTPS/CSV-Watcher/ECharts | R1: physische LAN-/Fachabnahme; bestehende Mock-Regression bleibt Zusatz | R0/R1, `tests/umwelt/e2e.py` |
+| RF-07 | P1 | Destruktives Grundschema, zwei Stockkartenmodelle, kein allgemeiner Updatevertrag | im Entwurf teilweise behoben: explizite additive Migration 003 mit Prüfsumme, kein Basis-Rebuild | T2: Alt-Revision unverändert, Backup/Restore in getrennte DB | R4/R5: allgemeiner Altbestandsvertrag/Modellkonsolidierung; schema.sql nur leere Testinitialisierung | R0/R1, Migrationen 001–003 |
+| RF-08 | P1 | Cookie nur Stockkartenpfad, explizite Umwelt-Standrechte fehlen | im Entwurf behoben: Cookie `/api/v1`, alte Pfadvariante gelöscht, explizite Standrechte | T2: gemeinsamer Login, CSRF, Logout, fremder Stand 404, aktiver Entzug | R1: fachliche LAN-/Rechteabnahme; R5 umfassender Betriebs-Sicherheitsnachweis | R0/R1, Session-API, Migration 003 |
+| RF-09 | P1 | Messwert außerhalb `kanal.gueltig` akzeptiert und normalisiert angezeigt | im Entwurf behoben: Schreibtrigger und gefilterte Lesesicht; unzulässiger Altbestand blockiert Migration | T1/T2: SQL-Grenztest auf echter DB | Echtdatenabnahme; R2 weitere Geräte-/Zuordnungsfälle | R0/R1, Migration 003 |
+| RF-10 | P1 | Faktor-/Versatzänderung verändert historische Sicht ohne Messrevision | im Entwurf behoben: Schutz benutzter Kanäle, Korrekturrevisionen, neue Kalibrierabschnitte erforderlich | T1/T2: Faktoränderung abgewiesen, Original-/Korrekturwerte erhalten | Echtdatenabnahme; R2 fachlicher Kalibrierwechsel | R0/R1, Migration 003, Importtests |
+| RF-11 | P2 | Laufzeitabhängigkeiten mit Versionsbereichen, Container ohne Digest-Lock | im Entwurf teilweise behoben: Python-/ECharts-Lock und drei Image-Digests für R1 | T3: reproduzierte Browserassets, Containerbuild mit gelockten Wheels | R5: vorhandene weitere CI-Versionen vereinheitlichen, Dauer-/Updatebetrieb prüfen | R0/R1, Dockerfile/Compose/CI |
 | RF-12 | P2 | Katalog-SQL/DTOs und Fachvalidierung mehrfach, kein vollständiger Konformitätskorpus | analysiert – bestätigt als Wartungsrisiko, kein pauschaler Funktionsdefekt | T0, vorhandene Teiltests PASS | R1/R4 gezielte gemeinsame Verträge; gute Bausteine erhalten | R0, API/Session/Store/native JS |
 
 ## Prozess und Regelwerk

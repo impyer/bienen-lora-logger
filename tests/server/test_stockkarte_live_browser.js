@@ -7,7 +7,7 @@ const fs=require('node:fs'),http=require('node:http'),path=require('node:path');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'../../prototype/claude-ui');
 const files=new Set(['index.html','app.js','style.css','stockkarte_native.js',
- 'stockkarte_live.js','stockkarte_edit.js','bienenlogger-claude-prototyp.html']);
+ 'stockkarte_live.js','stockkarte_edit.js','umwelt.js','bienenlogger-claude-prototyp.html']);
 let logins=0,logouts=0,created=0,corrected=0;
 let inserted=[];
 const json=(res,status,body,extra={})=>{

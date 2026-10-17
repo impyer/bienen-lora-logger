@@ -166,8 +166,11 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
             )
         response.set_cookie(
             key=COOKIE, value=token, max_age=MINUTES*60, httponly=True,
-            secure=secure_cookie, samesite="strict", path="/api/v1/stockkarte",
+            secure=secure_cookie, samesite="strict", path="/api/v1",
         )
+        # Remove the previous narrower cookie so equal names cannot compete.
+        response.delete_cookie(COOKIE, path="/api/v1/stockkarte", secure=secure_cookie,
+                               httponly=True, samesite="strict")
         return {"username":body.username,"csrf_token":csrf(token),"expires_in_seconds":MINUTES*60}
 
     @app.get("/api/v1/stockkarte/session")
@@ -186,6 +189,8 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
                 (hash_cookie(actor[2]),),
             )
         response.delete_cookie(COOKIE, path="/api/v1/stockkarte", secure=secure_cookie,
+                               httponly=True, samesite="strict")
+        response.delete_cookie(COOKIE, path="/api/v1", secure=secure_cookie,
                                httponly=True, samesite="strict")
         return {"signed_out":True}
 
@@ -328,6 +333,8 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
         except (ValueError,psycopg.errors.ForeignKeyViolation,
                 psycopg.errors.UniqueViolation) as exc:
             _storage_error(exc)
+    from umwelt.api import register_routes
+    register_routes(app, db, principal)
     return app
 
 

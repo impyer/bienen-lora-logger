@@ -137,3 +137,17 @@ Der Betreiber hat R0 und diesen R1-Ansatz am 17.10.2026 ausdrücklich freigegebe
 „R0 freigeben; R1 mit synthetischen CSV-Dateien starten“. Damit ist die
 Implementierung im isolierten Entwicklungszweig autorisiert; Echtdatenabnahme,
 ThinkStation-Deployment und spätere Gates bleiben davon getrennt.
+
+### R1-Entwicklungsstand freigegeben
+
+Am 17.10.2026 hat der Betreiber den nachgewiesenen Entwicklungsstand aus
+[PR #22](https://github.com/impyer/bienen-lora-logger/pull/22),
+`d672d853a3af5341dc0438756266532a66258620`, ausdrücklich freigegeben:
+„R1-Entwicklungsstand freigeben“.
+
+Die Entscheidung bezieht sich auf die synthetischen CSV und den realen
+Softwarestack mit 22 neuen Tests und 6/6 bestandenen CI-Jobs. Sie ist keine
+Echtdaten-/LAN-Abnahme, Produktionsfreigabe oder Anweisung zum Merge bzw.
+ThinkStation-Deployment. R2–R5 gehören nicht zu dieser R1-Freigabe.
+Diese Ergänzung ist D0/T0; Anwendung, Migration und geprüfte Ergebnisse bleiben
+unverändert. Der R1-Prüfbericht bleibt als historischer Nachweis erhalten.

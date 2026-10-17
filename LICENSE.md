@@ -9,6 +9,15 @@ Dieses Repository enthält Teile unter verschiedenen Lizenzen. Maßgeblich ist d
 | `hardware/`, `mechanik/`: Python- und Shell-Skripte (`*.py`, `*.sh`, z. B. `hardware/kicad/werkzeug/`) | GPL-3.0-or-later, Kennzeichnung per `SPDX-License-Identifier` (Entscheidung GOV-01, 09.10.2026) | [`LICENSES/GPL-3.0-or-later.txt`](LICENSES/GPL-3.0-or-later.txt) |
 | `docs/` und die README-Dateien | Creative Commons Namensnennung – Weitergabe unter gleichen Bedingungen 4.0 (CC BY-SA 4.0) | [`LICENSES/CC-BY-SA-4.0.txt`](LICENSES/CC-BY-SA-4.0.txt) |
 
+## Mitgelieferte Browserbibliotheken
+
+Die Umweltansicht liefert Apache ECharts 5.6.0 lokal aus. ECharts und die darin
+gebündelte Zeichenbibliothek zrender behalten ihre eigenen Apache-2.0-Lizenzen.
+Urheber-, Lizenz- und NOTICE-Texte liegen in
+[`prototype/claude-ui/vendor/`](prototype/claude-ui/vendor/). Die genaue
+Abhängigkeitsauflösung steht in `prototype/claude-ui/package-lock.json`;
+`npm ci --ignore-scripts` und `npm run vendor` reproduzieren die Dateien.
+
 ## Herkunft der Firmware
 
 Die Dateien in `firmware/STM32_LORA_261008_ZS/` beruhen auf dem beelogger-STM32-Sketch `STM32_LORA_260705`

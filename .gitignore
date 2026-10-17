@@ -6,6 +6,7 @@ secrets*
 
 # Server-Zugangsdaten
 server/**/config_local.*
+deploy/heimnetz-test/config_local.*
 *.env
 
 # Übersetzte Dateien und Testausgaben

@@ -43,3 +43,6 @@ main{max-width:1360px;width:100%;margin:0 auto;padding:20px 24px 32px;min-height
 @media(max-width:600px){.native-tree{grid-template-columns:1fr}}
 
 .native-order-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);min-width:0;padding:4px 0}.native-order-row .checkline{flex:1}.native-order-row>div{display:flex;gap:4px;flex-shrink:0}
+
+/* R1: server-backed environment slice, responsive without a framework. */
+.um-login{max-width:440px;display:grid;gap:16px}.um-login label,.um-range label{display:grid;gap:5px}.um-range{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:14px 0}.um-range input{max-width:100%;min-width:0}.um-controls{flex-wrap:wrap}.um-controls select{max-width:100%;min-width:0}.um-fields{border:1px solid #dce3d9;border-radius:8px;padding:12px;display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}.um-fields label{display:flex;gap:6px;align-items:center;font-size:13px}.um-fields input{width:auto}.um-plots{display:grid;gap:18px;min-width:0}.um-plots .panel{min-width:0;overflow:hidden}.um-chart{height:380px;width:100%;min-width:0}.um-range button{white-space:normal}@media(max-width:540px){.um-chart{height:340px}.um-range{display:grid;grid-template-columns:1fr}.um-controls{align-items:stretch;flex-direction:column}.um-fields{display:grid;grid-template-columns:1fr}}
