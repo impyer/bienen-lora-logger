@@ -50,7 +50,7 @@ services:
       LAN_ALLOWED_CIDR: ${LAN_ALLOWED_CIDR:?Set LAN_ALLOWED_CIDR in .env}
       LAN_PORT: ${LAN_PORT:-8443}
     ports:
-      - "${LAN_BIND_IP:?Set LAN_BIND_IP}:${LAN_PORT:-8443}:8443"
+      - "${LAN_BIND_IP:?Set LAN_BIND_IP}:${LAN_PORT:-8443}:${LAN_PORT:-8443}"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddydata:/data
