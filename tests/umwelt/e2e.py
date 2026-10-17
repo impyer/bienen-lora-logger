@@ -162,7 +162,7 @@ def main():
         bundle=work/'node-trusted-ca.pem'
         existing_ca=Path(os.environ['NODE_EXTRA_CA_CERTS']).read_bytes() if os.environ.get('NODE_EXTRA_CA_CERTS') else b''
         bundle.write_bytes(existing_ca+b'\n'+ca.read_bytes())
-        browser_env=dict(env,R1_PYTHON=sys.executable,R1_BROWSER_INPUT=json.dumps(browser_input),NODE_EXTRA_CA_CERTS=str(bundle))
+        browser_env=dict(env,BIENEN_IMPORT_DSN=import_env['BIENEN_IMPORT_DSN'],R1_PYTHON=sys.executable,R1_BROWSER_INPUT=json.dumps(browser_input),NODE_EXTRA_CA_CERTS=str(bundle))
         browser_script = 'long_browser_e2e.js' if args.long_history else 'browser_e2e.js'
         result=subprocess.run(['node',str(ROOT/'tests/umwelt'/browser_script)],env=browser_env,cwd=ROOT,capture_output=True,text=True,timeout=150)
         safe_output=re.sub(r'(?im)^.*(?:cookie|authorization):.*$', '[sensitive header redacted]', result.stdout+result.stderr)
