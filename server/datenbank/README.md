@@ -37,3 +37,23 @@ BIENEN_TEST_DSN="host=localhost dbname=bienen_test user=..." python3 tests/daten
 Zeitangaben beim Schreiben immer mit Zeitzone angeben. Die Tests laufen mit den Sitzungszeitzonen Europe/Berlin, UTC und America/New_York gleich.
 
 **Änderungen 0.3 (15.10.2026, Review Issue #11):** `zeitgenauigkeit` in Durchsicht, Maßnahme und Varroa-Messung; Kalibrierangaben am Kanal; Tabelle `berechnung` und Versionsangabe in den Sichten; Prüfsicht für vergessene Waagenzuordnungen. Bewertung: `docs/testberichte/2026-10-15-plattform-review-issue11.md`.
+
+## Additive native Stockkartenmigration SK-001 (Entwicklungsstand)
+
+- Migration: server/datenbank/migrations/001_stockkarte.sql (nur additiv; setzt die Basis-Tabellen bienen.volk und bienen.koenigin voraus).
+- Speicherbaustein: server/datenbank/stockkarte_store.py, psycopg 3, transaktional und mit serverseitiger Wertevalidierung.
+- Integrationstest: tests/datenbank/test_stockkarte_persistenz.py, ausschließlich auf einer wegwerfbaren PostgreSQL-16-Datenbank namens bienen_test.
+- Die Browseransicht ist weiterhin nicht mit diesem Speicher verbunden. Keine HTTP-API, keine Anmeldung und keine produktive Datenübertragung implementiert.
+- Die neuen sk_-Tabellen und der bisherige Stockkarten-Schemaentwurf müssen vor einem Produktiv-Release zusammengeführt werden.
+
+**WARNUNG:** Die bestehende schema.sql löscht alle bisherigen bienen-Tabellen. Bei vorhandenen Serverdaten niemals ausführen! SK-001 allein enthält keinen Löschbefehl, ist aber keine Freigabe zur Migration der ThinkStation.
+
+Details: docs/entwicklung/stockkarte-persistenz-sk001.md.
+## Stockkarten-HTTP-Schnittstelle (ausschließlich Entwicklung)
+
+Die eigene FastAPI unter `server/datenbank/stockkarte_api.py` bietet Lesen und Schreiben von Durchsichten sowie Königinnen-Revisionsgeschichte über das bestehende PostgreSQL-Datenmodell. Die API verweigert ohne `BIENEN_API_DEV_MODE=1`, konfigurierte DSN und getrennte, ausreichend lange Tokens jede Anfrage. Sie ist **keine Mehrbenutzeranmeldung** und darf derzeit nur auf `127.0.0.1` in einer isolierten Testumgebung verwendet werden.
+
+- Detaillierter Vertrag: `docs/entwicklung/stockkarte-fastapi-dev.md`.
+- PostgreSQL-16-Test: `tests/datenbank/test_stockkarte_api.py`, ausschließlich mit anonymisierten Testdaten und der wegwerfbaren Datenbank `bienen_test`.
+- Bisherige Browser-Oberfläche bleibt vom API-Dienst getrennt, bis nutzerbezogene Rechte, sichere Sessions und eine geprüfte Migration vorhanden sind.
+- Niemals Datenbankpasswörter oder die Read-/Write-Tokens in GitHub, HTML-Dateien oder URLs ablegen.

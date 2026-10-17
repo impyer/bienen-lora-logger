@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bienenlogger · Claude-Design v0.3</title>
+
   <style>
 :root{--bg:#f4f5f2;--panel:#fff;--ink:#1a1f1c;--muted:#647069;--faint:#89938d;--line:#e0e5df;--green:#277254;--darkgreen:#164b3b;--blue:#1f4e79;--gold:#b67d27;--soft:#e8f2eb;--warm:#fcf4e7;--red:#a44739;--shadow:0 3px 18px #1e38290a}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',Inter,'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5}button,select,input,textarea{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #529f8f;outline-offset:2px}.shell{display:flex;min-height:100vh}.side{background:#fff;border-right:1px solid var(--line);width:238px;flex:0 0 238px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:23px 14px}.brand{display:flex;align-items:center;gap:10px;padding:0 9px 25px;border-bottom:1px solid var(--line)}.brand-icon{display:grid;place-items:center;background:#e3f0e7;color:var(--green);border-radius:13px;width:39px;height:39px;font-size:31px}.brand strong{display:block;letter-spacing:-.55px;font-size:18px}.brand span{display:block;font-size:10px;color:var(--muted)}.side-label{font-size:10px;font-weight:800;letter-spacing:.13em;color:#9aa6a0;margin:27px 12px 10px}.nav-link{border:0;background:transparent;width:100%;text-align:left;display:flex;align-items:center;gap:12px;font-weight:600;color:#62716a;padding:11px 13px;border-radius:9px;margin:2px 0}.nav-link:hover{background:#f4f6f2;color:#203e2f}.nav-link.active{background:#e8f2eb;color:#205f45}.nav-icon{font-size:17px;width:18px;text-align:center}.sidebar-foot{border-top:1px solid var(--line);padding:18px 10px 4px;margin-top:auto;color:var(--faint);font-size:11px;line-height:1.9}.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4a996b;margin-right:6px}.content-wrap{min-width:0;width:100%;display:flex;flex-direction:column}.topbar{background:#fff;border-bottom:1px solid var(--line);padding:14px clamp(17px,3vw,38px);display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:67px}.crumbs{font-size:12px;color:#68766e}.top-actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap}.mode-mark{color:#6f7c75;font-size:11px}.top-button,.btn,.chip{border:1px solid #ccd7cd;background:#fff;border-radius:9px;padding:8px 13px;font-weight:650}.top-button:hover,.btn:hover,.chip:hover{border-color:var(--green)}.btn.primary{background:var(--green);border-color:var(--green);color:white}.btn.danger{color:var(--red);border-color:#efd5d2}.btn.small{font-size:12px;padding:6px 9px}.chip{font-size:12px;padding:6px 10px}.chip.active{background:#e6efe8;border-color:#83ae94;color:#226b4c}.mobile-menu{display:none;border:0;background:none;font-size:22px}.page-footer{padding:25px 38px 35px;font-size:11px;color:#8b988f;max-width:1500px}main{width:100%;max-width:1510px;padding:30px clamp(17px,3vw,38px) 18px;flex:1}h1{font-size:28px;line-height:1.2;letter-spacing:-.9px;margin:0 0 8px}h2{font-size:17px;letter-spacing:-.3px;margin:0}h3{font-size:14px;letter-spacing:-.1px;margin:0}p{margin:0}.muted{color:var(--muted)}.small{font-size:12px}.tiny{font-size:11px}.intro{display:flex;align-items:start;justify-content:space-between;gap:15px;margin-bottom:25px}.intro p{font-size:13px;color:var(--muted);margin-top:5px}.eyebrow{font-size:11px;text-transform:uppercase;font-weight:800;letter-spacing:.12em;color:#809187;margin-bottom:7px}.badge{display:inline-flex;align-items:center;border-radius:99px;padding:4px 9px;background:#edf4ee;color:#25704c;font-size:10px;font-weight:750;white-space:nowrap}.badge.amber{background:#fff3e0;color:#9b641e}.badge.gray{background:#f0f2ee;color:#67766d}.badge.blue{background:#eaf2f8;color:#285781}.badge.red{background:#fcf0ef;color:#a24538}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:25px 0 13px}.section-heading span{font-size:11px;color:var(--muted)}.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card,.panel{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}.card{padding:18px 19px}.kpi-label{font-size:11px;color:#79847d}.kpi-number{font-size:26px;letter-spacing:-.7px;font-weight:750;line-height:1.4;margin:6px 0}.kpi-foot{font-size:11px;color:#86938a}.kpi-number.highlight{color:var(--darkgreen)}.colony-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}.colony{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px;text-align:left;transition:box-shadow .15s,border-color .15s;width:100%;min-height:248px}.colony:hover,.colony.selected{border-color:#8fbb9f;box-shadow:0 8px 28px #204c2e16}.colony-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.colony-id{font-size:18px;font-weight:780;letter-spacing:-.5px}.colony-queen{color:var(--muted);font-size:11px;margin:5px 0 14px}.colony-main{display:grid;grid-template-columns:1fr 1fr;gap:14px}.measure-title{font-size:11px;color:#89968c}.measure-value{font-size:23px;font-weight:750;letter-spacing:-.65px}.measure-unit{font-size:12px;font-weight:450;color:#6e8075}.colony-meta{border-top:1px solid var(--line);margin-top:17px;padding-top:10px;font-size:11px;color:#7a8980;display:flex;align-items:center;justify-content:space-between;gap:5px}.layout-two{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr);gap:15px}.layout-equal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.panel{padding:21px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}.panel-subtitle{font-size:11px;color:#94a096;margin-top:3px}.toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.stat-list{display:grid;gap:10px}.stat-list .stat-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #eef1ec;padding-bottom:9px}.stat-list strong{font-weight:700}.note{background:#f3f7f2;border:1px solid #dce9dd;border-radius:8px;padding:12px 14px;color:#5d7564;font-size:12px}.note.warning{background:#fff9ef;border-color:#f0dec1;color:#98702e}.source-tag{color:#849187;font-size:10px}.tabbar{display:flex;flex-wrap:wrap;gap:6px}.tabs{margin:16px 0 18px;display:flex;gap:8px;align-items:center}.chartbox{width:100%;min-height:240px;position:relative;overflow:hidden}.chartbox svg{display:block;width:100%;height:auto;min-height:160px}.chart-legend{display:flex;gap:20px;align-items:center;font-size:11px;color:#667268;margin-top:4px}.legend-dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}.empty{text-align:center;color:#8a968d;padding:70px 16px 55px}.table-wrap{overflow-x:auto}.data-table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}.data-table th{background:#f8faf7;color:#7a887d;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:10px;border-bottom:1px solid #dde5da;white-space:nowrap}.data-table td{padding:11px 10px;border-bottom:1px solid #edf0eb}.data-table td strong{font-size:12px}.data-table tbody tr:hover{background:#fbfcfa}.action-row{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.form-field{display:flex;flex-direction:column;gap:5px}.form-field label{font-size:11px;color:#526359;font-weight:750}.form-field input,.form-field select,.form-field textarea{padding:10px 11px;border:1px solid #cedbd1;border-radius:8px;background:#fff;min-width:0;width:100%}.form-field textarea{min-height:75px;resize:vertical}.form-field.full{grid-column:1/-1}.checkline{display:flex;gap:9px;align-items:center;margin:7px 0;font-size:12px}.checkline input{width:auto}.timeline{border-left:2px solid #e2eadf;margin:0 0 0 9px;padding:1px 0 1px 19px}.event{position:relative;margin:0 0 17px}.event:before{content:'';position:absolute;left:-26px;top:5px;width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#6b9c7c;box-shadow:0 0 0 1px #c0d7c4}.event-meta{font-size:11px;color:#89948b}.event-title{font-weight:750;margin:3px 0}.event-text{font-size:12px;color:#5d695e}.hive-diagram{max-width:370px;margin:auto;display:flex;flex-direction:column;gap:6px;align-items:stretch}.hive-layer{border:2px solid #c8b488;padding:14px 15px;background:linear-gradient(140deg,#fff7e7,#f3e1ba);border-radius:4px;position:relative;text-align:center;box-shadow:inset 0 0 0 2px #fffcf0}.hive-layer.brood{background:linear-gradient(140deg,#f1e1bb,#e4c78a)}.hive-layer.honey{background:linear-gradient(140deg,#fff7d8,#f7deab)}.hive-layer small{display:block;color:#8b7653}.hive-roof{background:#567061;color:#fff;text-align:center;padding:9px;border-radius:9px 9px 2px 2px}.hive-base{background:#677a6c;color:#fff;text-align:center;padding:9px;border-radius:3px}.hive-diagram .no-data{background:#f5f6f2;color:#89958b;border:2px dashed #d0dacf;padding:35px;text-align:center}.compare-bars{display:grid;gap:10px}.compare-bar{display:grid;grid-template-columns:105px 1fr 70px;align-items:center;gap:10px;font-size:12px}.bar-track{height:12px;background:#edf0e9;border-radius:50px;overflow:hidden}.bar-fill{background:#79ac89;height:100%;border-radius:50px}.row-small{display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:12px;padding:8px 0;border-bottom:1px solid #eff2ed}.channel-dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-right:7px}.modal-backdrop{position:fixed;inset:0;background:#1529217a;display:flex;align-items:center;justify-content:center;z-index:20;padding:15px}.modal{background:#fff;max-width:620px;width:100%;border-radius:16px;padding:24px;box-shadow:0 30px 80px #07170f40;max-height:92vh;overflow:auto}.modal h2{font-size:20px;margin-bottom:5px}#toast{position:fixed;right:25px;bottom:25px;background:#203b2c;color:#fff;border-radius:8px;padding:12px 19px;box-shadow:0 5px 20px #18301b40;display:none;z-index:30}.pill-switch{display:flex;gap:7px;align-items:center}code{background:#f1f5f0;padding:2px 5px;border-radius:4px;font-size:11px}a{color:var(--blue)}hr{border:0;border-top:1px solid var(--line);margin:17px 0}
@@ -27,7 +28,29 @@ main{max-width:1360px;width:100%;margin:0 auto;padding:20px 24px 32px;min-height
 @media(max-width:1250px){.colony-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.stand-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}.alert-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stand-options{margin-left:0}}
 @media(max-width:900px){.colony-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.site-header-inner{gap:10px}.site-nav{order:3;min-width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}.stand-picker{margin-left:auto}.layout-two{grid-template-columns:1fr}.stand-title>small{margin-left:0}}
 @media(max-width:600px){main{padding:16px 13px}.site-header-inner{padding:10px 13px}.topbar{padding:7px 13px 0}.stand-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.alert-grid,.colony-grid,.layout-equal{grid-template-columns:1fr}.stand-controls{gap:8px}.stand-options{width:100%;flex-wrap:wrap}.stand-title h1{width:100%;font-size:24px}.topbar{gap:8px}.mode-mark{display:none}.brand strong{font-size:16px}.hive-mini{width:60px}.colony{min-height:0}.page-footer{padding:16px 13px}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  </style></head><body>
+
+/* BEEP-basiertes Eingabesystem – bewusst in Claudes bestehender Gestaltung */
+.modal.wide{width:min(950px,94vw);max-width:950px;max-height:94vh;overflow:auto}
+.taxonomy{margin-top:12px;max-height:330px;overflow:auto;border:1px solid #dfe5df;border-radius:9px;background:#fafbf8}
+.taxonomy-group{padding:11px 13px;border-bottom:1px solid #e3e7e1}
+.taxonomy-group:last-child{border-bottom:0}.taxonomy-group summary{font-weight:650;color:#164b3b;cursor:pointer;line-height:1.5}
+.taxonomy-group .form-grid{padding:15px 0 3px}.taxonomy input,.taxonomy select{width:100%}
+.event-actions{padding-top:7px}.toolbar{flex-wrap:wrap}.form-field small{font-size:11px;color:#647069}
+@media(max-width:700px){.modal.wide{width:96vw}.taxonomy-group .form-grid{grid-template-columns:1fr}}
+/* Statusmeldung darf Formular-Buttons nicht überdecken */
+#toast{pointer-events:none}
+
+/* Native, eigenständige Bienenlogger-Stockkarte */
+.native-tree{max-height:390px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:6px}
+.native-tree .checkline{align-items:center;display:flex;gap:8px;min-height:32px;font-size:13px;overflow-wrap:anywhere}.native-tree small{font-size:10px;color:var(--muted)}
+.taxonomy-group .form-grid{padding:14px 12px}.taxonomy-group textarea{width:100%;min-height:58px}.taxonomy-group .form-field small{font-size:11px;color:var(--muted)}
+@media(max-width:600px){.native-tree{grid-template-columns:1fr}}
+
+.native-order-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);min-width:0;padding:4px 0}.native-order-row .checkline{flex:1}.native-order-row>div{display:flex;gap:4px;flex-shrink:0}
+
+  </style>
+
+</head><body>
 <div class="shell">
 <header class="site-header"><div class="site-header-inner">
 <div class="brand"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2 L25 8 L25 20 L14 26 L3 20 L3 8 Z" fill="none" stroke="#9A5B00" stroke-width="2"/><path d="M9 14h10M14 9v10" stroke="#1A1F1C" stroke-width="1.6"/></svg><strong>Bienenlogger</strong></div>
@@ -42,10 +65,337 @@ main{max-width:1360px;width:100%;margin:0 auto;padding:20px 24px 32px;min-height
 </nav>
 <div class="stand-picker"><label for="standSelect">Stand</label><select id="standSelect" aria-label="Bienenstand"><option>Teststand</option></select></div>
 </div></header>
-<div class="content-wrap"><div class="topbar"><span class="crumbs" id="breadcrumbs">Teststand / Bienenstand</span><div class="top-actions"><span class="mode-mark" id="modeMark">Bekannter BEEP-Messpunkt · kein Livezugriff</span><button class="top-button" id="dataToggle">Musteranalyse aktivieren</button></div></div>
+<div class="content-wrap"><div class="topbar"><span class="crumbs" id="breadcrumbs">Teststand / Bienenstand</span><div class="top-actions"><span class="mode-mark" id="modeMark">Offline-Prototyp · keine Liveverbindung</span><button class="top-button" id="dataToggle">Musteranalyse aktivieren</button></div></div>
 <main id="main" tabindex="-1"><section class="panel"><h1>Interaktive Ansicht benötigt JavaScript</h1><p>Falls hier kein Inhalt geladen wird, bitte diese HTML-Datei herunterladen und im Browser mit aktiviertem JavaScript öffnen. Die ZIP-Version zuvor vollständig entpacken.</p></section></main>
-<footer class="page-footer">Entwurf · Keine direkte BEEP-Anbindung. Lokale Testeinträge sind keine produktive Stockkarte. Messdaten und Musterreihen sind getrennt.</footer>
+<footer class="page-footer">Offline-Test mit exportierten BEEP-Daten · nur lesender Originalimport. Lokale Änderungen bleiben Testentwürfe · keine Liveverbindung.</footer>
 </div></div><div id="modalRoot"></div><div id="toast" role="status" aria-live="polite"></div>
+  <script>
+/* SPDX-License-Identifier: GPL-3.0-or-later
+ * Bienenlogger native stockcard taxonomy/checklist engine.
+ * Own implementation of publicly documented BEEP category-id based behavior;
+ * does NOT load BEEP UI code, use BEEP APIs, or call external servers.
+ * Source concepts: beepnl/BEEP CategoryInput, Checklist, InspectionsController;
+ * beepnl/beep-vue-app checklist-fieldset, checklist-input, inspect.
+ */
+(function(root, factory) {
+  const result=factory();
+  if (typeof module==='object' && module.exports) module.exports=result;
+  root.BienenStockkarte=result;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+const escape=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+const multi=new Set(['list']);
+const choices=new Set(['select','options','list','bee_subspecies']);
+const decimal=new Set(['number','number_0_decimals','number_1_decimals','number_2_decimals','number_3_decimals','number_positive','number_negative','number_percentage','number_degrees','slider']);
+const scores=new Set(['score','score_amount','score_quality','grade','smileys_3']);
+const yesNo=new Set(['boolean','boolean_yes_red','list_item']);
+const unsupportedRefs=new Set(['select_hive','select_location','select_apiary','select_hive_layer','select_hive_layer_frame','select_country','select_continent','sample_code']);
+const supported=new Set(['label','text','string','date','color_picker','file','image',...choices,...yesNo,...decimal,...scores]);
+function isBlocked(n,nodes){return n.input==='image'||n.input==='file'||unsupportedRefs.has(n.input)||!supported.has(n.input)||(choices.has(n.input)&&!n.children.some(id=>nodes.some(x=>x.id===id)));}
+function catalogReport(nodes){return {total:nodes.length,blocked:nodes.filter(n=>n.input!=='label'&&isBlocked(n,nodes)).map(n=>({id:n.id,type:n.input,name:n.label}))};}
+
+function title(o){
+  const t=o?.trans;
+  if(t&&typeof t==='object')return String(t.de||t.de_DE||t.en||o.name||o.text||'Unbenannt');
+  return String(o?.text||o?.name||'Unbenannt');
+}
+
+function normalizeCatalog(payload){
+  if(Array.isArray(payload))return {taxonomy:payload,checklists:[]};
+  if(!payload||typeof payload!=='object')throw Error('Katalog muss ein Objekt sein');
+  let roots=payload.taxonomy??payload.categories??[];
+  const rows=payload.categoryinputs??payload.category_inputs??[];
+  if(!Array.isArray(roots)||!Array.isArray(rows))throw Error('Kategorien und Eingabetypen müssen Listen sein');
+  const types=new Map();
+  for(const r of rows){
+    if(!r||r.id==null||!r.type||types.has(String(r.id)))throw Error('Ungültige oder doppelte Eingabetyp-ID');
+    types.set(String(r.id),r);
+  }
+  function copy(r){
+    if(!r||typeof r!=='object'||Array.isArray(r))throw Error('Ungültige Kategorie');
+    const n={...r},typeId=r.category_input_id??r.categoryInputId;
+    const info=typeId==null?null:types.get(String(typeId));
+    if(typeId!=null&&!info&&!n.input&&!n.input_type)throw Error('Fehlende Eingabetyp-Definition: '+typeId);
+    if(info){
+      if(!n.input&&!n.input_type)n.input=info.type;
+      for(const p of ['min','max','decimals'])if(n[p]==null&&info[p]!=null)n[p]=info[p];
+    }
+    if(Array.isArray(r.children))n.children=r.children.map(copy);
+    return n;
+  }
+  roots=roots.map(copy);
+  if(roots.some(r=>r.parent_id!=null||r.parent!=null)&&roots.every(r=>!Array.isArray(r.children))){
+    const by=new Map(),top=[];
+    for(const n of roots){
+      const key=String(n.id??n.category_id??'');
+      if(!key||by.has(key))throw Error('Doppelte oder fehlende Kategorie-ID: '+key);
+      n.children=[];by.set(key,n);
+    }
+    for(const n of roots){
+      const parent=n.parent_id??n.parent;
+      if(parent==null||parent==='#'||parent===0||parent==='0')top.push(n);
+      else{
+        const p=by.get(String(parent));
+        if(!p||p===n)throw Error('Ungültige Elternkategorie: '+parent);
+        p.children.push(n);
+      }
+    }
+    const visited=new Set();
+    function check(n,ancestors=new Set()){
+      const id=String(n.id??n.category_id);
+      if(ancestors.has(id)||visited.has(id))throw Error('Zyklischer oder mehrfach referenzierter Kategorienbaum: '+id);
+      visited.add(id);
+      const next=new Set(ancestors);next.add(id);
+      n.children.forEach(c=>check(c,next));
+    }
+    top.forEach(n=>check(n));
+    if(visited.size!==by.size)throw Error('Verwaiste Kategorien oder Zyklus');
+    roots=top;
+  }
+  return {taxonomy:roots,checklists:payload.checklists??[]};
+}
+function prepare(payload){
+  let roots=normalizeCatalog(payload).taxonomy;
+  if(!Array.isArray(roots))throw Error('Katalog muss ein Array von Kategorien enthalten');
+  if(roots.length>5000)throw Error('Zu viele Kategorien (max. 5000)');
+  const nodes=[], ids=new Set();
+  function walk(item,parent,depth){
+    if(!item||typeof item!=='object'||depth>16)throw Error('Ungültige/zu tiefe Kategorie');
+    const id=String(item.id??item.category_id??'');
+    if(!id||!(/^[a-zA-Z0-9_.:-]{1,100}$/).test(id)||ids.has(id))throw Error('Doppelte oder ungültige Kategorie-ID: '+id);
+    ids.add(id);
+    const kids=Array.isArray(item.children)?item.children:[];
+    let input=String(item.input||item.input_type||item.inputType||item.category_input?.type||'');
+    // In BEEP 'type' is taxonomy provenance ('system' etc.) and not the input widget.
+    if(!input)input=kids.length?'label':'text';
+    const node={id,label:title(item).slice(0,250),parent,depth,input,required:(item.required===true||item.required===1||item.required==='1'),
+      min:Number.isFinite(Number(item.min))&&item.min!==null?Number(item.min):null,
+      max:Number.isFinite(Number(item.max))&&item.max!==null?Number(item.max):null,
+      decimals:Number.isInteger(Number(item.decimals))?Number(item.decimals):null,
+      unit:item.unit?String(item.unit).slice(0,25):'',
+      children:kids.map(k=>String(k?.id??k?.category_id??'')),
+      sourceId:item.source_id??null,description:String(item.description||'').slice(0,800)};
+    nodes.push(node);
+    for(const child of kids)walk(child,id,depth+1);
+  }
+  for(const item of roots)walk(item,null,0);
+  return nodes;
+}
+
+const ownPrefix='bl:';
+const fieldInputs=new Set(['text','boolean','number_0_decimals','number_2_decimals','number_percentage','date','score','select','options','list']);
+function cloneNodes(nodes){return nodes.map(n=>({...n,children:[...n.children]}));}
+function labelCheck(label){const s=String(label??'').trim();if(s.length<2||s.length>120)throw Error('Bezeichnung muss 2 bis 120 Zeichen enthalten');return s;}
+function idCheck(nodes,id){
+  const s=String(id||'');
+  if(!/^bl:[A-Za-z0-9_.:-]{4,90}$/.test(s)||nodes.some(n=>n.id===s))throw Error('Lokale ID ungültig oder bereits vorhanden');
+  return s;
+}
+function nodeShape(id,label,parent,depth,input,required=false){
+  return {id,label,parent,depth,input,required,min:null,max:null,decimals:null,unit:'',children:[],sourceId:null,description:'Eigene Bienenlogger-Kategorie'};
+}
+function addGroup(nodes,{id,label}){
+  if(nodes.length>=5000)throw Error('Kategorienlimit erreicht');
+  const key=idCheck(nodes,id),name=labelCheck(label);
+  return [...cloneNodes(nodes),nodeShape(key,name,null,0,'label')];
+}
+function addField(nodes,{id,parentId,label,input='text',required=false}){
+  if(nodes.length>=5000)throw Error('Kategorienlimit erreicht');
+  const key=idCheck(nodes,id),name=labelCheck(label),parent=nodes.find(n=>n.id===String(parentId));
+  if(!parent||parent.input!=='label'||parent.depth>=16)throw Error('Neue Felder benötigen eine gültige Kategoriegruppe');
+  if(!fieldInputs.has(input))throw Error('Eingabetyp nicht unterstützt');
+  const out=cloneNodes(nodes),p=out.find(n=>n.id===parent.id);
+  p.children.push(key);
+  return [...out,nodeShape(key,name,parent.id,parent.depth+1,input,required===true)];
+}
+function addOption(nodes,{id,parentId,label}){
+  if(nodes.length>=5000)throw Error('Kategorienlimit erreicht');
+  const key=idCheck(nodes,id),name=labelCheck(label),parent=nodes.find(n=>n.id===String(parentId));
+  if(!parent||!choices.has(parent.input)||parent.depth>=16)throw Error('Auswahloption benötigt ein Auswahlfeld');
+  const out=cloneNodes(nodes),p=out.find(n=>n.id===parent.id);
+  p.children.push(key);
+  return [...out,nodeShape(key,name,parent.id,parent.depth+1,'label')];
+}
+function renameOwnNode(nodes,id,label){
+  const key=String(id??''),name=labelCheck(label);
+  if(!key.startsWith(ownPrefix))throw Error('Importierte BEEP-Kategorien bleiben unverändert');
+  if(!nodes.some(n=>n.id===key))throw Error('Kategorie nicht gefunden');
+  return nodes.map(n=>({...n,label:n.id===key?name:n.label,children:[...n.children]}));
+}
+function exportCatalog(nodes,templates){
+  if(!Array.isArray(nodes)||!Array.isArray(templates))throw Error('Ungültiges Katalogformat');
+  return {schema:'bienenlogger-katalog-v1',created_at:new Date().toISOString(),
+    categories:nodes.map(n=>({id:n.id,parent:n.parent??'#',name:n.label,input:n.input,
+      required:n.required,min:n.min,max:n.max,decimals:n.decimals,unit:n.unit,
+      description:n.description})),
+    checklists:templates.map(t=>({id:t.id,name:t.name,category_ids:[...t.category_ids]}))};
+}
+
+function fallback(labels){
+  const nodes=[],grps=new Map();
+  for(const label of labels){
+    const parts=String(label).split(' > ').map(s=>s.trim()).filter(Boolean);
+    if(!parts.length)continue;
+    let parent=null,path='';
+    for(let i=0;i<parts.length;i++){
+      path+=(path?' > ':'')+parts[i];
+      let id='export:'+path;
+      if(!grps.has(id)){
+        let input=i<parts.length-1?'label':'text';
+        const n={id,label:parts[i],parent,depth:i,input,required:false,min:null,max:null,decimals:null,unit:'',children:[],sourceId:null,description:'Nur Kategoriepfad im BEEP-Export belegt. Typ und Optionen nicht bekannt.'};
+        nodes.push(n);grps.set(id,n);
+        if(parent)grps.get(parent).children.push(id);
+      }
+      parent=id;
+    }
+  }
+  return nodes;
+}
+function paths(nodes){
+  const by=new Map(nodes.map(n=>[n.id,n]));
+  return new Map(nodes.map(n=>{let names=[],curr=n,limit=0;while(curr&&limit++<18){names.unshift(curr.label);curr=by.get(curr.parent);}return [n.id,names.join(' > ')];}));
+}
+function template(name,categoryIds,id){return {id:id||('local-'+Date.now().toString(36)),name:String(name||'Meine Checkliste').slice(0,100),category_ids:[...new Set(categoryIds.map(String))],source:'Lokaler Entwurf',updatedAt:new Date().toISOString()};}
+function checklistNormalize(payload,nodes){
+  let lists=Array.isArray(payload)?payload:payload?.checklists||[];
+  if(!Array.isArray(lists))throw Error('Checklisten müssen ein Array sein');
+  const allowed=new Set(nodes.map(n=>n.id));
+  return lists.slice(0,200).map((c,i)=>{
+    const ids=c.category_ids||c.categoryIds||c.categories?.map(x=>typeof x==='object'?x.id:x)||[];
+    const selected=[...new Set((Array.isArray(ids)?ids:[]).map(String))].filter(id=>allowed.has(id));
+    return {id:String(c.id||('import-'+i)),name:String(c.name||('Checkliste '+(i+1))).slice(0,100),category_ids:selected,source:'Katalog-Import (lokal)',updatedAt:c.updated_at||null};
+  });
+}
+function selectedLeaves(nodes,ids){
+  const selected=new Set(ids.map(String)),by=new Map(nodes.map(x=>[x.id,x]));
+  const out=[],seen=new Set();
+  function visit(id){
+    if(seen.has(id))return;seen.add(id);
+    const n=by.get(id);if(!n)return;
+    if(choices.has(n.input)||(!n.children.length&&n.input!=='label'))out.push(n);
+    else n.children.forEach(visit);
+  }
+  ids.forEach(visit);
+  return out;
+}
+
+function validateValues(nodes, ids, raw) {
+  const fields=selectedLeaves(nodes,ids), by=new Map(nodes.map(n=>[n.id,n]));
+  const values={},errors=[];
+  const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+  for(const n of fields) {
+    if(isBlocked(n,nodes)){if(n.required||(Object.prototype.hasOwnProperty.call(src,n.id)&&src[n.id]!=null&&src[n.id]!==''))errors.push(n.label+': '+(n.input==='file'||n.input==='image'?'Dateianhang nicht unterstützt':'Feldtyp oder Optionen fehlen'));continue;}
+    const present=Object.prototype.hasOwnProperty.call(src,n.id);
+    const v=src[n.id];
+    const missing=!present||v==null||v===''||(Array.isArray(v)&&v.length===0);
+    if(n.input==='image'||n.input==='file') {
+      if(n.required||!missing)errors.push(n.label+': Dateianhang hier nicht unterstützt');
+      continue;
+    }
+    if(missing) {if(n.required)errors.push(n.label+': Pflichtfeld');continue;}
+    if(yesNo.has(n.input)) {
+      if(v===true||v===1||v==='1'||v==='true')values[n.id]=true;
+      else if(v===false||v===0||v==='0'||v==='false')values[n.id]=false;
+      else errors.push(n.label+': ungültiger Ja/Nein-Wert');
+    } else if(choices.has(n.input)) {
+      const allowed=new Set(n.children.filter(id=>by.has(id)).map(String));
+      if(!allowed.size)errors.push(n.label+': Optionen fehlen');
+      else if(multi.has(n.input)) {
+        if(!Array.isArray(v)||v.some(x=>!allowed.has(String(x))))errors.push(n.label+': ungültige Mehrfachauswahl');
+        else values[n.id]=[...new Set(v.map(String))];
+      } else if(!allowed.has(String(v)))errors.push(n.label+': ungültige Auswahl');
+      else values[n.id]=String(v);
+    } else if(decimal.has(n.input)||scores.has(n.input)) {
+      const str=String(v).trim();
+      const num=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(str)?Number(str):NaN;
+      const min=n.min!==null?n.min:(n.input==='number_positive'||n.input==='number_percentage'?0:n.input==='smileys_3'?1:null);
+      const max=n.max!==null?n.max:(n.input==='number_percentage'?100:n.input==='smileys_3'?3:null);
+      const digits=n.decimals!==null?n.decimals:(/^number_([0-3])_decimals$/.test(n.input)?Number(n.input.match(/^number_([0-3])_decimals$/)[1]):null);
+      const goodDigits=digits===null||(digits>=0&&digits<=8&&Math.abs(num*10**digits-Math.round(num*10**digits))<1e-7);
+      if(!Number.isFinite(num)||(min!==null&&num<min)||(max!==null&&num>max)||(scores.has(n.input)&&!Number.isInteger(num))||!goodDigits)
+        errors.push(n.label+': ungültiger Zahlenwert');
+      else values[n.id]=num;
+    } else if(n.input==='date') {
+      const s=String(v),d=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+'T00:00:00Z'):null;
+      if(!d||Number.isNaN(d.getTime())||d.toISOString().slice(0,10)!==s)errors.push(n.label+': ungültiges Kalenderdatum');
+      else values[n.id]=s;
+    } else if(n.input==='color_picker') {
+      if(!/^#[a-f\d]{6}$/i.test(String(v)))errors.push(n.label+': ungültiger Farbwert');
+      else values[n.id]=String(v);
+    } else {
+      const s=String(v).trim();
+      if(s.length>(n.input==='text'?4000:600))errors.push(n.label+': Text zu lang');
+      else values[n.id]=s;
+    }
+  }
+  return {values,errors};
+}
+function widget(node,nodes,priorValue){
+  const nm='tax_'+node.id,att='data-native-category="'+escape(node.id)+'"',required=node.required?' required':'';
+  const val=priorValue===null||priorValue===undefined?'':String(priorValue);
+  const pick=(value)=>val===String(value)?' selected':'';
+  let html='';
+  if(isBlocked(node,nodes)){
+    html='<p class="small muted">BEEP-Feldtyp noch nicht implementiert oder Optionen fehlen. Keine Freitext-Ersatzspeicherung.</p>';
+  } else if(yesNo.has(node.input)){
+    const yn=priorValue===true||priorValue==='true'? '1':priorValue===false||priorValue==='false'?'0':val;
+    html=`<select name="${escape(nm)}" ${att}${required}><option value="">Nicht erfasst</option><option value="1"${yn==='1'?' selected':''}>Ja</option><option value="0"${yn==='0'?' selected':''}>Nein</option></select>`;
+  } else if(choices.has(node.input)){
+    const by=new Map(nodes.map(x=>[x.id,x]));const opts=node.children.map(id=>by.get(id)).filter(Boolean);
+    if(node.input==='list'){
+      let vals=new Set(Array.isArray(priorValue)?priorValue.map(String):val?val.split(',').map(x=>x.trim()):[]);
+      html=opts.map(o=>`<label class="checkline"><input type="checkbox" ${att} name="${escape(nm)}" value="${escape(o.id)}" ${vals.has(o.id)?'checked':''}> ${escape(o.label)}</label>`).join('');
+    }else{
+      html=`<select name="${escape(nm)}" ${att}${required}><option value="">Nicht erfasst</option>${opts.map(o=>`<option value="${escape(o.id)}"${pick(o.id)}>${escape(o.label)}</option>`).join('')}</select>`;
+    }
+    if(!opts.length)html='<p class="small muted">Optionen fehlen im Katalog; Eingabe erst nach Kategorienimport möglich.</p>';
+  } else if(decimal.has(node.input)||scores.has(node.input)){
+    let min=node.min,max=node.max,step=node.input==='number_0_decimals'?'1':node.decimals!==null?(1/Math.pow(10,Math.max(0,Math.min(node.decimals,4)))).toString():'any';
+    if(node.input==='number_positive')min=Math.max(0,min??0);
+    if(node.input==='number_percentage'){min=min??0;max=max??100;}
+    if(scores.has(node.input)){min=min??(node.input==='smileys_3'?1:0);max=max??(node.input==='smileys_3'?3:5);step='1';}
+    html=`<input type="number" name="${escape(nm)}" ${att} value="${escape(val)}" step="${escape(step)}" ${min!==null?'min="'+min+'"':''} ${max!==null?'max="'+max+'"':''}${required}>`;
+  } else if(node.input==='date'){
+    html=`<input type="date" name="${escape(nm)}" ${att} value="${escape(val.slice(0,10))}"${required}>`;
+  } else if(node.input==='color_picker'){
+    html=`<input type="text" pattern="#[a-fA-F0-9]{6}" name="${escape(nm)}" ${att} value="${escape(val)}" placeholder="#FFFFFF"${required}>`;
+  } else if(node.input==='text'||node.input==='string'){
+    html=`<textarea name="${escape(nm)}" ${att} maxlength="4000"${required}>${escape(val)}</textarea>`;
+  } else if(node.input==='image'||node.input==='file'){
+    html='<p class="small muted">Bild-/Dateiupload benötigt eine geschützte eigene Datenablage. Hier keine Fake-Speicherung.</p>';
+  } else if(node.input==='label'){
+    return '';
+  } else {
+    html=`<input type="text" name="${escape(nm)}" ${att} value="${escape(val)}" maxlength="600"${required}>`;
+  }
+  return `<div class="form-field"><label>${escape(node.label)}${node.required?' *':''}${node.unit?' · '+escape(node.unit):''}</label>${html}${node.description?'<small>'+escape(node.description)+'</small>':''}</div>`;
+}
+function renderFields(nodes,selectedIds,prior={}){
+  const by=new Map(nodes.map(n=>[n.id,n]));const path=paths(nodes);const leaves=selectedLeaves(nodes,selectedIds);
+  let lastRoot='',html='';
+  for(const node of leaves){
+    const pathText=path.get(node.id)||node.label;const root=pathText.split(' > ')[0];
+    if(root!==lastRoot){if(lastRoot)html+='</div></details>';html+=`<details class="taxonomy-group" open><summary>${escape(root)}</summary><div class="form-grid">`;lastRoot=root;}
+    const decorated={...node,label:pathText.split(' > ').slice(1).join(' › ')||node.label};
+    html+=widget(decorated,nodes,prior[node.id]);
+  }
+  if(lastRoot)html+='</div></details>';
+  return html||'<p class="small muted">Keine Kategorien in dieser Checkliste. Checkliste bearbeiten.</p>';
+}
+function collect(form,nodes,selectedIds){
+  const fields=selectedLeaves(nodes,selectedIds),raw={};
+  for(const n of fields){
+    const inputs=Array.from(form.querySelectorAll('[data-native-category]')).filter(x=>x.dataset.nativeCategory===n.id);
+    if(!inputs.length)continue;
+    raw[n.id]=multi.has(n.input)?inputs.filter(x=>x.checked).map(x=>x.value):inputs[0].value.trim();
+  }
+  return validateValues(nodes,selectedIds,raw);
+}
+
+return {normalizeCatalog,prepare,catalogReport,addGroup,addField,addOption,renameOwnNode,exportCatalog,fallback,paths,template,checklistNormalize,selectedLeaves,renderFields,validateValues,collect,escape};
+});
+
+  </script>
   <script>
 /* SPDX-License-Identifier: GPL-3.0-or-later
  * Bienenlogger – interaktiver, lokal ausführbarer UI-Prototyp.
@@ -54,17 +404,35 @@ main{max-width:1360px;width:100%;margin:0 auto;padding:20px 24px 32px;min-height
  */
 (()=>{
 'use strict';
-const STORE='bienenlogger-claude-prototype-v1';
+const STORE='bienenlogger-claude-beep-offline-v04';
+const localId=()=>`local-${Date.now()}-${Math.random().toString(36).slice(2,11)}`;
+// Nur lokaler Offline-Export: Die Quelldaten werden nicht an Server übertragen.
+const fixtureNode=document.getElementById('beep-source-data');
+let beepFixture=null;
+if(fixtureNode){try{beepFixture=JSON.parse(fixtureNode.textContent);}catch(error){console.error('BEEP-Testdaten konnten nicht gelesen werden',error);}}
+const hasBeepExport=Boolean(beepFixture?.schema==='bienenlogger-beep-export-local-v1' && Array.isArray(beepFixture.colonies));
 const rawSample={id:'sample-20261016-volk8',zeit_utc:'2026-10-16T00:51:32.772Z',gewicht_roh:1398777,gewicht_kg:(1398777-101109)*0.000024211515512725,temperatur_c:18.43,batterie_v:3.262,fft_baender:[
   [71,122,19],[122,173,11],[173,224,17],[224,276,7],[276,327,6],[327,378,6],[378,429,4],[429,480,3],[480,532,4],[532,583,0]
 ].map(([von_hz,bis_hz,wert])=>({von_hz,bis_hz,wert}))};
-const claudeStandVolker=['1','2','4','5','6','7','8','9','10','20','21'];
+const claudeStandVolker=hasBeepExport ? beepFixture.colonies.map(c=>String(c.key)) : ['1','2','4','5','6','7','8','9','10','20','21'];
+const importedMeasurements=hasBeepExport ? Object.fromEntries(beepFixture.devices.map(d=>[String(d.volk),d.rows])) : {};
+const importedStockcards=hasBeepExport ? beepFixture.inspections : [];
+const importedReminders=importedStockcards.filter(e=>e.reminder?.at);
+const exportAlerts=hasBeepExport ? beepFixture.anomalies : [];
 let standLayout='kacheln',standSort='nr';
 const standMetric={spark:true,temp:true,audio:true};
 const staticVolker={
  '5':{id:5,name:'Volk 5',device:'BEEP Base',beute:null,queen:null,frames:null,source:'Gerätezuordnung vom Betreiber'},
  '8':{id:8,name:'Volk 8',device:'BEEP Base',beute:{typ:'Segeberger 1,5',brood:1,honey:0,frames:11,quelle:'Claude-Referenz; noch nicht aus BEEP geprüft'},queen:{year:2026,color:'weiß',since:'2026-06-14',quelle:'Claude-Referenz'},source:'Gerätezuordnung vom Betreiber'}
 };
+// Diese Metadaten entstammen dem *hochgeladenen* BEEP-Kontoexport, nicht Claude-Musterdaten.
+if(hasBeepExport){
+ for(const col of beepFixture.colonies){
+  const key=String(col.key);
+  staticVolker[key]={id:key,name:String(col.name),device:col.device||null,beute:col.beute||null,queen:col.queen||null,beep_hive_id:col.beep_hive_id||null,status:col.status||null,source:'BEEP-Kontoexport'};
+ }
+}
+const colonyName=v=>data.colonyDrafts[v]?.name||staticVolker[v]?.name||('Volk '+v);
 // Nur Identität aus der Claude-Gestaltungsvorlage; zu den übrigen Völkern liegen
 // hier weder Live-Messdaten noch verifizierte Beutenkonfigurationen vor.
 for(const id of claudeStandVolker){if(!staticVolker[id])staticVolker[id]={id:Number(id),name:'Volk '+id,device:null,beute:null,queen:null,frames:null,source:'Claude-Ansichtsreferenz; nicht importiert'};}
@@ -78,8 +446,42 @@ const defaultChannels=[
  {key:'temp_50cm',name:'Bodentemperatur 50 cm',unit:'°C',quelle:'Umweltsensor',agg:'Mittelwert',status:'geplant',color:'#456a9d'}
 ];
 const defaultChecklist=['Königin gesehen','Eier gesehen','Brutbild geprüft','Futter ausreichend','Keine Schwarmzellen','Varroakontrolle durchgeführt'];
-const data={view:'stand',volk:'8',days:7,mode:'real',inspections:[],hiveDrafts:[],channels:[],checklist:defaultChecklist.slice(),imports:{},menu:false};
-try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');if(Array.isArray(s.inspections))data.inspections=s.inspections;if(Array.isArray(s.hiveDrafts))data.hiveDrafts=s.hiveDrafts;if(Array.isArray(s.channels))data.channels=s.channels;if(Array.isArray(s.checklist)&&s.checklist.length)data.checklist=s.checklist.filter(x=>typeof x==='string').slice(0,30);if(s.imports&&typeof s.imports==='object')data.imports=s.imports;}catch(e){}
+// Ausschließlich Kategorien, die im vorliegenden BEEP-Export vorkommen. Die vollständige
+// Taxonomie kann nur über den BEEP-Endpunkt /api/categories importiert werden.
+const categoryLabels=[...new Set(importedStockcards.flatMap(e=>(e.fields||[]).map(f=>f.label)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'de'));
+const taxonomyGroup=label=>label.split(' > ')[0];
+function fieldKind(label){
+ if(/(?:Anwesenheit|Alle Stadien|Behandlung|Zählung|Mit Zuckermethode ermittelt|Volk vereinigt)$/i.test(label))return 'boolean';
+ if(/(?:Brutwaben|Honigrähmchen|Anzahl der Rähmchen)$/i.test(label))return 'integer';
+ if(/natürlicher Fall$/i.test(label))return 'fall';
+ return 'text';
+}
+function queenOf(v){const drafts=data.queens.filter(q=>q.volk===v).sort((a,b)=>String(a.effectiveDate||'').localeCompare(String(b.effectiveDate||''))||String(a.editedAt||'').localeCompare(String(b.editedAt||'')));return drafts.length?drafts.at(-1):staticVolker[v]?.queen||null;}
+function colonyOf(v){return {...staticVolker[v],...(data.colonyDrafts[v]||{})};}
+
+const data={view:'stand',volk:'8',days:7,mode:'real',inspections:[],hiveDrafts:[],queens:[],colonyDrafts:{},channels:[],checklist:defaultChecklist.slice(),imports:{},nativeNodes:[],nativeTemplates:[],activeNativeTemplate:'native-default',menu:false};
+try{const s=JSON.parse(localStorage.getItem(STORE)||'{}');if(Array.isArray(s.inspections))data.inspections=s.inspections;if(Array.isArray(s.hiveDrafts))data.hiveDrafts=s.hiveDrafts;if(Array.isArray(s.channels))data.channels=s.channels;if(Array.isArray(s.checklist)&&s.checklist.length)data.checklist=s.checklist.filter(x=>typeof x==='string').slice(0,30);if(s.imports&&typeof s.imports==='object')data.imports=s.imports;if(Array.isArray(s.queens))data.queens=s.queens.filter(q=>q&&typeof q.volk==='string'&&typeof q.id==='string').slice(-300);if(s.colonyDrafts&&typeof s.colonyDrafts==='object'&&!Array.isArray(s.colonyDrafts))data.colonyDrafts=s.colonyDrafts;if(Array.isArray(s.nativeNodes))data.nativeNodes=s.nativeNodes.slice(0,5000);if(Array.isArray(s.nativeTemplates))data.nativeTemplates=s.nativeTemplates.slice(0,100);if(typeof s.activeNativeTemplate==='string')data.activeNativeTemplate=s.activeNativeTemplate;}catch(e){}
+const Native=window.BienenStockkarte;
+if(!Native)throw Error('Eigene Bienenlogger-Stockkarten-Engine wurde nicht geladen');
+try {
+ if(!data.nativeNodes.length){
+  data.nativeNodes=categoryLabels.length?Native.fallback(categoryLabels):Native.prepare({taxonomy:[
+    {id:'demo-volk',name:'Volk · Beispielkatalog',input:'label',children:[
+      {id:'demo-queen',name:'Königin gesehen',input:'boolean'},
+      {id:'demo-eggs',name:'Eier gesehen',input:'boolean'},
+      {id:'demo-brood',name:'Brutbild',input:'score_quality',min:1,max:5},
+      {id:'demo-food',name:'Futtervorrat',input:'number_1_decimals',min:0,unit:'kg'},
+      {id:'demo-varroa',name:'Varroa-Methode',input:'select',children:[{id:'demo-natural',name:'Natürlicher Fall'},{id:'demo-sugar',name:'Puderzuckerprobe'}]},
+      {id:'demo-observe',name:'Beobachtung',input:'text'}
+    ]}
+  ]});
+ }
+ const goodIds=new Set(data.nativeNodes.map(n=>n.id));
+ data.nativeTemplates=data.nativeTemplates.filter(t=>t&&Array.isArray(t.category_ids));
+ if(!data.nativeTemplates.length)data.nativeTemplates=[Native.template('BEEP-Export · erfasste Kategorien',data.nativeNodes.filter(n=>n.input!=='label'&&(!n.parent||!['select','options','list'].includes(data.nativeNodes.find(x=>x.id===n.parent)?.input))).map(n=>n.id),'native-default')];
+ if(!data.nativeTemplates.some(t=>t.id===data.activeNativeTemplate))data.activeNativeTemplate=data.nativeTemplates[0].id;
+} catch(e) { console.error('Ungültige lokale Taxonomie',e);data.nativeNodes=Native.fallback(categoryLabels);data.nativeTemplates=[Native.template('BEEP-Export',data.nativeNodes.filter(n=>!n.children.length).map(n=>n.id),'native-default')];data.activeNativeTemplate='native-default';}
+function currentTemplate(){return data.nativeTemplates.find(t=>t.id===data.activeNativeTemplate)||data.nativeTemplates[0];}
 const $=sel=>document.querySelector(sel); const main=$('#main');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=(n,places=2)=>typeof n==='number'&&Number.isFinite(n)?n.toLocaleString('de-DE',{minimumFractionDigits:places,maximumFractionDigits:places}):'—';
@@ -88,7 +490,7 @@ const locTime=s=>s?new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',day
 const label=(name,unit='')=>`<div class="kpi-label">${esc(name)}</div><div class="kpi-number">${unit}</div>`;
 const card=(name,value,subtitle)=>`<div class="card"><div class="kpi-label">${esc(name)}</div><div class="kpi-number">${esc(value)}</div><div class="kpi-foot">${esc(subtitle)}</div></div>`;
 const tag=(txt,cls='')=>`<span class="badge ${cls}">${esc(txt)}</span>`;
-const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({inspections:data.inspections,hiveDrafts:data.hiveDrafts,channels:data.channels,checklist:data.checklist,imports:data.imports}));}catch(e){toast('Browserspeicher voll: Daten bitte exportieren.');}};
+const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({inspections:data.inspections,hiveDrafts:data.hiveDrafts,channels:data.channels,checklist:data.checklist,imports:data.imports,nativeNodes:data.nativeNodes,nativeTemplates:data.nativeTemplates,activeNativeTemplate:data.activeNativeTemplate,queens:data.queens,colonyDrafts:data.colonyDrafts}));}catch(e){toast('Browser-Speicherung nicht verfügbar. Testentwürfe bitte als JSON exportieren.');}};
 function toast(txt){const t=$('#toast');t.textContent=txt;t.style.display='block';clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>t.style.display='none',4200);}
 const rng=(seed)=>{const s=Math.sin(seed*34.98)*18273.198;return s-Math.floor(s)};
 function demoRows(v){let arr=[];let start=Date.parse('2026-09-26T00:00:00Z');for(let i=0;i<=160;i++){
@@ -96,13 +498,18 @@ function demoRows(v){let arr=[];let start=Date.parse('2026-09-26T00:00:00Z');for
  let wt=base+day*.043+(Math.sin(day*1.6)*.28)+Math.sin(i*.87)*.018+(day>12?-.45:0);
  arr.push({id:'muster-'+v+'-'+i,zeit_utc:new Date(tm).toISOString(),gewicht_kg:wt,temperatur_c:20.4+Math.sin(day*.6)*1.25+Math.sin(i*.73)*.27,batterie_v:3.26,fft_baender:rawSample.fft_baender.map((b,j)=>({...b,wert:Math.max(0,Math.round(b.wert+(rng(i*j+8)-.5)*8))}))});
 }return arr;}
-function rows(v){if(data.mode==='demo')return demoRows(v);if(Array.isArray(data.imports[v])&&data.imports[v].length)return data.imports[v].slice().sort((a,b)=>Date.parse(a.zeit_utc)-Date.parse(b.zeit_utc));return v==='8'?[rawSample]:[];}
+function rows(v){
+ if(data.mode==='demo')return demoRows(v);
+ if(Array.isArray(data.imports[v])&&data.imports[v].length)return data.imports[v].slice().sort((a,b)=>Date.parse(a.zeit_utc)-Date.parse(b.zeit_utc));
+ if(hasBeepExport)return Array.isArray(importedMeasurements[v])?importedMeasurements[v]:[];
+ return v==='8'?[rawSample]:[];
+}
 function latest(v){const r=rows(v);return r.at(-1)||null;}
 function chosenRows(v){let all=rows(v);let end=all.length?Date.parse(all.at(-1).zeit_utc):Date.now();return all.filter(r=>Date.parse(r.zeit_utc)>=end-data.days*86400000);}
 function kpi(value,unit='',dp=2){return typeof value==='number'&&Number.isFinite(value)?number(value,dp)+(unit?' '+unit:''):'—';}
 function localParts(t){const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date(t));return Object.fromEntries(p.map(o=>[o.type,o.value]));}
 function berlinToday(){const p=localParts(Date.now());return `${p.year}-${p.month}-${p.day}`;}
-function dailyReference(arr){const b=new Map();for(const r of arr){if(!Number.isFinite(r.gewicht_kg))continue;const p=localParts(r.zeit_utc);if(Number(p.hour)>=4)continue;const day=`${p.year}-${p.month}-${p.day}`;if(!b.has(day))b.set(day,[]);b.get(day).push(r.gewicht_kg);}return [...b].sort(([a],[b])=>a.localeCompare(b)).map(([day,nums])=>{const v=[...nums].sort((a,b)=>a-b);return {day,weight:v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2,n:v.length};});}
+function dailyReference(arr){const b=new Map();for(const r of arr){if(!Number.isFinite(r.gewicht_kg)||r.gewicht_qualitaet==='auffällige Initialmessung – prüfen')continue;const p=localParts(r.zeit_utc);if(Number(p.hour)>=4)continue;const day=`${p.year}-${p.month}-${p.day}`;if(!b.has(day))b.set(day,[]);b.get(day).push(r.gewicht_kg);}return [...b].sort(([a],[b])=>a.localeCompare(b)).map(([day,nums])=>{const v=[...nums].sort((a,b)=>a-b);return {day,weight:v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2,n:v.length};});}
 function dailyChange(v){const daily=dailyReference(rows(v));if(daily.length<2)return null;const a=daily.at(-1),b=daily.at(-2);const diff=Math.round((Date.parse(a.day)-Date.parse(b.day))/86400000);return diff===1?a.weight-b.weight:null;}
 function head(title,desc,action=''){return `<div class="intro"><div><div class="eyebrow">BIENENLOGGER / ${esc(data.view)}</div><h1>${esc(title)}</h1><p>${esc(desc)}</p></div>${action}</div>`;}
 function actions(){return `<div class="toolbar"><button class="btn small" data-action="import">JSON-Messdaten importieren</button><button class="btn small" data-action="export">Testdaten exportieren</button></div>`;}
@@ -123,76 +530,93 @@ function chartSVG(values,{color='#277254',valueKey='gewicht_kg',unit='kg',labelT
 function spectrumSVG(fft){if(!fft?.length)return '<div class="empty">Kein FFT-Spektrum verfügbar.</div>';const max=Math.max(1,...fft.map(b=>b.wert));return `<svg viewBox="0 0 760 245" role="img" aria-label="FFT-Spektrum mit ${fft.length} Bändern">${[0,.5,1].map(f=>`<line x1="48" x2="740" y1="${188-f*154}" y2="${188-f*154}" stroke="#e5ebe4"/><text x="40" y="${192-f*154}" font-size="10" fill="#8a958b" text-anchor="end">${Math.round(f*max)}</text>`).join('')}${fft.map((b,i)=>{let x=57+i*680/fft.length,w=Math.max(12,680/fft.length-10),h=(b.wert/max)*154;return `<rect x="${x}" y="${188-h}" width="${w}" height="${h}" rx="3" fill="#c18a38"><title>${b.von_hz}–${b.bis_hz} Hz: ${b.wert}</title></rect><text x="${x+w/2}" y="202" text-anchor="middle" font-size="9" fill="#7f8d80">${b.von_hz}</text>`;}).join('')}<text x="400" y="231" font-size="11" fill="#879489" text-anchor="middle">Bandbeginn (Hz) · relative, nicht kalibrierte FFT-Rohwerte</text></svg>`;}
 function hiveMini(){return `<svg class="hive-mini" viewBox="0 0 60 72" aria-hidden="true"><rect x="3" y="11" width="54" height="6" rx="1" fill="#45514C"/><rect x="7" y="18" width="46" height="37" fill="#E9D8B6" stroke="#A78A5A" stroke-width="1.3"/><path d="M7 26 H53 M7 48 H53" stroke="#C2A67D" stroke-width="1"/><rect x="3" y="54" width="54" height="5" fill="#A68E65"/><rect x="6" y="63" width="48" height="4" fill="#48514B"/><path d="M25 54h12" stroke="#202522" stroke-width="2"/></svg>`;}
 function standColony(v){
- const info=staticVolker[v],r=latest(v),active=v===data.volk;
+ const info=colonyOf(v),r=latest(v),active=v===data.volk;
+ const hasMany=rows(v).filter(x=>Number.isFinite(x.gewicht_kg_chart??x.gewicht_kg)).length>=2;
  const w=r?.gewicht_kg!=null?number(r.gewicht_kg,3):'—';
  const temp=r?.temperatur_c!=null?number(r.temperatur_c,2)+' °C':'—';
- const summary=v==='8'?'Königin weiß 2026 · Claude-Referenz':'Königin / Beute nicht importiert';
+ const summary=hasBeepExport?(queenOf(v)?.name||'Königinnenangabe nicht vorhanden'):(v==='8'?'Königin weiß 2026 · Claude-Referenz':'Königin / Beute nicht importiert');
  const metric=standMetric;
- return `<button class="colony ${active?'selected':''}" data-volk="${esc(v)}" aria-label="Volk ${esc(v)} öffnen">
-  <div class="colony-head"><span class="colony-id">Volk ${esc(v)} <span class="queen-dot ${v==='8'?'queen-white':''}" aria-hidden="true"></span></span><span class="hive-kind">${esc(info.beute?.typ||'Beute unbekannt')}</span></div>
+ return `<button class="colony ${active?'selected':''}" data-volk="${esc(v)}" aria-label="${esc(info.name)} öffnen">
+  <div class="colony-head"><span class="colony-id">${esc(info.name)} <span class="queen-dot" style="background:${/^#[0-9a-fA-F]{6}$/.test(queenOf(v)?.color||'')?queenOf(v).color:'transparent'}" aria-hidden="true"></span></span><span class="hive-kind">${esc(info.beute?.typ||'Beute unbekannt')}</span></div>
   <div class="colony-queen">${esc(summary)}</div>
-  <div class="colony-weight">${hiveMini()}<div><span class="measure-title">Gewicht</span><div class="weight-line"><strong>${w}</strong><small>kg</small></div><div class="mini-sub">${r?'Einzelmessung; kein Δ 24 h / 7 T':'Keine Messreihe vorhanden'}</div></div></div>
+  <div class="colony-weight">${hiveMini()}<div><span class="measure-title">Gewicht</span><div class="weight-line"><strong>${w}</strong><small>kg</small></div><div class="mini-sub">${r?(hasMany?'CSV-Messreihe · Zeitzone Europe/Berlin':'Einzelmessung; kein Tagesvergleich'):'Keine Messreihe vorhanden'}</div></div></div>
   ${metric.spark?`<div class="mini-curve">${r?chartSpark(v):'<span>Gewichtsverlauf: keine Zeitreihe</span>'}</div><div class="mini-caption">Gewicht, letzte 7 Tage</div>`:''}
   ${metric.temp?`<div class="colony-sub-grid"><div><small>Brutnest t₀</small><strong>${temp}</strong></div><div><small>Deckel t₁</small><strong>—</strong></div></div>`:''}
   ${metric.audio?`<div class="colony-audio"><span>Akustik · FFT-Spektrum</span><strong>${r?.fft_baender?.length||'—'} Bänder</strong></div>`:''}
-  <div class="colony-meta"><span>${v==='8'?'BEEP Base 5A76':v==='5'?'BEEP Base D054':'Keine Gerätezuordnung'}</span><span>${r?'Messung vorhanden':'Ohne Messung'}</span></div>
+  <div class="colony-meta"><span>${esc(info.device||'Kein Stockmessgerät zugeordnet')}</span><span>${r?'Messung vorhanden':'Ohne Messung'}</span></div>
  </button>`;
 }
-function chartSpark(v){const values=rows(v).filter(r=>Number.isFinite(r.gewicht_kg));if(values.length<2)return '<span>Ein Messpunkt – noch keine Kurve</span>';
+function chartSpark(v){const values=rows(v).filter(r=>Number.isFinite(r.gewicht_kg)&&r.gewicht_qualitaet!=='auffällige Initialmessung – prüfen');if(values.length<2)return '<span>Ein Messpunkt – noch keine Kurve</span>';
  const min=Math.min(...values.map(x=>x.gewicht_kg)),max=Math.max(...values.map(x=>x.gewicht_kg)),delta=max-min||1;
  const pts=values.map((r,i)=>`${i?'L':'M'}${(i/Math.max(values.length-1,1)*235).toFixed(1)} ${(30-(r.gewicht_kg-min)/delta*24).toFixed(1)}`).join(' ');
  return `<svg viewBox="0 0 240 35" role="img" aria-label="Gewichtsverlauf als Miniatur"><path d="${pts}" fill="none" stroke="#1F4E79" stroke-width="1.5"/></svg>`;}
-function standTable(series){return `<div class="panel table-wrap"><table class="data-table"><thead><tr><th>Volk</th><th>Gewicht</th><th>Temperatur t₀</th><th>Akustik</th><th>Messquelle</th><th>Details</th></tr></thead><tbody>${series.map(v=>{let r=latest(v);return `<tr><td><strong>Volk ${esc(v)}</strong></td><td>${r?.gewicht_kg!=null?number(r.gewicht_kg,3)+' kg':'—'}</td><td>${r?.temperatur_c!=null?number(r.temperatur_c)+' °C':'—'}</td><td>${r?.fft_baender?.length||'—'}</td><td>${v==='8'||v==='5'?'BEEP Base':'Nicht erfasst'}</td><td><button class="btn small" data-volk="${esc(v)}">Öffnen</button></td></tr>`}).join('')}</tbody></table></div>`;}
+function standTable(series){return `<div class="panel table-wrap"><table class="data-table"><thead><tr><th>Volk</th><th>Gewicht</th><th>Temperatur t₀</th><th>Akustik</th><th>Messquelle</th><th>Details</th></tr></thead><tbody>${series.map(v=>{let r=latest(v);return `<tr><td><strong>${esc(colonyName(v))}</strong></td><td>${r?.gewicht_kg!=null?number(r.gewicht_kg,3)+' kg':'—'}</td><td>${r?.temperatur_c!=null?number(r.temperatur_c)+' °C':'—'}</td><td>${r?.fft_baender?.length||'—'}</td><td>${esc(staticVolker[v].device||'Nicht erfasst')}</td><td><button class="btn small" data-volk="${esc(v)}">Öffnen</button></td></tr>`}).join('')}</tbody></table></div>`;}
 function viewsStand(){
  let list=claudeStandVolker.slice();
  if(standSort==='gewicht')list.sort((a,b)=>(latest(b)?.gewicht_kg??-1)-(latest(a)?.gewicht_kg??-1));
- else if(standSort==='nr')list.sort((a,b)=>Number(a)-Number(b));
+ else if(standSort==='nr')list.sort((a,b)=>colonyName(a).localeCompare(colonyName(b),'de',{numeric:true}));
  else if(standSort==='status')list.sort((a,b)=>Number(Boolean(latest(b)))-Number(Boolean(latest(a)))||Number(a)-Number(b));
  const ndata=list.filter(v=>latest(v)).length;
  const compact=(name,value,unit,source)=>`<div class="stand-metric"><span>${name}</span><strong>${value}<small> ${unit}</small></strong><small>${source}</small></div>`;
- return `<div class="banner"><strong>Entwurf</strong><span>${data.mode==='demo'?'SIMULATION – künstliche Kurven, keine Live-Messungen.':'Echter einzelner BEEP-Messpunkt für Volk 8. Weitere Völker nur als Referenz zur Bedienbewertung.'}</span></div>
- <div class="stand-title"><h1>Teststand</h1><span>11 Völker aus Claude-Referenz · 2 BEEP Bases zugeordnet · Wetterstation · Bodentemperatur</span><small>Stand 16.10.2026</small></div>
+ const measured=hasBeepExport?'Echte BEEP-Exporte vom 16.10.2026 · Offline-Test ohne Serverzugriff.': 'Ein BEEP-Beispielmesspunkt, keine Live-Verbindung.';
+ const countCards=hasBeepExport?importedStockcards.length:0;
+ const activeReminders=hasBeepExport?importedReminders.length:0;
+ const alertBox=(cls,title,body,footer)=>`<div class="alert-card"><i class="alert-dot ${cls}"></i><div><strong>${esc(title)}</strong><p>${esc(body)}</p><small>${esc(footer)}</small></div></div>`;
+ return `<div class="banner"><strong>${data.mode==='demo'?'Simulation':'BEEP-Export'}</strong><span>${data.mode==='demo'?'SIMULATION – künstliche Kurven':measured}</span></div>
+ <div class="stand-title"><h1>${esc(hasBeepExport?beepFixture.stand:'Teststand')}</h1><span>${list.length} Beuteneinträge · ${ndata} primäre Stockmessgeräte mit Messungen · ${countCards} Stockkarteneinträge</span><small>Exportstand 16.10.2026</small></div>
  <div class="stand-metrics">
- ${compact('Außentemperatur','—','°C','S2120 · noch keine Daten geladen')}
- ${compact('Luftfeuchte','—','%','S2120 · noch keine Daten geladen')}
- ${compact('Wind / Böen','—','m/s','S2120 · noch keine Daten geladen')}
- ${compact('Regen 24 h','—','mm','S2120 · noch keine Daten geladen')}
- ${compact('Licht','—','lx','S2120 · noch keine Daten geladen')}
- ${compact('Boden Sonde 1','12,4','°C','LSN50v2 · 5 cm · Einzelwert')}
- ${compact('Boden Sonde 2','12,3','°C','LSN50v2 · 20 cm · Einzelwert')}
- ${compact('Boden Sonde 3','13,1','°C','LSN50v2 · 50 cm · Einzelwert')}
+ ${compact('Außentemperatur','—','°C','Wetterstations-CSV enthält keine Wetterwerte')}
+ ${compact('Luftfeuchte','—','%','Nicht im Export')}
+ ${compact('Wind / Böen','—','m/s','Nicht im Export')}
+ ${compact('Regen 24 h','—','mm','Nicht im Export')}
+ ${compact('Licht','—','lx','Nicht im Export')}
+ ${compact('Boden Sonde 1','12,4','°C','Projektmessung 14.10. · 5 cm, separat')}
+ ${compact('Boden Sonde 2','12,3','°C','Projektmessung 14.10. · 20 cm, separat')}
+ ${compact('Boden Sonde 3','13,1','°C','Projektmessung 14.10. · 50 cm, separat')}
  </div>
  <section class="stand-alerts"><h2>Handlungsbedarf & Datenqualität</h2><div class="alert-grid">
-  <div class="alert-card"><i class="alert-dot orange"></i><div><strong>Volk 5 – noch keine Messreihe</strong><p>Gerät zugeordnet; eigener TTN-Eingang noch nicht live.</p><small>BEEP Base D054</small></div></div>
-  <div class="alert-card"><i class="alert-dot blue"></i><div><strong>Volk 8 – Einzelmesspunkt</strong><p>Gewicht und Temperatur verfügbar, Trends erst ab mehreren Messungen.</p><small>BEEP Base 5A76</small></div></div>
-  <div class="alert-card"><i class="alert-dot"></i><div><strong>Stockkarte – Import noch offen</strong><p>Claude-Ansicht enthält Referenzangaben, keine synchronisierte Stockkarte.</p><small>Quelle BEEP · lesender Import geplant</small></div></div>
-  <div class="alert-card"><i class="alert-dot"></i><div><strong>${ndata} Völker mit Messpunkten</strong><p>Nur belegte Werte anzeigen; fehlende Kanäle bleiben unbekannt.</p><small>Datenqualität</small></div></div>
+ ${alertBox('orange',`${activeReminders} Erinnerungen aus BEEP`,activeReminders?'BEEP-Stockkarte enthält fällige bzw. zukünftige Erinnerungen.':'Noch keine BEEP-Erinnerungen importiert.','Quelle: BEEP-Stockkarte')}
+ ${alertBox('blue',`${ndata} Völker mit Sensorreihen`,hasBeepExport?'Volk 5 und Volk 8: jeweils 126 Datensätze; 124 mit Gewicht und Temperatur.':'Nur bekannte Beispieldaten vorhanden.','Gewicht, Temperatur und 10 FFT-Bänder')}
+ ${alertBox('orange',`${exportAlerts.length} auffällige Anfangsgewichte`,exportAlerts.length?'Plausibilitätsverdacht – Werte unverändert archiviert, aber in Trendkurven ausgeblendet.':'Kein auffälliger Messwert identifiziert.','Nur automatische Regel; Kalibrierung vor Ort prüfen')}
+ ${alertBox('',`${countCards} BEEP-Stockkarteneinträge`,hasBeepExport?'Mit Notizen, Checklistenfeldern, Varroazählungen und Beuten-Stammdaten.':'Stockkartenimport noch offen.','Lokal geladen, BEEP bleibt führende Quelle')}
  </div></section>
  <div class="stand-controls"><h2>Völker</h2><div class="segmented"><button class="${standLayout==='kacheln'?'active':''}" data-action="view-cards">Kacheln</button><button class="${standLayout==='liste'?'active':''}" data-action="view-table">Liste</button></div>
  <span class="sort-label">Sortieren</span><div class="pill-choices"><button class="${standSort==='nr'?'active':''}" data-action="sort-nr">Nummer</button><button class="${standSort==='gewicht'?'active':''}" data-action="sort-gewicht">Gewicht</button><button class="${standSort==='status'?'active':''}" data-action="sort-status">Messstatus</button></div>
  <div class="toolbar stand-options"><span class="sort-label">Kennzahlen</span>${[['spark','Verlauf 7 T'],['temp','Temperatur'],['audio','Akustik']].map(([key,name])=>`<button class="${standMetric[key]?'active':''}" aria-pressed="${standMetric[key]}" data-action="toggle-${key}">${name}</button>`).join('')}</div></div>
  ${standLayout==='kacheln'?`<div class="colony-grid">${list.map(standColony).join('')}</div>`:standTable(list)}
  <div class="section-heading"><h2>Messdaten & Einträge</h2><span>Nachweise statt interpolierter Zeitreihen</span></div>
- <div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Gewichtsverlauf · Volk 8</h2><div class="panel-subtitle">${data.mode==='demo'?'Nur simulierte Daten':'Kalibrierter Einzelpunkt vom 16.10.2026'}</div></div><button class="btn small" data-volk="8">Cockpit öffnen →</button></div>${chartSVG(chosenRows('8'),{labelText:'Gewichtsverlauf Volk 8'})}</section><section class="panel"><h2>Stockkarte & Beutenaufbau</h2><p class="small muted" style="margin:10px 0">Die BEEP-Stockkarte bleibt führende Datenquelle. Änderungen im Prototyp sind lokale Entwürfe.</p><button class="btn" data-view="stockkarte">Stockkarte öffnen</button><button class="btn" data-view="beute">Beute ansehen</button></section></div>`;
+ <div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Gewichtsverlauf · Volk 8</h2><div class="panel-subtitle">${data.mode==='demo'?'Simuliert':hasBeepExport?'BEEP-Geräte-CSV · Auffällige Initialmessungen ausgelassen':'Bekannter Einzelmesspunkt'}</div></div><button class="btn small" data-volk="8">Cockpit öffnen →</button></div>${chartSVG(chosenRows('8'),{labelText:'Gewichtsverlauf Volk 8',valueKey:hasBeepExport?'gewicht_kg_chart':'gewicht_kg'})}</section><section class="panel"><h2>Stockkarte & Beutenaufbau</h2><p class="small muted" style="margin:10px 0">Die BEEP-Stockkarte bleibt führende Datenquelle. Änderungen im Prototyp sind lokale Entwürfe.</p><button class="btn" data-view="stockkarte">Stockkarte öffnen</button><button class="btn" data-view="beute">Beute ansehen</button></section></div>`;
 }
-function tabs(){return `<div class="tabs"><button class="text-back" data-view="stand">← Teststand</button><label for="colonyPicker" class="small muted">Volk wählen</label><select id="colonyPicker" aria-label="Volk auswählen">${claudeStandVolker.map(v=>`<option value="${v}" ${v===data.volk?'selected':''}>Volk ${v}</option>`).join('')}</select><button class="chip" data-view="stockkarte">Stockkarte</button><button class="chip" data-view="beute">Beutenaufbau</button></div>`;}
+function tabs(){return `<div class="tabs"><button class="text-back" data-view="stand">← ${esc(hasBeepExport?beepFixture.stand:'Teststand')}</button><label for="colonyPicker" class="small muted">Volk wählen</label><select id="colonyPicker" aria-label="Volk auswählen">${claudeStandVolker.map(v=>`<option value="${esc(v)}" ${v===data.volk?'selected':''}>${esc(colonyName(v))}</option>`).join('')}</select><button class="chip" data-view="stockkarte">Stockkarte</button><button class="chip" data-view="beute">Beutenaufbau</button></div>`;}
 function range(){return `<div class="toolbar">${[1,7,21,90].map(d=>`<button class="chip ${d===data.days?'active':''}" data-days="${d}">${d===1?'24 h':d===7?'7 Tage':d===21?'21 Tage':'Saison'}</button>`).join('')}</div>`;}
-function viewsVolk(){let v=data.volk,info=staticVolker[v],r=latest(v);let row=chosenRows(v);return `${head(info.name+' · Volk-Cockpit','Messdaten, Stockkarte und Eingriffe auf einer Zeitachse · Zeitstempel in Europe/Berlin.',`<button class="btn primary" data-action="new-inspection">+ Durchsicht erfassen</button>`)}${tabs()}
-<div class="kpi-grid">${card('Gewicht',kpi(r?.gewicht_kg,'kg',3),r?'Kalibrierter Wert':'Keine Daten')}${card('Brutnesttemperatur',kpi(r?.temperatur_c,'°C'),r?'Sensorzuordnung zu prüfen':'Keine Daten')}${card('Tagesbilanz',kpi(dailyChange(v),'kg',3),'Median 00–04 Uhr · nur bei 2 Folgetagen')}${card('FFT-Spektrum',r?.fft_baender?.length?String(r.fft_baender.length)+' Bänder':'—','Relative akustische Bandwerte')}</div>
-<div class="section-heading"><h2>Messdaten und Stockkarte</h2>${range()}</div><div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Gewichtsverlauf</h2><div class="panel-subtitle">${row.length} Messpunkte · ${data.mode==='demo'?'Muster':'Echte Beispieldaten / Dateiimport'}</div></div>${tag('Gewicht · kg','blue')}</div>${chartSVG(row,{labelText:'Gewichtskurve'})}<div class="chart-legend"><span><span class="legend-dot" style="background:#277254"></span>Gewicht</span><span>${row.length>1?'Ausgewählte Werte ohne Lückenfüllung':'Nur einzelner Messwert – noch keine Trenddiagnose'}</span></div></section><section class="panel"><h2>Temperaturverlauf</h2><div class="panel-subtitle">Brutnest / Sensorposition wird mit Kanalregister verknüpft</div>${chartSVG(row,{color:'#c18a38',valueKey:'temperatur_c',unit:'°C',labelText:'Temperatur'})}</section></div>
+function viewsVolk(){let v=data.volk,info=colonyOf(v),r=latest(v);let row=chosenRows(v);return `${head(info.name+' · Volk-Cockpit','Messdaten, Stockkarte und Eingriffe auf einer Zeitachse · Zeitstempel in Europe/Berlin.',`<button class="btn primary" data-action="new-inspection">+ Durchsicht erfassen</button>`)}${tabs()}<div class="toolbar"><button class="btn" data-action="edit-colony">Volk bearbeiten</button><button class="btn" data-action="edit-queen">Königin bearbeiten</button><button class="btn" data-action="new-queen">Königin ersetzen</button></div>
+<div class="kpi-grid">${card('Gewicht',kpi(r?.gewicht_kg,'kg',3),r?.gewicht_kg!=null?'Kalibrierter CSV-Wert':'Kein Gewichtswert')}${card('Brutnesttemperatur',kpi(r?.temperatur_c,'°C'),r?.temperatur_c!=null?'BEEP-Sensor t₀ (Position prüfen)':'Keine Temperatur')}${card('Tagesbilanz',kpi(dailyChange(v),'kg',3),'Median 00–04 Uhr · nur bei 2 Folgetagen')}${card('FFT-Spektrum',r?.fft_baender?.length?String(r.fft_baender.length)+' Bänder':'—','Relative akustische Bandwerte')}</div>
+<div class="section-heading"><h2>Messdaten und Stockkarte</h2>${range()}</div><div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Gewichtsverlauf</h2><div class="panel-subtitle">${row.length} Meldungen · ${data.mode==='demo'?'Muster':hasBeepExport?'BEEP-CSV inkl. Lücken und Qualitätshinweisen':'Einzelwert / JSON-Import'}</div></div>${tag('Gewicht · kg','blue')}</div>${chartSVG(row,{labelText:'Gewichtskurve',valueKey:hasBeepExport?'gewicht_kg_chart':'gewicht_kg'})}<div class="chart-legend"><span><span class="legend-dot" style="background:#277254"></span>Gewicht</span><span>${row.length>1?'Ausgewählte Werte ohne Lückenfüllung':'Nur einzelner Messwert – noch keine Trenddiagnose'}</span></div></section><section class="panel"><h2>Temperaturverlauf</h2><div class="panel-subtitle">Brutnest / Sensorposition wird mit Kanalregister verknüpft</div>${chartSVG(row,{color:'#c18a38',valueKey:'temperatur_c',unit:'°C',labelText:'Temperatur'})}</section></div>
 <div class="section-heading"><h2>Akustik und Stockkarte</h2></div><div class="layout-two"><section class="panel"><div class="panel-head"><h2>FFT-Spektrum der letzten Messung</h2>${tag('Rohwerte','amber')}</div>${spectrumSVG(r?.fft_baender)}<p class="small muted">Keine akustische Diagnose aus einem einzelnen Spektrum. Vergleich erst bei längeren Zeitreihen.</p></section><section class="panel"><div class="panel-head"><h2>Letzte Stockkartenereignisse</h2><button class="btn small" data-view="stockkarte">Alle Einträge →</button></div>${eventList(v,4)}<hr><div class="note">Beutenaufbau, Königin und Eingriffe sind unabhängig von der Messgerät-ID. Ein Gerätewechsel verändert keine Volk-ID.</div></section></div>`;}
-function allEvents(v){return data.inspections.filter(e=>e.volk===v).slice().sort((a,b)=>b.date.localeCompare(a.date));}
-function eventList(v,limit=30){let ev=allEvents(v).slice(0,limit);return ev.length?`<div class="timeline" style="margin-top:15px">${ev.map(e=>`<div class="event"><div class="event-meta">${esc(e.date)} · Lokaler Testentwurf</div><div class="event-title">${esc(e.type)}</div><div class="event-text">${esc(e.summary||'Keine Notiz')} ${e.flags?.length?'· '+esc(e.flags.join(', ')):''}</div></div>`).join('')}</div>`:`<div class="empty" style="padding:40px 12px">Noch keine durch das Projekt geprüften BEEP-Durchsichten importiert.<div class="tiny" style="margin-top:8px">Neue Testeinträge erscheinen hier nach dem Speichern.</div></div>`;}
-function viewsStockkarte(){let v=data.volk;const queen=staticVolker[v].queen;return `${head('Digitale Stockkarte · Volk '+v,'BEEP-Prinzip: flexible Checklisten, Verlauf, Maßnahmen und Königinneninformationen.',`<button class="btn primary" data-action="new-inspection">+ Durchsicht / Maßnahme</button>`)}${tabs()}
-<div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Chronik und Maßnahmen</h2><div class="panel-subtitle">Testentwürfe werden nur lokal gespeichert · kein BEEP-Sync</div></div>${tag(allEvents(v).length+' Entwürfe','gray')}</div>${eventList(v,100)}</section><section class="panel"><h2>Königin & biologische Identität</h2><div class="stat-list" style="margin-top:17px"><div class="stat-row"><span>Königinnenfarbe</span><strong>${esc(queen?.color||'Nicht importiert')}</strong></div><div class="stat-row"><span>Jahrgang</span><strong>${esc(queen?.year??'—')}</strong></div><div class="stat-row"><span>Seit</span><strong>${queen?.since?locDate(queen.since+'T12:00:00Z'):'—'}</strong></div><div class="stat-row"><span>Herkunft der Angabe</span><strong>${esc(queen?.quelle||'Keine Angabe')}</strong></div></div><hr><h3>Prüfliste – nach BEEP-Prinzip</h3><div class="small muted" style="margin:7px 0">Bei einer neuen Durchsicht können die folgenden Punkte dokumentiert werden:</div>${data.checklist.map(x=>`<div class="row-small"><span>☐ ${x}</span><span class="source-tag">optional</span></div>`).join('')}<hr><form id="checklistForm" class="form-grid"><div class="form-field full"><label>Eigenen Checklistenpunkt hinzufügen (Test)</label><input name="item" required maxlength="90" placeholder="z. B. Honigraum kontrolliert"></div><div class="form-field full"><button class="btn small" type="submit">Zur Test-Checkliste hinzufügen</button></div></form><hr><div class="note warning">Der Import und die Konfliktauflösung echter BEEP-Stockkarteneinträge sind noch nicht implementiert. Testdaten dürfen nicht versehentlich als BEEP-Einträge gelten.</div></section></div>`;}
+function allEvents(v){
+ const fromBeep=hasBeepExport?importedStockcards.filter(e=>e.volk===v):[];
+ return fromBeep.concat(data.inspections.filter(e=>e.volk===v)).sort((a,b)=>b.date.localeCompare(a.date));
+}
+function eventList(v,limit=30){const ev=allEvents(v).slice(0,limit);
+ return ev.length?`<div class="timeline" style="margin-top:15px">${ev.map(e=>{
+ const isBeep=String(e.source||'').startsWith('BEEP-');
+ const details=(Array.isArray(e.fields)&&e.fields.length)?`<details class="source-details"><summary>Originalfelder (${e.fields.length})</summary>${e.fields.map(f=>`<div class="stat-row"><span>${esc(f.label)}</span><strong>${esc(f.value)}</strong></div>`).join('')}</details>`:'';
+ return `<div class="event"><div class="event-meta">${esc(e.date)} · ${isBeep?'BEEP-Originalexport · Quelle ohne Zeitzone':'Lokaler Testentwurf'}</div>
+ <div class="event-title">${esc(e.type)}${e.needs_attention?' · Handlungsbedarf':''}</div>
+ <div class="event-text">${esc(e.summary||'Keine Notiz')} ${e.flags?.length?'· '+esc(e.flags.join(', ')):''}</div>
+ ${e.reminder?.at?`<div class="reminder"><strong>Erinnerung: ${esc(e.reminder.at)}</strong>${e.reminder.text?' · '+esc(e.reminder.text):''}</div>`:''}
+ ${details}<div class="event-actions"><button class="btn small" data-action="${isBeep?'correct-beep':'edit-inspection'}" data-id="${esc(e.id)}">${isBeep?'Korrektur als Entwurf':'Eintrag bearbeiten'}</button></div></div>`;}).join('')}</div>`:'<div class="empty">Keine Stockkartenereignisse vorhanden.</div>';
+}
+function viewsStockkarte(){let v=data.volk;const queen=queenOf(v);return `${head('Digitale Stockkarte · '+colonyName(v),'BEEP-Prinzip: flexible Checklisten, Verlauf, Maßnahmen und Königinneninformationen.',`<button class="btn primary" data-action="new-inspection">+ Durchsicht / Maßnahme</button>`)}${tabs()}
+<div class="toolbar"><button class="btn primary" data-action="edit-colony">Volk bearbeiten</button><button class="btn" data-action="edit-queen">Königin bearbeiten / korrigieren</button><button class="btn" data-action="new-queen">Neue Königin erfassen</button></div><div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Chronik und Maßnahmen</h2><div class="panel-subtitle">${hasBeepExport?'BEEP-Originalexport (nur lesend) + lokale Testentwürfe':'Lokale Testentwürfe; kein BEEP-Sync'}</div></div>${tag(allEvents(v).length+' Einträge','blue')}</div>${eventList(v,100)}</section><section class="panel"><h2>Königin & biologische Identität</h2><div class="stat-list" style="margin-top:17px"><div class="stat-row"><span>Königin laut BEEP</span><strong>${esc(queen?.name||'Nicht erfasst')}</strong></div><div class="stat-row"><span>Jahrgang</span><strong>${esc(queen?.year??'—')}</strong></div><div class="stat-row"><span>Farbwert</span><strong>${esc(queen?.color||'—')}</strong></div><div class="stat-row"><span>Herkunft der Angabe</span><strong>${esc(queen?.source||queen?.quelle||'Keine Angabe')}</strong></div></div><hr><h3>Königinnenhistorie (lokale Entwürfe)</h3>${queenHistory(v)}<hr><h3>Dynamische BEEP-ähnliche Checklisten</h3><p class="small muted">Eigener Bienenlogger-Code mit hierarchischen Kategorien, Kategorie-IDs und Eingabetypen. Kein BEEP-Frontend/Server eingebunden.</p><div class="toolbar"><button class="btn" data-action="manage-templates">Checklisten verwalten</button><button class="btn" data-action="manage-catalog">Kategorien &amp; Auswahllisten</button><button class="btn" data-action="server-preview">Server-Stockkarte ansehen</button><button class="btn" data-action="import-native-schema">BEEP-Kategorien / Checklisten als JSON importieren</button></div><div class="small muted">${esc(data.nativeNodes.length)} Katalogeinträge · ${esc(data.nativeTemplates.length)} Checklisten · aktiv: ${esc(currentTemplate()?.name||'—')}</div><hr><h3>Zusätzliche Schnellprüfliste</h3><div class="small muted" style="margin:7px 0">Bei einer neuen Durchsicht können die folgenden Punkte dokumentiert werden:</div>${data.checklist.map(x=>`<div class="row-small"><span>☐ ${x}</span><span class="source-tag">optional</span></div>`).join('')}<hr><form id="checklistForm" class="form-grid"><div class="form-field full"><label>Eigenen Checklistenpunkt hinzufügen (Test)</label><input name="item" required maxlength="90" placeholder="z. B. Honigraum kontrolliert"></div><div class="form-field full"><button class="btn small" type="submit">Zur Test-Checkliste hinzufügen</button></div></form><hr><div class="note warning">Die BEEP-Einträge stammen aus einem lokalen Export und sind schreibgeschützt. Neue Einträge sind getrennte lokale Testentwürfe, keine Synchronisation mit BEEP.</div></section></div>`;}
 function hiveOf(v){let b=staticVolker[v].beute;const drafts=data.hiveDrafts.filter(x=>x.volk===v).sort((a,b)=>a.date.localeCompare(b.date));if(!b&&!drafts.length)return null;return {...(b||{typ:'',brood:0,honey:0,frames:null}),...(drafts.length?drafts.at(-1):{}),isDraft:!!drafts.length};}
 function hiveLayers(c){if(!c)return `<div class="hive-diagram"><div class="no-data">Beutenaufbau unbekannt<br><span class="small">Keine Zargenzahl ohne belegte Quelle ableiten</span></div></div>`;let layers=[];for(let i=0;i<Math.min(8,Number(c.honey)||0);i++)layers.push('<div class="hive-layer honey">Honigzarge <small>Position '+(i+1)+'</small></div>');for(let i=0;i<Math.min(8,Number(c.brood)||0);i++)layers.push('<div class="hive-layer brood">Brutzarge <small>Position '+(i+1+(Number(c.honey)||0))+'</small></div>');return `<div class="hive-diagram"><div class="hive-roof">Deckel</div>${layers.join('')||'<div class="no-data">Keine konfigurierte Zarge</div>'}<div class="hive-base">Boden / Waage</div></div>`;}
-function viewsBeute(){let v=data.volk,c=hiveOf(v),info=staticVolker[v];let drafts=data.hiveDrafts.filter(e=>e.volk===v).sort((a,b)=>b.date.localeCompare(a.date));return `${head('Beutenkonfiguration · Volk '+v,'Physische Beute und Volk bleiben unabhängige Identitäten. BEEP-Stockkarte ist führende Dokumentation.')}${tabs()}
-<div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Zargenaufbau · ${esc(c?.typ||'Unbekannt')}</h2><div class="panel-subtitle">${c?.isDraft?'Aktuelle Ansicht ist ein lokaler Änderungsentwurf':c?'Referenz aus Claude-Prototyp (nicht live geprüft)':'Kein bestätigter Beutenaufbau'}</div></div>${tag(c?.isDraft?'Entwurf':c?'Claude-Referenz':'Unbekannt',c?.isDraft?'amber':'gray')}</div>${hiveLayers(c)}<div class="stat-list" style="margin-top:21px"><div class="stat-row"><span>Beuten-ID</span><strong>Nicht erfasst</strong></div><div class="stat-row"><span>Brutzargen</span><strong>${c?.brood??'—'}</strong></div><div class="stat-row"><span>Honigzargen</span><strong>${c?.honey??'—'}</strong></div><div class="stat-row"><span>Rähmchen</span><strong>${c?.frames??'—'}</strong></div></div><div class="note warning" style="margin-top:15px">Ein Zargenwechsel ist ein Ereignis in der Stockkarte und kann einen Gewichtssprung erklären. Eine Gewichts-Korrektur ohne bekannte Zargenmasse wird nicht berechnet.</div></section><section class="panel"><h2>Beutenänderung simulieren</h2><div class="panel-subtitle">Keine Übertragung an BEEP oder Server, nur Bedien- und Modelltest.</div><form id="hiveForm" class="form-grid" style="margin-top:17px"><div class="form-field full"><label for="hivetyp">Beutentyp</label><input id="hivetyp" name="typ" value="${esc(c?.typ||'')}" maxlength="80" placeholder="Nur falls bekannt"></div><div class="form-field"><label for="brood">Brutzargen</label><input id="brood" name="brood" type="number" min="0" max="8" value="${c?.brood??''}" required></div><div class="form-field"><label for="honey">Honigzargen</label><input id="honey" name="honey" type="number" min="0" max="8" value="${c?.honey??''}" required></div><div class="form-field"><label for="frames">Rähmchen</label><input id="frames" name="frames" type="number" min="0" max="100" value="${c?.frames??''}"></div><div class="form-field"><label for="hivedate">Gültig ab</label><input id="hivedate" name="date" type="date" value="${berlinToday()}" required></div><div class="form-field full"><label for="hivenote">Dokumentation / Quelle</label><textarea id="hivenote" name="note" placeholder="Zum Beispiel Zarge aufgesetzt – hier nur als lokaler Entwurf"></textarea></div><div class="form-field full"><button class="btn primary" type="submit">Änderung als Testentwurf speichern</button></div></form><hr><h3>Konfigurationshistorie (Test)</h3>${drafts.length?drafts.map(d=>`<div class="row-small"><span>${esc(d.date)} · ${d.brood} Brut / ${d.honey} Honig · ${esc(d.note||'Ohne Notiz')}</span>${tag('Entwurf','amber')}</div>`).join(''):'<p class="small muted" style="margin-top:8px">Noch keine Änderungsentwürfe.</p>'}<hr><div class="note">Bei einer späteren BEEP-Anbindung werden Einträge aus der Stockkarte als Quelle und versionierte Beutenhistorie übernommen. Keine zweite parallele Stammdatenpflege.</div></section></div>`;}
-function viewsAnalyse(){let v=data.volk;let arr=rows(v);const daily=dailyReference(arr),deltas=daily.slice(1).map((d,i)=>({...d,delta:(Date.parse(d.day)-Date.parse(daily[i].day)===86400000)?d.weight-daily[i].weight:null}));const anomalies=deltas.filter(x=>x.delta!==null&&Math.abs(x.delta)>1);return `${head('Analysen & Völkervergleich','beelogger-orientiert: Median der Nachtwerte, Tagesbilanz, Signalprüfung und Ereignisbezug.')}${tabs()}
-<div class="kpi-grid">${card('Nacht-Referenzwerte',String(daily.length),'Median 00:00–04:00 Uhr, Europe/Berlin')}${card('Letzte Tagesbilanz',kpi(dailyChange(v),'kg',3),'Nur zwei aufeinanderfolgende Tage')}${card('Plausibilitäts-Hinweise',arr.length<3?'Nicht möglich':String(anomalies.length),'Testschwelle: |Δ| > 1 kg; keine biologische Diagnose')}${card('Messpunkte',String(arr.length),data.mode==='demo'?'Ausschließlich simuliert':'Vorliegende Daten')}</div>
-<div class="section-heading"><h2>Gewichtsanalyse · Volk ${v}</h2></div><div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Gewicht und Tagesentwicklung</h2><div class="panel-subtitle">${data.mode==='demo'?'Musterverlauf':'Realdaten – keine geglätteten oder interpolierten Lücken'}</div></div>${tag('beelogger-Prinzip','blue')}</div>${chartSVG(arr,{labelText:'Messgewicht Volk '+v,height:270,events:allEvents(v)})}</section><section class="panel"><h2>Berechnungsmethodik</h2><div class="stat-list" style="margin-top:14px"><div class="stat-row"><span>Referenz</span><strong>Median 00–04 Uhr</strong></div><div class="stat-row"><span>Tagesbilanz</span><strong>Tag t − Vortag</strong></div><div class="stat-row"><span>Zeitbasis</span><strong>Europe/Berlin</strong></div><div class="stat-row"><span>Eingriffe</span><strong>Separat markieren</strong></div><div class="stat-row"><span>FFT</span><strong>Vektor, keine dB</strong></div></div><hr><div class="note">Gewichtsänderungen können durch Tracht, Wetter oder Eingriffe verursacht sein. Keine automatische Schwarm- oder Varroa-Diagnose aus diesen Kennzahlen.</div></section></div>
-<div class="section-heading"><h2>Völkervergleich am Stand</h2><span>Gleicher Berechnungsstandard für beide Völker</span></div><div class="layout-two"><section class="panel"><h2>Tagesreferenz · letzte verfügbare Nacht</h2><div class="compare-bars" style="margin-top:19px">${['5','8'].map(id=>{let d=dailyReference(rows(id)).at(-1);return `<div class="compare-bar"><span>Volk ${id}</span><div class="bar-track"><div class="bar-fill" style="width:${d?Math.min(100,d.weight/45*100):0}%"></div></div><strong>${d?number(d.weight,2)+' kg':'—'}</strong></div>`;}).join('')}</div><p class="small muted" style="margin-top:17px">Nur Nachtwerte. Unterschiedliche Beutenmasse und Kalibrierung sind bei Vergleichen zu berücksichtigen.</p></section><section class="panel"><h2>Tagesbilanzen und Maßnahmen</h2>${deltas.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Tag</th><th>Nachtmedian</th><th>Δ kg</th><th>Eintrag im Entwurf</th></tr></thead><tbody>${deltas.slice(-8).reverse().map(d=>`<tr><td>${esc(d.day)}</td><td>${number(d.weight,3)}</td><td>${kpi(d.delta,'',3)}</td><td>${allEvents(v).filter(e=>e.date===d.day).length?'Ja':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Für eine Tagesbilanz fehlen aufeinanderfolgende Nächte.</div>'}</section></div>`;}
+function viewsBeute(){let v=data.volk,c=hiveOf(v),info=staticVolker[v];let drafts=data.hiveDrafts.filter(e=>e.volk===v).sort((a,b)=>b.date.localeCompare(a.date));return `${head('Beutenkonfiguration · '+colonyName(v),'Physische Beute und Volk bleiben unabhängige Identitäten. BEEP-Stockkarte ist führende Dokumentation.')}${tabs()}
+<div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Zargenaufbau · ${esc(c?.typ||'Unbekannt')}</h2><div class="panel-subtitle">${c?.isDraft?'Aktuelle Ansicht ist ein lokaler Änderungsentwurf':c?(hasBeepExport?'BEEP-Stammdatensnapshot, keine Konfigurationshistorie':'Claude-Referenz (nicht live geprüft)'):'Kein bestätigter Beutenaufbau'}</div></div>${tag(c?.isDraft?'Entwurf':c?(hasBeepExport?'BEEP-Export':'Claude-Referenz'):'Unbekannt',c?.isDraft?'amber':'gray')}</div>${hiveLayers(c)}<div class="stat-list" style="margin-top:21px"><div class="stat-row"><span>BEEP-Beuten-ID</span><strong>${esc(info.beep_hive_id||'Nicht erfasst')}</strong></div><div class="stat-row"><span>Brutzargen</span><strong>${c?.brood??'—'}</strong></div><div class="stat-row"><span>Honigzargen</span><strong>${c?.honey??'—'}</strong></div><div class="stat-row"><span>Rähmchen</span><strong>${c?.frames??'—'}</strong></div></div><div class="note warning" style="margin-top:15px">Ein Zargenwechsel ist ein Ereignis in der Stockkarte und kann einen Gewichtssprung erklären. Eine Gewichts-Korrektur ohne bekannte Zargenmasse wird nicht berechnet.</div></section><section class="panel"><h2>Beutenänderung simulieren</h2><div class="panel-subtitle">Keine Übertragung an BEEP oder Server, nur Bedien- und Modelltest.</div><form id="hiveForm" class="form-grid" style="margin-top:17px"><div class="form-field full"><label for="hivetyp">Beutentyp</label><input id="hivetyp" name="typ" value="${esc(c?.typ||'')}" maxlength="80" placeholder="Nur falls bekannt"></div><div class="form-field"><label for="brood">Brutzargen</label><input id="brood" name="brood" type="number" min="0" max="8" value="${c?.brood??''}" required></div><div class="form-field"><label for="honey">Honigzargen</label><input id="honey" name="honey" type="number" min="0" max="8" value="${c?.honey??''}" required></div><div class="form-field"><label for="frames">Rähmchen</label><input id="frames" name="frames" type="number" min="0" max="100" value="${c?.frames??''}"></div><div class="form-field"><label for="hivedate">Gültig ab</label><input id="hivedate" name="date" type="date" value="${berlinToday()}" required></div><div class="form-field full"><label for="hivenote">Dokumentation / Quelle</label><textarea id="hivenote" name="note" placeholder="Zum Beispiel Zarge aufgesetzt – hier nur als lokaler Entwurf"></textarea></div><div class="form-field full"><button class="btn primary" type="submit">Änderung als Testentwurf speichern</button></div></form><hr><h3>Konfigurationshistorie (Test)</h3>${drafts.length?drafts.map(d=>`<div class="row-small"><span>${esc(d.date)} · ${d.brood} Brut / ${d.honey} Honig · ${esc(d.note||'Ohne Notiz')}</span>${tag('Entwurf','amber')}</div>`).join(''):'<p class="small muted" style="margin-top:8px">Noch keine Änderungsentwürfe.</p>'}<hr><div class="note">Bei einer späteren BEEP-Anbindung werden Einträge aus der Stockkarte als Quelle und versionierte Beutenhistorie übernommen. Keine zweite parallele Stammdatenpflege.</div></section></div>`;}
+function viewsAnalyse(){let v=data.volk;let arr=rows(v);const daily=dailyReference(arr),deltas=daily.slice(1).map((d,i)=>({...d,delta:(Date.parse(d.day)-Date.parse(daily[i].day)===86400000)?d.weight-daily[i].weight:null}));const anomalies=deltas.filter(x=>x.delta!==null&&Math.abs(x.delta)>1);const qualityAlerts=arr.filter(r=>r.gewicht_qualitaet==='auffällige Initialmessung – prüfen');return `${head('Analysen & Völkervergleich','beelogger-orientiert: Median der Nachtwerte, Tagesbilanz, Signalprüfung und Ereignisbezug.')}${tabs()}
+<div class="kpi-grid">${card('Nacht-Referenzwerte',String(daily.length),'Median 00:00–04:00 Uhr, Europe/Berlin')}${card('Letzte Tagesbilanz',kpi(dailyChange(v),'kg',3),'Nur zwei aufeinanderfolgende Tage')}${card('Plausibilitäts-Hinweise',String(anomalies.length+qualityAlerts.length),'Bei Initialmessungen: Medianabweichung > 15 % und > 2 kg')}${card('Messpunkte',String(arr.length),data.mode==='demo'?'Ausschließlich simuliert':'Vorliegende Daten')}</div>
+<div class="section-heading"><h2>Gewichtsanalyse · ${esc(colonyName(v))}</h2></div><div class="layout-two"><section class="panel"><div class="panel-head"><div><h2>Gewicht und Tagesentwicklung</h2><div class="panel-subtitle">${data.mode==='demo'?'Musterverlauf':'Realdaten – keine geglätteten oder interpolierten Lücken'}</div></div>${tag('beelogger-Prinzip','blue')}</div>${chartSVG(arr,{labelText:'Messgewicht '+colonyName(v),height:270,events:allEvents(v),valueKey:hasBeepExport?'gewicht_kg_chart':'gewicht_kg'})}</section><section class="panel"><h2>Berechnungsmethodik</h2><div class="stat-list" style="margin-top:14px"><div class="stat-row"><span>Referenz</span><strong>Median 00–04 Uhr</strong></div><div class="stat-row"><span>Tagesbilanz</span><strong>Tag t − Vortag</strong></div><div class="stat-row"><span>Zeitbasis</span><strong>Europe/Berlin</strong></div><div class="stat-row"><span>Eingriffe</span><strong>Separat markieren</strong></div><div class="stat-row"><span>FFT</span><strong>Vektor, keine dB</strong></div></div><hr><div class="note">Gewichtsänderungen können durch Tracht, Wetter oder Eingriffe verursacht sein. Keine automatische Schwarm- oder Varroa-Diagnose aus diesen Kennzahlen.</div></section></div>
+<div class="section-heading"><h2>Völkervergleich am Stand</h2><span>Nacht-Median · bei dieser kurzen Zeitreihe eingeschränkt</span></div><div class="layout-two"><section class="panel"><h2>Tagesreferenz · letzte verfügbare Nacht</h2><div class="compare-bars" style="margin-top:19px">${['5','8'].map(id=>{let d=dailyReference(rows(id)).at(-1);return `<div class="compare-bar"><span>Volk ${id}</span><div class="bar-track"><div class="bar-fill" style="width:${d?Math.min(100,d.weight/45*100):0}%"></div></div><strong>${d?number(d.weight,2)+' kg':'—'}</strong></div>`;}).join('')}</div><p class="small muted" style="margin-top:17px">Nur Nachtwerte. Unterschiedliche Beutenmasse und Kalibrierung sind bei Vergleichen zu berücksichtigen.</p></section><section class="panel"><h2>Tagesbilanzen und Maßnahmen</h2>${deltas.length?`<div class="table-wrap"><table class="data-table"><thead><tr><th>Tag</th><th>Nachtmedian</th><th>Δ kg</th><th>Eintrag im Entwurf</th></tr></thead><tbody>${deltas.slice(-8).reverse().map(d=>`<tr><td>${esc(d.day)}</td><td>${number(d.weight,3)}</td><td>${kpi(d.delta,'',3)}</td><td>${allEvents(v).filter(e=>e.date===d.day).length?'Ja':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Für eine Tagesbilanz fehlen aufeinanderfolgende Nächte.</div>'}</section></div>`;}
 function viewsUmwelt(){const soil=[['5 cm','12,4 °C'],['20 cm','12,3 °C'],['50 cm','13,1 °C']];return `${head('Umwelt & Tracht','Standortbezogene Messungen – nicht als zusätzliche Stockmessgeräte zählen.')}
 <div class="kpi-grid">${card('Wetterstation','SenseCAP S2120','Vorhandene Datenquelle, aktuelle Daten hier nicht geladen')}${card('Boden 5 cm','12,4 °C','Bekannter Einzelwert vom 14.10.2026')}${card('Boden 20 cm','12,3 °C','Bekannter Einzelwert vom 14.10.2026')}${card('Boden 50 cm','13,1 °C','Bekannter Einzelwert vom 14.10.2026')}</div>
 <div class="section-heading"><h2>Wetter, Phänologie und Tracht</h2></div><div class="layout-two"><section class="panel"><h2>Bodentemperatur und Messpositionen</h2>${soil.map(([t,v])=>`<div class="row-small"><span>Tiefe ${t}</span><strong>${v}</strong></div>`).join('')}<div class="note" style="margin-top:16px">Hier werden nur die im Projekt bereits übermittelten drei Einzelwerte dargestellt. Für echte Zeitverläufe braucht die Oberfläche die Bodenmessreihen des Servers.</div><hr><h3>Temperaturverlauf</h3><div class="empty">Noch keine vollständige Umwelt-Zeitreihe in dieser Offline-Vorschau.</div></section><section class="panel"><h2>Phänologie, Grünlandtemperatursumme und Tracht</h2><div class="stat-list" style="margin-top:15px"><div class="stat-row"><span>Grünlandtemperatursumme</span>${tag('Noch nicht berechenbar','gray')}</div><div class="stat-row"><span>DWD-Phänologie</span>${tag('Anbindung vorbereitet','gray')}</div><div class="stat-row"><span>Blütenprognose</span>${tag('Geplant','gray')}</div><div class="stat-row"><span>Trachtflächen</span>${tag('Noch keine GIS-Daten','gray')}</div></div><hr><div class="note warning">Keine erfundene GTS, Pollenprognose oder Flugkreis-Karte. Eine reale Blütenprognose benötigt Wetterhistorie, DWD-Beobachtungen und eine klar dokumentierte Berechnung.</div></section></div>`;}
@@ -206,10 +630,166 @@ function viewsQuellen(){const ch=defaultChannels.concat(data.channels);return `$
 <div class="section-heading"><h2>Neuen Kanal vorschlagen</h2></div><section class="panel"><form id="channelForm" class="form-grid"><div class="form-field"><label>Quellfeld-Schlüssel</label><input name="key" placeholder="z. B. co2_ppm" maxlength="40" pattern="[A-Za-z][A-Za-z0-9_]*" required></div><div class="form-field"><label>Bezeichnung</label><input name="name" placeholder="CO₂ im Stock" maxlength="80" required></div><div class="form-field"><label>Einheit</label><input name="unit" placeholder="ppm" maxlength="20" required></div><div class="form-field"><label>Quelle</label><select name="quelle"><option>Zusatzgerät</option><option>Stockmessgerät</option><option>Umweltsensor</option></select></div><div class="form-field full"><button class="btn primary" type="submit">Als lokalen Kanalvorschlag ergänzen</button></div></form><p class="small muted" style="margin-top:12px">Ein neuer Kanal in dieser Vorschau aktiviert noch keinen echten Decoder. Für die Produktivversion müssen Messstellen, Gerätemetadaten und Gültigkeitszeiträume in PostgreSQL geführt werden.</p></section>`;}
 const viewNames={stand:'Bienenstand',volk:'Volk-Cockpit',stockkarte:'Stockkarte',beute:'Beutenkonfiguration',analyse:'Analysen & Vergleich',umwelt:'Umwelt & Tracht',quellen:'Datenquellen & Kanäle'};
 const views={stand:viewsStand,volk:viewsVolk,stockkarte:viewsStockkarte,beute:viewsBeute,analyse:viewsAnalyse,umwelt:viewsUmwelt,quellen:viewsQuellen};
-function render(){main.innerHTML=views[data.view]();$('#breadcrumbs').textContent='Teststand / '+viewNames[data.view];$('#modeMark').textContent=data.mode==='demo'?'SIMULATION · ausschließlich künstliche Zeitreihen':'Bekannter BEEP-Messpunkt · kein Livezugriff';$('#dataToggle').textContent=data.mode==='demo'?'Realdaten anzeigen':'Musteranalyse aktivieren';document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.view===data.view));document.title='Bienenlogger · '+viewNames[data.view];}
-function openInspection(){const today=berlinToday();const modal=$('#modalRoot');modal.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="dlgtitle"><div class="panel-head"><div><div class="eyebrow">LOKALER TESTENTWURF</div><h2 id="dlgtitle">Stockkarte · Volk ${data.volk}</h2></div><button class="btn small" data-action="close-modal" aria-label="Schließen">✕</button></div><p class="small muted" style="margin-bottom:20px">An BEEP wird nichts gesendet. Der Datensatz dient ausschließlich zum Testen der Eingabemaske.</p><form id="inspectionForm" class="form-grid"><div class="form-field"><label>Datum</label><input name="date" type="date" value="${today}" required></div><div class="form-field"><label>Art des Eintrags</label><select name="type"><option>Durchsicht</option><option>Behandlung</option><option>Fütterung</option><option>Honigernte</option><option>Beutenänderung</option><option>Sonstiges</option></select></div><div class="form-field"><label>Gesamteindruck</label><select name="mood"><option value="">Nicht bewertet</option><option>gut</option><option>beobachten</option><option>Handlungsbedarf</option></select></div><div class="form-field"><label>Milbenfall / Tag (optional)</label><input name="varroa" type="number" min="0" step="0.1" placeholder="Nicht gemessen"></div><div class="form-field full"><label>Checkliste</label>${data.checklist.map((x,i)=>`<label class="checkline"><input type="checkbox" name="flag" value="${esc(x)}"> ${esc(x)}</label>`).join('')}</div><div class="form-field full"><label>Notiz</label><textarea name="summary" maxlength="2000" placeholder="Beobachtungen und Maßnahmen"></textarea></div><div class="form-field full action-row"><button type="button" class="btn" data-action="close-modal">Abbrechen</button><button class="btn primary" type="submit">Als Testentwurf speichern</button></div></form></section></div>`;modal.querySelector('input[name=date]').focus();}
+function render(){main.innerHTML=views[data.view]();$('#breadcrumbs').textContent=(hasBeepExport?beepFixture.stand:'Teststand')+' / '+viewNames[data.view];$('#modeMark').textContent=data.mode==='demo'?'SIMULATION · ausschließlich künstliche Zeitreihen':hasBeepExport?'BEEP-Export · Offline-Test, keine Liveverbindung':'Bekannter BEEP-Messpunkt · kein Livezugriff';$('#dataToggle').textContent=data.mode==='demo'?'Realdaten anzeigen':'Musteranalyse aktivieren';document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.view===data.view));document.title='Bienenlogger · '+viewNames[data.view];}
+function queenHistory(v){
+ const entries=data.queens.filter(q=>q.volk===v).sort((a,b)=>String(b.effectiveDate||'').localeCompare(String(a.effectiveDate||'')));
+ const b=staticVolker[v]?.queen;
+ const imported=b?`<div class="row-small"><span>BEEP-Snapshot (Zeitpunkt der königinnenbezogenen Stammdaten unbekannt): ${esc(b.name||'Ohne Namen')} · ${esc(b.year??'ohne Jahr')}</span>${tag('Original unverändert','blue')}</div>`:'';
+ return imported+(entries.length?entries.map(q=>`<div class="row-small"><span>${esc(q.effectiveDate||'Datum unbekannt')} · ${esc(q.name||'Unbenannt')} · ${esc(q.recordType==='new'?'Neue Königin':'Korrektur')} · ${esc(q.source||'Lokaler Entwurf')}${q.revisions?.length?' · '+q.revisions.length+' ältere Bearbeitung(en)':''}</span><button class="btn small" data-action="edit-queen-record" data-id="${esc(q.id)}">Bearbeiten</button></div>`).join(''):'<div class="small muted">Noch keine lokalen Königinnenänderungen.</div>');
+}
+function queenFormValue(q,k){return esc(q?.[k]??'');}
+function openQueen(mode='correct',id=''){
+ const current=queenOf(data.volk)||{},stored=data.queens.find(q=>q.volk===data.volk&&q.id===id);
+ const q=mode==='new'?{}:stored||current;
+ const m=$('#modalRoot');
+ m.innerHTML=`<div class="modal-backdrop"><section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="dlgtitle"><div class="panel-head"><div><div class="eyebrow">KÖNIGIN · LOKALER ENTWURF</div><h2 id="dlgtitle">${mode==='new'?'Neue Königin':stored?'Königinnendatensatz bearbeiten':'Königinnenangaben korrigieren'} · ${esc(colonyName(data.volk))}</h2></div><button class="btn small" data-action="close-modal">✕</button></div><p class="small muted">BEEP-Originaldaten bleiben unverändert. Ein Jahrgang ist kein belegtes vollständiges Geburtsdatum. Änderungen werden ausschließlich im Browser gespeichert.</p><form id="queenForm" class="form-grid"><input type="hidden" name="record_id" value="${esc(stored?.id||'')}"><input type="hidden" name="record_type" value="${mode==='new'?'new':(stored?.recordType||'correct')}">
+ <div class="form-field"><label>Königinnenname</label><input name="name" maxlength="100" value="${queenFormValue(q,'name')}" placeholder="Noch unbekannt"></div>
+ <div class="form-field"><label>Gültig ab / Einweiselung</label><input type="date" name="effectiveDate" value="${queenFormValue(q,'effectiveDate')}"></div>
+ <div class="form-field"><label>Geburtsjahr (falls nur Jahr bekannt)</label><input type="number" name="year" min="1900" max="2100" value="${queenFormValue(q,'year')}"></div>
+ <div class="form-field"><label>Genaues Geburtsdatum (nur falls belegt)</label><input type="date" name="birth_date" value="${queenFormValue(q,'birth_date')}"></div>
+ <div class="form-field"><label>Zeichenfarbe (HEX)</label><input name="color" maxlength="7" placeholder="#FFFFFF oder leer" pattern="#[a-fA-F0-9]{6}" value="${queenFormValue(q,'color')}"><small>Leer = keine gesicherte Farbangabe</small></div>
+ <div class="form-field"><label>Unterart / Rasse</label><input name="race" maxlength="90" value="${queenFormValue(q,'race')}"></div>
+ <div class="form-field"><label>Begattet</label><select name="fertilized">${triOptions(q.fertilized)}</select></div>
+ <div class="form-field"><label>Flügel geschnitten</label><select name="clipped">${triOptions(q.clipped)}</select></div>
+ <div class="form-field"><label>Herkunft / Züchter</label><input name="origin" maxlength="150" value="${queenFormValue(q,'origin')}"></div>
+ <div class="form-field"><label>Begattungsort</label><input name="fertilizing_location" maxlength="150" value="${queenFormValue(q,'fertilizing_location')}"></div>
+ <div class="form-field"><label>Linie</label><input name="line" maxlength="100" value="${queenFormValue(q,'line')}"></div>
+ <div class="form-field"><label>Stammbaum</label><input name="tree" maxlength="150" value="${queenFormValue(q,'tree')}"></div>
+ <div class="form-field"><label>Mutter-Königin / Referenz</label><input name="mother" maxlength="150" value="${queenFormValue(q,'mother')}"></div>
+ <div class="form-field"><label>Bewertung / Qualität</label><input name="quality" maxlength="100" value="${queenFormValue(q,'quality')}"></div><div class="form-field"><label>Zuchtziel</label><input name="goal" maxlength="150" value="${queenFormValue(q,'goal')}"></div><div class="form-field"><label>Markierung</label><input name="marker" maxlength="100" value="${queenFormValue(q,'marker')}"></div>
+ <div class="form-field full"><label>Notizen / Quelle</label><textarea name="description" maxlength="2000">${queenFormValue(q,'description')}</textarea></div>
+ <div class="form-field full action-row"><button type="button" class="btn" data-action="close-modal">Abbrechen</button><button type="submit" class="btn primary">${stored?'Korrektur speichern':'Königin als Testentwurf speichern'}</button></div></form></section></div>`;
+ m.querySelector('input[name=name]').focus();
+}
+function triOptions(value){return [['','Unbekannt / nicht erfasst'],['yes','Ja'],['no','Nein']].map(([val,label])=>`<option value="${val}" ${value===val?'selected':''}>${label}</option>`).join('');}
+function saveQueen(form){const f=new FormData(form);const color=String(f.get('color')||'').trim();const y=String(f.get('year')||'').trim(),birth=String(f.get('birth_date')||'').trim();
+ if(color&&!/^#[0-9a-f]{6}$/i.test(color))return toast('Farbe nur als #RRGGBB oder leer.');
+ if(y&&(!/^\d{4}$/.test(y)||Number(y)<1900||Number(y)>2100))return toast('Jahrgang ungültig.');
+ if(birth&&(!/^\d{4}-\d{2}-\d{2}$/.test(birth)||!Number.isFinite(Date.parse(birth))))return toast('Geburtsdatum ungültig.');
+ if(y&&birth&&Number(birth.slice(0,4))!==Number(y))return toast('Geburtsjahr und Geburtsdatum widersprechen sich.');
+ const id=String(f.get('record_id')||'');const prior=data.queens.find(q=>q.id===id&&q.volk===data.volk);
+ const fields=['name','effectiveDate','birth_date','race','fertilized','clipped','origin','fertilizing_location','line','tree','mother','quality','goal','marker','description'];
+ const next={id:prior?.id||'q-'+localId(),volk:data.volk,recordType:prior?.recordType||String(f.get('record_type')),source:'Lokaler Testentwurf',editedAt:new Date().toISOString(),year:y?Number(y):null,color:color||null};
+ fields.forEach(k=>{next[k]=String(f.get(k)||'').trim()||null;});
+ next.revisions=prior?[...(prior.revisions||[]),{...prior,revisions:undefined}]:[];
+ if(prior)data.queens.splice(data.queens.indexOf(prior),1);
+ data.queens.push(next);persist();closeModal();render();toast('Königinnenangabe lokal gespeichert – BEEP-Original unverändert.');
+}
+function openColony(){const v=data.volk,info=colonyOf(v);const m=$('#modalRoot');m.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="dlgtitle"><div class="panel-head"><div><div class="eyebrow">VOLK · LOKALER ENTWURF</div><h2 id="dlgtitle">Volk bearbeiten: ${esc(colonyName(v))}</h2></div><button class="btn small" data-action="close-modal">✕</button></div><p class="small muted">Die biologische Volk-ID und BEEP-Hive-ID bleiben unverändert. Keine Synchronisierung mit BEEP.</p><form id="colonyForm" class="form-grid"><div class="form-field full"><label>Anzeigename</label><input name="name" required maxlength="100" value="${esc(info.name)}"></div><div class="form-field full"><label>Statusbeschreibung</label><input name="status" maxlength="150" value="${esc(info.status||'')}" placeholder="Nur belegten Status eintragen"></div><div class="form-field full"><label>Notiz</label><textarea name="notes" maxlength="1500">${esc(info.notes||'')}</textarea></div><div class="form-field full action-row"><button type="button" class="btn" data-action="close-modal">Abbrechen</button><button class="btn primary" type="submit">Lokal speichern</button></div></form></section></div>`;m.querySelector('input[name=name]').focus();}
+function saveColony(form){const f=new FormData(form),name=String(f.get('name')||'').trim();if(!name||name.length>100)return toast('Gültigen Volknamen eingeben.');data.colonyDrafts[data.volk]={name,status:String(f.get('status')||'').trim(),notes:String(f.get('notes')||'').trim(),source:'Lokaler Testentwurf'};persist();closeModal();render();toast('Volk-Stammdaten als lokaler Entwurf gespeichert.');}
+function taxonomyInputs(existing=[],templateId=null){
+ const chosen=data.nativeTemplates.find(x=>x.id===templateId)||currentTemplate();
+ const paths=Native.paths(data.nativeNodes),values={};
+ for(const e of existing){
+   const id=e.category_id!=null?String(e.category_id):data.nativeNodes.find(n=>paths.get(n.id)===e.label)?.id;
+   if(id)values[id]=e.value;
+ }
+ return Native.renderFields(data.nativeNodes,chosen?.category_ids||[],values);
+}
+function getTaxonomyFields(form){
+ const chosen=data.nativeTemplates.find(t=>t.id===form.dataset.checklistId)||currentTemplate();
+ const result=Native.collect(form,data.nativeNodes,chosen?.category_ids||[]);
+ if(result.errors.length)throw Error(result.errors.join('; '));
+ const path=Native.paths(data.nativeNodes);
+ return Object.entries(result.values).map(([id,value])=>({category_id:id,label:path.get(id)||id,value}));
+}
+function templatePanel(){const t=currentTemplate();return `<div class="form-field full"><label>Checklisten-Vorlage</label><select name="nativeChecklist" id="nativeChecklist">${data.nativeTemplates.map(x=>`<option value="${esc(x.id)}" ${t?.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select><small>Die Reihenfolge, Kategorien und Feldtypen stammen aus der ausgewählten Vorlage. Bei Vorlagenwechsel werden noch nicht gespeicherte Eingaben zurückgesetzt.</small></div>`;}
+function manageTemplates(id=''){
+ const selected=id==='__new__'?null:(data.nativeTemplates.find(t=>t.id===id)||currentTemplate()), nodes=data.nativeNodes;
+ const leafs=nodes.filter(n=>n.input!=='label' && !(['select','options','list'].includes(nodes.find(x=>x.id===n.parent)?.input))).sort((a,b)=>{const ia=selected?.category_ids?.indexOf(a.id)??-1,ib=selected?.category_ids?.indexOf(b.id)??-1;return (ia<0?9999:ia)-(ib<0?9999:ib);});
+ const paths=Native.paths(nodes),ids=new Set(selected?.category_ids||[]);
+ const m=$('#modalRoot');m.innerHTML=`<div class="modal-backdrop"><section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="dlgtitle"><div class="panel-head"><h2 id="dlgtitle">Bienenlogger-Checklisten verwalten</h2><button class="btn" data-action="close-modal">✕</button></div><p class="small muted">Wie bei BEEP: Kategorien und Reihenfolge sind pro Vorlage frei wählbar. Änderungen bleiben lokal; kein Zugriff auf BEEP.</p><form id="nativeTemplateForm"><input name="template_id" type="hidden" value="${esc(selected?.id||'')}"><div class="form-grid"><div class="form-field full"><label>Name</label><input name="template_name" value="${esc(selected?.name||'')}" required maxlength="100"></div></div><div class="native-tree">${leafs.map(n=>`<div class="native-order-row"><label class="checkline"><input type="checkbox" name="selected_category" value="${esc(n.id)}" ${ids.has(n.id)?'checked':''}>${esc(paths.get(n.id)||n.label)} <small>${esc(n.input)}${n.required?' · Pflichtfeld':''}</small></label><div><button type="button" class="btn small" data-action="native-up" aria-label="Kategorie nach oben">↑</button><button type="button" class="btn small" data-action="native-down" aria-label="Kategorie nach unten">↓</button></div></div>`).join('')}</div><div class="form-field full action-row"><button class="btn" type="button" data-action="new-native-template">Neue Vorlage</button><button class="btn" type="button" data-action="delete-native-template">Aktive Vorlage löschen</button><button class="btn primary" type="submit">Checkliste lokal speichern</button></div></form></section></div>`;m.querySelector('input[name="template_name"]').focus();
+}
+function saveTemplate(form){
+ const f=new FormData(form),name=String(f.get('template_name')||'').trim();if(!name)return toast('Name erforderlich');
+ const ids=f.getAll('selected_category').map(String);
+ if(!ids.length)return toast('Bitte mindestens eine Kategorie wählen.');
+ const old=data.nativeTemplates.find(x=>x.id===f.get('template_id'));
+ const template=Native.template(name,ids,old?.id||('local-'+localId()));
+ if(old){template.revisions=[...(old.revisions||[]),{...old,revisions:undefined}];data.nativeTemplates.splice(data.nativeTemplates.indexOf(old),1);}
+ data.nativeTemplates.push(template);data.activeNativeTemplate=template.id;persist();closeModal();render();toast('Bienenlogger-Checkliste lokal gespeichert.');
+}
+async function importNativeSchema(file){
+ if(!file||file.size>4*1024*1024)return toast('Maximal 4 MB JSON-Katalog');
+ try{
+  const raw=JSON.parse(await file.text());const nodes=Native.prepare(raw);const report=Native.catalogReport(nodes);
+  if(!nodes.length)throw Error('Keine Kategorien');
+  const imported=Native.checklistNormalize(raw,nodes);
+  data.nativeNodes=nodes;data.nativeTemplates=imported.length?imported:[Native.template('Alle importierten Kategorien',nodes.filter(n=>n.input!=='label'&&!(['select','options','list'].includes(nodes.find(p=>p.id===n.parent)?.input))).map(n=>n.id),'native-import')];
+  data.activeNativeTemplate=data.nativeTemplates[0].id;persist();render();toast(nodes.length+' Kategorien importiert. '+(report.blocked.length?report.blocked.length+' Feldtypen/Optionen noch nicht nutzbar.':'Keine blockierten Felder.'));
+ }catch(e){toast('Katalogimport fehlgeschlagen: '+e.message);}
+}
+
+function manageCatalog(){
+ const nodes=data.nativeNodes, paths=Native.paths(nodes);
+ const choices=new Set(['select','options','list','bee_subspecies']);
+ const groups=nodes.filter(n=>n.input==='label'&&!choices.has(nodes.find(p=>p.id===n.parent)?.input));
+ const selection=nodes.filter(n=>choices.has(n.input));
+ const own=nodes.filter(n=>n.id.startsWith('bl:'));
+ const options=rows=>rows.map(n=>'<option value="'+esc(n.id)+'">'+esc(paths.get(n.id)||n.label)+'</option>').join('');
+ const fieldTypes=[['text','Text'],['boolean','Ja / Nein'],['number_0_decimals','Ganze Zahl'],['number_2_decimals','Dezimalzahl'],['number_percentage','Prozent'],['date','Datum'],['score','Bewertung'],['select','Einfachauswahl'],['list','Mehrfachauswahl'],['options','Optionsauswahl']];
+ $('#modalRoot').innerHTML='<div class="modal-backdrop"><section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="dlgtitle"><div class="panel-head"><div><div class="eyebrow">EIGENE STOCKKARTE · KATALOG</div><h2 id="dlgtitle">Kategorien und Auswahllisten</h2></div><button class="btn small" data-action="close-modal" aria-label="Schließen">✕</button></div>'+
+ '<p class="small muted">Neue Einträge erhalten dauerhafte Bienenlogger-IDs. Importierte BEEP-Kategorien bleiben unverändert. Alles ist ein lokaler Testentwurf ohne Server-Schreibzugriff.</p>'+
+ '<form id="nativeGroupForm" class="form-grid"><div class="form-field full"><h3>Neue Kategoriegruppe</h3><label>Gruppenname</label><input name="label" maxlength="120" required></div><div class="form-field full"><button class="btn" type="submit">Gruppe hinzufügen</button></div></form><hr>'+
+ '<form id="nativeFieldForm" class="form-grid"><div class="form-field full"><h3>Neues Eingabefeld</h3><label>Übergeordnete Gruppe</label><select name="parentId" required>'+options(groups)+'</select></div><div class="form-field"><label>Feldname</label><input name="label" maxlength="120" required></div><div class="form-field"><label>Eingabetyp</label><select name="input">'+fieldTypes.map(([id,label])=>'<option value="'+id+'">'+label+'</option>').join('')+'</select></div><div class="form-field full"><label class="checkline"><input type="checkbox" name="required"> Pflichtfeld</label><label class="checkline"><input type="checkbox" name="addChecklist" checked> In die aktive Checkliste aufnehmen</label></div><div class="form-field full"><button class="btn" type="submit">Feld hinzufügen</button></div></form><hr>'+
+ '<form id="nativeOptionForm" class="form-grid"><div class="form-field full"><h3>Neue Auswahloption</h3><label>Auswahlfeld</label><select name="parentId" required>'+options(selection)+'</select></div><div class="form-field full"><label>Optionsname</label><input name="label" maxlength="120" required></div><div class="form-field full"><button class="btn" type="submit"'+(selection.length?'':' disabled')+'>Auswahloption hinzufügen</button></div></form><hr>'+
+ '<form id="nativeRenameForm" class="form-grid"><div class="form-field full"><h3>Eigenes Feld oder Option umbenennen</h3><label>Eigener Eintrag</label><select name="entryId" required>'+options(own)+'</select></div><div class="form-field full"><label>Neue Bezeichnung</label><input name="label" maxlength="120" required></div><div class="form-field full"><button class="btn" type="submit"'+(own.length?'':' disabled')+'>Bezeichnung speichern</button></div></form><hr>'+
+ '<div class="form-field full action-row"><button type="button" class="btn" data-action="export-native-catalog">Katalog und Checklisten als JSON exportieren</button><button type="button" class="btn primary" data-action="close-modal">Fertig</button></div>'+
+ '<p class="small muted">'+nodes.length+' Kategorien, '+own.length+' eigene Einträge. Keine Löschung vorhandener IDs; historische Stockkarten bleiben referenzierbar.</p></section></div>';
+}
+function saveCatalogForm(form){
+ const f=new FormData(form),type=form.id,label=String(f.get('label')||'');
+ const id='bl:'+localId();
+ try{
+  if(type==='nativeGroupForm')data.nativeNodes=Native.addGroup(data.nativeNodes,{id,label});
+  else if(type==='nativeFieldForm'){
+   data.nativeNodes=Native.addField(data.nativeNodes,{id,parentId:f.get('parentId'),label,input:String(f.get('input')),required:f.has('required')});
+   if(f.has('addChecklist')){
+    const t=currentTemplate();
+    if(t&&!t.category_ids.includes(id)){
+     t.revisions=[...(t.revisions||[]),{...t,revisions:undefined}];
+     t.category_ids=[...t.category_ids,id];t.updatedAt=new Date().toISOString();
+    }
+   }
+  }else if(type==='nativeOptionForm')data.nativeNodes=Native.addOption(data.nativeNodes,{id,parentId:f.get('parentId'),label});
+  else if(type==='nativeRenameForm')data.nativeNodes=Native.renameOwnNode(data.nativeNodes,f.get('entryId'),label);
+  else throw Error('Unbekannter Editor');
+  persist();manageCatalog();toast('Katalogänderung als lokaler Entwurf gespeichert.');
+ }catch(e){toast('Katalogänderung nicht übernommen: '+e.message);}
+}
+
+function openInspection(id=''){
+ const orig=id?(importedStockcards.find(e=>e.id===id&&e.volk===data.volk)||data.inspections.find(e=>e.id===id&&e.volk===data.volk)):null;
+ const origTemplate=data.nativeTemplates.find(t=>t.id===orig?.checklist_id);if(origTemplate)data.activeNativeTemplate=origTemplate.id;
+ const isBeep=Boolean(orig&&String(orig.source||'').startsWith('BEEP-'));
+ const today=berlinToday(),date=orig?.date||today, modal=$('#modalRoot');
+ modal.innerHTML=`<div class="modal-backdrop"><section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="dlgtitle"><div class="panel-head"><div><div class="eyebrow">STOCKKARTE · ${isBeep?'KORREKTURENTWURF':'LOKALER TESTENTWURF'}</div><h2 id="dlgtitle">${orig?'Eintrag bearbeiten':'Durchsicht erfassen'} · ${esc(colonyName(data.volk))}</h2></div><button class="btn small" data-action="close-modal" aria-label="Schließen">✕</button></div><p class="small muted">${isBeep?'Das importierte Original bleibt unverändert, eine referenzierte lokale Korrektur wird angelegt.':'Nur lokale Bearbeitung. Ohne BEEP-Synchronisierung.'}</p><form id="inspectionForm" data-checklist-id="${esc(currentTemplate()?.id||'')}" class="form-grid"><input type="hidden" name="entry_id" value="${esc(orig&&!isBeep?orig.id:'')}"><input type="hidden" name="source_inspection_id" value="${isBeep?esc(id):esc(orig?.sourceInspectionId||'')}">
+ <div class="form-field"><label>Datum</label><input name="date" type="date" value="${esc(date)}" required></div><div class="form-field"><label>Art des Eintrags</label><select name="type">${['Durchsicht','Behandlung','Fütterung','Honigernte','Beutenänderung','Königinnenwechsel','Sonstiges'].map(t=>`<option ${orig?.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+ <div class="form-field"><label>Gesamteindruck</label><select name="mood">${[['','Nicht bewertet'],['gut','Gut'],['beobachten','Beobachten'],['Handlungsbedarf','Handlungsbedarf']].map(([v,t])=>`<option value="${v}" ${orig?.mood===v?'selected':''}>${t}</option>`).join('')}</select></div>
+ <div class="form-field"><label>Handlungsbedarf</label><select name="attention">${triOptions(orig?.needs_attention===true?'yes':orig?.needs_attention===false?'no':'')}</select></div>
+ <div class="form-field"><label>Erinnerung / Termin (optional)</label><input type="date" name="reminderDate" value="${esc(orig?.reminder?.at?.slice(0,10)||'')}"></div>
+ <div class="form-field"><label>Erinnerungstext</label><input name="reminderText" maxlength="400" value="${esc(orig?.reminder?.text||'')}"></div>
+ <div class="form-field full"><h3>Persönliche Prüfliste</h3>${data.checklist.map(x=>`<label class="checkline"><input type="checkbox" name="flag" value="${esc(x)}" ${(orig?.flags||[]).includes(x)?'checked':''}> ${esc(x)}</label>`).join('')}</div>
+ ${templatePanel()}<div class="form-field full"><h3>Ausgewählte Kategorien · nach BEEP-Datenmodell</h3><p class="small muted">Originale Kategorie-IDs, verschachtelte Gruppen und Eingabetypen werden berücksichtigt, wenn ein vollständiger Katalog importiert wurde. Das Excel allein enthält keine kompletten Auswahlmöglichkeiten.</p><div id="nativeFields">${taxonomyInputs(orig?.fields||[])}</div></div>
+ <div class="form-field full"><label>Notiz</label><textarea name="summary" maxlength="4000">${esc(orig?.summary||'')}</textarea></div>
+ <div class="form-field full action-row"><button type="button" class="btn" data-action="close-modal">Abbrechen</button><button class="btn primary" type="submit">${orig?'Änderung als Entwurf speichern':'Als Testentwurf speichern'}</button></div></form></section></div>`;
+ modal.querySelector('input[name=date]').focus();
+}
 function closeModal(){$('#modalRoot').replaceChildren();}
-function saveInspection(form){const f=new FormData(form),flags=f.getAll('flag').map(String),date=String(f.get('date'));if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return toast('Ungültiges Datum');const mood=String(f.get('mood')||'');const varroa=f.get('varroa')===''?null:Number(f.get('varroa'));if(varroa!==null&&(!Number.isFinite(varroa)||varroa<0))return toast('Milbenfall ungültig');data.inspections.push({id:'local-'+Date.now(),volk:data.volk,date,type:String(f.get('type')),mood,flags,varroa,summary:String(f.get('summary')||'').trim(),source:'Lokaler Testentwurf'});persist();closeModal();render();toast('Stockkartenentwurf lokal gespeichert.');}
+function saveInspection(form){
+ const f=new FormData(form),date=String(f.get('date')||'');if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return toast('Ungültiges Datum');
+ let fields;try{fields=getTaxonomyFields(form);}catch(e){return toast(e.message);}
+ const flags=f.getAll('flag').map(String);const old=data.inspections.find(e=>e.id===f.get('entry_id')&&e.volk===data.volk);
+ const attention=String(f.get('attention')||'');const summary=String(f.get('summary')||'').trim();
+ const reminderDate=String(f.get('reminderDate')||'');const reminderText=String(f.get('reminderText')||'').trim();
+ const row={id:old?.id||localId(),volk:data.volk,date,type:String(f.get('type')),
+ mood:String(f.get('mood')||''),needs_attention:attention==='yes'?true:attention==='no'?false:null,
+ flags,fields,checklist_id:form.dataset.checklistId||null,taxonomyValues:Object.fromEntries(fields.map(x=>[x.category_id,x.value])),summary,reminder:reminderDate||reminderText?{at:reminderDate||null,text:reminderText}:null,
+ sourceInspectionId:String(f.get('source_inspection_id')||'')||null,source:'Lokaler Testentwurf',updatedAt:new Date().toISOString(),
+ revisions:old?[...(old.revisions||[]),{...old,revisions:undefined}]:[]};
+ if(old)data.inspections.splice(data.inspections.indexOf(old),1);
+ data.inspections.push(row);persist();closeModal();render();toast('Stockkarteneintrag lokal gespeichert; BEEP-Original unverändert.');
+}
 function saveHive(form){const f=new FormData(form);const brood=Number(f.get('brood')),honey=Number(f.get('honey')),frames=f.get('frames')===''?null:Number(f.get('frames'));const date=String(f.get('date'));if(!Number.isInteger(brood)||!Number.isInteger(honey)||brood<0||honey<0||brood>8||honey>8||brood+honey<1){toast('Eine aufgebaute Beute benötigt mindestens eine Zarge (max. 8 je Art).');return;}if(frames!==null&&(!Number.isInteger(frames)||frames<0||frames>100)){toast('Rähmchenanzahl ungültig.');return;}const entry={volk:data.volk,date,typ:String(f.get('typ')||''),brood,honey,frames,note:String(f.get('note')||'').trim(),source:'Lokaler Testentwurf'};data.hiveDrafts.push(entry);data.inspections.push({id:'hive-local-'+Date.now(),volk:data.volk,date,type:'Beutenänderung',mood:'',flags:[],varroa:null,summary:entry.note||`Beutenkonfiguration: ${brood} Brut- und ${honey} Honigzargen`,source:'Lokaler Testentwurf'});persist();render();toast('Beutenänderung als lokaler Stockkartenentwurf gespeichert.');}
 function saveChecklist(form){const item=String(new FormData(form).get('item')||'').trim();if(item.length<3||item.length>90)return toast('Checklistenpunkt: 3 bis 90 Zeichen.');if(data.checklist.length>=30)return toast('Maximal 30 Testmerkmale.');if(data.checklist.some(x=>x.toLowerCase()===item.toLowerCase()))return toast('Merkmal bereits vorhanden.');data.checklist.push(item);persist();render();toast('Checklistenmerkmal lokal ergänzt.');}
 function saveChannel(form){const f=new FormData(form),key=String(f.get('key')||'').trim();if(!/^[A-Za-z][A-Za-z0-9_]{0,39}$/.test(key)){toast('Ungültiger Kanalname.');return;}if(defaultChannels.concat(data.channels).some(c=>c.key===key)){toast('Dieser Kanal ist bereits registriert.');return;}data.channels.push({key,name:String(f.get('name')||'').slice(0,80),unit:String(f.get('unit')||'').slice(0,20),quelle:String(f.get('quelle')),agg:'noch festzulegen',status:'Testvorschlag',color:'#789985'});persist();render();toast('Neuer Kanalvorschlag ergänzt.');}
@@ -230,14 +810,348 @@ function validateRows(rows){
  }).filter(Boolean);
 }
 function importJson(file){if(file.size>12*1024*1024)return toast('JSON-Datei zu groß (maximal 12 MB).');file.text().then(txt=>{let obj=JSON.parse(txt);if(!Array.isArray(obj.devices))throw new Error('Erwartet JSON mit Feld "devices".');let found=0;for(const dev of obj.devices){let v=String(dev.volk||'').match(/\b(5|8)\b/)?.[1];if(!v)continue;const rows=validateRows(dev.rows);if(!rows.length)continue;data.imports[v]=rows;found+=rows.length;}if(!found)throw new Error('Keine zuordenbaren Messpunkte für Volk 5 oder 8.');data.mode='real';persist();render();toast(found+' Messwerte lokal importiert. Keine Daten an Server übertragen.');}).catch(err=>toast('Importfehler: '+err.message));}
-function invokeAction(name){switch(name){case 'view-cards':standLayout='kacheln';render();break;case 'view-table':standLayout='liste';render();break;case 'sort-nr':standSort='nr';render();break;case 'sort-gewicht':standSort='gewicht';render();break;case 'sort-status':standSort='status';render();break;case 'toggle-spark':standMetric.spark=!standMetric.spark;render();break;case 'toggle-temp':standMetric.temp=!standMetric.temp;render();break;case 'toggle-audio':standMetric.audio=!standMetric.audio;render();break;case 'new-inspection':openInspection();break;case 'close-modal':closeModal();break;case 'import':{let input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',()=>{if(input.files[0])importJson(input.files[0]);});input.click();break;}case 'export':download({created_at:new Date().toISOString(),marker:'LOKALE TESTENTWÜRFE – NICHT BEEP',inspections:data.inspections,hiveDrafts:data.hiveDrafts,channels:data.channels,checklist:data.checklist,imports:data.imports},'bienenlogger-testentwuerfe.json');break;case 'clear-import':if(confirm('Alle lokal importierten Messdaten löschen? Die Vorlage bleibt erhalten.')){data.imports={};persist();render();}break;}}
-document.addEventListener('click',e=>{const n=e.target.closest('[data-view],[data-volk],[data-choose-volk],[data-days],[data-action]');if(!n)return; if(n.dataset.view){data.view=n.dataset.view;render();}else if(n.dataset.volk){data.volk=n.dataset.volk;data.view='volk';render();}else if(n.dataset.chooseVolk){data.volk=n.dataset.chooseVolk;render();}else if(n.dataset.days){data.days=Number(n.dataset.days);render();}else if(n.dataset.action){invokeAction(n.dataset.action);} });
-document.addEventListener('change',e=>{if(e.target.id==='colonyPicker'){data.volk=e.target.value;render();}});
-document.addEventListener('submit',e=>{if(!['inspectionForm','hiveForm','channelForm','checklistForm'].includes(e.target.id))return;e.preventDefault();if(e.target.id==='inspectionForm')saveInspection(e.target);if(e.target.id==='hiveForm')saveHive(e.target);if(e.target.id==='channelForm')saveChannel(e.target);if(e.target.id==='checklistForm')saveChecklist(e.target);});
+let activeActionId='';function invokeAction(name){switch(name){case 'view-cards':standLayout='kacheln';render();break;case 'view-table':standLayout='liste';render();break;case 'sort-nr':standSort='nr';render();break;case 'sort-gewicht':standSort='gewicht';render();break;case 'sort-status':standSort='status';render();break;case 'toggle-spark':standMetric.spark=!standMetric.spark;render();break;case 'toggle-temp':standMetric.temp=!standMetric.temp;render();break;case 'toggle-audio':standMetric.audio=!standMetric.audio;render();break;case 'manage-templates':manageTemplates();break;
+ case 'manage-catalog':manageCatalog();break;
+ case 'export-native-catalog':download(Native.exportCatalog(data.nativeNodes,data.nativeTemplates),'bienenlogger-stockkarte-katalog.json');break;
+ case 'new-native-template':manageTemplates('__new__');break;
+ case 'delete-native-template':if(data.nativeTemplates.length<=1){toast('Mindestens eine Vorlage behalten.');break;}if(confirm('Aktive Checkliste lokal löschen?')){data.nativeTemplates=data.nativeTemplates.filter(t=>t.id!==data.activeNativeTemplate);data.activeNativeTemplate=data.nativeTemplates[0].id;persist();manageTemplates();}break;
+ case 'import-native-schema':{let input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',()=>importNativeSchema(input.files[0]));input.click();break;}
+ case 'new-inspection':openInspection();break;case 'edit-colony':openColony();break;case 'edit-queen':openQueen('correct');break;case 'new-queen':openQueen('new');break;case 'edit-queen-record':openQueen('correct',activeActionId);break;case 'correct-beep':openInspection(activeActionId);break;case 'edit-inspection':openInspection(activeActionId);break;case 'close-modal':closeModal();break;case 'import':{let input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',()=>{if(input.files[0])importJson(input.files[0]);});input.click();break;}case 'export':download({created_at:new Date().toISOString(),marker:'LOKALE TESTENTWÜRFE – NICHT BEEP',inspections:data.inspections,hiveDrafts:data.hiveDrafts,queens:data.queens,colonyDrafts:data.colonyDrafts,channels:data.channels,checklist:data.checklist,imports:data.imports,nativeNodes:data.nativeNodes,nativeTemplates:data.nativeTemplates},'bienenlogger-testentwuerfe.json');break;case 'clear-import':if(confirm('Alle lokal importierten Messdaten löschen? Die Vorlage bleibt erhalten.')){data.imports={};persist();render();}break;}}
+document.addEventListener('click',e=>{const n=e.target.closest('[data-view],[data-volk],[data-choose-volk],[data-days],[data-action]');if(!n)return;
+ if(['native-up','native-down'].includes(n.dataset.action)){
+  const row=n.closest('.native-order-row');if(!row)return;
+  const other=n.dataset.action==='native-up'?row.previousElementSibling:row.nextElementSibling;
+  if(other?.classList.contains('native-order-row')){
+   if(n.dataset.action==='native-up')other.before(row);else other.after(row);
+  }
+  return;
+ }
+ if(n.dataset.view){data.view=n.dataset.view;render();}else if(n.dataset.volk){data.volk=n.dataset.volk;data.view='volk';render();}else if(n.dataset.chooseVolk){data.volk=n.dataset.chooseVolk;render();}else if(n.dataset.days){data.days=Number(n.dataset.days);render();}else if(n.dataset.action){activeActionId=n.dataset.id||'';invokeAction(n.dataset.action);} });
+document.addEventListener('change',e=>{
+ if(e.target.id==='colonyPicker'){data.volk=e.target.value;render();}
+ if(e.target.id==='nativeChecklist'){
+  const form=e.target.closest('form');data.activeNativeTemplate=e.target.value;form.dataset.checklistId=e.target.value;
+  const id=form.querySelector('[name="entry_id"]')?.value||form.querySelector('[name="source_inspection_id"]')?.value||'';
+  const prior=data.inspections.find(x=>x.id===id)||importedStockcards.find(x=>x.id===id);
+  form.querySelector('#nativeFields').innerHTML=taxonomyInputs(prior?.fields||[],e.target.value);
+  persist();
+ }
+});
+document.addEventListener('submit',e=>{if(!['inspectionForm','hiveForm','channelForm','checklistForm','queenForm','colonyForm','nativeTemplateForm','nativeGroupForm','nativeFieldForm','nativeOptionForm','nativeRenameForm'].includes(e.target.id))return;e.preventDefault();if(e.target.id==='inspectionForm')saveInspection(e.target);if(e.target.id==='nativeTemplateForm')saveTemplate(e.target);if(['nativeGroupForm','nativeFieldForm','nativeOptionForm','nativeRenameForm'].includes(e.target.id))saveCatalogForm(e.target);if(e.target.id==='queenForm')saveQueen(e.target);if(e.target.id==='colonyForm')saveColony(e.target);if(e.target.id==='hiveForm')saveHive(e.target);if(e.target.id==='channelForm')saveChannel(e.target);if(e.target.id==='checklistForm')saveChecklist(e.target);});
 $('#dataToggle').addEventListener('click',()=>{data.mode=data.mode==='demo'?'real':'demo';render();toast(data.mode==='demo'?'Ausschließlich synthetische Musteranalyse aktiviert.':'Musteranalyse deaktiviert.');});
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 render();
 })();
+
+  </script>
+  <script>
+/* SPDX-License-Identifier: GPL-3.0-or-later
+ * Lesende Stockkartenansicht am SELBEN Origin wie der lokale Sitzungsdienst.
+ * Keine API-Schlüssel, keine Speicherung von Passwörtern oder CSRF-Werten.
+ * Die übrige Bienenlogger-App läuft unverändert offline weiter.
+ */
+(() => {
+'use strict';
+const base='/api/v1/stockkarte';
+const root=document.getElementById('modalRoot');
+let csrf=null;
+let currentColony=null;
+let colonyPermissions=new Map();
+let entries=[];
+const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);if(cls)e.className=cls;return e};
+const add=(target,tag,text,cls)=>{const e=make(tag,text,cls);target.append(e);return e};
+function alertText(text){let p=document.getElementById('liveError');if(!p)return;p.textContent=text||'';}
+async function request(url,{method='GET',body,csrfToken}={}){
+ const headers={'Accept':'application/json'};
+ if(body!==undefined)headers['Content-Type']='application/json';
+ if(csrfToken)headers['X-CSRF-Token']=csrfToken;
+ const response=await fetch(url,{method,body:body===undefined?undefined:JSON.stringify(body),
+   credentials:'same-origin',cache:'no-store',headers,redirect:'error'});
+ let data={};try{data=await response.json();}catch{}
+ if(!response.ok)throw Error(response.status===401?'Sitzung fehlt oder abgelaufen':
+   response.status===503?'Sitzungsdienst noch nicht freigeschaltet':
+   response.status===403?'Keine Berechtigung':
+   'Serverfehler ('+response.status+')');
+ return data;
+}
+function open(){
+ if(window.location.protocol==='file:'){
+  root.replaceChildren();
+  const p=make('div',undefined,'modal-backdrop'),panel=make('section',undefined,'modal');
+  panel.append(make('h2','Serveransicht – nur am eigenen Testserver'));
+  panel.append(make('p','Die lokale HTML-Datei ist weiterhin ein Offline-Prototyp. Serverdaten sind nur beim ausdrücklich aktivierten lokalen Entwicklungsdienst verfügbar.'));
+  const close=make('button','Schließen','btn');close.type='button';close.addEventListener('click',()=>root.replaceChildren());panel.append(close);p.append(panel);root.append(p);return;
+ }
+ root.innerHTML='<div class="modal-backdrop"><section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="liveHeading"><div class="panel-head"><div><div class="eyebrow">DATENBANK · EIGENER BIENENLOGGER</div><h2 id="liveHeading">Stockkarte – Heimnetz-Test</h2></div><button type="button" class="btn" data-action="close-modal">✕</button></div><p class="small muted">Eigenständiger Bienenlogger-Code. Server-Völker sind unabhängig von den lokalen Demo-Volknummern. Hier sind neue Durchsichten und Korrekturen nur mit Schreibberechtigung möglich. Die lokalen Testentwürfe bleiben getrennt.</p><p class="small" id="liveError" role="status"></p><div id="liveBody"></div></section></div>';
+ const body=document.getElementById('liveBody');
+ add(body,'p','Anmeldung wird geprüft …','small muted');
+ loadSession();
+}
+function showLogin(){
+ const body=document.getElementById('liveBody');if(!body)return;
+ body.replaceChildren();
+ add(body,'p','Nur für einen lokal freigeschalteten Entwicklungsserver.','small muted');
+ const form=make('form');form.id='serverLoginForm';form.className='form-grid';
+ const u=make('div',undefined,'form-field'),pw=make('div',undefined,'form-field');
+ const label=add(u,'label','Benutzername');const input=make('input');input.name='username';input.required=true;input.autocomplete='username';label.append(input);
+ const pwLabel=add(pw,'label','Passwort');const password=make('input');password.name='password';password.type='password';password.required=true;password.autocomplete='current-password';pwLabel.append(password);
+ form.append(u,pw);
+ const submit=make('button','Lokal anmelden','btn primary');submit.type='submit';form.append(submit);
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();submit.disabled=true;alertText('');
+  const username=input.value.trim(),secret=password.value;password.value='';
+  try{
+   const s=await request(base+'/session/login',{method:'POST',body:{username,password:secret}});
+   csrf=s.csrf_token;await loadColonies();
+  }catch(err){alertText(err.message);}finally{submit.disabled=false;}
+ });
+ body.append(form);
+}
+async function loadSession(){
+ try{
+  const s=await request(base+'/session');
+  csrf=s.csrf_token;await loadColonies();
+ }catch(err){alertText(err.message);showLogin();}
+}
+async function loadColonies(){
+ const body=document.getElementById('liveBody');if(!body)return;
+ const colonies=await request(base+'/voelker');body.replaceChildren();
+ colonyPermissions=new Map(colonies.map(c=>[Number(c.id),!!c.can_write]));
+ const bar=make('div',undefined,'toolbar');
+ add(bar,'strong','Daten aus eigener PostgreSQL-Stockkarte');
+ const logout=make('button','Abmelden','btn');logout.type='button';logout.addEventListener('click',async()=>{
+  try{await request(base+'/session/logout',{method:'POST',csrfToken:csrf});csrf=null;currentColony=null;alertText('Abgemeldet.');showLogin();}
+  catch(err){alertText(err.message);}
+ });
+ bar.append(logout);body.append(bar);
+ const wrap=make('div',undefined,'form-field'),label=add(wrap,'label','Server-Volk');
+ const select=make('select');select.id='serverColonySelect';label.append(select);body.append(wrap);
+ const content=make('section');content.id='serverInspections';body.append(content);
+ if(!Array.isArray(colonies)||!colonies.length){add(content,'p','Keine freigegebenen Völker vorhanden.','small muted');return;}
+ for(const c of colonies){
+  if(!Number.isInteger(c.id)||c.id<=0)continue;
+  const opt=make('option',c.name+' · interne ID '+c.id);opt.value=String(c.id);select.append(opt);
+ }
+ select.addEventListener('change',()=>loadEntries(Number(select.value)));
+ if(select.options.length){if(currentColony!==null&&colonyPermissions.has(currentColony))select.value=String(currentColony);await loadEntries(Number(select.value));}
+}
+async function loadEntries(id){
+ const panel=document.getElementById('serverInspections');if(!panel)return;
+ if(!Number.isInteger(id)||id<=0)return;
+ currentColony=id;panel.replaceChildren();add(panel,'p','Durchsichten werden geladen …','small muted');
+ try{
+  const list=await request(base+'/voelker/'+id+'/durchsichten?limit=100');
+  if(currentColony!==id||!document.getElementById('serverInspections'))return;
+  panel.replaceChildren();
+  entries=Array.isArray(list)?list:[];
+  add(panel,'h3','Durchsichten · '+entries.length+' Datensätze');
+  if(colonyPermissions.get(id)){
+   const newButton=make('button','+ Durchsicht erfassen','btn primary');
+   newButton.type='button';
+   newButton.addEventListener('click',()=>window.BienenloggerStockkarteEditor.openEditor({
+    id,canWrite:true,entry:null,fetcher:request,csrfToken:csrf,
+    onSaved:()=>loadColonies(),onCancel:()=>loadColonies()
+   }));
+   panel.append(newButton);
+  }
+  if(!Array.isArray(list)||!list.length){add(panel,'p','Keine gespeicherten Durchsichten.','small muted');return;}
+  for(const row of list){
+   const section=make('div',undefined,'row-small');
+   const text=make('span',String(row.event_date||'Datum unbekannt')+' · '+String(row.note||'Ohne Notiz')+' · Revision '+String(row.revision||'?'));
+   section.append(text);
+   if(colonyPermissions.get(id)){
+    const correct=make('button','Korrigieren','btn small');correct.type='button';
+    correct.addEventListener('click',()=>window.BienenloggerStockkarteEditor.openEditor({
+     id,canWrite:true,entry:row,fetcher:request,csrfToken:csrf,
+     onSaved:()=>loadColonies(),onCancel:()=>loadColonies()
+    }));
+    section.append(correct);
+   }
+   const button=make('button','Revisionen','btn small');button.type='button';button.addEventListener('click',()=>loadRevisions(row.id,section));section.append(button);panel.append(section);
+  }
+ }catch(err){panel.replaceChildren();add(panel,'p',err.message,'small muted');}
+}
+async function loadRevisions(id, section){
+ try{
+  const records=await request(base+'/durchsichten/'+encodeURIComponent(id)+'/revisionen');
+  const old=section.querySelector('.live-revisions');if(old)old.remove();
+  const panel=make('div',undefined,'live-revisions');
+  for(const r of records){
+   const text='Revision '+r.revision+' · '+r.event_date+' · '+(r.accuracy||'')+' · '+(r.reason||'')+' · '+(r.author||'');
+   add(panel,'p',text,'small');
+  }
+  section.append(panel);
+ }catch(err){alertText(err.message);}
+}
+document.addEventListener('click',e=>{
+ const button=e.target.closest('[data-action="server-preview"]');if(!button)return;
+ e.preventDefault();open();
+});
+})();
+
+  </script>
+  <script>
+/* SPDX-License-Identifier: GPL-3.0-or-later
+ * Eigenständige Bienenlogger-Stockkarte: serverseitige Durchsichten erfassen
+ * und korrigieren. Session/CSRF nur im Arbeitsspeicher des Tabs.
+ */
+(() => {
+'use strict';
+const api='/api/v1/stockkarte';
+let current=null;
+const $=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);if(cls)e.className=cls;return e};
+const add=(parent,tag,text,cls)=>{const el=$(tag,text,cls);parent.append(el);return el};
+function inputField(parent,name,type,value,opts={}){
+ const wrap=add(parent,'div',undefined,'form-field');const label=add(wrap,'label',name);
+ const control=type==='textarea'?$('textarea'): $('input');
+ if(type!=='textarea')control.type=type;
+ control.value=value==null?'':String(value);
+ if(opts.required)control.required=true;
+ if(opts.maxLength)control.maxLength=opts.maxLength;
+ if(opts.min!==undefined)control.min=String(opts.min);
+ if(opts.max!==undefined)control.max=String(opts.max);
+ if(opts.step!==undefined)control.step=opts.step;
+ if(type==='textarea')control.rows=3;
+ label.append(control);return control;
+}
+function renderCategory(parent,field,existing,options){
+ const wrap=add(parent,'div',undefined,'form-field');
+ const label=add(wrap,'label',field.name+(field.required?' *':''));
+ const type=field.input;
+ let control;
+ if(['boolean','boolean_yes_red','list_item','select','options','bee_subspecies'].includes(type)){
+  control=$('select');const placeholder=$('option','Nicht erfasst');placeholder.value='';control.append(placeholder);
+  const opts=['boolean','boolean_yes_red','list_item'].includes(type)
+   ? [{id:'true',name:'Ja'},{id:'false',name:'Nein'}]
+   : options.filter(x=>x.category_id===field.id&&!x.inactive);
+  for(const opt of opts){const element=$('option',opt.name);element.value=opt.id;control.append(element);}
+  control.value=existing===true?'true':existing===false?'false':existing==null?'':String(existing);
+ }else if(type==='list'){
+  control=$('div');control.className='live-checkboxes';
+  for(const opt of options.filter(x=>x.category_id===field.id&&!x.inactive)){
+   const line=$('label',undefined,'checkline'),cb=$('input');cb.type='checkbox';cb.value=opt.id;
+   if(Array.isArray(existing)&&existing.includes(opt.id))cb.checked=true;
+   line.append(cb,$('span',opt.name));control.append(line);
+  }
+ }else if(type==='text'||type==='string'){
+  control=$('textarea');control.rows=3;control.maxLength=type==='text'?4000:600;
+  control.value=existing??'';
+ }else if(type==='date'){
+  control=$('input');control.type='date';control.value=existing??'';
+ }else if(type==='number'||type==='number_positive'||type==='number_negative'||
+    type==='number_percentage'||/^number_[0-3]_decimals$/.test(type)||
+    ['score','grade','score_amount','score_quality','smileys_3','slider'].includes(type)){
+  control=$('input');control.type='number';control.step=/number_0_decimals|score|grade|smileys_3/.test(type)?'1':'any';
+  if(field.meta?.min!=null)control.min=String(field.meta.min);
+  if(field.meta?.max!=null)control.max=String(field.meta.max);
+  if(existing!=null)control.value=String(existing);
+ }else{
+  add(wrap,'p','Nicht unterstützter Feldtyp '+type+' – Korrektur gesperrt.','small muted');
+  return {unsupported:true,wrapper:wrap};
+ }
+ control.dataset.category=field.id;control.dataset.kind=type;
+ label.append(control);return {control,wrapper:wrap,unsupported:false};
+}
+function valuesOf(root){
+ const data={};
+ for(const node of root.querySelectorAll('[data-category]')){
+  const id=node.dataset.category,type=node.dataset.kind;
+  let value=null;
+  if(type==='list')value=Array.from(node.querySelectorAll('input:checked')).map(x=>x.value);
+  else if(['boolean','boolean_yes_red','list_item'].includes(type))value=node.value==='true'?true:node.value==='false'?false:null;
+  else if(node.type==='number')value=node.value===''?null:Number(node.value);
+  else value=node.value||null;
+  if(value!==null&&(!Array.isArray(value)||value.length))data[id]=value;
+ }
+ return data;
+}
+async function openEditor({id,canWrite,entry,fetcher,csrfToken,onSaved,onCancel}){
+ if(!canWrite)return;
+ const root=document.getElementById('liveBody');if(!root)return;
+ // Vorläufig kann die Maske nur Kalendertag-Einträge verlustfrei revidieren.
+ // Exakte oder geschätzte Zeitstempel niemals stillschweigend löschen.
+ if(entry && (entry.accuracy!=='nur_datum'||entry.event_time!=null)){
+  const status=document.getElementById('liveError');
+  if(status)status.textContent='Diese Durchsicht enthält eine Uhrzeit oder geschätzte Zeit. Korrektur hier gesperrt, um Zeitangaben zu bewahren.';
+  return;
+ }
+ const status=document.getElementById('liveError');
+ const notice=txt=>{if(status)status.textContent=txt;};
+ try{
+  const catalog=await fetcher(api+'/katalog');
+  if(!document.getElementById('liveBody'))return;
+  root.replaceChildren();add(root,'h3',entry?'Durchsicht korrigieren':'Neue Durchsicht erfassen');
+  add(root,'p','Server-Volk '+id+' · jede Korrektur schreibt eine neue Revision.','small muted');
+  const form=$('form');form.id='serverEntryForm';form.className='form-grid';
+  const date=inputField(form,'Datum der Durchsicht','date',entry?.event_date||new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Berlin'}),{required:true});
+  const wrap=add(form,'div',undefined,'form-field'),tplLabel=add(wrap,'label','Checkliste');
+  const tpl=$('select');tpl.id='serverChecklist';tplLabel.append(tpl);
+  const empty=$('option','Ohne Checkliste');empty.value='';tpl.append(empty);
+  for(const item of catalog.checklists||[]){const option=$('option',item.name+' · v'+item.version);option.value=item.id+':'+item.version;tpl.append(option);}
+  if(entry){
+   tpl.value=entry.checklist_id?entry.checklist_id+':'+entry.checklist_version:'';
+   tpl.disabled=true; // keine heimliche Umstellung beim Korrigieren
+  }else if(tpl.options.length>1)tpl.selectedIndex=tpl.options.length-1;
+  if(entry?.checklist_id&&!tpl.value)throw Error('Historische Checklisten-Version fehlt.');
+  const fields=add(form,'div',undefined,'form-grid');fields.id='serverEntryFields';
+  const note=inputField(form,'Notiz','textarea',entry?.note||'',{maxLength:10000});
+  const reason=inputField(form,'Grund der Erfassung/Korrektur','text',entry?'Korrektur':'Durchsicht erfasst',{required:true,maxLength:1000});
+  const bar=add(form,'div',undefined,'toolbar');
+  const save=$('button',entry?'Als neue Revision speichern':'Auf Server speichern','btn primary');save.type='submit';
+  const cancel=$('button','Abbrechen','btn');cancel.type='button';cancel.addEventListener('click',onCancel);
+  bar.append(save,cancel);root.append(form);
+  function buildFields(){
+   fields.replaceChildren();let blocked=false;
+   const selected=(catalog.checklists||[]).find(x=>x.id+':'+x.version===tpl.value);
+   const ids=selected?selected.fields.slice().sort((a,b)=>a.position-b.position).map(x=>x.category_id):
+    (catalog.categories||[]).filter(x=>x.input!=='label').map(x=>x.id);
+   const byId=new Map((catalog.categories||[]).map(x=>[x.id,x]));
+   const mandatory=new Map((selected?.fields||[]).map(x=>[x.category_id,!!x.required]));
+   for(const fieldId of ids){
+    const definition=byId.get(fieldId);
+    if(!definition){
+     add(fields,'p','Katalogfeld '+fieldId+' fehlt – Korrektur gesperrt.','small muted');
+     blocked=true;continue;
+    }
+    const field={...definition,required:definition.required||mandatory.get(fieldId)};
+    const original=entry?.values?.[fieldId];
+    if(entry && original!=null && ['select','options','bee_subspecies','list'].includes(field.input)){
+     const choices=(catalog.options||[]).filter(x=>x.category_id===fieldId&&!x.inactive).map(x=>x.id);
+     const keys=Array.isArray(original)?original:[original];
+     if(keys.some(x=>!choices.includes(x))){
+      add(fields,'p','Historische Auswahl '+field.name+' ist nicht mehr verfügbar – Korrektur gesperrt.','small muted');
+      blocked=true;continue;
+     }
+    }
+    const item=renderCategory(fields,field,original,catalog.options||[]);
+    blocked=blocked||item.unsupported;
+   }
+   if(entry&&Object.keys(entry.values||{}).some(x=>!ids.includes(x))){
+    add(fields,'p','Die bisherige Durchsicht enthält zusätzliche Felder. Eine verlustfreie Korrektur ist hier noch nicht möglich.','small muted');
+    blocked=true;
+   }
+   save.disabled=blocked;
+  }
+  tpl.addEventListener('change',buildFields);buildFields();
+  form.addEventListener('submit',async e=>{
+   e.preventDefault();if(save.disabled)return;save.disabled=true;notice('Speichere …');
+   const [clId,clVersion]=tpl.value?tpl.value.split(':').map(Number):[null,null];
+   const payload={event_date:date.value,accuracy:'nur_datum',
+    checklist_id:clId,checklist_version:clVersion,values:valuesOf(fields),
+    note:note.value,reason:reason.value.trim()};
+   if(entry)payload.expected_revision=entry.revision;
+   try{
+    const endpoint=entry?api+'/durchsichten/'+entry.id+'/revisionen':api+'/voelker/'+id+'/durchsichten';
+    const result=await fetcher(endpoint,{method:'POST',body:payload,csrfToken});
+    notice('Gespeichert: Durchsicht '+result.id+', Revision '+result.revision);
+    await onSaved();
+   }catch(err){notice(err.message);save.disabled=false;}
+  });
+ }catch(err){notice(err.message);if(onCancel)await onCancel();}
+}
+window.BienenloggerStockkarteEditor={openEditor};
+})();
+
   </script>
 </body></html>

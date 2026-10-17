@@ -1,0 +1,226 @@
+name: stockkarte-fast
+on:
+  pull_request:
+    paths:
+      - 'prototype/claude-ui/**'
+      - 'server/datenbank/**'
+      - 'deploy/heimnetz-test/**'
+      - 'tests/datenbank/test_stockkarte_api.py'
+      - 'tests/datenbank/test_stockkarte_session.py'
+      - 'tests/datenbank/test_stockkarte_persistenz.py'
+      - 'tests/server/test_claude_ui.js'
+      - 'tests/server/test_stockkarte_native.js'
+      - 'tests/server/test_stockkarte_values.js'
+      - 'tests/server/test_native_stockkarte_browser.js'
+      - '.github/workflows/stockkarte.yml'
+  workflow_dispatch:
+concurrency:
+  group: stockkarte-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  fachlogik:
+    name: 'Stockkarte - Domain-Engine und Offline-Build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Schema und Eingabewerte
+        run: |
+          node --check prototype/claude-ui/stockkarte_native.js
+          node --check prototype/claude-ui/app.js
+          node --check prototype/claude-ui/stockkarte_live.js
+          node --check prototype/claude-ui/stockkarte_edit.js
+          node tests/server/test_stockkarte_native.js
+          node tests/server/test_stockkarte_values.js
+          node tests/server/test_beep_catalog_adapter.js
+          node tests/server/test_stockkarte_catalog_editor.js
+      - name: Offline-HTML aus Quellen reproduzieren
+        run: |
+          python3 prototype/claude-ui/build_single.py
+          git diff --exit-code -- prototype/claude-ui/bienenlogger-claude-prototyp.html
+  bedienung:
+    name: 'Stockkarte - Browser-Bedienabläufe ohne Pixel-Snapshots'
+    needs: fachlogik
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Modulare Ansicht und Offline-Einzeldatei
+        run: |
+          node tests/server/test_claude_ui.js
+          node tests/server/test_native_stockkarte_browser.js
+          node tests/server/test_stockkarte_catalog_browser.js
+          node tests/server/test_stockkarte_live_browser.js
+  datenbank:
+    name: 'Stockkarte - PostgreSQL 16 / Revisionen'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: bienen_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: testonly
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d bienen_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      BIENEN_TEST_DSN: 'host=127.0.0.1 port=5432 dbname=bienen_test user=postgres password=testonly'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Psycopg installieren
+        run: python -m pip install 'psycopg[binary]>=3.2,<4' 'fastapi>=0.115,<1' 'httpx>=0.27,<1' 'argon2-cffi>=23,<26'
+      - name: Additive Stockkartenmigration und Revisionsverhalten testen
+        run: |
+          python tests/datenbank/test_stockkarte_persistenz.py
+          python tests/datenbank/test_stockkarte_api.py
+          python tests/datenbank/test_stockkarte_session.py
+
+  heimnetz_paket:
+    name: 'Heimnetz - Compose, Image, isolierte Testdatenbank'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell-Syntax und statische Installationskontrollen
+        run: |
+          for script in deploy/heimnetz-test/start.sh             deploy/heimnetz-test/initdb.sh             deploy/heimnetz-test/backup.sh             deploy/heimnetz-test/verify-restore.sh; do
+            sh -n "$script"
+          done
+          bash -n tests/deploy/test_https_api.sh
+          if command -v shellcheck >/dev/null 2>&1; then
+            shellcheck -S warning               deploy/heimnetz-test/start.sh               deploy/heimnetz-test/initdb.sh               deploy/heimnetz-test/backup.sh               deploy/heimnetz-test/verify-restore.sh               tests/deploy/test_https_api.sh
+          fi
+      - name: Synthetische Testkonfiguration erzeugen
+        run: |
+          cat > deploy/heimnetz-test/.env <<'EOF'
+          LAN_BIND_IP=127.0.0.1
+          LAN_ALLOWED_CIDR=172.16.0.0/12
+          LAN_PORT=8443
+          BL_DB_PASSWORD=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+          BL_SESSION_SECRET=abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+          EOF
+          chmod 600 deploy/heimnetz-test/.env
+      - name: Compose-Bereitstellung mit separaten Volumes validieren
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml config --quiet
+          python3 - <<'PY'
+          import yaml
+          cfg=yaml.safe_load(open('deploy/heimnetz-test/compose.yaml'))
+          assert 'ports' not in cfg['services']['db']
+          assert 'ports' not in cfg['services']['app']
+          assert cfg['networks']['internal']['internal'] is True
+          assert 'ports' in cfg['services']['proxy']
+          print('Separate Testdatenbank, interner Datenbank- und FastAPI-Zugang: PASS')
+          PY
+      - name: Python-Image aufbauen und eigene Testdatenbank starten
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml up -d --build db app
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T app \
+            python /srv/bienenlogger/server/datenbank/stockkarte_admin.py seed-demo
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
+            psql -U bienenlogger -d bienenlogger_test -Atqc \
+            'SELECT count(*) FROM bienen.sk_kategorie'
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T app \
+            python -c "import urllib.request; assert b'Claude' in urllib.request.urlopen('http://127.0.0.1:8765/').read()"
+      - name: Lokalen HTTPS-Reverse-Proxy mit interner Test-CA pruefen
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml up -d proxy
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T proxy caddy validate --config /etc/caddy/Caddyfile
+          for i in $(seq 1 15); do
+            if curl --fail --silent --show-error --insecure --max-time 4 \
+              https://127.0.0.1:8443/ -o /tmp/bienenlogger-lan-index.html; then break; fi
+            sleep 2
+          done
+          grep -q 'Claude-Design' /tmp/bienenlogger-lan-index.html
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml cp \
+            proxy:/data/caddy/pki/authorities/local/root.crt /tmp/bienenlogger-test-root.crt
+          test -s /tmp/bienenlogger-test-root.crt
+          echo 'Heimnetz-HTTPS auf eigener IP und lokale CA: PASS'
+      - name: HTTPS Login, XFF-Spoofing, CSRF und schreibende API prüfen
+        run: bash tests/deploy/test_https_api.sh
+      - name: Backup pruefen ohne Produktivdaten
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
+            pg_dump -U bienenlogger -d bienenlogger_test -Fc --no-owner --no-privileges \
+            > /tmp/stockkarte-test-ci.dump
+          test -s /tmp/stockkarte-test-ci.dump
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml exec -T db \
+            pg_restore --list < /tmp/stockkarte-test-ci.dump > /dev/null
+          echo 'PostgreSQL-Test-Backup lesbar: PASS'
+          bash deploy/heimnetz-test/verify-restore.sh /tmp/stockkarte-test-ci.dump
+          # Gleiche Datenbank nicht ein zweites Mal ueberschreiben.
+          if bash deploy/heimnetz-test/verify-restore.sh /tmp/stockkarte-test-ci.dump; then
+            echo 'FEHLER: Doppelter Restore wurde nicht blockiert' >&2
+            exit 1
+          fi
+          echo 'Mehrfach-Restore fail-closed: PASS'
+      - name: Neustart und Volume-Persistenz ohne Datenverlust pruefen
+        run: |
+          cp_cmd="docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml"
+          $cp_cmd cp proxy:/data/caddy/pki/authorities/local/root.crt /tmp/test-root-before.crt
+          before=$($cp_cmd exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc \
+            'SELECT count(*) FROM bienen.sk_durchsicht_revision')
+          test "$before" -ge 2
+          $cp_cmd down
+          $cp_cmd up -d db app proxy
+          for i in $(seq 1 20); do
+            if curl -ksS --fail --max-time 4 https://127.0.0.1:8443/ -o /tmp/after-restart; then break; fi
+            sleep 2
+          done
+          grep -q 'Claude-Design' /tmp/after-restart
+          after=$($cp_cmd exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc \
+            'SELECT count(*) FROM bienen.sk_durchsicht_revision')
+          test "$before" = "$after"
+          $cp_cmd cp proxy:/data/caddy/pki/authorities/local/root.crt /tmp/test-root-after.crt
+          cmp /tmp/test-root-before.crt /tmp/test-root-after.crt
+          $cp_cmd exec -T app python /srv/bienenlogger/server/datenbank/stockkarte_admin.py seed-demo
+          again=$($cp_cmd exec -T db psql -U bienenlogger -d bienenlogger_test -Atqc \
+            "SELECT count(*) FROM bienen.volk WHERE name IN ('Testvolk A','Testvolk B')")
+          test "$again" = 2
+          echo 'Restart + persistente Durchsichten + gleiche TLS-CA + idempotente Seeds PASS'
+      - name: Verbotene Quellnetze und alternativen HTTPS-Port pruefen
+        run: |
+          sed -i 's|LAN_ALLOWED_CIDR=172.16.0.0/12|LAN_ALLOWED_CIDR=192.168.222.0/24|' deploy/heimnetz-test/.env
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml up -d --force-recreate proxy
+          sleep 3
+          denied=$(curl -ksS --max-time 7 -o /tmp/denied -w '%{http_code}' https://127.0.0.1:8443/)
+          test "$denied" = 403
+          sed -i 's|LAN_ALLOWED_CIDR=192.168.222.0/24|LAN_ALLOWED_CIDR=172.16.0.0/12|' deploy/heimnetz-test/.env
+          sed -i 's|LAN_PORT=8443|LAN_PORT=9443|' deploy/heimnetz-test/.env
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml up -d --force-recreate proxy
+          for i in $(seq 1 15); do
+            if curl -ksS --fail --max-time 5 https://127.0.0.1:9443/ -o /tmp/port9443; then break; fi
+            sleep 2
+          done
+          grep -q 'Claude-Design' /tmp/port9443
+          echo 'Nicht freigegebenes Netz gesperrt und konfigurierbarer Port PASS'
+
+      - name: Fehlersuche bei Fehlschlag
+        if: failure()
+        run: |
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml ps || true
+          docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml logs --tail=120 db app || true
+      - name: Testcontainer ohne Volume-Löschung beenden
+        if: always()
+        run: docker compose --env-file deploy/heimnetz-test/.env -f deploy/heimnetz-test/compose.yaml down || true

@@ -1,0 +1,16 @@
+# Für Browser-Zugriff über eine numerische Heimnetz-IP:
+# Bei TLS-Clients ohne SNI die konfigurierten IP-Zertifikate verwenden.
+{
+    default_sni {$LAN_BIND_IP}
+    skip_install_trust
+}
+
+# Ein HTTPS-Endpunkt auf der ausdrücklich gewählten privaten LAN-IP.
+https://{$LAN_BIND_IP}:{$LAN_PORT} {
+    tls internal
+    @heimnetz remote_ip {$LAN_ALLOWED_CIDR}
+    handle @heimnetz {
+        reverse_proxy app:8765
+    }
+    respond "Nicht freigegeben" 403
+}
