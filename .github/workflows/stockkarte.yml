@@ -59,6 +59,7 @@ jobs:
           node tests/server/test_claude_ui.js
           node tests/server/test_native_stockkarte_browser.js
           node tests/server/test_stockkarte_catalog_browser.js
+          node tests/server/test_stockkarte_live_browser.js
   datenbank:
     name: 'Stockkarte - PostgreSQL 16 / Revisionen'
     runs-on: ubuntu-latest

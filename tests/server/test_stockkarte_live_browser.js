@@ -1,0 +1,93 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Verifiziert UI-Brücke mit simulierten Antworten, NICHT echte Authentifizierung.
+// Echte Sessions/ACL werden unabhängig durch PostgreSQL-TestClient geprüft.
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),http=require('node:http'),path=require('node:path');
+const {chromium}=require('playwright');
+const root=path.resolve(__dirname,'../../prototype/claude-ui');
+const files=new Set(['index.html','app.js','style.css','stockkarte_native.js',
+ 'stockkarte_live.js','bienenlogger-claude-prototyp.html']);
+let logins=0,logouts=0;
+const json=(res,status,body,extra={})=>{
+ res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...extra});
+ res.end(JSON.stringify(body));
+};
+const server=http.createServer(async(req,res)=>{
+ const url=new URL(req.url,'http://127.0.0.1');
+ const file=url.pathname.slice(1)||'index.html';
+ if(files.has(file)){
+  res.writeHead(200,{'Content-Type':file.endsWith('.js')?'text/javascript':
+      file.endsWith('.css')?'text/css':'text/html'});
+  res.end(fs.readFileSync(path.join(root,file)));return;
+ }
+ const api='/api/v1/stockkarte';
+ const logged=/bl_dev_session=fixture_session/.test(req.headers.cookie||'');
+ if(url.pathname===api+'/session/login'&&req.method==='POST'){
+  let raw='';for await(const chunk of req)raw+=chunk;
+  const body=JSON.parse(raw);
+  if(body.username!=='tester'||body.password!=='local-test-password')return json(res,401,{detail:'fail'});
+  logins++;
+  return json(res,200,{username:'tester',csrf_token:'example-csrf-value'},
+   {'Set-Cookie':'bl_dev_session=fixture_session; Path=/api/v1/stockkarte; HttpOnly; SameSite=Strict'});
+ }
+ if(!logged)return json(res,401,{detail:'missing session'});
+ if(url.pathname===api+'/session'&&req.method==='GET')return json(res,200,{username:'tester',csrf_token:'example-csrf-value'});
+ if(url.pathname===api+'/session/logout'&&req.method==='POST'){
+  if(req.headers['x-csrf-token']!=='example-csrf-value')return json(res,403,{detail:'csrf'});
+  logouts++;return json(res,200,{signed_out:true},
+   {'Set-Cookie':'bl_dev_session=; Max-Age=0; Path=/api/v1/stockkarte; HttpOnly'});
+ }
+ if(url.pathname===api+'/voelker')return json(res,200,[
+   {id:123,name:'Fiktives Volk A',can_write:true},
+   {id:456,name:'Fiktives Volk B',can_write:false}
+ ]);
+ if(url.pathname===api+'/voelker/123/durchsichten')return json(res,200,[
+   {id:33,event_date:'2026-10-16',note:'Brutkontrolle',revision:2,values:{'bl:frames':5}},
+   {id:32,event_date:'2026-10-12',note:'Futterprüfung',revision:1,values:{}}
+ ]);
+ if(url.pathname===api+'/durchsichten/33/revisionen')return json(res,200,[
+   {revision:1,event_date:'2026-10-16',accuracy:'nur_datum',reason:'Erstanlage',author:'tester'},
+   {revision:2,event_date:'2026-10-16',accuracy:'nur_datum',reason:'Korrektur',author:'tester'}
+ ]);
+ if(url.pathname===api+'/voelker/456/durchsichten')return json(res,200,[]);
+ json(res,404,{detail:'not found'});
+});
+async function main(){
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ try{
+  for(const filename of ['index.html','bienenlogger-claude-prototyp.html']){
+   const page=await browser.newPage({viewport:{width:1024,height:800}});
+   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+   const base='http://127.0.0.1:'+server.address().port;
+   await page.goto(base+'/'+filename);
+   await page.locator('.nav-link[data-view="stockkarte"]').click();
+   await page.locator('[data-action="server-preview"]').click();
+   await page.locator('#serverLoginForm [name="username"]').fill('tester');
+   await page.locator('#serverLoginForm [name="password"]').fill('local-test-password');
+   await page.locator('#serverLoginForm button[type="submit"]').click();
+   await page.locator('#serverColonySelect').waitFor();
+   assert.match(await page.locator('#serverColonySelect').innerText(),/Fiktives Volk A/);
+   assert.match(await page.locator('#serverInspections').innerText(),/Brutkontrolle/);
+   assert.match(await page.locator('#serverInspections').innerText(),/Futterprüfung/);
+   await page.locator('#serverInspections .row-small button').first().click();
+   assert.match(await page.locator('#serverInspections').innerText(),/Erstanlage/);
+   assert.match(await page.locator('#serverInspections').innerText(),/Korrektur/);
+   const privacy=await page.evaluate(()=>({
+    leaked:JSON.stringify(localStorage).includes('local-test-password') ||
+       JSON.stringify(localStorage).includes('example-csrf-value'),
+    cookie:document.cookie
+   }));
+   assert.equal(privacy.leaked,false);
+   assert.ok(!privacy.cookie.includes('bl_dev_session'));
+   await page.locator('#liveBody button').filter({hasText:'Abmelden'}).click();
+   await page.locator('#serverLoginForm').waitFor();
+   assert.deepEqual(errors,[]);
+   console.log(filename+': Login, Völkerwahl, Durchsichten, Revisionen, Logout PASS');
+   await page.close();
+  }
+  assert.equal(logins,2);assert.equal(logouts,2);
+ }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
+}
+main().catch(err=>{console.error(err);process.exitCode=1;server.close();});
