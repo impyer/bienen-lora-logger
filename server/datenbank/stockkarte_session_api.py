@@ -19,6 +19,7 @@ import psycopg
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query, Request, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 from stockkarte_api import Inspection, Correction, _checklist, _storage_error
 from stockkarte_store import write_inspection
@@ -45,6 +46,14 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
 
     @app.middleware("http")
     async def privacy(request: Request, call_next):
+        # Kein versehentlich im LAN veröffentlichter Dev-Sitzungsdienst.
+        # TestClient benutzt "testclient"; echte Zugriffe nur Loopback.
+        peer = request.client.host if request.client else ""
+        if peer not in {"127.0.0.1", "::1", "testclient"}:
+            return JSONResponse(
+                status_code=403, content={"detail":"Nur lokaler Entwicklungsbetrieb"},
+                headers={"Cache-Control":"no-store"},
+            )
         response = await call_next(request)
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"

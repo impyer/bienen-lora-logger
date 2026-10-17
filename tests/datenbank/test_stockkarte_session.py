@@ -40,6 +40,18 @@ def main():
     with TestClient(create_session_app(enabled=True,dsn=DSN,secret="too short"),
                     base_url="https://testserver") as disabled:
         verify(disabled.get("/api/v1/stockkarte/voelker"),503)
+    # Die echte UI wird zusammen mit dem Sitzungsdienst über genau einen
+    # localhost-Ursprung ausgeliefert; kein externer CDN-/BEEP-Frontendcode.
+    from stockkarte_dev_web import app as local_ui
+    with TestClient(local_ui,base_url="https://testserver") as ui:
+        homepage=verify(ui.get("/"),200)
+        assert "stockkarte_live.js" in homepage.text
+        assert "script-src 'self'" in homepage.headers["content-security-policy"]
+        checks+=1
+        verify(ui.get("/stockkarte_live.js"),200)
+        verify(ui.get("/stockkarte_native.js"),200)
+        verify(ui.get("/.env"),404)
+        verify(ui.get("/bienenlogger-claude-prototyp.html"),404)
 
     with psycopg.connect(DSN,autocommit=True) as conn:
         setup(conn)

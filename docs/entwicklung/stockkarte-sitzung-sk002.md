@@ -25,3 +25,23 @@ Die Claude-HTML-Oberfläche bleibt bis zum nächsten Schritt unverändert und sp
 `tests/datenbank/test_stockkarte_session.py`: PostgreSQL-16-Wegwerfdatenbank `bienen_test`, gesperrte Konfiguration, echte Argon2-Kennwörter, Secure-/HttpOnly-Cookie, CSRF/Origin, fremde Völker, Lese-/Schreibrechte, Versionierung, Logout und auditierter Benutzername.
 
 **Wichtig:** Die alte `server/datenbank/schema.sql` ist destruktiv; der DB-Test ruft sie ausschließlich nach strikter Prüfung des Datenbanknamens `bienen_test` auf. Für Produktionsdaten sind vorerst keine Migrationen freigegeben.
+## Lesender Anschluss an das Claude-Layout
+
+Mit `server/datenbank/stockkarte_dev_web.py` kann der **modulare** Claude-Prototyp vom selben localhost-Ursprung wie die authentifizierte API geladen werden. Der Dienst liefert ausschließlich freigegebene statische Dateien (`index.html`, `app.js`, `stockkarte_native.js`, `stockkarte_live.js`, `style.css`) und eine strikte Content-Security-Policy; die inline-script-haltige HTML-Einzeldatei wird nicht vom Webserver ausgeliefert.
+
+Im Bereich **Stockkarte → Server-Stockkarte ansehen** kann man sich anmelden und zugelassene Völker, Durchsichten sowie Revisionen lesen. Das Formular ordnet die aus PostgreSQL stammenden Volk-IDs **nicht** automatisch den alten Demo-/BEEP-Volknummern zu. BEEP-Originale und lokale Testentwürfe bleiben unverändert. Das Passwort wird nach dem Absenden aus dem Formular gelöscht, die CSRF-Kennung bleibt ausschließlich im Arbeitsspeicher des Browser-Tabs, der Sitzungswert bleibt im HttpOnly-Cookie.
+
+Die HTML-Einzeldatei bleibt offline funktionsfähig und zeigt beim Serverzugriff einen entsprechenden Hinweis. **Noch keine schreibende Browserfunktion**, damit kein versehentliches Synchronisieren von Offline-Testentwürfen stattfindet.
+
+Der Session-Dienst weist Verbindungen mit nicht-lokaler Peer-Adresse zurück; ein Reverse Proxy, der externe Nutzer auf die Loopback-Adresse weiterleitet, ist in dieser Entwicklungsphase nicht erlaubt.
+
+Nur für ein ausdrücklich isoliertes localhost-Entwicklungssystem kann `BIENEN_AUTH_INSECURE_LOCALHOST=1` die Secure-Cookie-Pflicht vorübergehend für HTTP abschalten. Standardmäßig bleibt Secure aktiv und erfordert HTTPS. Niemals diese Option in einer öffentlich erreichbaren Umgebung verwenden.
+
+Beispiel ausschließlich lokal (nach Installation von uvicorn, argon2-cffi, psycopg und FastAPI und manueller Einrichtung eines berechtigten Testkontos):
+
+```sh
+BIENEN_AUTH_DEV_MODE=1 BIENEN_AUTH_DSN='...' BIENEN_AUTH_SECRET='...mindestens 32 zufällige Zeichen...' \
+uvicorn stockkarte_dev_web:app --app-dir server/datenbank --host 127.0.0.1 --port 8765
+```
+
+Keine reale DSN und keine Geheimnisse im Repository hinterlegen. Vor dem ersten Produktionsbetrieb sind TLS, Rollenverwaltung, Backups, Account-Recovery und Schema-Konsolidierung zu prüfen.
