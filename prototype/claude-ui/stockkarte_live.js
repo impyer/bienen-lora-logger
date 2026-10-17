@@ -9,6 +9,8 @@ const base='/api/v1/stockkarte';
 const root=document.getElementById('modalRoot');
 let csrf=null;
 let currentColony=null;
+let colonyPermissions=new Map();
+let entries=[];
 const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);if(cls)e.className=cls;return e};
 const add=(target,tag,text,cls)=>{const e=make(tag,text,cls);target.append(e);return e};
 function alertText(text){let p=document.getElementById('liveError');if(!p)return;p.textContent=text||'';}
@@ -33,7 +35,7 @@ function open(){
   panel.append(make('p','Die lokale HTML-Datei ist weiterhin ein Offline-Prototyp. Serverdaten sind nur beim ausdrücklich aktivierten lokalen Entwicklungsdienst verfügbar.'));
   const close=make('button','Schließen','btn');close.type='button';close.addEventListener('click',()=>root.replaceChildren());panel.append(close);p.append(panel);root.append(p);return;
  }
- root.innerHTML='<div class="modal-backdrop"><section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="liveHeading"><div class="panel-head"><div><div class="eyebrow">DATENBANK · EIGENER BIENENLOGGER</div><h2 id="liveHeading">Stockkarte – lesende Serveransicht</h2></div><button type="button" class="btn" data-action="close-modal">✕</button></div><p class="small muted">Eigenständiger Bienenlogger-Code. Server-Völker sind unabhängig von den lokalen Demo-Volknummern. In dieser Ansicht wird nichts verändert.</p><p class="small" id="liveError" role="status"></p><div id="liveBody"></div></section></div>';
+ root.innerHTML='<div class="modal-backdrop"><section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="liveHeading"><div class="panel-head"><div><div class="eyebrow">DATENBANK · EIGENER BIENENLOGGER</div><h2 id="liveHeading">Stockkarte – Heimnetz-Test</h2></div><button type="button" class="btn" data-action="close-modal">✕</button></div><p class="small muted">Eigenständiger Bienenlogger-Code. Server-Völker sind unabhängig von den lokalen Demo-Volknummern. Hier sind neue Durchsichten und Korrekturen nur mit Schreibberechtigung möglich. Die lokalen Testentwürfe bleiben getrennt.</p><p class="small" id="liveError" role="status"></p><div id="liveBody"></div></section></div>';
  const body=document.getElementById('liveBody');
  add(body,'p','Anmeldung wird geprüft …','small muted');
  loadSession();
@@ -67,6 +69,7 @@ async function loadSession(){
 async function loadColonies(){
  const body=document.getElementById('liveBody');if(!body)return;
  const colonies=await request(base+'/voelker');body.replaceChildren();
+ colonyPermissions=new Map(colonies.map(c=>[Number(c.id),!!c.can_write]));
  const bar=make('div',undefined,'toolbar');
  add(bar,'strong','Daten aus eigener PostgreSQL-Stockkarte');
  const logout=make('button','Abmelden','btn');logout.type='button';logout.addEventListener('click',async()=>{
@@ -83,7 +86,7 @@ async function loadColonies(){
   const opt=make('option',c.name+' · interne ID '+c.id);opt.value=String(c.id);select.append(opt);
  }
  select.addEventListener('change',()=>loadEntries(Number(select.value)));
- if(select.options.length){currentColony=Number(select.value);await loadEntries(currentColony);}
+ if(select.options.length){if(currentColony!==null&&colonyPermissions.has(currentColony))select.value=String(currentColony);await loadEntries(Number(select.value));}
 }
 async function loadEntries(id){
  const panel=document.getElementById('serverInspections');if(!panel)return;
@@ -93,12 +96,30 @@ async function loadEntries(id){
   const list=await request(base+'/voelker/'+id+'/durchsichten?limit=100');
   if(currentColony!==id||!document.getElementById('serverInspections'))return;
   panel.replaceChildren();
-  add(panel,'h3','Durchsichten · '+(Array.isArray(list)?list.length:0)+' Datensätze');
+  entries=Array.isArray(list)?list:[];
+  add(panel,'h3','Durchsichten · '+entries.length+' Datensätze');
+  if(colonyPermissions.get(id)){
+   const newButton=make('button','+ Durchsicht erfassen','btn primary');
+   newButton.type='button';
+   newButton.addEventListener('click',()=>window.BienenloggerStockkarteEditor.openEditor({
+    id,canWrite:true,entry:null,fetcher:request,csrfToken:csrf,
+    onSaved:()=>loadColonies(),onCancel:()=>loadColonies()
+   }));
+   panel.append(newButton);
+  }
   if(!Array.isArray(list)||!list.length){add(panel,'p','Keine gespeicherten Durchsichten.','small muted');return;}
   for(const row of list){
    const section=make('div',undefined,'row-small');
    const text=make('span',String(row.event_date||'Datum unbekannt')+' · '+String(row.note||'Ohne Notiz')+' · Revision '+String(row.revision||'?'));
    section.append(text);
+   if(colonyPermissions.get(id)){
+    const correct=make('button','Korrigieren','btn small');correct.type='button';
+    correct.addEventListener('click',()=>window.BienenloggerStockkarteEditor.openEditor({
+     id,canWrite:true,entry:row,fetcher:request,csrfToken:csrf,
+     onSaved:()=>loadColonies(),onCancel:()=>loadColonies()
+    }));
+    section.append(correct);
+   }
    const button=make('button','Revisionen','btn small');button.type='button';button.addEventListener('click',()=>loadRevisions(row.id,section));section.append(button);panel.append(section);
   }
  }catch(err){panel.replaceChildren();add(panel,'p',err.message,'small muted');}

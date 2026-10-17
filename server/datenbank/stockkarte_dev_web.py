@@ -12,7 +12,7 @@ from stockkarte_session_api import create_session_app
 
 SOURCE = Path(__file__).resolve().parents[2] / "prototype" / "claude-ui"
 ALLOWED = frozenset({
-    "index.html","app.js","style.css","stockkarte_native.js","stockkarte_live.js"
+    "index.html","app.js","style.css","stockkarte_native.js","stockkarte_live.js","stockkarte_edit.js"
 })
 # Plain HTTP nur in ausdrücklich gewünschter, isolierter localhost-Entwicklung.
 # Für HTTPS Secure-Cookies unverändert aktiv.
