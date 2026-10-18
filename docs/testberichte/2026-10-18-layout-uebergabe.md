@@ -44,7 +44,7 @@ pdftoppm -r 75 -png hardware/kicad/pdf/logger.pdf blatt   # Sichtprüfung
 | L-1 | 20 Dateien zweimal identisch; ERC **0**; Netzprüfung **220/220**; Pin-/Footprint-Abgleich **177 Bauteile, 0 Abweichungen, 0 offen** | bestanden | 7 Klemmen-Footprints bleiben Platzhalter nach EasyEDA-Geometrie (DEGSON-Zeichnung [P]) |
 | L-2 | 8 Blätter angesehen (Wurzel, Versorgung, MCU, Funk + Flash, Waage, Mikrofon, Anschlüsse, Akku); Titelblock „0.1 Layout-Stand“, 2026-10-18, PCB-MAIN-0.1 | bestanden | Blatt Mikrofon: Fußnote reicht bis in den Titelblock (nur Optik) |
 | L-3 | `** Found 0 DRC violations **`, 0 unverbundene Elemente | bestanden | Rahmen ohne Bauteile (HW-08) |
-| L-4 | Paket `layout-auftrag-PCB-MAIN-0.1-4c36898.zip`: 41 Dateien (Pflichtenheft, STAND.txt, bom_aktuell.csv mit 177 Zeilen / 21 LCSC, KiCad-Projekt mit 8 Schaltplandateien, Platine, beide lib-tables, Symbolbibliothek, 11 Footprints, PDF, Netzliste, pin_footprint.md, 7 Blockdokumente); entpackt: ERC **0** (Exit 0), DRC **0** | bestanden | – |
+| L-4 | Paket `layout-auftrag-PCB-MAIN-0.1-4c36898.zip`: 38 Dateien (Pflichtenheft, STAND.txt, bom_aktuell.csv mit 177 Zeilen / 21 LCSC, KiCad-Projekt mit 8 Schaltplandateien, Platine, beide lib-tables, Symbolbibliothek, 11 Footprints, PDF, Netzliste, pin_footprint.md, 7 Blockdokumente); entpackt: ERC **0** (Exit 0), DRC **0** | bestanden | – |
 | L-5 | 118 Netze, 549 Pins; Gegenproben MIC_P/MIC_N, B− getrennt, B− an GND erkannt | bestanden | – |
 | L-6 | Formatter 14/14 und 14/14 (min), S2120 12/12 | bestanden | C++-Host-/Simulationstests und PHP-Servertests nicht lokal (kein g++/php) – CI |
 
@@ -56,9 +56,17 @@ pdftoppm -r 75 -png hardware/kicad/pdf/logger.pdf blatt   # Sichtprüfung
 - **Nicht im Paket:** STEP des Gehäuses (Herstellerdatei, auf Anfrage), Firmware. Der Firmware-Absatz zu BLE liegt in einem eigenen Branch (`claude/hw09-ble-firmware-userguide`, Commit `24c0359`) und ist für das Layout nicht relevant.
 - Unter Windows erzeugt der Generator identische Dateien wie die CI (Vergleich 18.10.2026); die CI auf dem gepushten Branch ist der zweite Prüfweg.
 
+## Nachtrag 18.10.2026 abends: HW-10 (dritter Mikrofoneingang) und Pin-Review
+
+Nach der Freigabe kamen zwei Aufträge des Maintainers: **HW-10** (alle drei Mikrofonanschlüsse des Audio-ADC nutzen) und eine **Prüfung aller Pinfunktionen**. Beides ist eingearbeitet; der Layout-Stand wurde neu erzeugt und geprüft.
+
+- **HW-10:** Elektret 2 pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615, C625–C629), Klemme **J602 = J12** (DEGSON 4-polig, 1 Schirm, 2 frei, 3 MIC2−, 4 MIC2+), ESD D602; Blatt Mikrofon Abschnitt 6; Pflichtenheft Regel 1/2 und Netztabelle (MIC2-Paar), 186 Teile / 22 LCSC. Mit J12 brauchen die Außenanschlüsse zwei Kanten (M5).
+- **Pin-Review:** eigener Bericht [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md) – keine Abweichung; `pin_footprint.py` für STM32, AO3400A, AO3401A, HY2111, FS8205, 74LVC1G17 auf [V].
+- **Nachweis (Commit `23aed6e`):** `pruefen.sh` reproduzierbar, ERC **0**, Netzprüfung **236/236**, Pin-/Footprint-Abgleich **186 Bauteile, 0 Abweichungen**; Sichtprüfung Blatt Mikrofon (PNG); Paket **`layout-auftrag-PCB-MAIN-0.1-23aed6e.zip`** (38 Dateien, bom_aktuell.csv 186 Zeilen) entpackt: ERC **0**, DRC **0**. Dieses Paket ersetzt das aus `4c36898`.
+
 ## Freigabeentscheidung
 
 - **Betroffenes Gate:** G1 (Quellstand) – **bestanden, vorbehaltlich grüner CI**; G2/G3/G4 unverändert offen
 - **Entscheidung:** Schaltplan **zur Layout-Bearbeitung freigegeben** (Platzierung/Routing durch den Layouter, HW-08); keine Freigabe zur Bestellung
 - **Begründung und Verantwortliche:** alle Prüfungen L-1 … L-6 bestanden; Maintainer bestätigt mit dem Merge und dem Versand des Pakets
-- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA; Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)
+- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA (gültig: `23aed6e`); Pin-Review [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md); Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)
