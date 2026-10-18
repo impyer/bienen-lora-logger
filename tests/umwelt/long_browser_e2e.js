@@ -9,7 +9,7 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
  try{
   const context=await browser.newContext();
   const page=await context.newPage();
-  const replies=[],errors=[],windows=[];
+  const replies=[],errors=[],windows=[],heapSamples=[];
   page.on('request',r=>{if(r.url().includes('/zeitreihen?'))windows.push(new URL(r.url()).searchParams);});
   page.on('response',response=>{if(response.url().includes('/zeitreihen?')&&response.ok())replies.push(response.json());});
   page.on('pageerror',error=>errors.push(error.message));
@@ -52,6 +52,7 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   await complete(()=>page.locator('#umStand').selectOption(String(config.stand_id)));
   await newest('apiary-return');
   if(config.stability){
+   const devtools=await context.newCDPSession(page);
    await complete(()=>page.getByRole('button',{name:'30 Tage',exact:true}).click());
    await page.locator('.um-chart[aria-label*="Bodentemperatur"]').evaluate(node=>{
     const chart=window.echarts.getInstanceByDom(node);window.stabilityChart=chart;window.stabilityNode=node;
@@ -68,6 +69,8 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
      if(o.legend[0].selected['Bodentemperatur 20 cm']!==false)throw Error('Legend state lost');
     });
     assert.equal(await page.locator('.um-chart').count(),2,'no leaked chart instances');
+    const heap=await devtools.send('Runtime.getHeapUsage');heapSamples.push(heap.usedSize);
+    assert.ok(heap.usedSize<256*1024*1024,'35-day browser fixture exceeds 256 MiB JS heap budget');
    }
    await page.locator('.um-range input[name="from"]').fill('2024-01-01T00:00');
    await page.locator('.um-range input[name="to"]').fill('2027-01-01T00:00');
@@ -99,6 +102,6 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   assert.ok([...snapshots.values()].some(n=>n>1),'real browser must request multiple pages');
   assert.ok(pages.some(p=>p.source_points>5000));
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({result:'PASS',checks:['long-7d','long-30d','season-latest','raw-pages','free-window','rapid-change','apiary-switch','microsecond-order','live-poll','mobile',...(config.stability?['temperature-defaults','three-polls-same-instance','zoom-legend-retained','real-limit-error-recovery','dynamic-channel-add']:[])],live_update_ms:liveUpdate,browser:browser.version()}));
+  console.log(JSON.stringify({result:'PASS',checks:['long-7d','long-30d','season-latest','raw-pages','free-window','rapid-change','apiary-switch','microsecond-order','live-poll','mobile',...(config.stability?['temperature-defaults','berlin-season-start','three-polls-same-instance','zoom-legend-retained','real-limit-error-recovery','dynamic-channel-add']:[])],poll_heap_bytes:heapSamples,live_update_ms:liveUpdate,browser:browser.version()}));
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1});

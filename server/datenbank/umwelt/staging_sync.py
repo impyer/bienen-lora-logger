@@ -38,6 +38,8 @@ def _publish(source_fd,target_fd,name,config):
             digest=hash_prefix(source,info.st_size,deadline)
             try:
                 with read_file(target_fd,name) as (existing,target_info):
+                    if target_info.st_nlink!=1 or (target_info.st_dev,target_info.st_ino)==(info.st_dev,info.st_ino):
+                        raise SourceReadError('sync_staging_hardlink_unzulaessig')
                     if hash_prefix(existing,target_info.st_size,deadline)==digest:
                         event=dict(file=name,status='unchanged',sha256=digest,bytes=info.st_size)
                         # Still verify source identity on leaving read_file.
@@ -87,6 +89,9 @@ def sync_synthetic(config):
     if source==target or source in target.parents or target in source.parents:
         raise ValueError('Quelle und Staging müssen getrennte Verzeichnisse sein')
     with directory(source) as source_fd,directory(target) as target_fd:
+        target_info=os.fstat(target_fd)
+        if target_info.st_uid!=os.geteuid() or target_info.st_mode&0o022:
+            raise ValueError('Staging muss dem Sync-Benutzer gehören und gegen fremde Schreibzugriffe geschützt sein')
         if (os.fstat(source_fd).st_dev,os.fstat(source_fd).st_ino)==(os.fstat(target_fd).st_dev,os.fstat(target_fd).st_ino):
             raise ValueError('Quelle und Staging dürfen nicht dieselbe Verzeichnisidentität haben')
         lock=_private_file(target_fd,'.bienen-sync.lock',os.O_RDWR)

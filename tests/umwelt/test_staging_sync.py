@@ -9,6 +9,7 @@ import unittest
 import subprocess
 import sys
 import time
+import fcntl
 from unittest.mock import patch
 
 from support import SOIL_HEADER,soil_row,ROOT
@@ -82,6 +83,19 @@ class SyncTests(unittest.TestCase):
         (self.target/'.bienen-sync-abandoned.part').write_text('synthetic partial')
         self.assertTrue(self.run_sync()['success'])
         self.assertEqual([p.name for p in self.target.glob('soil-*.csv')],[self.file.name])
+
+    def test_exclusive_publisher_hardlinks_and_staging_permissions(self):
+        with (self.target/'.bienen-sync.lock').open('w') as lock:
+            fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            with self.assertRaisesRegex(SourceReadError,'bereits_aktiv'):self.run_sync()
+        os.link(self.file,self.target/self.file.name)
+        self.assertFalse(self.run_sync()['success'])
+        (self.target/self.file.name).unlink()
+        self.target.chmod(0o777)
+        try:
+            with self.assertRaisesRegex(ValueError,'Schreibzugriffe'):self.run_sync()
+        finally:self.target.chmod(0o700)
+        self.assertTrue(self.run_sync()['success'])
 
     def test_real_periodic_cli_discovers_new_month_without_database_credentials(self):
         config=self.root/'config.json';config.write_text(json.dumps(self.config))
