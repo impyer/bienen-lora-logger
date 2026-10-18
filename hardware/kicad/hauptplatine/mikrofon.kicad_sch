@@ -2632,17 +2632,6 @@
 		)
 		(uuid "1454d589-1810-5dcd-bb43-61f40a9fc211")
 	)
-	(text "6  Klemme J602 (= J12, 4-polig): Elektret 2 pseudo-differenziell an IN2R(P)/IN3R(M), MICBIAS2 über 2 × 1 kΩ (HW-10)"
-		(exclude_from_sim no)
-		(at 160.02 198.12 0)
-		(effects
-			(font
-				(size 2 2)
-			)
-			(justify left bottom)
-		)
-		(uuid "35b28eb9-945e-5365-ac8a-bb490891f7bc")
-	)
 	(text "1  Versorgung: 3V3_ANA (AVDD, Ferrit + 10 Ω), 1V8_ADC (DVDD, TPS70918), 3V3_MEMS (Ferrit, über das Kabel)"
 		(exclude_from_sim no)
 		(at 30.48 35.56 0)
@@ -2664,6 +2653,17 @@
 			(justify left bottom)
 		)
 		(uuid "4056193a-a2a7-558a-9ecd-c813f611ec3d")
+	)
+	(text "6  Klemme J602 (= J12, 4-polig): Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M), MICBIAS2 über 2 × 1 kΩ (HW-10)"
+		(exclude_from_sim no)
+		(at 160.02 198.12 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left bottom)
+		)
+		(uuid "527dccc5-7607-5d07-95ab-ebaac0835b2b")
 	)
 	(text "2  Audio-ADC TLV320ADC3101: links Elektret 1 (analog), rechts MEMS (PDM) oder Elektret 2 (analog, HW-10); I²S an I2S3, I²C 0x18"
 		(exclude_from_sim no)
@@ -3784,6 +3784,16 @@
 		)
 		(uuid "20c33ef0-456b-5302-b11c-050b5e39198a")
 	)
+	(label "MIC3_INP"
+		(at 193.04 147.32 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3c189834-f5e0-53b4-bb1e-0bd982e43e51")
+	)
 	(label "3V3_MEMS"
 		(at 198.12 55.88 270)
 		(effects
@@ -3814,16 +3824,6 @@
 		)
 		(uuid "3ec7c246-a58e-5bb4-a67c-7e8ccec01593")
 	)
-	(label "MIC2_INP"
-		(at 254 208.28 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4439e5b4-56f2-5a5f-b49f-95373ce0a310")
-	)
 	(label "MICBIAS2"
 		(at 276.86 199.39 90)
 		(effects
@@ -3833,6 +3833,16 @@
 			(justify left bottom)
 		)
 		(uuid "444b9edb-d972-5be5-8b9c-2c1237477a1b")
+	)
+	(label "MIC3_INP"
+		(at 254 208.28 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4a6df8f6-118d-5251-b103-5828fe205bf6")
 	)
 	(label "MICBIAS"
 		(at 139.7 95.25 90)
@@ -3844,26 +3854,6 @@
 		)
 		(uuid "4dbdd3c4-1ce9-5b64-a1cb-51f06db095a2")
 	)
-	(label "MIC2_INN"
-		(at 254 223.52 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "52ade59d-773b-5dfb-8a16-6cd657869de2")
-	)
-	(label "MIC2_INP"
-		(at 193.04 147.32 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "5811d91e-f589-5da5-ad6e-38acd7f98b09")
-	)
 	(label "1V8_ADC"
 		(at 147.32 45.72 0)
 		(effects
@@ -3873,16 +3863,6 @@
 			(justify left bottom)
 		)
 		(uuid "5864231d-b1a8-55fe-ba22-c2250f40dc05")
-	)
-	(label "MIC2_INN"
-		(at 193.04 149.86 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "5affea34-60ca-57b2-aaa6-36e1916dd72d")
 	)
 	(label "MIC_INN"
 		(at 127 106.68 0)
@@ -3944,6 +3924,16 @@
 		)
 		(uuid "7239fd98-8169-510f-9b30-66815a1cc9e6")
 	)
+	(label "MIC3_N"
+		(at 187.96 223.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "763f0fbf-b309-5008-9f69-a7728dc03bbb")
+	)
 	(label "3V3_ANA"
 		(at 96.52 52.07 270)
 		(effects
@@ -3963,6 +3953,16 @@
 			(justify left bottom)
 		)
 		(uuid "86627296-76aa-58a2-ad34-1f1ed2676e7c")
+	)
+	(label "MIC3_INN"
+		(at 254 223.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "86a0093b-9f0f-51d2-9840-76d9be7186b5")
 	)
 	(label "1V8_ADC"
 		(at 172.72 44.45 90)
@@ -3984,6 +3984,16 @@
 		)
 		(uuid "904bdc31-cfa8-536a-9e9c-179db8223800")
 	)
+	(label "MIC3_P"
+		(at 182.88 208.28 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "90792acf-b358-513f-877d-8755f1afba38")
+	)
 	(label "PDM_DATA"
 		(at 127 172.72 0)
 		(effects
@@ -4004,16 +4014,6 @@
 		)
 		(uuid "91d3ce83-cb75-556b-a3b4-16b5d2140bc6")
 	)
-	(label "MIC2_N"
-		(at 187.96 223.52 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "94adc5c5-2872-5d40-8e21-463442b5f5a2")
-	)
 	(label "MIC_P"
 		(at 60.96 124.46 0)
 		(effects
@@ -4024,16 +4024,6 @@
 		)
 		(uuid "9603aed3-28b7-551b-b285-6312bf10dd91")
 	)
-	(label "MIC2_P"
-		(at 182.88 208.28 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9817faaf-32e4-572a-a271-ee1605aff907")
-	)
 	(label "3V3_ANA"
 		(at 266.7 44.45 90)
 		(effects
@@ -4043,6 +4033,16 @@
 			(justify left bottom)
 		)
 		(uuid "984daa78-cc5b-5fc4-82e0-4af2df666db2")
+	)
+	(label "MIC3_N"
+		(at 233.68 236.22 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9ffd8cf4-2f89-5e82-97f9-63959d4bd96c")
 	)
 	(label "MICBIAS"
 		(at 96.52 114.3 90)
@@ -4074,16 +4074,6 @@
 		)
 		(uuid "a20cc531-f053-59fa-ad3c-d6aa4beaab07")
 	)
-	(label "MIC2_P"
-		(at 236.22 236.22 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "a546d031-8996-56af-8a13-401d2bd1cb04")
-	)
 	(label "PDM_CLK_ADC"
 		(at 193.04 160.02 180)
 		(effects
@@ -4093,6 +4083,16 @@
 			(justify right bottom)
 		)
 		(uuid "a7414fa0-94d3-57bd-b748-55a715c4e2c5")
+	)
+	(label "MIC3_INN"
+		(at 193.04 149.86 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a96fd314-9e7a-595f-a222-0a22410fe991")
 	)
 	(label "PDM_DATA_K"
 		(at 30.48 233.68 90)
@@ -4174,16 +4174,6 @@
 		)
 		(uuid "cc1da248-5177-5cae-a7c6-2cb70b79de67")
 	)
-	(label "MIC2_N"
-		(at 233.68 236.22 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ccdb64f7-6410-5d50-87d8-bd424cabe52a")
-	)
 	(label "3V3_ANA"
 		(at 218.44 119.38 90)
 		(effects
@@ -4233,6 +4223,16 @@
 			(justify right bottom)
 		)
 		(uuid "ea2234fe-576d-5849-b099-db0fa388a9fd")
+	)
+	(label "MIC3_P"
+		(at 236.22 236.22 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fd514dba-a8de-5eb6-8c3e-e8bb87ace740")
 	)
 	(label "1V8_ADC"
 		(at 279.4 44.45 90)
@@ -6221,7 +6221,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Mikrofon 2 (Elektret)"
+		(property "Value" "Mikrofon 3 (Elektret)"
 			(at 162.83 218.77 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6254,7 +6254,7 @@
 				)
 			)
 		)
-		(property "Description" "= J12 (HW-10): 1 Schirm, 2 frei (Verwechslungsschutz), 3 MIC2−, 4 MIC2+; zweiadriges geschirmtes Kabel 0,5–1 m, Kapsel schwebend über dem Paar, Schirm nur hier an Masse; DEGSON 15EDGRC-3.5-04P"
+		(property "Description" "= J12 (HW-10): 1 Schirm, 2 frei (Verwechslungsschutz), 3 MIC3−, 4 MIC3+; zweiadriges geschirmtes Kabel 0,5–1 m, Kapsel schwebend über dem Paar, Schirm nur hier an Masse; DEGSON 15EDGRC-3.5-04P"
 			(at 165.1 218.44 0)
 			(hide yes)
 			(show_name no)
@@ -7326,7 +7326,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "Mikrofone"
+		(property "Value" "Mikrofone 1 + 2"
 			(at 29.48 141.3 0)
 			(show_name no)
 			(do_not_autoplace no)

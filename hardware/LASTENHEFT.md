@@ -79,7 +79,7 @@ Stand 0.4 mit Beschaltung, Quarzen, Ladepads, BLE und Debug: **[`mcu-funk.md`](m
 | A5 [M] | Messung nie während einer Funkübertragung und nie bei laufendem 5-V-Wandler; Reihenfolge Waage → Mikrofon → Senden. |
 | A6 [S] | Feste Verstärkung (AGC aus), damit die Pegel beider Kanäle und aller Logger vergleichbar bleiben; Welch-Mittelung, Pegel in dBFS und Bandpegel (`docs/fft-konzept.md`); zusätzlich eine **Kanalvergleichs-Kennzahl** (Pegelverhältnis, Kohärenz) als Qualitätsmerkmal, 1 Byte im Funkformat [A]. |
 | A7 [M] | Daten über **I2S3** des STM32 (PB12 CK, PA15 WS, PB5 SD; STM32 Master, Empfang mit DMA); ADC-Takt aus BCLK über die interne PLL (kein MCLK); Einstellung über I²C (0x18). Sind 3V3_SW und der ADC aus, bleiben die I²S-Pins hochohmig. **[P]** PLL-/Teilerwerte am Muster bestätigen. |
-| A8 [S] | **Dritter Mikrofoneingang** (HW-10): Elektret 2 pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 über 2 × 1 kΩ, Koppel-C 1 µF, 100 pF und ESDS304 an der Klemme J12 (1 Schirm, 2 frei, 3 MIC2−, 4 MIC2+); Beschaltung identisch zu Elektret 1. Firmware: rechter Kanal je Durchgang Digitalmikrofon oder Analogeingang; unbestückte Eingänge offen. Zweck und Ort des dritten Mikrofons offen (Philipp). |
+| A8 [S] | **Dritter Mikrofoneingang** (HW-10): Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 über 2 × 1 kΩ, Koppel-C 1 µF, 100 pF und ESDS304 an der Klemme J12 (1 Schirm, 2 frei, 3 MIC3−, 4 MIC3+); Beschaltung identisch zu Elektret 1. Firmware: rechter Kanal je Durchgang Digitalmikrofon oder Analogeingang; unbestückte Eingänge offen. Zweck und Ort des dritten Mikrofons offen (Philipp). |
 
 ## 3. Versorgung
 

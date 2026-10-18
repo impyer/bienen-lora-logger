@@ -174,8 +174,8 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | J301 | Laden 5 V (DNP) | Connector_Generic:Conn_01x02 | PinHeader_1x02_P2.54mm_Vertical |  | MCU |
 | J302 | Debug (SWD + Serial1) | Connector_Generic:Conn_01x07 | PinHeader_1x07_P2.54mm_Vertical |  | MCU |
 | J501 | Wägezelle | Connector_Generic:Conn_01x05 | DEGSON_15EDGRC-3.5-05P | C7603439 | Waage |
-| J601 | Mikrofone | Connector:RJ45_Shielded | RJ45_RCH_RC01937 |  | Mikrofon |
-| J602 | Mikrofon 2 (Elektret) | Connector_Generic:Conn_01x04 | DEGSON_15EDGRC-3.5-04P | C7603438 | Mikrofon |
+| J601 | Mikrofone 1 + 2 | Connector:RJ45_Shielded | RJ45_RCH_RC01937 |  | Mikrofon |
+| J602 | Mikrofon 3 (Elektret) | Connector_Generic:Conn_01x04 | DEGSON_15EDGRC-3.5-04P | C7603438 | Mikrofon |
 | J701 | DS18B20 Nr. 1 | Connector_Generic:Conn_01x03 | DEGSON_15EDGRC-3.5-03P | C5160226 | Anschlüsse |
 | J702 | DS18B20 Nr. 2 | Connector_Generic:Conn_01x03 | DEGSON_15EDGRC-3.5-03P | C5160226 | Anschlüsse |
 | J703 | BME280 | Connector_Generic:Conn_01x06 | DEGSON_15EDGRC-3.5-06P | C49352918 | Anschlüsse |
