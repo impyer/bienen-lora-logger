@@ -122,14 +122,15 @@ def rn4871():
     """Microchip RN4871 (BLE-Modul mit Chip-Antenne), 16 Stempelpads, Modul 9,0 × 11,5 mm. Quelle: Microchip DS50002489D,
     Fig. 4-7 (Maße, Padpositionen) und Fig. 4-8 (empfohlener Footprint, Sperrflächen) [V]: Padmitten links x = 0 bei
     y = 6,7/5,5/4,3/3,1/1,9 (Pins 1–5 von oben), unten y = 0 bei x = 1,5/2,7/3,9/5,1/6,3/7,5 (Pins 6–11 von links),
-    rechts x = 9,0 bei y = 1,9 … 6,7 (Pins 12–16 von unten); Raster 1,2 mm; Modulpad 0,7 × 1,0 mm. Pads hier 0,7 × 1,5 mm,
-    0,5 mm über die Modulkante hinaus [A] – vor der Bestellung gegen den LCSC/EasyEDA-Footprint zu C633942 prüfen [P].
-    Antenne oben (y 7,5 … 11,5): keine Kupferfläche auf allen Lagen, auch neben dem Modul (Sperrzone 1 mm über die
-    Modulbreite hinaus [A]); keine Kupferfläche auf der Oberseite unter den Testpunkten (x 3,9 … 8,0, y 1,2 … 7,0 [A]);
-    Modul an die Platinenkante, Antenne nach außen, Metall ≥ 30 mm von der Antenne (Datenblatt 4.3). Ursprung = Modulmitte,
-    Pin 1 oben links (neben der Antenne)."""
+    rechts x = 9,0 bei y = 1,9 … 6,7 (Pins 12–16 von unten); Raster 1,2 mm; Modulpad 0,7 × 1,0 mm. Empfohlener Footprint
+    Fig. 4-8 [V]: Pads 0,7 × 1,5 mm, 0,5 mm über die Modulkante hinaus. Sperrflächen für Kupfer auf der Oberseite
+    (Testpunkte, Fig. 4-8 [V]): x 1,0 … 3,0 / y 4,6 … 7,5 und x 4,3 … 8,0 / y 1,5 … 7,0. Antenne oben (y 7,5 … 11,5): keine
+    Kupferfläche auf allen Lagen; Fig. 4-9 [V] zeigt die empfohlene Montage mit dem Antennenteil ÜBER der Kante der
+    Trägerplatine (Platinenkante bei y = 7,5), Massefläche bis an die Modulseiten. Sperrzone hier 1 mm über die Modulbreite
+    und die Oberkante hinaus [A]. Metall ≥ 30 mm von der Antenne (Datenblatt 4.3). Vor der Bestellung gegen den
+    LCSC/EasyEDA-Footprint zu C633942 gegenprüfen [P]. Ursprung = Modulmitte, Pin 1 oben links (neben der Antenne)."""
     fp = Fp("Microchip_RN4871", "Microchip RN4871 BLE module 9x11.5mm, 16 castellated pads P1.2mm, chip antenna at top "
-            "(DS50002489D Fig. 4-7/4-8)", "BLE RN4871 Microchip Bluetooth")
+            "overhanging the board edge (DS50002489D Fig. 4-7/4-8/4-9)", "BLE RN4871 Microchip Bluetooth")
     cx, cy = 4.5, 5.75                                   # Datenblattkoordinaten → Ursprung Modulmitte, y nach unten
 
     def k(x, y):
@@ -143,7 +144,8 @@ def rn4871():
     for i, y in enumerate(reversed(ys)):                 # 12–16 rechts von unten
         fp.pad_smd(str(12 + i), *k(8.75, y), 1.5, 0.7)
     fp.rechteck("F.Fab", *k(0, 11.5), *k(9.0, 0), 0.1)
-    fp.linie("F.Fab", *k(0, 7.5), *k(9.0, 7.5), 0.1)                  # Grenze zum Antennenteil
+    fp.linie("F.Fab", *k(0, 7.5), *k(9.0, 7.5), 0.1)                  # Grenze zum Antennenteil = empfohlene Platinenkante (Fig. 4-9)
+    fp.linie("User.1", *k(-2.0, 7.5), *k(11.0, 7.5), 0.15)              # Hinweislinie: Platinenkante hier (Antenne ragt heraus)
     fp.freitext("Antenne", *k(4.5, 9.5), "F.Fab")
     fp.kreis("F.Fab", *k(1.2, 6.7), 0.15, 0.1)
     fp.linie("F.SilkS", *k(-0.12, 11.62), *k(9.12, 11.62), 0.12)     # Oberkante (Antennenseite)
@@ -153,7 +155,8 @@ def rn4871():
     fp.rechteck("F.CrtYd", *k(-0.75, 12.0), *k(9.75, -0.75), 0.05)
     # Sperrzonen (KiCad-Footprint-Zonen): Antenne auf allen Kupferlagen, Testpunktbereich nur oben
     fp.sperrzone("Antenne", '"*.Cu"', [k(-1.0, 12.5), k(10.0, 12.5), k(10.0, 7.5), k(-1.0, 7.5)])
-    fp.sperrzone("Testpunkte", '"F.Cu"', [k(3.9, 7.0), k(8.0, 7.0), k(8.0, 1.2), k(3.9, 1.2)])
+    fp.sperrzone("Testpunkte_links", '"F.Cu"', [k(1.0, 7.5), k(3.0, 7.5), k(3.0, 4.6), k(1.0, 4.6)])
+    fp.sperrzone("Testpunkte_rechts", '"F.Cu"', [k(4.3, 7.0), k(8.0, 7.0), k(8.0, 1.5), k(4.3, 1.5)])
     fp.schreibe(-7.0, 7.0)
 
 

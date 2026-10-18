@@ -172,7 +172,7 @@ Ergebnis: 179 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | U203 | Haupt | Versorgung | TPS22917DBV | `SOT-23-6` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | TI SLVSDW8B Tab. 6-1 (DBV) |
 | U204 | Haupt | Versorgung | TPS70933DBV | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI SBVS186 Tab. 5-1, Spalte TPS709 DBV |
 | U301 | Haupt | MCU | STM32F411CEU6 | `QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm` | Pads = Pins (49) | [A] | ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinbelegung mcu-funk.md 4 |
-| U303 | Haupt | MCU | RN4871-I/RM130 | `Microchip_RN4871` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | Microchip DS50002489D Tab. 1-2 (Spalte RN4871) und Fig. 5-4; Footprint nach Fig. 4-7/4-8 [A], gegen LCSC/EasyEDA C633942 prüfen [P] |
+| U303 | Haupt | MCU | RN4871-I/RM130 | `Microchip_RN4871` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | Microchip DS50002489D Tab. 1-2 (Spalte RN4871) und Fig. 5-4; Footprint nach Fig. 4-7/4-8/4-9 [V], gegen LCSC/EasyEDA C633942 gegenprüfen [P] |
 | U401 | Haupt | Funk + Flash | Ra-01SH | `Ai-Thinker_Ra-01SH` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | Ai-Thinker Ra-01SH Specification V1.1 (2020-08-18), S. 11 |
 | U402 | Haupt | Funk + Flash | 64 Mbit SOIC-8 208 mil | `SOIC-8_5.3x5.3mm_P1.27mm` | Pads = Pins (8) | [A] [P] 8 Pins = Datenblatt | Standard-Pinbelegung 25er-SPI-Flash SOIC-8 (XT25F64B / ZD25Q64D) – je Teil prüfen |
 | U501 | Haupt | Waage | TPS61240DRVR | `WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm` | Pads = Pins (7) | [V] 7 Pins = Datenblatt | TI SLVS806D Pin Functions (WSON) |

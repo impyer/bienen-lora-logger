@@ -90,8 +90,8 @@ DATENBLATT = {
         "6": ("DIO1", "DIO1"), "7": ("DIO2", "DIO2"), "8": ("DIO3", "DIO3"), "9": ("GND", "GND"), "10": ("BUSY", "BUSY"),
         "11": ("RXEN", "RXEN"), "12": ("SCK", "SCK"), "13": ("MISO", "MISO"), "14": ("MOSI", "MOSI"), "15": ("NSS", "NSS"),
         "16": ("GND", "GND")}),
-    "Bienen:RN4871": ("Microchip DS50002489D Tab. 1-2 (Spalte RN4871) und Fig. 5-4; Footprint nach Fig. 4-7/4-8 [A], gegen "
-                      "LCSC/EasyEDA C633942 prüfen [P]", "[V]", {
+    "Bienen:RN4871": ("Microchip DS50002489D Tab. 1-2 (Spalte RN4871) und Fig. 5-4; Footprint nach Fig. 4-7/4-8/4-9 [V], gegen "
+                      "LCSC/EasyEDA C633942 gegenprüfen [P]", "[V]", {
         "1": ("NC", "NC"), "2": ("GND", "GND"), "3": ("P1_2", "P1_2"), "4": ("P1_3", "P1_3"), "5": ("P1_7", "P1_7"),
         "6": ("P1_6", "P1_6"), "7": ("UART_RX", "UART_RX"), "8": ("UART_TX", "UART_TX"), "9": ("P3_6", "P3_6"),
         "10": ("RST_N", "RST_N"), "11": ("P0_0", "P0_0"), "12": ("P0_2", "P0_2"), "13": ("GND", "GND"), "14": ("VBAT", "VBAT"),
