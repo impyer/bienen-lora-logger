@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "C:\\Users\\schnp\\Documents\\Bienen\\bienen-lora-logger\\hardware\\kicad\\hauptplatine\\logger.kicad_sch")
-		(date "2026-10-18T17:06:20")
+		(date "2026-10-18T17:20:12")
 		(tool "Eeschema 10.0.7")
 		(sheet
 			(number "1")
@@ -11,8 +11,8 @@
 			(title_block
 				(title "Bienenlogger Hauptplatine 121 × 121 mm, 4 Lagen")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "logger.kicad_sch")
 				(comment
 					(number "1")
@@ -59,8 +59,8 @@
 			(title_block
 				(title "Versorgung: Solar, Lader, 3,3 V, Sensorschiene")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "versorgung.kicad_sch")
 				(comment
 					(number "1")
@@ -107,8 +107,8 @@
 			(title_block
 				(title "MCU: STM32F411CEU6, Takt, Ladepads, BLE RN4871, Debug, Magnet und LED")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "mcu.kicad_sch")
 				(comment
 					(number "1")
@@ -155,8 +155,8 @@
 			(title_block
 				(title "Funk + Flash: Ra-01SH (SX1262/LLCC68), SPI-NOR-Flash 64 Mbit")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "funk.kicad_sch")
 				(comment
 					(number "1")
@@ -203,8 +203,8 @@
 			(title_block
 				(title "Waage: 5-V-Wandler TPS61240, HX711, Wägezelle H40A")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "waage.kicad_sch")
 				(comment
 					(number "1")
@@ -251,8 +251,8 @@
 			(title_block
 				(title "Mikrofon: Audio-ADC TLV320ADC3101, Elektret (analog) + MEMS IM69D127 (PDM), I²S an I2S3")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "mikrofon.kicad_sch")
 				(comment
 					(number "1")
@@ -299,8 +299,8 @@
 			(title_block
 				(title "Anschlüsse: DS18B20, BME280, Erweiterungsleiste")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "anschluesse.kicad_sch")
 				(comment
 					(number "1")
@@ -347,8 +347,8 @@
 			(title_block
 				(title "Akku: Zelle 18650, Zellschutz, Temperatur-Ladesperre")
 				(company "Bienenlogger – Philipp Schnabel")
-				(rev "0.1 Entwurf")
-				(date "2026-10-09")
+				(rev "0.1 Layout-Stand")
+				(date "2026-10-18")
 				(source "akku.kicad_sch")
 				(comment
 					(number "1")

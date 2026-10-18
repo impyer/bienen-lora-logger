@@ -1,7 +1,7 @@
 # PCB Layout Specification – Beehive Logger Main Board PCB-MAIN-0.1
 
 **Client:** Philipp Schnabel (GitHub `impyer`) · **Project:** open-hardware beehive logger, repository `impyer/bienen-lora-logger`
-**Document status:** issue 2, 14 Oct 2026 (issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: V0.1 draft (decisions HW-01 … HW-08)
+**Document status:** issue 3, 18 Oct 2026 (issue 3: BLE module RN4871 added, USB-C replaced by two charge pads, decision HW-09; issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: **V0.1 layout release of 18 Oct 2026** (title block "0.1 Layout-Stand", decisions HW-01 … HW-09; the git commit is in `STAND.txt` of the package)
 **License of the result:** CERN-OHL-S-2.0 (see section 10)
 
 > **Kurzfassung (Deutsch):** Auftrag an einen externen Layouter: Platzierung, Routing und JLCPCB-Fertigungsdaten
@@ -33,7 +33,7 @@ Not in scope: changing the circuit, firmware, enclosure design. If you find a sc
 
 | Item | File(s) |
 |---|---|
-| KiCad 10 project (schematic with 7 sheets, board frame) | `kicad/hauptplatine/` (`logger.kicad_pro`, `logger.kicad_sch` + sheets, `logger.kicad_pcb`) |
+| KiCad 10 project (schematic with 7 sheets, board frame; verified with KiCad 10.0.7: ERC 0, 220 net checks, 177 parts with 0 pin/footprint deviations) | `kicad/hauptplatine/` (`logger.kicad_pro`, `logger.kicad_sch` + sheets, `logger.kicad_pcb`) |
 | Project libraries | `kicad/bienen.kicad_sym`, `kicad/Bienen.pretty/` (footprints), `fp-lib-table`, `sym-lib-table` |
 | Schematic PDF, netlist | `kicad/pdf/logger.pdf`, `kicad/netzliste/logger.net` |
 | BOM (current state, with known LCSC numbers) | `bom_aktuell.csv` |
@@ -149,7 +149,9 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 
 - 21 BOM lines already have an LCSC number (fixed – keep them). For the others, propose an LCSC part per line: **JLCPCB Basic part preferred**, otherwise Extended with stock ≥ 100; footprint must match the schematic footprint, or state the needed footprint change.
 - Values with tolerance/voltage/dielectric in the schematic are binding (e.g. "4,7µ 16V X7R", "2,49k 1%", "C0G").
-- Parts with open choice (marked [P] in the docs): RJ45 J601 (**shielded, without magnetics, without LEDs**, through-hole; footprint proposal `RJ45_RCH_RC01937`), ferrites FB301/FB501/FB502/FB601/FB602, L501 (1 µH, Isat ≥ 0.7 A), TVS D401 (3.3 V), SPI flash U402 (64 Mbit SOIC-8 208 mil, e.g. XT25F64B/ZD25Q64D), DEGSON terminals (part numbers per pole count in `doku/anschluesse.md` §2).
+- Parts with open choice (marked [P] in the docs): RJ45 J601 (**shielded, without magnetics, without LEDs**, through-hole; footprint proposal `RJ45_RCH_RC01937`), ferrites FB301/FB501/FB502/FB601/FB602, L501 (1 µH, Isat ≥ 0.7 A), TVS D401 (3.3 V), SPI flash U402 (64 Mbit SOIC-8 208 mil, e.g. XT25F64B/ZD25Q64D), DEGSON terminals (part numbers per pole count in `doku/anschluesse.md` §2), Elektret capsule / MEMS board are off-board (not on the BOM).
+- Fixed parts with low stock – flag them in your proposal if the stock changed: U303 RN4871-I/RM130 (C633942, Extended, 50 pcs on 18 Oct 2026), U401 Ra-01SH (C2764087).
+- Not assembled (DNP, keep the footprints): J301 charge pads (header not fitted), J801 current-measurement header; solder jumpers JP301/JP401/JP402 (open) and JP801 (bridged) and test points TP201/TP202 are not BOM items.
 - Deliver the proposals as a table (reference, value, LCSC number, Basic/Extended, stock, price, remark). **The client approves before ordering.**
 
 ## 8. Deliverables

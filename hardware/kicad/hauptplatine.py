@@ -1284,7 +1284,7 @@ def zeichne_akku(b, T):
 
 def baue():
     p = Projekt("logger", os.path.join(HIER, "hauptplatine"), firma="Bienenlogger – Philipp Schnabel",
-                rev="0.1 Entwurf", datum="2026-10-09", eigene_bibs={"Bienen": BIB},
+                rev="0.1 Layout-Stand", datum="2026-10-18", eigene_bibs={"Bienen": BIB},
                 kommentare=["Board-Kennung PCB-MAIN-0.1 (REG26-10)",
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)
