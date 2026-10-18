@@ -45,6 +45,14 @@ def create_session_app(*, dsn=None, secret=None, enabled=None, secure_cookie=Tru
     failed = {}
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
+    @app.exception_handler(psycopg.OperationalError)
+    async def database_unavailable(request, exc):
+        # Covers both connection admission and a lost connection during a query,
+        # including principal dependencies shared by stockkarte and environment.
+        return JSONResponse(status_code=503,
+            content={"detail":"Messdatenbank derzeit nicht erreichbar"},
+            headers={"Retry-After":"30","Cache-Control":"no-store"})
+
     @app.middleware("http")
     async def privacy(request: Request, call_next):
         # Kein versehentlich im LAN veröffentlichter Dev-Sitzungsdienst.
