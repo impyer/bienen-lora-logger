@@ -70,4 +70,4 @@ Nach der Freigabe kamen zwei Aufträge des Maintainers: **HW-10** (alle drei Mik
 - **Betroffenes Gate:** G1 (Quellstand) – **bestanden, vorbehaltlich grüner CI**; G2/G3/G4 unverändert offen
 - **Entscheidung:** Schaltplan **zur Layout-Bearbeitung freigegeben** (Platzierung/Routing durch den Layouter, HW-08); keine Freigabe zur Bestellung
 - **Begründung und Verantwortliche:** alle Prüfungen L-1 … L-6 bestanden; Maintainer bestätigt mit dem Merge und dem Versand des Pakets
-- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA (gültig: `295b2fa`); Pin-Review [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md); Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)
+- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA (gültig: `55ddaa4`); Pin-Review [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md); Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)
