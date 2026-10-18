@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "C:\\Users\\schnp\\Documents\\Bienen\\bienen-lora-logger\\hardware\\kicad\\hauptplatine\\logger.kicad_sch")
-		(date "2026-10-18T17:50:44")
+		(date "2026-10-18T18:12:10")
 		(tool "Eeschema 10.0.7")
 		(sheet
 			(number "1")
@@ -8424,7 +8424,7 @@
 			(ref "D602")
 			(value "ESDS304DBVR")
 			(footprint "Package_TO_SOT_SMD:SOT-23-5")
-			(description "direkt hinter J602 (anschluesse.md 3); zwei Kanäle frei; LCSC [P]")
+			(description "direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
 			(fields
 				(field
 					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
@@ -8432,7 +8432,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "direkt hinter J602 (anschluesse.md 3); zwei Kanäle frei; LCSC [P]")
+					(name "Description") "direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
 			)
 			(libsource
 				(lib "Power_Protection")
@@ -8593,9 +8593,9 @@
 		)
 		(comp
 			(ref "J601")
-			(value "Mikrofone")
+			(value "Mikrofone 1–3")
 			(footprint "Connector_RJ:RJ45_RCH_RC01937")
-			(description "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+GND, 4/5 VDD+GND, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
+			(description "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, 4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 (vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
 			(fields
 				(field
 					(name "Footprint") "Connector_RJ:RJ45_RCH_RC01937")
@@ -8603,7 +8603,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+GND, 4/5 VDD+GND, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
+					(name "Description") "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, 4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 (vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
 			)
 			(libsource
 				(lib "Connector")
@@ -8661,72 +8661,6 @@
 						)
 						(pin
 							(num "1")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "J602")
-			(value "Mikrofon 2 (Elektret)")
-			(footprint "Bienen:DEGSON_15EDGRC-3.5-04P")
-			(description "= J12 (HW-10): 1 Schirm, 2 frei (Verwechslungsschutz), 3 MIC2−, 4 MIC2+; zweiadriges geschirmtes Kabel 0,5–1 m, Kapsel schwebend über dem Paar, Schirm nur hier an Masse; DEGSON 15EDGRC-3.5-04P")
-			(fields
-				(field
-					(name "LCSC") "C7603438")
-				(field
-					(name "Footprint") "Bienen:DEGSON_15EDGRC-3.5-04P")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "= J12 (HW-10): 1 Schirm, 2 frei (Verwechslungsschutz), 3 MIC2−, 4 MIC2+; zweiadriges geschirmtes Kabel 0,5–1 m, Kapsel schwebend über dem Paar, Schirm nur hier an Masse; DEGSON 15EDGRC-3.5-04P")
-			)
-			(libsource
-				(lib "Connector_Generic")
-				(part "Conn_01x04")
-				(description "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
-			)
-			(property
-				(name "LCSC")
-				(value "C7603438")
-			)
-			(property
-				(name "Sheetname")
-				(value "Mikrofon")
-			)
-			(property
-				(name "Sheetfile")
-				(value "mikrofon.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "connector")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "Connector*:*_1x??_*")
-			)
-			(sheetpath
-				(names "/Mikrofon/")
-				(tstamps "/6718e689-0f39-5513-8134-3107a6bc0158/")
-			)
-			(tstamps "3e8ac9bb-af7b-5571-9eb2-99750173fe55")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-						(pin
-							(num "3")
-						)
-						(pin
-							(num "4")
 						)
 					)
 				)
@@ -12195,50 +12129,6 @@
 		)
 		(libpart
 			(lib "Connector_Generic")
-			(part "Conn_01x04")
-			(description "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
-			(footprints
-				(fp "Connector*:*_1x??_*")
-			)
-			(fields
-				(field
-					(name "Reference") "J")
-				(field
-					(name "Value") "Conn_01x04")
-				(field
-					(name "Footprint")
-				)
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)")
-			)
-			(pins
-				(pin
-					(num "1")
-					(name "Pin_1")
-					(type "passive")
-				)
-				(pin
-					(num "2")
-					(name "Pin_2")
-					(type "passive")
-				)
-				(pin
-					(num "3")
-					(name "Pin_3")
-					(type "passive")
-				)
-				(pin
-					(num "4")
-					(name "Pin_4")
-					(type "passive")
-				)
-			)
-		)
-		(libpart
-			(lib "Connector_Generic")
 			(part "Conn_01x05")
 			(description "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)")
 			(footprints
@@ -14841,7 +14731,7 @@
 		)
 		(net
 			(code "47")
-			(name "/Mikrofon/MIC2_INN")
+			(name "/Mikrofon/MIC3_INN")
 			(class "Default")
 			(node
 				(ref "C626")
@@ -14857,7 +14747,7 @@
 		)
 		(net
 			(code "48")
-			(name "/Mikrofon/MIC2_INP")
+			(name "/Mikrofon/MIC3_INP")
 			(class "Default")
 			(node
 				(ref "C625")
@@ -14873,7 +14763,7 @@
 		)
 		(net
 			(code "49")
-			(name "/Mikrofon/MIC2_N")
+			(name "/Mikrofon/MIC3_N")
 			(class "Default")
 			(node
 				(ref "C626")
@@ -14892,9 +14782,8 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "J602")
-				(pin "3")
-				(pinfunction "Pin_3_3")
+				(ref "J601")
+				(pin "6")
 				(pintype "passive")
 			)
 			(node
@@ -14905,7 +14794,7 @@
 		)
 		(net
 			(code "50")
-			(name "/Mikrofon/MIC2_P")
+			(name "/Mikrofon/MIC3_P")
 			(class "Default")
 			(node
 				(ref "C625")
@@ -14924,9 +14813,8 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "J602")
-				(pin "4")
-				(pinfunction "Pin_4_4")
+				(ref "J601")
+				(pin "5")
 				(pintype "passive")
 			)
 			(node
@@ -16472,23 +16360,7 @@
 			)
 			(node
 				(ref "J601")
-				(pin "5")
-				(pintype "passive")
-			)
-			(node
-				(ref "J601")
-				(pin "6")
-				(pintype "passive")
-			)
-			(node
-				(ref "J601")
 				(pin "SH")
-				(pintype "passive")
-			)
-			(node
-				(ref "J602")
-				(pin "1")
-				(pinfunction "Pin_1_1")
 				(pintype "passive")
 			)
 			(node
@@ -17540,17 +17412,6 @@
 		)
 		(net
 			(code "132")
-			(name "unconnected-(J602-Pin_2-Pad2)")
-			(class "Default")
-			(node
-				(ref "J602")
-				(pin "2")
-				(pinfunction "Pin_2_2")
-				(pintype "passive+no_connect")
-			)
-		)
-		(net
-			(code "133")
 			(name "unconnected-(J703-Pin_6-Pad6)")
 			(class "Default")
 			(node
@@ -17561,7 +17422,7 @@
 			)
 		)
 		(net
-			(code "134")
+			(code "133")
 			(name "unconnected-(U202-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17572,7 +17433,7 @@
 			)
 		)
 		(net
-			(code "135")
+			(code "134")
 			(name "unconnected-(U204-EN-Pad3)")
 			(class "Default")
 			(node
@@ -17583,7 +17444,7 @@
 			)
 		)
 		(net
-			(code "136")
+			(code "135")
 			(name "unconnected-(U204-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17594,7 +17455,7 @@
 			)
 		)
 		(net
-			(code "137")
+			(code "136")
 			(name "unconnected-(U303-NC-Pad1)")
 			(class "Default")
 			(node
@@ -17605,7 +17466,7 @@
 			)
 		)
 		(net
-			(code "138")
+			(code "137")
 			(name "unconnected-(U303-P0_0-Pad11)")
 			(class "Default")
 			(node
@@ -17616,7 +17477,7 @@
 			)
 		)
 		(net
-			(code "139")
+			(code "138")
 			(name "unconnected-(U303-P0_2-Pad12)")
 			(class "Default")
 			(node
@@ -17627,7 +17488,7 @@
 			)
 		)
 		(net
-			(code "140")
+			(code "139")
 			(name "unconnected-(U303-P1_2-Pad3)")
 			(class "Default")
 			(node
@@ -17638,7 +17499,7 @@
 			)
 		)
 		(net
-			(code "141")
+			(code "140")
 			(name "unconnected-(U303-P1_3-Pad4)")
 			(class "Default")
 			(node
@@ -17649,7 +17510,7 @@
 			)
 		)
 		(net
-			(code "142")
+			(code "141")
 			(name "unconnected-(U303-P1_6-Pad6)")
 			(class "Default")
 			(node
@@ -17660,7 +17521,7 @@
 			)
 		)
 		(net
-			(code "143")
+			(code "142")
 			(name "unconnected-(U303-P1_7-Pad5)")
 			(class "Default")
 			(node
@@ -17671,7 +17532,7 @@
 			)
 		)
 		(net
-			(code "144")
+			(code "143")
 			(name "unconnected-(U303-P2_7-Pad15)")
 			(class "Default")
 			(node
@@ -17682,7 +17543,7 @@
 			)
 		)
 		(net
-			(code "145")
+			(code "144")
 			(name "unconnected-(U303-P3_6-Pad9)")
 			(class "Default")
 			(node
@@ -17693,7 +17554,7 @@
 			)
 		)
 		(net
-			(code "146")
+			(code "145")
 			(name "unconnected-(U401-ANT-Pad1)")
 			(class "Default")
 			(node
@@ -17704,7 +17565,7 @@
 			)
 		)
 		(net
-			(code "147")
+			(code "146")
 			(name "unconnected-(U401-DIO2-Pad7)")
 			(class "Default")
 			(node
@@ -17715,7 +17576,7 @@
 			)
 		)
 		(net
-			(code "148")
+			(code "147")
 			(name "unconnected-(U401-DIO3-Pad8)")
 			(class "Default")
 			(node
@@ -17726,7 +17587,7 @@
 			)
 		)
 		(net
-			(code "149")
+			(code "148")
 			(name "unconnected-(U502-XO-Pad13)")
 			(class "Default")
 			(node
@@ -17737,7 +17598,7 @@
 			)
 		)
 		(net
-			(code "150")
+			(code "149")
 			(name "unconnected-(U601-IN1L(P)-Pad8)")
 			(class "Default")
 			(node
@@ -17748,7 +17609,7 @@
 			)
 		)
 		(net
-			(code "151")
+			(code "150")
 			(name "unconnected-(U601-IN1R(M)-Pad11)")
 			(class "Default")
 			(node
@@ -17759,7 +17620,7 @@
 			)
 		)
 		(net
-			(code "152")
+			(code "151")
 			(name "unconnected-(U602-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17770,7 +17631,7 @@
 			)
 		)
 		(net
-			(code "153")
+			(code "152")
 			(name "unconnected-(U603-NC-Pad1)")
 			(class "Default")
 			(node
@@ -17781,7 +17642,7 @@
 			)
 		)
 		(net
-			(code "154")
+			(code "153")
 			(name "unconnected-(U801-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17792,7 +17653,7 @@
 			)
 		)
 		(net
-			(code "155")
+			(code "154")
 			(name "unconnected-(U803-~{OUTB}-Pad4)")
 			(class "Default")
 			(node

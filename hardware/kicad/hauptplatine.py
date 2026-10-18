@@ -710,7 +710,8 @@ def mikrofon(p):
     MEMS IM69D127 als PDM an DMDIN/DMCLK (rechter Kanal). Ausgang I²S an I2S3 des STM32 (PB12 CK, PA15 WS, PB5 SD),
     Einstellung über I²C (Adresse 0x18). RJ45-Buchse J601 (= J5) für Cat7 S/FTP (4 Paare) mit ESD.
     HW-10 (18.10.2026): dritter Mikrofoneingang – zweite Elektretkapsel pseudo-differenziell am rechten Analogeingang
-    IN2R(P)/IN3R(M) mit MICBIAS2, eigene Klemme J602 (= J12, 4-polig) mit ESD D602. Der rechte Kanal misst je Messung
+    IN2R(P)/IN3R(M) mit MICBIAS2 über die Pins 5/6 der RJ45-Buchse J601 (bisher Masse-Paarpartner von VDD und DATA; Philipp:
+    ein Stecker für alle drei Mikrofone) mit ESD D602. Der rechte Kanal misst je Messung
     entweder das PDM-Mikrofon oder Elektret 2 (Datenblatt 10.3.12.6: Digitalmikrofon je Kanal wählbar [V]).
     Kennzeichnung: [V] Datenblatt, [A] Annahme/Rechnung, [P] am Muster bzw. vor der Bestellung prüfen."""
     b = p.blatt("Mikrofon", "mikrofon.kicad_sch",
@@ -783,7 +784,7 @@ def mikrofon(p):
            info="Serienterminierung am Taktausgang [A]; Flanke am Mikrofon messen (T4) [P]")
     b.teil("Device:R", "R613", "22", fp=R0603, netze={"1": "PDM_DATA_K", "2": "PDM_DATA"},
            info="Schutzwiderstand vor DMDIN; Quellterminierung ca. 100 Ω sitzt am Mikrofon (Infineon) [P]")
-    # --- 6 Elektret 2 am rechten Analogeingang (HW-10): gleiche Beschaltung wie Elektret 1, eigene Klemme J602 ----
+    # --- 6 Mikrofon 3 am rechten Analogeingang (HW-10): gleiche Beschaltung wie Elektret 1, Anschluss J601 Pin 5/6 ----
     b.teil("Device:R", "R614", "1k", fp=R0603, netze={"1": "MICBIAS2", "2": "MIC3_P"},
            info="Vorspannung aus MICBIAS2 (2,5 V, max. 4 mA [V]); symmetrisch mit R615 wie R610/R611")
     b.teil("Device:R", "R615", "1k", fp=R0603, netze={"1": "MIC3_N", "2": "GND"}, info="Gegenstück zu R614")
@@ -792,19 +793,16 @@ def mikrofon(p):
     b.teil("Device:C", "C626", "1µ X7R", fp=C0603, netze={"1": "MIC3_N", "2": "MIC3_INN"}, info="Koppelkondensator wie C620")
     b.teil("Device:C", "C627", "100p C0G", fp=C0603, netze={"1": "MIC3_P", "2": "GND"}, info="HF-Ableitung an der Klemme")
     b.teil("Device:C", "C628", "100p C0G", fp=C0603, netze={"1": "MIC3_N", "2": "GND"}, info="HF-Ableitung an der Klemme")
-    b.teil("Connector_Generic:Conn_01x04", "J602", "Mikrofon 3 (Elektret)", **klemme(4),
-           netze={"1": "GND", "2": "NC", "3": "MIC3_N", "4": "MIC3_P"},
-           info="= J12 (HW-10): 1 Schirm, 2 frei (Verwechslungsschutz), 3 MIC3−, 4 MIC3+; zweiadriges geschirmtes Kabel 0,5–1 m, "
-                "Kapsel schwebend über dem Paar, Schirm nur hier an Masse; DEGSON 15EDGRC-3.5-04P")
     b.teil("Power_Protection:ESDS304", "D602", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
            netze={"1": "MIC3_N", "3": "MIC3_P", "4": "NC", "5": "NC", "2": "GND"},
-           info="direkt hinter J602 (anschluesse.md 3); zwei Kanäle frei; LCSC [P]")
+           info="direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
     # --- 5 Klemme und ESD -----------------------------------------------------------------------------------
-    b.teil("Connector:RJ45_Shielded", "J601", "Mikrofone 1 + 2", fp="Connector_RJ:RJ45_RCH_RC01937",
-           netze={"1": "GND", "2": "PDM_CLK", "3": "PDM_DATA_K", "4": "3V3_MEMS", "5": "GND", "6": "GND",
+    b.teil("Connector:RJ45_Shielded", "J601", "Mikrofone 1–3", fp="Connector_RJ:RJ45_RCH_RC01937",
+           netze={"1": "GND", "2": "PDM_CLK", "3": "PDM_DATA_K", "4": "3V3_MEMS", "5": "MIC3_P", "6": "MIC3_N",
                   "7": "MIC_P", "8": "MIC_N", "SH": "GND"},
-           info="= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+GND, "
-                "4/5 VDD+GND, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); Schirm nur hier an Masse; "
+           info="= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, "
+                "4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 "
+                "(vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; "
                 "Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
     b.teil("Power_Protection:ESDS304", "D601", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
            netze={"1": "PDM_CLK", "3": "PDM_DATA_K", "4": "MIC_P", "5": "MIC_N", "2": "GND"},
@@ -821,11 +819,11 @@ def zeichne_mikrofon(b, T):
            30.48, 35.56, 2.0)
     b.text("2  Audio-ADC TLV320ADC3101: links Elektret 1 (analog), rechts MEMS (PDM) oder Elektret 2 (analog, HW-10); I²S an I2S3, I²C 0x18",
            175.26, 111.76, 2.0)
-    b.text("6  Klemme J602 (= J12, 4-polig): Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M), MICBIAS2 über 2 × 1 kΩ (HW-10)",
+    b.text("6  Mikrofon 3 (zweite Elektretkapsel) an J601 Pin 5/6, pseudo-differenziell an IN2R(P)/IN3R(M), MICBIAS2 über 2 × 1 kΩ (HW-10)",
            160.02, 198.12, 2.0)
-    b.text("3  RJ45-Buchse J601 (= J5): MIC−, MIC+ (Elektret, MICBIAS 2,5 V über 2 × 1 kΩ), VDD, DATA, CLK (Schmitt-Puffer)",
+    b.text("3  RJ45-Buchse J601 (= J5): MIC−, MIC+ (Elektret 1), MIC3+/MIC3− (Pin 5/6, HW-10), VDD, DATA, CLK (Schmitt-Puffer)",
            30.48, 96.52, 2.0)
-    b.text("ESD D601 direkt an J601, D602 direkt an J602", 43.18, 241.3, 1.5)
+    b.text("ESD D601 und D602 direkt an J601", 96.52, 241.3, 1.5)
     b.text("Kabel: Cat7 S/FTP mit geschirmtem RJ45-Stecker, 0,5–1 m, Paare T568B; Schirm nur hier an Masse; kein Netzwerk/PoE anstecken. "
            "Mikrofonkopf am Gitterboden: fertige IM69D127-Platine (100 nF, ca. 100 Ω in DATA, L/R-Wahl) + Elektretkapsel.",
            30.48, 264.16, 1.5)
@@ -876,6 +874,8 @@ def zeichne_mikrofon(b, T):
     knick = {"8": 53.34, "7": 58.42, "2": 53.34, "3": 58.42, "4": 63.5}
     for pin, y in zeilen.items():
         D(J.p(pin), (knick[pin], J.p(pin)[1]), (knick[pin], y), (68.58, y))
+    for pin in ("5", "6"):                  # HW-10: Mikrofon 3, Filtergruppe unter dem ADC über Netznamen
+        stub(b, J, pin, 7.62)
 
     def quer(ref, x, y):                    # Zweipol in der Zeile (Pin 1 links)
         return S(T[ref], x, y, rot=90, text="oben")
@@ -933,26 +933,22 @@ def zeichne_mikrofon(b, T):
     for pin in ("1", "3", "4", "5"):
         stub(b, E, pin, 5.08)
 
-    # --- 6 Elektret 2 (HW-10): Klemme J602 unten links, gleiche Zeilenlogik wie bei J601 -----------------------
-    J2 = S(T["J602"], 165.1, 218.44, rot=180, text="links")
-    # oberer Pin → obere Zeile, Knick-Spalten nach außen versetzt, damit sich die Leitungen nicht kreuzen
-    pins2 = sorted(("3", "4"), key=lambda pn: J2.p(pn)[1])
-    zeilen2 = {pins2[0]: 208.28, pins2[1]: 223.52}
-    knick2 = {pins2[0]: 180.34, pins2[1]: 185.42}
-    x_e = 195.58                                        # Ende der Klemmenzeile, dahinter Koppel-C
+    # --- 6 Mikrofon 3 (HW-10): Filtergruppe unter dem ADC, Anschluss an J601 Pin 5/6 über Netznamen -------------
+    zeilen2 = {"6": 208.28, "5": 223.52}                 # MIC3− (Pin 6), MIC3+ (Pin 5)
+    x_a, x_e = 180.34, 195.58                           # Zeilenanfang (Netzname), Ende vor dem Koppel-C
     for pin, y in zeilen2.items():
-        D(J2.p(pin), (knick2[pin], J2.p(pin)[1]), (knick2[pin], y), (x_e, y))
-    # MIC3− (Pin 3): HF-C, 1 kΩ nach GND, Koppel-C zum ADC
-    y = zeilen2["3"]
+        D((x_a, y), (x_e, y))
+        L({"6": "MIC3_N", "5": "MIC3_P"}[pin], x_a, y, 180)
+    # MIC3− (Pin 6): HF-C, 1 kΩ nach GND, Koppel-C zum ADC
+    y = zeilen2["6"]
     ab("C628", 193.04, y)
     ab("R615", 208.28, y)
     C = quer("C626", 233.68, y)
     D((x_e, y), C.p("1"))
     D(C.p("2"), (254.0, y))
     L("MIC3_INN", 254.0, y)
-    L("MIC3_N", knick2["3"] + 2.54, y)
-    # MIC3+ (Pin 4): HF-C, Vorspannung aus MICBIAS2 über 1 kΩ, Koppel-C zum ADC
-    y = zeilen2["4"]
+    # MIC3+ (Pin 5): HF-C, Vorspannung aus MICBIAS2 über 1 kΩ, Koppel-C zum ADC
+    y = zeilen2["5"]
     ab("C627", 203.2, y)
     R = S(T["R614"], 223.52, y - 3.81, text="rechts")
     stub(b, R, "1", 2.54)
@@ -960,10 +956,9 @@ def zeichne_mikrofon(b, T):
     D((x_e, y), C.p("1"))
     D(C.p("2"), (254.0, y))
     L("MIC3_INP", 254.0, y)
-    L("MIC3_P", knick2["4"] + 2.54, y)
     S(T["C629"], 276.86, 205.74, text="rechts")
     stub(b, T["C629"], "1", 2.54)
-    E2 = S(T["D602"], 236.22, 246.38, text=(243.84, 256.54))
+    E2 = S(T["D602"], 60.96, 243.84, text=(68.58, 253.99))
     for pin in ("1", "3"):
         stub(b, E2, pin, 5.08)
 

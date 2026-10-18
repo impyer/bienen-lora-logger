@@ -2,7 +2,7 @@
 
 Erzeugt von `werkzeug/pin_footprint.py` aus den Generatoren; nicht von Hand ändern. Kennzeichnung: [V] in dieser Prüfung im Datenblatt gelesen, [V*] früher gelesen (Symbolkommentar), [A] Konvention/Annahme, [P] vor der Bestellung prüfen.
 
-Ergebnis: 186 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
+Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 
 | Ref. | Platine | Blatt | Wert | Footprint | Footprint-Prüfung | Datenblatt-Prüfung | Quelle |
 |---|---|---|---|---|---|---|---|
@@ -97,8 +97,7 @@ Ergebnis: 186 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | J301 | Haupt | MCU | Laden 5 V | `PinHeader_1x02_P2.54mm_Vertical` | Pads = Pins (2) | passiv/Stecker | – |
 | J302 | Haupt | MCU | Debug (SWD + Serial1) | `PinHeader_1x07_P2.54mm_Vertical` | Pads = Pins (7) | passiv/Stecker | – |
 | J501 | Haupt | Waage | Wägezelle | `DEGSON_15EDGRC-3.5-05P` | Pads = Pins (5); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
-| J601 | Haupt | Mikrofon | Mikrofone | `RJ45_RCH_RC01937` | Pads = Pins (9); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | [A] [P] 9 Pins = Datenblatt | RJ45 8P8C, Kontakte 1–8 nach IEC 60603-7, SH = Schirmblech; Footprint RCH RC01937 (KiCad, LCSC-Datenblatt) – Teil wählt der Layouter |
-| J602 | Haupt | Mikrofon | Mikrofon 2 (Elektret) | `DEGSON_15EDGRC-3.5-04P` | Pads = Pins (4) | passiv/Stecker | – |
+| J601 | Haupt | Mikrofon | Mikrofone 1–3 | `RJ45_RCH_RC01937` | Pads = Pins (9); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | [A] [P] 9 Pins = Datenblatt | RJ45 8P8C, Kontakte 1–8 nach IEC 60603-7, SH = Schirmblech; Footprint RCH RC01937 (KiCad, LCSC-Datenblatt) – Teil wählt der Layouter |
 | J701 | Haupt | Anschlüsse | DS18B20 Nr. 1 | `DEGSON_15EDGRC-3.5-03P` | Pads = Pins (3); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J702 | Haupt | Anschlüsse | DS18B20 Nr. 2 | `DEGSON_15EDGRC-3.5-03P` | Pads = Pins (3); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J703 | Haupt | Anschlüsse | BME280 | `DEGSON_15EDGRC-3.5-06P` | Pads = Pins (6); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |

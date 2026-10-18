@@ -1,7 +1,7 @@
 # PCB Layout Specification – Beehive Logger Main Board PCB-MAIN-0.1
 
 **Client:** Philipp Schnabel (GitHub `impyer`) · **Project:** open-hardware beehive logger, repository `impyer/bienen-lora-logger`
-**Document status:** issue 3, 18 Oct 2026 (issue 3: BLE module RN4871 added, USB-C replaced by two charge pads, decision HW-09; third microphone input J602 with ESD D602, decision HW-10; issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: **V0.1 layout release of 18 Oct 2026** (title block "0.1 Layout-Stand", decisions HW-01 … HW-09; the git commit is in `STAND.txt` of the package)
+**Document status:** issue 3, 18 Oct 2026 (issue 3: BLE module RN4871 added, USB-C replaced by two charge pads, decision HW-09; third microphone on J601 pins 5/6 with ESD D602, decision HW-10; issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: **V0.1 layout release of 18 Oct 2026** (title block "0.1 Layout-Stand", decisions HW-01 … HW-09; the git commit is in `STAND.txt` of the package)
 **License of the result:** CERN-OHL-S-2.0 (see section 10)
 
 > **Kurzfassung (Deutsch):** Auftrag an einen externen Layouter: Platzierung, Routing und JLCPCB-Fertigungsdaten
@@ -20,7 +20,7 @@
 | 1 | Review the package, ask questions, confirm feasibility (section 9, milestone M0) | yes |
 | 2 | **Component placement** inside the given board frame, respecting sections 3–6 | yes |
 | 3 | **Routing** of all nets on **4 or 6 layers (your choice)**, copper zones, stitching vias | yes |
-| 4 | **LCSC part selection** for every BOM line without an LCSC number (164 of 186 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
+| 4 | **LCSC part selection** for every BOM line without an LCSC number (164 of 185 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
 | 5 | **Manufacturing outputs** for JLCPCB: Gerber, drill files, BOM and CPL in JLCPCB format (section 8) | yes |
 | 6 | **Editable source files** of the routed board in the tool you used (section 2.2) | yes |
 | 7 | Support until the JLCPCB DFM/assembly check passes without errors | yes |
@@ -82,8 +82,8 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 
 **You decide the placement and the connector positions** (client decision HW-08). Constraints:
 
-1. **External connectors** J201/J202 (solar), J703 (BME280, 6-pin), J701/J702 (DS18B20), J501 (load cell, 5-pin), J601 (RJ45, microphones 1 and 2), **J602 (microphone 3, 4-pin, HW-10; next to J601 and the audio ADC, ESD D602 directly behind it)**: preferably along **one board edge** facing the future cable glands; two edges are acceptable and will probably be needed. Each terminal must be pluggable/unpluggable with the mating plug (DEGSON 15EDGK) without touching neighbours. Width reference: between the hole keep-outs of one edge ~102 mm are free; the terminals now need ~100 mm plus ~16 mm for the RJ45.
-2. **ESD parts directly behind each external connector**, before any other part: D204 (J201/J202), D702 (J703), D701 (J701/J702), D501 (J501), D601 (J601), D602 (J602). Ground pin of the ESD part to L2 with ≥ 2 vias, shortest path.
+1. **External connectors** J201/J202 (solar), J703 (BME280, 6-pin), J701/J702 (DS18B20), J501 (load cell, 5-pin), J601 (RJ45, microphones 1–3; since HW-10 pins 5/6 carry microphone 3): preferably along **one board edge** facing the future cable glands; two edges are acceptable. Each terminal must be pluggable/unpluggable with the mating plug (DEGSON 15EDGK) without touching neighbours. Width reference: between the hole keep-outs of one edge ~102 mm are free; the terminals need ~86 mm plus ~16 mm for the RJ45.
+2. **ESD parts directly behind each external connector**, before any other part: D204 (J201/J202), D702 (J703), D701 (J701/J702), D501 (J501), D601 and D602 (both at J601). Ground pin of the ESD part to L2 with ≥ 2 vias, shortest path.
 3. **Radio module U401 (Ra-01SH) at the board edge opposite the external connectors**, IPEX connector side towards the enclosure wall. **Pin 1 (ANT) must stay unconnected – no trace, no copper stub** (antenna via IPEX only; ANT pad and IPEX share RF_OUT inside the module).
 4. **Charge pads J301** (two 2.54 mm pads, 1 GND / 2 +5 V, header not assembled; replaces the USB-C socket since HW-09), debug header J302, expansion header J704, buttons SW301 (Reset), SW302 (BOOT), SW303 (Service): inside, easy to reach when the lid is open; J301 with silkscreen "5V" / "GND", not hidden under the cell.
 11. **BLE module U303 (Microchip RN4871, chip antenna; HW-09)** at a **board edge**, mounted as in datasheet DS50002489D Fig. 4-9: the **antenna section (module top 4 mm, "Antenne" on F.Fab) overhangs the board edge**; the board edge runs along the User.1 line of the footprint. The footprint carries keep-out zones: **no copper on any layer** under/beside the antenna (in case it does lie over the board), **no top copper** in the two test-pad areas (Fig. 4-8) – keep them free (no tracks, vias, pours). If the overhang is not possible, keep the antenna zone free of copper on all layers instead. Continuous ground under the rest of the module, ground vias around it. **Keep all metal ≥ 30 mm from the antenna**: battery holder BT801, terminals, RJ45, USB-C, light-pipe holder (datasheet DS50002489D 4.3). Prefer a side edge, not the Ra-01SH edge. Q301, C314, C315 next to pin 14; R310/R311/R312 near the module.
@@ -132,7 +132,7 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 | **PDM_CLK** (U603 → R612 → J601 pin 2) | U603 and R612 close to J601; continuous GND below; required edge rate at the microphone ≤ 13 ns – keep it short on the board |
 | PDM_DATA_K → R613 → PDM_DATA (DMDIN) | short, GND reference |
 | **MIC_P / MIC_N** (J601 7/8 → C619/C620 → U601 IN2L/IN3L) | analog, **route as a pair**, symmetric, away from clocks/SPI/converter; C622/C623 at the connector |
-| **MIC3_P / MIC3_N** (J602 4/3 → C625/C626 → U601 IN2R/IN3R; HW-10) | same as MIC_P/MIC_N: pair, symmetric, C627/C628 and D602 at the connector, away from PDM_CLK |
+| **MIC3_P / MIC3_N** (J601 5/6 → C625/C626 → U601 IN2R/IN3R; HW-10) | same as MIC_P/MIC_N: pair, symmetric, C627/C628 and D602 at the connector, away from PDM_CLK and PDM_DATA on the board (in the cable they share pairs with VDD and DATA by design) |
 | U601 supplies | 3V3_ANA, 1V8_ADC, 3V3_SW decoupling (100 nF + 1 µF each) directly at pins 10/22/21 |
 | HX711 (U502) and load cell lines ZELLE_EP/SP/SN | analog, short, symmetric S+/S−, away from U501; ferrites per schematic |
 | 1-Wire, I²C (ONEWIRE, I2C_SCL/SDA) | no special constraints; pull-ups at the connectors as drawn |
@@ -148,7 +148,7 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 
 ## 7. Part selection (LCSC)
 
-- 22 BOM lines already have an LCSC number (fixed – keep them). For the others, propose an LCSC part per line: **JLCPCB Basic part preferred**, otherwise Extended with stock ≥ 100; footprint must match the schematic footprint, or state the needed footprint change.
+- 21 BOM lines already have an LCSC number (fixed – keep them). For the others, propose an LCSC part per line: **JLCPCB Basic part preferred**, otherwise Extended with stock ≥ 100; footprint must match the schematic footprint, or state the needed footprint change.
 - Values with tolerance/voltage/dielectric in the schematic are binding (e.g. "4,7µ 16V X7R", "2,49k 1%", "C0G").
 - Parts with open choice (marked [P] in the docs): RJ45 J601 (**shielded, without magnetics, without LEDs**, through-hole; footprint proposal `RJ45_RCH_RC01937`), ferrites FB301/FB501/FB502/FB601/FB602, L501 (1 µH, Isat ≥ 0.7 A), TVS D401 (3.3 V), SPI flash U402 (64 Mbit SOIC-8 208 mil, e.g. XT25F64B/ZD25Q64D), DEGSON terminals (part numbers per pole count in `doku/anschluesse.md` §2), Elektret capsule / MEMS board are off-board (not on the BOM).
 - Fixed parts with low stock – flag them in your proposal if the stock changed: U303 RN4871-I/RM130 (C633942, Extended, 50 pcs on 18 Oct 2026), U401 Ra-01SH (C2764087).

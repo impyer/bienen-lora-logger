@@ -60,7 +60,7 @@ pdftoppm -r 75 -png hardware/kicad/pdf/logger.pdf blatt   # Sichtprüfung
 
 Nach der Freigabe kamen zwei Aufträge des Maintainers: **HW-10** (alle drei Mikrofonanschlüsse des Audio-ADC nutzen) und eine **Prüfung aller Pinfunktionen**. Beides ist eingearbeitet; der Layout-Stand wurde neu erzeugt und geprüft.
 
-- **HW-10:** Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615, C625–C629), Klemme **J602 = J12** (DEGSON 4-polig, 1 Schirm, 2 frei, 3 MIC3−, 4 MIC3+), ESD D602; Blatt Mikrofon Abschnitt 6; Pflichtenheft Regel 1/2 und Netztabelle (MIC3-Paar), 186 Teile / 22 LCSC. Mit J12 brauchen die Außenanschlüsse zwei Kanten (M5).
+- **HW-10:** Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615, C625–C629), auf **J601 Pin 5 (MIC3+) / 6 (MIC3−)** (Philipp: ein Stecker für alle drei Mikrofone; vorher Masse-Paarpartner), ESD D602 neben D601; Blatt Mikrofon Abschnitt 6; Pflichtenheft Regel 1/2 und Netztabelle (MIC3-Paar), 185 Teile / 21 LCSC. Regel: Mikrofon 3 nur bei stehendem PDM-Takt messen.
 - **Pin-Review:** eigener Bericht [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md) – keine Abweichung; `pin_footprint.py` für STM32, AO3400A, AO3401A, HY2111, FS8205, 74LVC1G17 auf [V].
 - **Nachweis (Commit `23aed6e`):** `pruefen.sh` reproduzierbar, ERC **0**, Netzprüfung **236/236**, Pin-/Footprint-Abgleich **186 Bauteile, 0 Abweichungen**; Sichtprüfung Blatt Mikrofon (PNG); Paket **`layout-auftrag-PCB-MAIN-0.1-23aed6e.zip`** (38 Dateien, bom_aktuell.csv 186 Zeilen) entpackt: ERC **0**, DRC **0**. Dieses Paket ersetzt das aus `4c36898`.
 
