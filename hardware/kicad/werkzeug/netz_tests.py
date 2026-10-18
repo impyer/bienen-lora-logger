@@ -6,6 +6,8 @@ Generator-Daten): Ladesperre, Zellschutz (Blatt Akku, seit HW-06 auf der Hauptpl
 Seit SCH26-09 zusätzlich: Pinbelegung der Stecker laut hardware/anschluesse.md (Spalte „Pins“)
 gegen die Netzliste, mit Gegenprobe (vertauschter Pin muss auffallen).
 Seit SCH26-07 (Blatt Waage): Wandler-Ansteuerung, HX711-Versorgung, AVDD aus dem Teiler, Zellenleitungen.
+Seit HW-09 (18.10.2026): BLE-Modul RN4871 (Lastschalter an PB13, USART6, Pull-ups nur an BLE_VCC, J704 Pin 9–11),
+USB-C nur noch Laden (D+/D− offen, kein USBLC6, kein VBUS-Teiler).
 Aufruf (nach pruefen.sh): python3 werkzeug/netz_tests.py
 """
 import math
@@ -36,7 +38,7 @@ STECKER_DOKU = {
     "J7": ("J702", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
     "J8": ("J703", {"Schirm": "GND", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "3V3_SW": "3V3_SW", "frei": OFFEN}),
     "J11": ("J704", {"3V3": "+3V3", "3V3_SW": "3V3_SW", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "TX1": "DBG_TX",
-                     "RX1": "DBG_RX", "frei": OFFEN}),
+                     "RX1": "DBG_RX", "BLE_RXD": "BLE_RXD", "BLE_TXD": "BLE_TXD", "BLE_MODE": "BLE_MODE"}),
 }
 VBG_HX711 = 1.25        # V, Bandgap-Referenz des AVDD-Reglers (HX711-Datenblatt, waage.md 3)
 VSUP_MIN = 4.9          # V, TPS61240 5,0 V −2 % (waage.md 2)
@@ -269,9 +271,50 @@ def anschluesse(h, h_pin, h_wert):
            pol == {"J201": 2, "J701": 3, "J601": 9, "J501": 5, "J703": 6}, pol)
     for ref in ("J501", "J601", "J701", "J702", "J703", "J201", "J202"):
         pruefe("%s: Pin 1 an GND (Masse/Schirm an Pin 1)" % ref, h_pin.get((ref, "1")) == "GND", h_pin.get((ref, "1")))
-    for nr in ("9", "10", "11"):
-        pruefe("J704 Pin %s frei (HW-05: PB13 = VBUS-Erkennung; HW-07: PA15/PB12 = I²S)" % nr,
-               h_pin.get(("J704", nr), "unconnected").startswith("unconnected"), h_pin.get(("J704", nr)))
+    for nr, netz in (("9", "BLE_RXD"), ("10", "BLE_TXD"), ("11", "BLE_MODE")):
+        pruefe("J704 Pin %s = %s (HW-09: BLE-Modul; vorher frei)" % (nr, netz), h_pin.get(("J704", nr)) == netz, h_pin.get(("J704", nr)))
+    pruefe("J704 Pin 12 = GND neben Pin 11 (Testmodus-Brücke)", h_pin.get(("J704", "12")) == "GND", h_pin.get(("J704", "12")))
+
+
+def ble(h, h_pin, h_wert):
+    """HW-09: BLE-Modul RN4871 an USART6, Versorgung über Q301 (PB13), Modul-UART und Modus an J704 Pin 9–11;
+    USB-C nur noch Laden. Regeln: kein Pull-up des abgeschalteten Moduls an +3V3 (Rückspeisung), Reihenwiderstände
+    im UART, Lastschalter aus bei hochohmigem PB13."""
+    genau(h, "BLE_EIN", {("U301", "26"), ("Q301", "1"), ("R309", "2")})                 # PB13 → Gate
+    pruefe("R309 (Gate-Pull-up) an +3V3, 100k: Modul aus bei hochohmigem PB13",
+           h_pin.get(("R309", "1")) == "+3V3" and h_wert.get("R309") == "100k", (h_pin.get(("R309", "1")), h_wert.get("R309")))
+    pruefe("Q301 ist AO3401A (P-Kanal), Source an +3V3", h_wert.get("Q301", "").startswith("AO3401") and h_pin.get(("Q301", "2")) == "+3V3",
+           (h_wert.get("Q301"), h_pin.get(("Q301", "2"))))
+    genau(h, "BLE_VCC", {("Q301", "3"), ("U303", "14"), ("C314", "1"), ("C315", "1"), ("R312", "1"), ("JP301", "1")})
+    pruefe("JP301 (BLE dauernd) ist offene Lötbrücke", "_Open_" in h_wert.get("JP301:footprint", ""), h_wert.get("JP301:footprint"))
+    pruefe("U303 ist RN4871", h_wert.get("U303", "").startswith("RN4871"), h_wert.get("U303"))
+    genau(h, "USART6_TX", {("U301", "32"), ("R310", "1")})                              # PA11 (AF8)
+    genau(h, "USART6_RX", {("U301", "33"), ("R311", "1")})                              # PA12 (AF8)
+    genau(h, "BLE_RXD", {("R310", "2"), ("U303", "7"), ("J704", "9")})
+    genau(h, "BLE_TXD", {("R311", "2"), ("U303", "8"), ("J704", "10")})
+    genau(h, "BLE_MODE", {("R312", "2"), ("U303", "16"), ("J704", "11")})
+    genau(h, "BLE_RST", {("U303", "10"), ("C316", "1")})
+    for ref, soll in (("R310", "1k"), ("R311", "1k"), ("R312", "10k")):
+        pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
+    for pin in ("2", "13"):
+        pruefe("U303 Pin %s an GND" % pin, h_pin.get(("U303", pin)) == "GND", h_pin.get(("U303", pin)))
+    for pin in ("1", "3", "4", "5", "6", "9", "11", "12", "15"):
+        pruefe("U303 Pin %s offen (intern hochgezogen)" % pin, h_pin.get(("U303", pin), "unconnected").startswith("unconnected"),
+               h_pin.get(("U303", pin)))
+    def nur_ble_vcc(pin_netz):
+        """Alle Pull-ups am Modul hängen an BLE_VCC, keiner an +3V3 (sonst Rückspeisung ins abgeschaltete Modul)."""
+        return all(pin_netz.get((r, "1")) == "BLE_VCC" for r in ("R312",))
+    pruefe("Pull-up R312 an BLE_VCC, nicht +3V3 (keine Rückspeisung ins abgeschaltete Modul)", nur_ble_vcc(h_pin), h_pin.get(("R312", "1")))
+    falsch = dict(h_pin)
+    falsch[("R312", "1")] = "+3V3"
+    pruefe("Gegenprobe: R312 an +3V3 wird erkannt", not nur_ble_vcc(falsch))
+    # USB-C nur Laden (HW-09): D+/D− offen, kein USBLC6, kein VBUS-Teiler; VBUS nur Buchse und D203
+    for pin in ("A6", "B6", "A7", "B7"):
+        pruefe("J301 Pin %s (D+/D−) offen" % pin, h_pin.get(("J301", pin), "unconnected").startswith("unconnected"), h_pin.get(("J301", pin)))
+    genau(h, "VBUS", {("J301", "A4"), ("J301", "A9"), ("J301", "B4"), ("J301", "B9"), ("D203", "2")})
+    pruefe("kein USBLC6 (U302) und kein VBUS-Teiler (R307/R308) mehr", not any(r in h_wert for r in ("U302", "R307", "R308")))
+    for ref in ("R303", "R304"):
+        pruefe("%s = 5,1k (CC-Senke)" % ref, h_wert.get(ref) == "5,1k", h_wert.get(ref))
 
 
 def modell_netze(modul):
@@ -333,11 +376,8 @@ def main():
                       ("R802", "2k"), ("R801", "100")):
         pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
     enthaelt(h, "VBAT", {("U201", "2"), ("JP801", "2"), ("J801", "2"), ("C205", "1"), ("R206", "1")})
-    # HW-05: VBUS-Erkennung an PB13 (Teiler 33 kΩ / 82 kΩ, ST AN4879)
-    genau(h, "VBUS_SENSE", {("R307", "2"), ("R308", "1"), ("U301", "26")})
-    pruefe("VBUS-Teiler R307 an VBUS, R308 an GND", h_pin.get(("R307", "1")) == "VBUS" and h_pin.get(("R308", "2")) == "GND")
-    for ref, soll in (("R307", "33k"), ("R308", "82k")):
-        pruefe("Wert %s = %s" % (ref, soll), h_wert.get(ref) == soll, h_wert.get(ref))
+    # --- HW-09: BLE-Modul RN4871 (mcu-funk.md 1.6) -----------------------------------------------
+    ble(h, h_pin, h_wert)
 
     # --- Hauptplatine: Lader ---
     pruefe("U204 IN an VIN_LADER", h_pin.get(("U204", "1")) == "VIN_LADER", h_pin.get(("U204", "1")))

@@ -90,9 +90,14 @@ DATENBLATT = {
         "6": ("DIO1", "DIO1"), "7": ("DIO2", "DIO2"), "8": ("DIO3", "DIO3"), "9": ("GND", "GND"), "10": ("BUSY", "BUSY"),
         "11": ("RXEN", "RXEN"), "12": ("SCK", "SCK"), "13": ("MISO", "MISO"), "14": ("MOSI", "MOSI"), "15": ("NSS", "NSS"),
         "16": ("GND", "GND")}),
-    "Power_Protection:USBLC6-2SC6": ("ST USBLC6-2 (SOT23-6L); Download hier gescheitert", "[A] [P]", {
-        "1": ("I/O1", "I/O1"), "2": ("GND", "GND"), "3": ("I/O2", "I/O2"), "4": ("I/O2", "I/O2"), "5": ("VBUS", "VBUS"),
-        "6": ("I/O1", "I/O1")}),
+    "Bienen:RN4871": ("Microchip DS50002489D Tab. 1-2 (Spalte RN4871) und Fig. 5-4; Footprint nach Fig. 4-7/4-8 [A], gegen "
+                      "LCSC/EasyEDA C633942 prüfen [P]", "[V]", {
+        "1": ("NC", "NC"), "2": ("GND", "GND"), "3": ("P1_2", "P1_2"), "4": ("P1_3", "P1_3"), "5": ("P1_7", "P1_7"),
+        "6": ("P1_6", "P1_6"), "7": ("UART_RX", "UART_RX"), "8": ("UART_TX", "UART_TX"), "9": ("P3_6", "P3_6"),
+        "10": ("RST_N", "RST_N"), "11": ("P0_0", "P0_0"), "12": ("P0_2", "P0_2"), "13": ("GND", "GND"), "14": ("VBAT", "VBAT"),
+        "15": ("P2_7", "P2_7"), "16": ("P2_0", "P2_0")}),
+    "Transistor_FET:AO3401A": ("AOS AO3401A SOT-23: 1 G, 2 S, 3 D (wie AO3400A)", "[A] [P]", {
+        "1": ("G", "G"), "2": ("S", "S"), "3": ("D", "D")}),
     "Memory_Flash:W25Q32JVSS": ("Standard-Pinbelegung 25er-SPI-Flash SOIC-8 (XT25F64B / ZD25Q64D) – je Teil prüfen", "[A] [P]", {
         "1": ("CS#", "~{CS}"), "2": ("SO", "DO/IO_{1}"), "3": ("WP#", "~{WP}/IO_{2}"), "4": ("VSS", "GND"),
         "5": ("SI", "DI/IO_{0}"), "6": ("SCLK", "CLK"), "7": ("HOLD#", "~{HOLD}/~{RESET}/IO_{3}"), "8": ("VCC", "VCC")}),

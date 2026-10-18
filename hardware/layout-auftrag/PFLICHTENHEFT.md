@@ -20,7 +20,7 @@
 | 1 | Review the package, ask questions, confirm feasibility (section 9, milestone M0) | yes |
 | 2 | **Component placement** inside the given board frame, respecting sections 3–6 | yes |
 | 3 | **Routing** of all nets on **4 or 6 layers (your choice)**, copper zones, stitching vias | yes |
-| 4 | **LCSC part selection** for every BOM line without an LCSC number (151 of 172 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
+| 4 | **LCSC part selection** for every BOM line without an LCSC number (157 of 179 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
 | 5 | **Manufacturing outputs** for JLCPCB: Gerber, drill files, BOM and CPL in JLCPCB format (section 8) | yes |
 | 6 | **Editable source files** of the routed board in the tool you used (section 2.2) | yes |
 | 7 | Support until the JLCPCB DFM/assembly check passes without errors | yes |
@@ -85,7 +85,8 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 1. **External connectors** J201/J202 (solar), J703 (BME280, 6-pin), J701/J702 (DS18B20), J501 (load cell, 5-pin), J601 (RJ45, microphones): preferably along **one board edge** facing the future cable glands; two edges are acceptable. Each terminal must be pluggable/unpluggable with the mating plug (DEGSON 15EDGK) without touching neighbours. Width reference: between the hole keep-outs of one edge ~102 mm are free; the terminals need ~86 mm plus ~16 mm for the RJ45.
 2. **ESD parts directly behind each external connector**, before any other part: D204 (J201/J202), D702 (J703), D701 (J701/J702), D501 (J501), D601 (J601). Ground pin of the ESD part to L2 with ≥ 2 vias, shortest path.
 3. **Radio module U401 (Ra-01SH) at the board edge opposite the external connectors**, IPEX connector side towards the enclosure wall. **Pin 1 (ANT) must stay unconnected – no trace, no copper stub** (antenna via IPEX only; ANT pad and IPEX share RF_OUT inside the module).
-4. **USB-C J301**, debug header J302, expansion header J704, buttons SW301 (Reset), SW302 (BOOT), SW303 (Service): inside, easy to reach when the lid is open; J301 accessible with a cable plugged (not hidden under the cell).
+4. **USB-C J301** (charging only since HW-09: VBUS/CC only, D+/D− unconnected), debug header J302, expansion header J704, buttons SW301 (Reset), SW302 (BOOT), SW303 (Service): inside, easy to reach when the lid is open; J301 accessible with a cable plugged (not hidden under the cell).
+11. **BLE module U303 (Microchip RN4871, chip antenna; HW-09)** at a **board edge** with the antenna end (module top, "Antenne" on F.Fab) pointing outward to the enclosure wall. The footprint carries two keep-out zones: **no copper on any layer** under and beside the antenna, **no top copper** under the module's test-pad area – keep both free (no tracks, vias, pours). Continuous ground under the rest of the module, ground vias around it. **Keep all metal ≥ 30 mm from the antenna**: battery holder BT801, terminals, RJ45, USB-C, light-pipe holder (datasheet DS50002489D 4.3). Prefer a side edge, not the Ra-01SH edge. Q301, C314, C315 next to pin 14; R310/R311/R312 near the module.
 5. **Battery holder BT801** (Keystone 1042, 88 × 22 mm): not at the radio edge, not next to the charger U201. **U802, U803, TH801 (temperature sensors for the charge lock) under the cell**, thermally coupled to it (a thermal pad will be placed between cell and sensors), away from heat sources (U201, U202, U204, U401).
 6. Microphone/audio block (U601 audio ADC, J601) and load-cell block (U502 HX711, J501) **far from the 5 V boost converter U501/L501 and from the radio**; U601 close to J601.
 7. The 5 V boost converter U501 (TPS61240, 3.5 MHz) with C501, L501, C502 as a tight loop (TI layout example).
@@ -124,7 +125,8 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 | **B− (battery minus)** | **B− is NOT GND.** It is a small island between BT801 (−), U801 VSS and Q801 S1 only. Any connection B− ↔ GND bypasses the protection FET (safety issue, D3). Do not include B− in any GND zone. |
 | VBAT, B+, SYS, VIN_LADER | power paths, ≥ 0.5 mm (charge current up to 150 mA, system peaks ~120 mA during radio TX, boost input ~0.4 A peak); short |
 | PV1/PV2 → D201/D202 → VIN_LADER | ≥ 0.5 mm; SMAJ12A D204 right at the input |
-| VBUS, USB_DP/USB_DM | USB 2.0 full speed: route D+/D− as a pair (~90 Ω differential, length matched within 2 mm), short, USBLC6 U302 next to J301 |
+| VBUS | charging only (HW-09): power path J301 → D203, ≥ 0.5 mm; D+/D− of J301 stay unconnected (no USB data) |
+| USART6_TX/RX, BLE_RXD/TXD, BLE_MODE, BLE_EIN, BLE_VCC (U303, Q301) | UART at 115 200 Bd, no special constraints; keep away from the antenna keep-out; BLE_VCC from Q301 to pin 14 short with C314/C315 at the pin |
 | SPI1 (SPI_SCK/MISO/MOSI, LORA_NSS, FLASH_CS) | short; series resistors R401–R404 (33 Ω) close to the radio module U401; keep away from the audio block |
 | I2S_CK, I2S_WS, I2S_SD (PB12/PA15/PB5 ↔ U601) | direct, avoid crossing the analog microphone path |
 | **PDM_CLK** (U603 → R612 → J601 pin 2) | U603 and R612 close to J601; continuous GND below; required edge rate at the microphone ≤ 13 ns – keep it short on the board |
@@ -138,7 +140,7 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 ## 6. Silkscreen and assembly
 
 - Every external connector: name (J1 … J11 per `doku/anschluesse.md`, e.g. "J5 MIKROFON") and pin names on silkscreen. At J601 additionally **"MIKROFON – KEIN NETZWERK/PoE"**.
-- Polarity marks for BT801 (+), diodes, LED, USB.
+- Polarity marks for BT801 (+), diodes, LED, USB; pin 1 and antenna side of U303.
 - Test points (requirement M9): 3V3, VBAT, SYS, VIN_LADER, GND, PDM_CLK, I2S_CK – exposed copper pads ≥ 1.0 mm or the TP footprints you propose (change request, section 2.3). TP201/TP202 exist already.
 - Fiducials as needed for JLCPCB assembly. **All parts top side**, SMD and THT assembled by JLCPCB (requirement M7).
 - Keep reference designators readable where space allows; otherwise on F.Fab.

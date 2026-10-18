@@ -22,10 +22,11 @@ Bezug:
 | J6 (Platine: J701) | DS18B20 Nr. 1 (TempIn) | steckbare Klemme 3,5 mm, 3-polig | 1 GND, 2 DQ, 3 3V3_SW | **ESDS304** (ein Array für J6 + J7) | Fühlerkabel |
 | J7 (Platine: J702) | DS18B20 Nr. 2 (TempIn2) | wie J6, am selben 1-Wire-Bus | 1 GND, 2 DQ, 3 3V3_SW | wie J6 | Fühlerkabel |
 | J8 (Platine: J703) | BME280 (Strahlungsschutz) | steckbare Klemme 3,5 mm, **6-polig** | 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (nur Verwechslungsschutz) | **ESDS304** an SDA, SCL, 3V3_SW | **Outdoor-Netzwerkkabel** (Cat 5e/6, PE-Mantel), Paare SDA+GND, SCL+GND, 3V3+GND, Schirm falls vorhanden an Pin 1; **≤ 1 m** (siehe 3.1, HW26-09) |
-| J9 (Platine: J301) | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – | USBLC6-2SC6 | am Tisch: Laden, Aufspielen und Kommunikation (USB-CDC, HW-05); VBUS-Erkennung an PB13 |
+| J9 (Platine: J301) | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – (nur VBUS, GND, CC; D+/D− offen) | – | am Tisch: **nur Laden** (HW-09, 18.10.2026; Aufspielen und Kommunikation seitdem über SWD/Serial1 bzw. BLE, mcu-funk.md 1.6) |
 | J10 (Platine: J302) | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen; Pinfolge siehe 1.2 (SCH26-09) |
-| J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 frei, 10 frei, 11 frei, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1); Pins 9–11 frei: PB13 ist seit HW-05 die VBUS-Erkennung, PA15/PB12 sind seit HW-07 der I²S-Bus zum Audio-ADC |
+| J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 BLE_RXD, 10 BLE_TXD, 11 BLE_MODE, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1); Pins 9–11 seit **HW-09** (18.10.2026): UART-Eingang und -Ausgang des BLE-Moduls (hinter 1 kΩ zum STM32) und P2_0 (Modus) für das Firmware-Update des Moduls (Brücke 11–12 = Testmodus, mcu-funk.md 1.6); keine freien GPIOs mehr (PB13 Lastschalter BLE, PA15/PB12 I²S seit HW-07) |
 | – | Antenne | IPEX am Funkmodul | – | – | FPC-Antenne innen (mcu-funk.md 2.3) |
+| – | BLE-Antenne | Chip-Antenne auf dem Modul U303 (RN4871, HW-09) | – | – | keine Buchse; Modul an der Platinenkante, Antenne nach außen, Metall ≥ 30 mm (mcu-funk.md 1.6) |
 
 Die Nummern J1–J11 sind die Anschlussnummern dieses Dokuments; in Klammern steht die Referenz im KiCad-Schaltplan. Steht ein Stecker schon auf einem Schaltplanblatt, vergleicht `hardware/kicad/werkzeug/netz_tests.py` die Spalte „Pins“ mit der KiCad-Netzliste (SCH26-09). Eine Änderung der Pinfolge gehört deshalb immer in diese Tabelle **und** in den Generator.
 
