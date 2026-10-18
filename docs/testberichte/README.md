@@ -1,5 +1,7 @@
 # Testberichte und offene Prüfpunkte
 
+- [18.10.2026 – R1.1: Batch-QC, Snapshot-Admission, Zoom/Polling, synthetisches Staging und Abschlussgrenzen](2026-10-18-refactoring-r1-1-stabilisierung.md)
+
 - [17.10.2026 – R1.1: vollständige Zeitreihen, Monatsarchive, eingeschränktes Login und Jahresprobe](2026-10-17-refactoring-r1-1.md)
 - [17.10.2026 – R1.1: Bestandsaufnahme, reproduzierte Langzeitdiagramm- und Archivlücken](2026-10-17-refactoring-r1-1-bestand.md)
 - [17.10.2026 – Refactoring R1: synthetische CSV durch reale PostgreSQL-/HTTPS-/ECharts-Strecke, Importrevisionen und Containerneustart](2026-10-17-refactoring-r1.md)

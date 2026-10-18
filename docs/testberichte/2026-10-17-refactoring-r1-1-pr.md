@@ -1,74 +1,71 @@
-# Vorbereiteter PR: R1.1 – vollständige Umwelt-Zeitreihen und sichere Monatsarchive
+# R1.1: Umwelt-Zeitreihen, sichere Archive und Abschlussstabilisierung
 
-**Zielbranch:** `refactor/r1-umweltdaten-20261017`
+**Basis:** `refactor/r1-umweltdaten-20261017`
 
-**Quellbranch:** `refactor/r1-1-umweltarchive-20261017`
-
-**Status:** PR-Erstellung durch CONNECT 403 zu api.github.com blockiert; dieser
-Text ist die reviewbare Übergabe, keine behauptete PR/Remote-CI.
+**Head:** `refactor/r1-1-umweltarchive-20261017`
 
 ## Ziel / Änderung
 
-R1 zeigte bei langen Messreihen nur die ersten 5000 Punkte und erkannte neue
-Monatsdateien nicht. Die Umweltansicht lädt jetzt vollständige, konsistente
-Snapshot-Seiten mit realen Temperatur-Extrema, Null-/Lückengrenzen, Zeit-/QC-
-Metadaten und jüngstem Messpunkt. Roh-API, Sitzungen und kanonische Identitäten bleiben.
+Lange Umweltreihen zeigen vollständige Snapshot-Seiten mit echten Extrema,
+Null-/Lückengrenzen und jüngstem Wert. Sichere Monatsarchive, Checkpoints,
+Provenienz und getrenntes Import-Login erhalten Datenhistorie/Identitäten.
+Additive 004 und bestehende Roh-API bleiben; 003/004 wurden durch die Stabilisierung
+nicht geändert. Kein Eingriff in Receiver/ThinkStation oder echte Quellen.
 
-Der nach ADR-0005 ausdrücklich synthetisch freigegebene Monatsimport liest
-isolierte RO-Staging-Verzeichnisse streamend und setzt atomare Datei-Checkpoints.
-Rotation/Append/Backfill erhalten Roh-/Korrekturhistorie und Fundstellen.
-Migration 004 ist additiv, 003 unverändert. Separates Import-Login, Inventur,
-kontrollierte Konfigurationsänderung `BIENEN_IMPORT_DSN`, Backup/Restore und
-manuelle Abnahme sind dokumentiert. Keine automatische Bestandsumstellung.
+Abschlusskorrekturen: Konflikt-QC über Batch-/Monatsgrenzen, begrenzte parallele
+Diagrammverarbeitung, dynamischer Temperaturüberblick, erhaltener Zoom und
+Legendenstatus beim normalen Poll, korrekter Berliner Saisonbeginn und klare
+Fehler-/Wiederaufnahmeanzeige. Ein tatsächlicher DB-Ausfall erhält eine opaque 503-Antwort im gemeinsamen Session-Principal statt eines ungefangenen 500. Separater Publisher testet ausschließlich
+synthetische Kopien mit atomarem Staging-Rename, Audit und Abbruch bei unsicherer
+oder verkürzter Quelle. Keine neuen produktiven Zugriffsrechte.
 
-**Änderungsklasse:** D2, Entwicklungs-Gate G1.
+**Klasse/Gate:** D2, T0–T3, G1 offen bis unabhängigem Nachweis/Betreiberreview.
 
-**Befunde/Anforderungen:** R1.1-01–06, R11-A01–A11; ADR-0004/0005.
+**Bezug:** R1.1-01–06, R11-A01–A11, R11-S01–08, Abschlussauftrag T01–T10,
+ADR-0004/0005.
 
-**Bericht:** [R1.1-Prüfbericht](2026-10-17-refactoring-r1-1.md).
+[Aktueller Prüfbericht mit konkreten SHAs/Fehlläufen/Grenzen](2026-10-18-refactoring-r1-1-stabilisierung.md)
 
-**Manuelle Abnahme/Rückfall:** [Betriebsanleitung](../entwicklung/umwelt-r1-1.md).
+[Abnahme/Backup/Restore/Rückfall](../entwicklung/umwelt-r1-1.md)
+
+[Staging-Konzept und offene reale Betreiberentscheidungen](../entwicklung/umwelt-staging-sync.md)
 
 ## Nachweis
 
 | Prüfung | Ergebnis | Umfang |
 |---|---|---|
-| Unit/DB/API/Upgrade | PASS lokal | 54 Tests; echte PostgreSQL-Verbindungen, ACL/Cursor/Revisionen, Monatswechsel/Rotation/Fehler, eingeschränkte Rechte, gefülltes 003-Backup/Restore vor 004 |
-| Echter Software-E2E | PASS lokal | CSV-Watcher, PostgreSQL, FastAPI, CA-validiertes Caddy-HTTPS, Chromium/ECharts, 24 h bis Saison, >5000 Punkte, Monatsverzeichnisse/live Poll/mobile; keine HTTP-Mocks |
-| Jahres-/Containerprobe | PASS lokal | 147 MB/24 Dateien, 48-MB-Datei/Append, begrenzte Jahres-API, RO-Mounts, Backup/Restore/Neustart mit gleichen Daten/CA/Sitzung und neuer periodischer Messung danach |
+| Umwelt/DB/API/Dateisync | PASS lokal | 66 Tests; echte PostgreSQL-Verbindungen, Batch-/Datei-QC, ACL/Cursor, zwei parallele Abfragen, gefülltes 003-Backup/Restore vor 004, Originalerhalt/atomare Kopien/periodische CLI |
+| Echter Browser | PASS lokal | CA-validiertes HTTPS/CSV-Watcher/PostgreSQL/FastAPI/ECharts; >5000 Werte, 7/30 Tage/Saison, vier tatsächliche Temperaturkanäle, drei normale Polls mit Zoom/Legende/Heap, echte DB-Unterbrechung und Wiederaufnahme |
+| Jahres-/Containerprobe | PASS lokal | 147-MB-Jahr/24 Dateien, 48-MB-Datei/Append, begrenzte API, RO-Mounts, Restore/Neustart/gleiche Historie und CA/Sitzung, neue periodische Werte nach DB-Neustart |
 | Bestehende Regressionen | PASS lokal | Stockkartenpersistenz/API/61 Sitzungsprüfungen, Host/PHP/LoRa/Wetter/Formatter und vier UI-Browsersuiten |
-| GitHub-CI / normaler Online-Imagebuild | NICHT GELAUFEN | GitHub-API-Proxy blockiert PR/Checks; Cloud-Build mit identischem Lock und validiertem Offline-Wheelkontext |
-| Physischer LAN-/Echtdaten-Feldtest | NICHT GELAUFEN | R11-A11 verlangt gesonderte Betreibererlaubnis und echte Geräte/CSV-Zuordnung |
-
-Commit- und Messzuordnung im Bericht. Keine Hardware-/Firmware-/Akkuänderung,
-kein HiL oder Produktionsrelease. Offene Risiken: tatsächliche Quellsemantik und
-Sonden-/Message-ID-Zuordnung, Jahres-/Mehrbenutzerbetrieb, Importlog-Aufbewahrung,
-ein App-Worker für lokalen Snapshotcache, Prefix-Hash weiterhin O(Dateigröße),
-explizite Umstellung alter Importer-Konfiguration. R2–R5/BEEP-/Volkdaten bleiben offen.
+| Unabhängige GitHub-CI/normaler Online-Imagebuild | NICHT GELAUFEN / blockiert | API-CONNECT 403 vor TLS; erwartete Workflows tests, stockkarte-fast, umwelt-r1 müssen auf endgültigem Commit tatsächlich grün werden |
+| ThinkStation/Laptop/Echtdaten | NICHT GELAUFEN | Separater physischer Abnahmeschritt, keine reale Freigabe |
 
 ## Manuelle Abnahme
 
-1. Diff/ADR/API-Vertrag und dokumentierte Test-SHAs prüfen; synthetischen eigenen
-   Loopback-Stack verwenden, Backup vor 004 separat wiederherstellen.
-2. Exakte IDs inventarisieren; zwei isolierte RO-Staging-Verzeichnisse und
-   separates Login einrichten. Beispiele enthalten absichtlich ungültige IDs 0.
-3. Alle Zeitfenster/Rohmodus, Temperaturmin/max/null/0, Wetter und Tiefen,
-   Standrechte, jüngsten Punkt und laufenden Poll prüfen.
-4. Monatswechsel/Append/Rename/Backfill und Neustart vergleichen. Bei Fehler
-   Importer stoppen, altes Image/alte Konfiguration nutzen und additive Daten
-   erhalten; keine Down-Migration/Volume-Löschung.
-5. Echte ThinkStation-/Laptop-Abnahme erst nach eigener ausdrücklicher Freigabe.
+1. Im eigenen synthetischen Teststack privaten Dump vor Migration/Quellumstellung
+   separat restoren; Roh-/Mess-/Stockkartenrevisionen, Benutzer und Checkpoints vergleichen.
+2. Tatsächliche IDs inventarisieren, zwei getrennte RO-Staging-Mounts und separates
+   Import-Login prüfen. Synchronisierung nur mit selbst erzeugten Quellen testen.
+3. Zeitfenster, Temperaturvorauswahl, zusätzliche Kanalwahl, Null/0/Lücke/QC und
+   jüngsten Wert vergleichen. Zoom/Legende über mehrere 30-s-Polls erhalten.
+4. Monatswechsel/Append/Rename/Backfill und Fehler/Wiederanlauf prüfen. Alle eigenen
+   Container sowie DB allein neu starten; gleiche Historie/Sitzung/CA und neue Werte.
+5. Bei Abweichung Importer/Publisher stoppen, bisheriges Image/Konfiguration nutzen,
+   additive Tabellen/Volumes und letzte Staging-Kopien erhalten. Keine Down-Migration,
+   Volume-Löschung oder Rückschreiben in Originale. Realer Anschluss separat freigeben.
 
-## Checkliste
+## Offene Bedingungen
 
-- [x] Geprüfte SHAs, PASS/Fehlläufe/offene Nachweise im Bericht getrennt.
-- [x] Neue Negativfälle, DB-/Browser-/Ressourcennachweise und Regressionen vorhanden.
-- [x] Zeit-/Daten-/API-Kompatibilität und kontrollierter DSN-Wechsel dokumentiert.
-- [x] Dokumentation, ADR, Befundregister und Changelog aktualisiert.
-- [x] Keine realen Quellen, Zugangsdaten, privaten Messlogs oder CA-Schlüssel in Git.
-- [x] Neue Python-/Shell-Dateien GPL-3.0-or-later; vorhandene Locks beibehalten.
-- [ ] Remote-CI nach tatsächlicher PR-Erstellung prüfen.
-- [ ] Betreiberabnahme des fertigen Entwicklungsstands; R11-A11 separat.
+- [x] Reproduzierbare rote Fälle, gezielte Korrekturen und lokale echte Softwaretests.
+- [x] Daten-/API-/Zeitkompatibilität, ursprüngliche Migrationen und Lizenzhinweise erhalten.
+- [x] Bericht, Befundregister, Betriebs-/Staging-Konzept und Changelog aktualisiert.
+- [x] Keine produktiven Daten, Zugangsdaten oder Test-CA-Schlüssel in Git.
+- [ ] Implementierungs-PR tatsächlich erstellen und Remote-CI auf finalem SHA prüfen.
+- [ ] Technische G1-Abnahme durch Betreiber nach unabhängigen Nachweisen.
+- [ ] Separater realer ThinkStation-/Laptop-Test und tatsächliche Quell-/Zeit-/Rechteprüfung.
 
-**Beanspruchter Freigabestand:** synthetisch geprüfter Entwicklungsstand,
-keine automatische Freigabe. **Kein Merge/Deployment.**
+Ein App-Worker/lokaler Snapshotcache; keine Produktions-/Mehrbenutzer- oder
+Langzeitlastzusage. Historische QC wird nicht still umgeschrieben. Sync kürzerer
+Korrekturen/Retention und reale Rechte bleiben eigene Betreiberentscheidungen.
+R2–R4/BEEP-/Volkdaten nicht begonnen. **Kein automatischer Merge/Deployment.**

@@ -1,0 +1,111 @@
+{
+  "scope": "Synthetic Cloud only; local results are not independent GitHub CI",
+  "baseline": "974c6c486a600c306aac7266d5fe1fbceedeaa32",
+  "unit": {
+    "commit": "6a8835144b557fa3479e2f5302b45be4d0d8c516",
+    "result": "PASS",
+    "count": 66,
+    "seconds": 24.854
+  },
+  "browser": {
+    "application_commit": "95c006252428f567204e82c19d446d1172cef139",
+    "test_commit": "837b7f23e3cef3c05b7925f8e6fd50ea07a966f9",
+    "result": "PASS",
+    "checks": [
+      "long-7d",
+      "long-30d",
+      "season-latest",
+      "raw-pages",
+      "free-window",
+      "rapid-change",
+      "apiary-switch",
+      "microsecond-order",
+      "live-poll",
+      "mobile",
+      "temperature-defaults",
+      "berlin-season-start",
+      "three-polls-same-instance",
+      "zoom-legend-retained",
+      "real-limit-error-recovery",
+      "dynamic-channel-add",
+      "actual-db-outage-recovery"
+    ],
+    "poll_heap_bytes": [
+      52866916,
+      49554760,
+      49668560
+    ],
+    "live_update_ms": 27655,
+    "browser": "155.0.8059.79",
+    "backup_restore": "PASS",
+    "migration_preserves_existing_revisions": true,
+    "https_ca_verified": true
+  },
+  "year": {
+    "commit": "6a8835144b557fa3479e2f5302b45be4d0d8c516",
+    "result": "PASS",
+    "synthetic": true,
+    "files": 24,
+    "records": {
+      "soil": 35040,
+      "weather": 8760
+    },
+    "bytes_before": 147310658,
+    "phases": {
+      "soil": {
+        "seconds": 12.602,
+        "report": {
+          "dateien": 12,
+          "datensaetze": 35040,
+          "ereignisse": 35040,
+          "neue_revisionen": 175200,
+          "fehler": [],
+          "fehler_anzahl": 0,
+          "unbekannte_spalten": [
+            "unknown_sensor"
+          ],
+          "unveraendert": false,
+          "partielles_ende": false
+        }
+      },
+      "weather": {
+        "seconds": 3.44,
+        "report": {
+          "dateien": 12,
+          "datensaetze": 8760,
+          "ereignisse": 8760,
+          "neue_revisionen": 87600,
+          "fehler": [],
+          "fehler_anzahl": 0,
+          "unbekannte_spalten": [],
+          "unveraendert": false,
+          "partielles_ende": false
+        }
+      },
+      "unchanged_seconds": 0.008,
+      "large_append": {
+        "bytes": 48007727,
+        "seconds": 3.351,
+        "records": 8500
+      },
+      "year_api": {
+        "seconds": 3.069,
+        "source_points": 130620,
+        "rendered_points": 13908,
+        "pages": 3,
+        "response_bytes": 9018323
+      }
+    },
+    "python_peak_rss_kib": 147296,
+    "postgres": "17.11 (Debian 17.11-0+deb13u1)",
+    "limits": "One year, two streams, temperature API subset. No multiuser/production throughput claim; PostgreSQL/Caddy RSS excluded."
+  },
+  "container": {
+    "application_commit": "95c006252428f567204e82c19d446d1172cef139",
+    "image": "sha256:1ecd9e3d6217d95326f1dfd7e3f1202dd10aec1b5c5ea093c505bf261f7550f7",
+    "result": "PASS",
+    "preserved_volumes": true,
+    "services_stopped": true
+  },
+  "independent_ci": "NOT RUN: GitHub API proxy CONNECT 403"
+}

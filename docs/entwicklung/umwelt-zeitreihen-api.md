@@ -89,3 +89,21 @@ zeigt keine unvollständigen Kurven als erfolgreichen Abruf an.
 ohne den neuen Snapshot-Vertrag. Neue Browserabfragen verwenden ausschließlich
 `/zeitreihen`. Limits sind kein Nachweis für Last-/Dauerbetrieb; R11-A10 und die
 getrennte tatsächliche Sensor-/LAN-Abnahme bleiben eigene Prüfgegenstände.
+
+## Stabilisierung 18.10.2026
+
+Pro App-Prozess werden höchstens zwei Diagrammverarbeitungen gleichzeitig
+zugelassen, einschließlich gecachter Seiten und Response-Abschluss. Weitere
+Anfragen erhalten HTTP 503 mit Wiederholhinweis. Die Semaphore wird auch bei
+Fehlern freigegeben; Session-/ACL-Prüfung bleibt die vorhandene Session-API.
+Das ergänzt den Cachedeckel, ersetzt keine globale DB-/HTTP-/RSS-Begrenzung.
+
+Die UI wählt tatsächliche Temperaturkanäle vor (höchstens 30), hält Zoom/Legende
+bei regulären Polls und erstellt bei bewusster Auswahländerung einen neuen
+Zustand. Saison startet an Berliner Mitternacht am Jahresbeginn; freie Fenster
+bleiben ausdrücklich UTC. Fehler entfernen eine scheinbar erfolgreiche alte
+Datenanzeige und nennen Wiederholung/Rechteprüfung oder kleinere Auswahl.
+
+Bei verlorener/abgewiesener Verbindung in der gemeinsamen Session-Prüfung erhält
+der Client HTTP 503 mit Retry-After 30 und einer Meldung ohne interne Details,
+statt eines ungefangenen Fehlers. Sitzung und Rechte werden dabei nicht verändert.

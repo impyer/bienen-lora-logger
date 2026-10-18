@@ -145,6 +145,22 @@ Die Auftragskennungen bleiben erhalten; kein tatsächlicher Feldnachweis aus syn
 | R1.1-05 | P2 | Manuelle Quell-/ID-Wechsel ohne Inventur/Diagnose | im Entwurf behoben | T1: nur lesende Inventur, wiederholbare Registrierung/harte Widerspruchsprüfung, ungültige Beispiel-IDs | lokale Betreiberprüfung tatsächlicher IDs/Zeitbasis/Quellen vor R11-A11 |
 | R1.1-06 | P2 | Importer erbt breite DB-/App-Konfiguration | im Entwurf behoben | T1/T2: separate reale Login-Verbindung, negative SQL-Rechte, Container ohne App-DSN/Sitzungsschlüssel | explizite BL_IMPORT_DSN-Umstellung im freigegebenen Teststack, kein automatisches Deployment |
 
+## R1.1-Stabilisierung 18.10.2026
+
+Auftrag T01–T10, Ausgangsstand 974c6c4. Nachweise und Beweisgrenzen:
+[Abschlussprüfung](2026-10-18-refactoring-r1-1-stabilisierung.md).
+
+| ID | Prio | Befund | Status | Nachweis / nächster Schritt |
+|---|---|---|---|---|
+| R11-S01 | P1 | Konflikt-QC fehlt über Batch-/Monatsgrenzen | im Entwurf behoben | T1/T2: rote Fälle, neue Revision mit QC, Idempotenz/Backfill/Originale; unabhängige CI offen |
+| R11-S02 | P1 | Gleichzeitige Snapshot-Aufbauten nicht begrenzt | im Entwurf behoben | Zwei zugelassene Verarbeitungen, reale SQL-Lock-Konkurrenz/503/Freigabe; kein globaler RSS-Nachweis |
+| R11-S03 | P1 | 17 Kanäle als Standard, unnötige unverdichtbare Reihen | im Entwurf behoben | Registerbasierter Temperaturüberblick, echter 7/30-Tage-/Saisonbrowser; optionale Kanalwahl erhalten |
+| R11-S04 | P1 | Zoom/Legende gehen beim regulären Poll verloren | im Entwurf behoben | Gleiche zwei ECharts-/DOM-Instanzen über drei echte Polls, Zoom/Legende/Heap geprüft |
+| R11-S05 | P1 | Saison beginnt eine Stunde nach Berliner Mitternacht | im Entwurf behoben | Roter echter Request und korrekter UTC-Start für Berliner Jahresgrenze; API-Offsets geprüft |
+| R11-S06 | P2 | Sichere Original→Staging-Bereitstellung noch ohne Teststrecke | im Entwurf behoben (nur synthetisch) | Reale Dateisync/CLI, atomare Kopien, Sync→PostgreSQL; neue reale Rechte/Originalpfade bleiben gesondert offen |
+| R11-S08 | P1 | Gemeinsamer Session-Principal liefert bei echter DB-Verbindungsunterbrechung HTTP 500 | im Entwurf behoben | Echter roter Browserlauf; enger 503-/Retry-After-Handler ohne Daten-/Rechteänderung, Wiederaufnahme separat geprüft |
+| R11-S07 | P1 | Implementierungs-PR/unabhängige CI fehlen; allgemeiner Workflow nur gegen main | im Entwurf teilweise behoben; CI/PR offen | R1-Branchfilter ergänzt, API-CONNECT 403 dokumentiert; G1/technischer Abschluss bis externem Nachweis blockiert |
+
 ## Prozess und Regelwerk
 
 | ID | Prio | Kurzbeschreibung | Status | Höchster Nachweis | Gesperrtes Gate / nächster Schritt | Quellen |

@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-18 – R1.1-Stabilisierung und Abschlussnachweise
+
+- Konflikt-QC über Batch-/Monatsgrenzen, höchstens zwei parallele Diagrammverarbeitungen, registerbasierter Temperaturüberblick und Zoom-/Legendenzustand bei regulären Polls. Saisonbeginn an Berliner Mitternacht korrigiert.
+- Synthetischer Staging-Publisher mit atomaren vollständigen Kopien, Wiederanlauf/Audit, geschütztem Ziel und Schutz der letzten Kopie bei unerwarteter Kürzung. Keine reale Datenanbindung oder neue Produktivberechtigung.
+- Neue echte DB-/Datei-/Browser-Regressionsfälle, drei normale Polls mit Heapmessung, tatsächliche DB-Unterbrechung und Wiederaufnahme. Gemeinsame DB-Verbindungsfehler liefern 503/Retry-After statt ungefangenem 500. R1-PR-Branchfilter korrigiert. Lokale Nachweise und verbleibender GitHub-API-/CI-Blocker im neuen Bericht; kein technischer Abschluss, Merge oder Deployment behauptet.
+
 ## 2026-10-17 – R1.1: synthetisch geprüfte Zeitreihen und Monatsarchive
 
 - Vollständiges Snapshot-Paging und serverseitige Auswahl realer Extrema/Null-/Lückengrenzen; Roh-API erhalten, Standrechte je Seite, tatsächliche Kanalfilter und Request-Abbruch im Browser.

@@ -135,3 +135,20 @@ Datenrücksprung ausschließlich kontrollierten Restore in neue DB planen.
 Zustimmung zu diesem Entwurf erlaubt nur synthetische Implementierung/Prüfung.
 Die fertige PR bleibt zur separaten Abnahme offen. R11-A11 (echter Laptop/ThinkStation/
 reale Dateien), Last-/Betriebsfreigabe und R2–R5 werden dadurch nicht nachgewiesen.
+
+## Ergänzung 18.10.2026 – synthetischer Publisher
+
+Der ausdrückliche Abschlussauftrag erlaubt die sichere Umsetzung der Kopierstrecke
+zunächst mit synthetischen Verzeichnissen ohne neue produktive Rechte. Dafür
+ist ein separater hostseitiger `sync-synthetic`-Publisher ergänzt, ohne DB-/
+Session-/Netzwerkzugang und ohne automatischen Dienststart. Er verwendet die
+bestehende enge Quellauswahl/CSV-Prüfung und publiziert vollständige Kopien mit
+Hash/Metadatenprüfung und atomarem Staging-Rename. Die Betreiberdeklaration
+synthetischer Identitäten ist keine Berechtigung für echte Originaldateien.
+
+[Konzept, Grenzen und offene reale Entscheidungen](../umwelt-staging-sync.md):
+keine Löschung alter Monate, Abbruch bei unerwarteter Kürzung, keine Hardlinks/
+Symlinks, geschütztes Staging, begrenzte Dateiverarbeitung und private Auditfolge.
+Audit und Rename sind keine gemeinsame Transaktion; nächster Hashabgleich
+klärt einen unterbrochenen Prepared-Zustand. Keine Migration 003/004 verändert.
+Die frühere Freigabe wird dadurch nicht auf echte Quellen/ThinkStation erweitert.

@@ -1,5 +1,12 @@
 # R1.1: isolierte Monatsarchive und Abnahme
 
+Aktuelle [Stabilisierung vom 18.10.2026](../testberichte/2026-10-18-refactoring-r1-1-stabilisierung.md):
+Temperaturvorauswahl, erhaltener Zoom/Legende, zwei zugelassene Diagrammabfragen
+und [ausschließlich synthetischer Staging-Publisher](umwelt-staging-sync.md).
+Unabhängige CI/Implementierungs-PR weiterhin blockiert; keine technische
+Abnahmereife ohne diesen Nachweis. Historische Messzahlen unten bleiben ihrer
+jeweiligen Prüfbasis zugeordnet.
+
 D2, T0/T1/T2/T3, Entwicklungs-Gate G1. Aufbauend auf R1 `91284796`;
 [ADR-0005](entscheidungen/ADR-0005-umweltarchive-und-langzeitreihen.md) wurde
 am 17.10.2026 ausdrücklich **für synthetische Tests** angenommen. Keine
