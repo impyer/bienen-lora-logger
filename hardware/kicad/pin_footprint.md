@@ -2,7 +2,7 @@
 
 Erzeugt von `werkzeug/pin_footprint.py` aus den Generatoren; nicht von Hand ändern. Kennzeichnung: [V] in dieser Prüfung im Datenblatt gelesen, [V*] früher gelesen (Symbolkommentar), [A] Konvention/Annahme, [P] vor der Bestellung prüfen.
 
-Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
+Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 
 | Ref. | Platine | Blatt | Wert | Footprint | Footprint-Prüfung | Datenblatt-Prüfung | Quelle |
 |---|---|---|---|---|---|---|---|
@@ -32,6 +32,9 @@ Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | C311 | Haupt | MCU | 18p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C312 | Haupt | MCU | 8,2p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C313 | Haupt | MCU | 8,2p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C314 | Haupt | MCU | 10µ 6,3V X5R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C315 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C316 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C401 | Haupt | Funk + Flash | 100µ 6,3V X5R | `C_1210_3225Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C402 | Haupt | Funk + Flash | 10µ 10V X5R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C403 | Haupt | Funk + Flash | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -65,6 +68,11 @@ Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | C622 | Haupt | Mikrofon | 100p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C623 | Haupt | Mikrofon | 100p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C624 | Haupt | Mikrofon | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C625 | Haupt | Mikrofon | 1µ X7R | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C626 | Haupt | Mikrofon | 1µ X7R | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C627 | Haupt | Mikrofon | 100p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C628 | Haupt | Mikrofon | 100p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C629 | Haupt | Mikrofon | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C801 | Haupt | Akku | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C802 | Haupt | Akku | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C803 | Haupt | Akku | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -76,6 +84,7 @@ Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | D401 | Haupt | Funk + Flash | TVS 3,3V | `D_SOD-523` | Pads = Pins (2) | [P] 2 Pins = Datenblatt | Teil offen; Pad 1 = Kathode bei unidirektionaler TVS, an +3V3 |
 | D501 | Haupt | Waage | TPD4E05U06DQAR | `USON-10_2.5x1.0mm_P0.5mm` | Pads = Pins (10) | [V] 10 Pins = Datenblatt | TI TPD4E05U06 Tab. 4-2 (DQA) |
 | D601 | Haupt | Mikrofon | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
+| D602 | Haupt | Mikrofon | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
 | D701 | Haupt | Anschlüsse | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
 | D702 | Haupt | Anschlüsse | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
 | FB301 | Haupt | MCU | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -85,23 +94,25 @@ Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | FB602 | Haupt | Mikrofon | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | J201 | Haupt | Versorgung | Solar 1 | `DEGSON_15EDGRC-3.5-02P` | Pads = Pins (2); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J202 | Haupt | Versorgung | Solar 2 | `DEGSON_15EDGRC-3.5-02P` | Pads = Pins (2); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
-| J301 | Haupt | MCU | USB-C | `USB_C_Receptacle_HRO_TYPE-C-31-M-12` | Pads = Pins (17) | [A] | KiCad-Symbol mit HRO-Footprint (Pads geprüft) |
+| J301 | Haupt | MCU | Laden 5 V | `PinHeader_1x02_P2.54mm_Vertical` | Pads = Pins (2) | passiv/Stecker | – |
 | J302 | Haupt | MCU | Debug (SWD + Serial1) | `PinHeader_1x07_P2.54mm_Vertical` | Pads = Pins (7) | passiv/Stecker | – |
 | J501 | Haupt | Waage | Wägezelle | `DEGSON_15EDGRC-3.5-05P` | Pads = Pins (5); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
-| J601 | Haupt | Mikrofon | Mikrofone | `RJ45_RCH_RC01937` | Pads = Pins (9); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | [A] [P] 9 Pins = Datenblatt | RJ45 8P8C, Kontakte 1–8 nach IEC 60603-7, SH = Schirmblech; Footprint RCH RC01937 (KiCad, LCSC-Datenblatt) – Teil wählt der Layouter |
+| J601 | Haupt | Mikrofon | Mikrofone 1–3 | `RJ45_RCH_RC01937` | Pads = Pins (9); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | [A] [P] 9 Pins = Datenblatt | RJ45 8P8C, Kontakte 1–8 nach IEC 60603-7, SH = Schirmblech; Footprint RCH RC01937 (KiCad, LCSC-Datenblatt) – Teil wählt der Layouter |
 | J701 | Haupt | Anschlüsse | DS18B20 Nr. 1 | `DEGSON_15EDGRC-3.5-03P` | Pads = Pins (3); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J702 | Haupt | Anschlüsse | DS18B20 Nr. 2 | `DEGSON_15EDGRC-3.5-03P` | Pads = Pins (3); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J703 | Haupt | Anschlüsse | BME280 | `DEGSON_15EDGRC-3.5-06P` | Pads = Pins (6); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J704 | Haupt | Anschlüsse | Erweiterung | `PinHeader_2x06_P2.54mm_Vertical` | Pads = Pins (12) | passiv/Stecker | – |
 | J801 | Haupt | Akku | Strommessung | `PinHeader_1x02_P2.54mm_Vertical` | Pads = Pins (2) | passiv/Stecker | – |
+| JP301 | Haupt | MCU | BLE dauernd | `SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm` | Pads = Pins (2) | passiv/Stecker | – |
 | JP401 | Haupt | Funk + Flash | TXEN | `SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm` | Pads = Pins (2) | passiv/Stecker | – |
 | JP402 | Haupt | Funk + Flash | RXEN | `SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm` | Pads = Pins (2) | passiv/Stecker | – |
 | JP801 | Haupt | Akku | Messbrücke B+ | `SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm` | Pads = Pins (2) | passiv/Stecker | – |
 | L501 | Haupt | Waage | 1µ | `L_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| Q501 | Haupt | Waage | S8550 | `SOT-23` | Pads = Pins (3) | [A] [P] 3 Pins = Datenblatt | S8550 SOT-23 (C397181): 1 B, 2 E, 3 C – je Hersteller verschieden |
-| Q801 | Haupt | Akku | FS8205 | `SOT-23-6` | Pads = Pins (6) | [V*] 6 Pins = Datenblatt | Fortune FS8205 (LCSC C32254), Abschnitt 4 |
-| Q802 | Haupt | Akku | AO3400A | `SOT-23` | Pads = Pins (3) | [A] [P] 3 Pins = Datenblatt | AOS AO3400A SOT-23: 1 G, 2 S, 3 D |
-| Q803 | Haupt | Akku | AO3400A | `SOT-23` | Pads = Pins (3) | [A] [P] 3 Pins = Datenblatt | AOS AO3400A SOT-23: 1 G, 2 S, 3 D |
+| Q301 | Haupt | MCU | AO3401A | `SOT-23` | Pads = Pins (3) | [V] 3 Pins = Datenblatt | AOS AO3401A Rev. 3.1 (12/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D |
+| Q501 | Haupt | Waage | S8550 | `SOT-23` | Pads = Pins (3) | [A] [P] 3 Pins = Datenblatt | S8550 SOT-23: KiCad-Symbol = Fairchild SS8550 (1 B, 2 E, 3 C); AnBon-Datenblatt zu C397181 zeigt kein Pinbild (18.10.2026) – Teil mit 1 B, 2 E, 3 C wählen oder Symbol anpassen |
+| Q801 | Haupt | Akku | FS8205 | `SOT-23-6` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | Fortune FS8205 Rev. 1.7, Abschnitt 4 Pin Assignment (18.10.2026 gelesen): 1 S1, 2 D12, 3 S2, 4 G2, 5 D12, 6 G1 |
+| Q802 | Haupt | Akku | AO3400A | `SOT-23` | Pads = Pins (3) | [V] 3 Pins = Datenblatt | AOS AO3400A Rev. 3.1 (07/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D |
+| Q803 | Haupt | Akku | AO3400A | `SOT-23` | Pads = Pins (3) | [V] 3 Pins = Datenblatt | AOS AO3400A Rev. 3.1 (07/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D |
 | R201 | Haupt | Versorgung | 3,3M | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R202 | Haupt | Versorgung | 470k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R203 | Haupt | Versorgung | 2,0k 1% | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -113,12 +124,12 @@ Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | R209 | Haupt | Versorgung | 0 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R301 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R302 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R303 | Haupt | MCU | 5,1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R304 | Haupt | MCU | 5,1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R305 | Haupt | MCU | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R306 | Haupt | MCU | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R307 | Haupt | MCU | 33k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R308 | Haupt | MCU | 82k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R309 | Haupt | MCU | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R310 | Haupt | MCU | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R311 | Haupt | MCU | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R312 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R401 | Haupt | Funk + Flash | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R402 | Haupt | Funk + Flash | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R403 | Haupt | Funk + Flash | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -142,6 +153,8 @@ Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | R611 | Haupt | Mikrofon | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R612 | Haupt | Mikrofon | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R613 | Haupt | Mikrofon | 22 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R614 | Haupt | Mikrofon | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R615 | Haupt | Mikrofon | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R701 | Haupt | Anschlüsse | 4,7k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R702 | Haupt | Anschlüsse | 1,8k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R703 | Haupt | Anschlüsse | 1,8k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -164,16 +177,16 @@ Ergebnis: 172 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | U202 | Haupt | Versorgung | RT9080-33GJ5 | `TSOT-23-5` | Pads = Pins (5) | [V*] 5 Pins = Datenblatt | Richtek DS9080 (TSOT-23-5) |
 | U203 | Haupt | Versorgung | TPS22917DBV | `SOT-23-6` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | TI SLVSDW8B Tab. 6-1 (DBV) |
 | U204 | Haupt | Versorgung | TPS70933DBV | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI SBVS186 Tab. 5-1, Spalte TPS709 DBV |
-| U301 | Haupt | MCU | STM32F411CEU6 | `QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm` | Pads = Pins (49) | [A] | ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinbelegung mcu-funk.md 4 |
-| U302 | Haupt | MCU | USBLC6-2SC6 | `SOT-23-6` | Pads = Pins (6) | [A] [P] 6 Pins = Datenblatt | ST USBLC6-2 (SOT23-6L); Download hier gescheitert |
+| U301 | Haupt | MCU | STM32F411CEU6 | `QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm` | Pads = Pins (49) | [V] | ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinfunktionen gegen ST open pin data STM32F411C(C-E)Ux.xml geprüft (18.10.2026): USART6 PA11/PA12, I2S3 PB12/PA15/PB5, SPI1 PA4–PA7, I2C1 PB6/PB7, USART1 PA9/PA10, ADC1_IN8/9 PB0/PB1, WKUP PA0, SWD PA13/PA14, OSC32 PC14/PC15 |
+| U303 | Haupt | MCU | RN4871-I/RM130 | `Microchip_RN4871` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | Microchip DS50002489D Tab. 1-2 (Spalte RN4871) und Fig. 5-4; Footprint nach Fig. 4-7/4-8/4-9 [V], gegen LCSC/EasyEDA C633942 gegenprüfen [P] |
 | U401 | Haupt | Funk + Flash | Ra-01SH | `Ai-Thinker_Ra-01SH` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | Ai-Thinker Ra-01SH Specification V1.1 (2020-08-18), S. 11 |
 | U402 | Haupt | Funk + Flash | 64 Mbit SOIC-8 208 mil | `SOIC-8_5.3x5.3mm_P1.27mm` | Pads = Pins (8) | [A] [P] 8 Pins = Datenblatt | Standard-Pinbelegung 25er-SPI-Flash SOIC-8 (XT25F64B / ZD25Q64D) – je Teil prüfen |
 | U501 | Haupt | Waage | TPS61240DRVR | `WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm` | Pads = Pins (7) | [V] 7 Pins = Datenblatt | TI SLVS806D Pin Functions (WSON) |
 | U502 | Haupt | Waage | HX711 | `SOIC-16_3.9x9.9mm_P1.27mm` | Pads = Pins (16) | [V] 16 Pins = Datenblatt | AVIA HX711 (engl. Datenblatt, SparkFun-Kopie), Pin-Tabelle; SOP-16L 3,9 × 9,9 mm |
 | U601 | Haupt | Mikrofon | TLV320ADC3101IRGET | `VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm` | Pads = Pins (25) | [V] 25 Pins = Datenblatt | TI SLAS553B Abschnitt 7 (RGE, VQFN-24); Thermal-Pad an AVSS |
 | U602 | Haupt | Mikrofon | TPS70918DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI SBVS186 Tab. 5-1, Spalte TPS709 DBV |
-| U603 | Haupt | Mikrofon | 74LVC1G17GW | `SOT-353_SC-70-5` | Pads = Pins (5) | [A] [P] 5 Pins = Datenblatt | KiCad-Symbol = übliche DCK-Belegung (SC-70-5): 1 NC, 2 A, 3 GND, 4 Y, 5 VCC; Datenblatt des gewählten Herstellers prüfen |
-| U801 | Haupt | Akku | HY2111-GB | `SOT-23-6` | Pads = Pins (6) | [V*] 6 Pins = Datenblatt | HYCON HY2111 (LCSC C82747), Abschnitt 7 |
+| U603 | Haupt | Mikrofon | 74LVC1G17GW | `SOT-353_SC-70-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI SN74LVC1G17 SCES??? Pin Functions, DCK (SC-70-5): 1 NC, 2 A, 3 GND, 4 Y, 5 VCC (18.10.2026 gelesen); Nexperia 74LVC1G17GW gleich belegt [A] |
+| U801 | Haupt | Akku | HY2111-GB | `SOT-23-6` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | HYCON DS-HY2111-V17, Abschnitt 7 (18.10.2026 gelesen): 1 OD, 2 CS, 3 OC, 4 NC, 5 VDD, 6 VSS |
 | U802 | Haupt | Akku | TMP390A2DRL | `SOT-563` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | TI SBOS904A Pin Functions (DRL) |
 | U803 | Haupt | Akku | TMP390A2DRL | `SOT-563` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | TI SBOS904A Pin Functions (DRL) |
 | Y301 | Haupt | MCU | 25MHz 12pF | `Crystal_SMD_3225-4Pin_3.2x2.5mm` | Pads = Pins (4) | [A] [P] 4 Pins = Datenblatt | YXC X322525MOB4SI 3225-4: 1/3 Quarz, 2/4 Gehäuse |

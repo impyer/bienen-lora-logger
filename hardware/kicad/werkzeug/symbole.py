@@ -127,6 +127,20 @@ SYMBOLE = [
        fp="Bienen:Ai-Thinker_Ra-01SH",
        ds="https://docs.ai-thinker.com/en/lora",
        info="LoRa-Modul 868 MHz, SPI; DIO2 schaltet laut Drittquelle den HF-Schalter; Antenne über IPEX, Pin ANT ohne Leiterbahn"),
+    # Microchip RN4871 (BLE 5.0, Chip-Antenne, 16 Stempelpads, 9 × 11,5 mm). Quelle: Microchip DS50002489D,
+    # Tab. 1-2 (Spalte RN4871) und Fig. 5-4 [V]: 1 NC, 2 GND, 3 P1_2, 4 P1_3, 5 P1_7, 6 P1_6, 7 UART_RX, 8 UART_TX,
+    # 9 P3_6, 10 RST_N, 11 P0_0, 12 P0_2, 13 GND, 14 VBAT, 15 P2_7, 16 P2_0. HW-09 (18.10.2026).
+    ic("RN4871", "U",
+       links=[("14", "VBAT", "power_in"), ("10", "RST_N", "input"), ("7", "UART_RX", "input"), ("8", "UART_TX", "output"),
+              ("16", "P2_0", "input"), ("6", "P1_6", "bidirectional")],
+       rechts=[("3", "P1_2", "bidirectional"), ("4", "P1_3", "bidirectional"), ("5", "P1_7", "bidirectional"),
+               ("9", "P3_6", "bidirectional"), ("11", "P0_0", "bidirectional"), ("12", "P0_2", "bidirectional"),
+               ("15", "P2_7", "output"), ("1", "NC", "no_connect")],
+       unten=[("2", "GND", "power_in"), ("13", "GND", "passive")],
+       fp="Bienen:Microchip_RN4871",
+       ds="https://ww1.microchip.com/downloads/en/DeviceDoc/RN4870-71-Bluetooth-Low-Energy-Module-Data-Sheet-DS50002489D.pdf",
+       info="BLE-5.0-Modul mit Chip-Antenne, ASCII-Befehle und Transparent-UART; 1,9–3,6 V, TX/RX 10 mA, Abschaltung 1–2,9 µA; "
+            "P2_0 high = Anwendung, low = Testmodus (Firmware-Update); RST_N intern hochgezogen; -I: −40 … +85 °C"),
     # TI TPS61240, WSON-6 2 × 2 mm (DRV) + Thermal-Pad: 1 GND, 2 VOUT, 3 FB, 4 EN, 5 L, 6 VIN.
     # Quelle: TI-Datenblatt TPS6124x, Abschnitt 6 Pin Functions [V]; Pad laut Gehäusezeichnung verlöten, an GND [A]
     ic("TPS61240", "U",

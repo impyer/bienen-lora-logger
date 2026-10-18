@@ -46,6 +46,17 @@ class Fp:
         self.teile.append('\t(fp_circle (center %s %s) (end %s %s) (stroke (width %s) (type solid)) (fill %s) (layer "%s"))'
                           % (f(x), f(y), f(x + r), f(y), f(breite), "yes" if fuellen else "no", lage))
 
+    def sperrzone(self, name, lagen, punkte):
+        """Kupfer-Sperrzone (keine Leiterbahnen, Vias, Pads, Flächen) als Polygon; lagen z. B. '"*.Cu"' oder '"F.Cu"'."""
+        pts = " ".join("(xy %s %s)" % (f(x), f(y)) for x, y in punkte)
+        self.teile.append('	(zone (net 0) (net_name "") (layers %s) (name "%s") (hatch edge 0.5) '
+                          '(keepout (tracks not_allowed) (vias not_allowed) (pads not_allowed) (copperpour not_allowed) '
+                          '(footprints allowed)) (polygon (pts %s)))' % (lagen, name, pts))
+
+    def freitext(self, wert, x, y, lage):
+        self.teile.append('	(fp_text user "%s" (at %s %s 0) (layer "%s") (effects (font (size 0.8 0.8) (thickness 0.12))))'
+                          % (wert, f(x), f(y), lage))
+
     def text(self, art, wert, x, y, lage):
         self.teile.append('\t(property "%s" "%s" (at %s %s 0) (layer "%s") (effects (font (size 1 1) (thickness 0.15))))'
                           % (art, wert, f(x), f(y), lage))
@@ -105,6 +116,48 @@ def ra01sh():
     fp.kreis("F.SilkS", -9.8, -7.0, 0.2, 0.12, fuellen=True)      # Pin-1-Punkt außerhalb des Pads
     fp.rechteck("F.CrtYd", -10.25, -8.95, 10.25, 8.95, 0.05)
     fp.schreibe(-9.8, 9.8)
+
+
+def rn4871():
+    """Microchip RN4871 (BLE-Modul mit Chip-Antenne), 16 Stempelpads, Modul 9,0 × 11,5 mm. Quelle: Microchip DS50002489D,
+    Fig. 4-7 (Maße, Padpositionen) und Fig. 4-8 (empfohlener Footprint, Sperrflächen) [V]: Padmitten links x = 0 bei
+    y = 6,7/5,5/4,3/3,1/1,9 (Pins 1–5 von oben), unten y = 0 bei x = 1,5/2,7/3,9/5,1/6,3/7,5 (Pins 6–11 von links),
+    rechts x = 9,0 bei y = 1,9 … 6,7 (Pins 12–16 von unten); Raster 1,2 mm; Modulpad 0,7 × 1,0 mm. Empfohlener Footprint
+    Fig. 4-8 [V]: Pads 0,7 × 1,5 mm, 0,5 mm über die Modulkante hinaus. Sperrflächen für Kupfer auf der Oberseite
+    (Testpunkte, Fig. 4-8 [V]): x 1,0 … 3,0 / y 4,6 … 7,5 und x 4,3 … 8,0 / y 1,5 … 7,0. Antenne oben (y 7,5 … 11,5): keine
+    Kupferfläche auf allen Lagen; Fig. 4-9 [V] zeigt die empfohlene Montage mit dem Antennenteil ÜBER der Kante der
+    Trägerplatine (Platinenkante bei y = 7,5), Massefläche bis an die Modulseiten. Sperrzone hier 1 mm über die Modulbreite
+    und die Oberkante hinaus [A]. Metall ≥ 30 mm von der Antenne (Datenblatt 4.3). Vor der Bestellung gegen den
+    LCSC/EasyEDA-Footprint zu C633942 gegenprüfen [P]. Ursprung = Modulmitte, Pin 1 oben links (neben der Antenne)."""
+    fp = Fp("Microchip_RN4871", "Microchip RN4871 BLE module 9x11.5mm, 16 castellated pads P1.2mm, chip antenna at top "
+            "overhanging the board edge (DS50002489D Fig. 4-7/4-8/4-9)", "BLE RN4871 Microchip Bluetooth")
+    cx, cy = 4.5, 5.75                                   # Datenblattkoordinaten → Ursprung Modulmitte, y nach unten
+
+    def k(x, y):
+        return (x - cx, cy - y)
+
+    ys = (6.7, 5.5, 4.3, 3.1, 1.9)
+    for i, y in enumerate(ys):                           # 1–5 links von oben
+        fp.pad_smd(str(1 + i), *k(0.25, y), 1.5, 0.7)
+    for i, x in enumerate((1.5, 2.7, 3.9, 5.1, 6.3, 7.5)):   # 6–11 unten von links
+        fp.pad_smd(str(6 + i), *k(x, 0.25), 0.7, 1.5)
+    for i, y in enumerate(reversed(ys)):                 # 12–16 rechts von unten
+        fp.pad_smd(str(12 + i), *k(8.75, y), 1.5, 0.7)
+    fp.rechteck("F.Fab", *k(0, 11.5), *k(9.0, 0), 0.1)
+    fp.linie("F.Fab", *k(0, 7.5), *k(9.0, 7.5), 0.1)                  # Grenze zum Antennenteil = empfohlene Platinenkante (Fig. 4-9)
+    fp.linie("User.1", *k(-2.0, 7.5), *k(11.0, 7.5), 0.15)              # Hinweislinie: Platinenkante hier (Antenne ragt heraus)
+    fp.freitext("Antenne", *k(4.5, 9.5), "F.Fab")
+    fp.kreis("F.Fab", *k(1.2, 6.7), 0.15, 0.1)
+    fp.linie("F.SilkS", *k(-0.12, 11.62), *k(9.12, 11.62), 0.12)     # Oberkante (Antennenseite)
+    fp.linie("F.SilkS", *k(-0.12, 11.62), *k(-0.12, 7.6), 0.12)
+    fp.linie("F.SilkS", *k(9.12, 11.62), *k(9.12, 7.6), 0.12)
+    fp.kreis("F.SilkS", *k(-0.9, 6.7), 0.12, 0.12, fuellen=True)       # Pin-1-Punkt
+    fp.rechteck("F.CrtYd", *k(-0.75, 12.0), *k(9.75, -0.75), 0.05)
+    # Sperrzonen (KiCad-Footprint-Zonen): Antenne auf allen Kupferlagen, Testpunktbereich nur oben
+    fp.sperrzone("Antenne", '"*.Cu"', [k(-1.0, 12.5), k(10.0, 12.5), k(10.0, 7.5), k(-1.0, 7.5)])
+    fp.sperrzone("Testpunkte_links", '"F.Cu"', [k(1.0, 7.5), k(3.0, 7.5), k(3.0, 4.6), k(1.0, 4.6)])
+    fp.sperrzone("Testpunkte_rechts", '"F.Cu"', [k(4.3, 7.0), k(8.0, 7.0), k(8.0, 1.5), k(4.3, 1.5)])
+    fp.schreibe(-7.0, 7.0)
 
 
 def degson_15edgrc(n):
@@ -180,6 +233,7 @@ def main():
     ltst_s220()
     bq25185_dlh()
     ra01sh()
+    rn4871()
     for n in (2, 3, 4, 5, 6):
         degson_15edgrc(n)
     import shutil

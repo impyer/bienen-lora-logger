@@ -3,8 +3,10 @@
 # Copyright (C) 2026 Philipp Schnabel
 """Schaltplan der Hauptplatine (KiCad-Projekt hardware/kicad/hauptplatine/), Blätter je Block.
 
-Stand 14.10.2026: alle Blätter im Entwurf: „Versorgung“, „MCU“, „Funk + Flash“, „Waage“, „Mikrofon“, „Anschlüsse“, „Akku“
+Stand 18.10.2026: alle Blätter im Entwurf: „Versorgung“, „MCU“, „Funk + Flash“, „Waage“, „Mikrofon“, „Anschlüsse“, „Akku“
 (HW-06: Zelle und Zellschutz auf der Hauptplatine, Akku-Platine entfällt); Netze zwischen den Blättern sind globale Labels.
+HW-09 (18.10.2026): BLE-Modul RN4871 an USART6 (PA11/PA12) statt USB-Daten; USB-C-Buchse entfällt (Philipp), Laden am Tisch
+über zwei Lötpads J301 (5 V → D203 → Ladereingang).
 
 Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7, mcu-funk.md, waage.md, mikrofon.md.
 Aufruf: python3 hardware/kicad/hauptplatine.py
@@ -31,7 +33,8 @@ def klemme(n):
 
 # Netze, die zu anderen (noch folgenden) Blättern gehen
 SCHNITTSTELLEN = {
-    "VBUS",        # USB-C (Blatt MCU) → Diode → Ladereingang
+    "VBUS",        # Ladepads J301 (Blatt MCU) → Diode D203 → Ladereingang
+    "BLE_RXD", "BLE_TXD", "BLE_MODE",   # HW-09: Modul-UART und Modus des RN4871 (Blatt MCU) auch an J704 Pin 9–11
     "ADC_SOLAR",   # PB1
     "ADC_AKKU",    # Akkuteiler → ADC (Pin auf Blatt MCU)
     "SENSOR_EIN",  # PA1 → ON des TPS22917 (HW-07: vorher PB5)
@@ -55,7 +58,7 @@ def zeichne_versorgung(b, T):
     yv = 76.2                        # obere Schiene VIN_LADER / SYS
     y3 = 180.34                      # untere Schiene SYS / +3V3 / 3V3_SW
 
-    b.text("1  Solar und USB → Schottky-Dioden → VIN_LADER (TVS, Messung der Eingangsspannung)", 30.48, 55.88, 2.0)
+    b.text("1  Solar und Ladepads (5 V) → Schottky-Dioden → VIN_LADER (TVS, Messung der Eingangsspannung)", 30.48, 55.88, 2.0)
     b.text("2  Laderegler BQ25185: 4,1 V, 150 mA; CE und TS kommen von der Ladesperre (Blatt Akku)", 152.4, 63.5, 2.0)
     b.text("3  Zum Blatt Akku: VBAT, CE_LADEN, NTC, TMP_VCC", 175.26, 124.46, 2.0)
     b.text("4  SYS → 3,3 V (RT9080) → geschaltete Sensorschiene 3V3_SW (TPS22917, Ein/Aus von der MCU)", 152.4, 215.9, 2.0)
@@ -175,16 +178,17 @@ STM32_FP = "Package_DFN_QFN:QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm"
 
 
 def mcu(p):
-    """Blatt MCU (mcu-funk.md 1, 3.3, 4): STM32F411CEU6, Takt, Reset/BOOT, USB-C, Debug, Magnet/Taster, LED."""
-    b = p.blatt("MCU", "mcu.kicad_sch", titel="MCU: STM32F411CEU6, Takt, USB-C, Debug, Magnet und LED")
+    """Blatt MCU (mcu-funk.md 1, 1.6, 3.3, 4): STM32F411CEU6, Takt, Reset/BOOT, Ladepads, Debug, Magnet/Taster, LED,
+    BLE-Modul RN4871 (HW-09)."""
+    b = p.blatt("MCU", "mcu.kicad_sch", titel="MCU: STM32F411CEU6, Takt, Ladepads, BLE RN4871, Debug, Magnet und LED")
     pins = {"VDD": "+3V3", "VBAT": "+3V3", "VDDA": "VDDA", "VSS": "GND", "VSSA": "GND", "VCAP1": "VCAP",
             "NRST": "NRST", "BOOT0": "BOOT0", "PH0": "HSE_IN", "PH1": "HSE_OUT", "PC14": "LSE_IN", "PC15": "LSE_OUT",
             "PC13": "LED", "PA0": "WAKE", "PA1": "SENSOR_EIN", "PA2": "LORA_DIO1", "PA3": "LORA_BUSY", "PA4": "LORA_NSS",
             "PA5": "SPI_SCK", "PA6": "SPI_MISO", "PA7": "SPI_MOSI", "PA8": "ONEWIRE", "PA9": "DBG_TX", "PA10": "DBG_RX",
-            "PA11": "USB_DM", "PA12": "USB_DP", "PA13": "SWDIO", "PA14": "SWCLK", "PA15": "I2S_WS",
+            "PA11": "USART6_TX", "PA12": "USART6_RX", "PA13": "SWDIO", "PA14": "SWCLK", "PA15": "I2S_WS",
             "PB0": "ADC_AKKU", "PB1": "ADC_SOLAR", "PB2": "BOOT1", "PB3": "FLASH_CS", "PB4": "LORA_RST",
             "PB5": "I2S_SD", "PB6": "I2C_SCL", "PB7": "I2C_SDA", "PB8": "HX_DOUT", "PB9": "HX_SCK", "PB10": "WAAGE_EIN",
-            "PB12": "I2S_CK", "PB13": "VBUS_SENSE", "PB14": "LORA_TXEN", "PB15": "LORA_RXEN"}
+            "PB12": "I2S_CK", "PB13": "BLE_EIN", "PB14": "LORA_TXEN", "PB15": "LORA_RXEN"}
     netze = {}
     for nr, name, *_r in pins_von_lib("MCU_ST_STM32F4:STM32F411CEUx"):
         netze[nr] = pins[name]
@@ -205,7 +209,7 @@ def mcu(p):
     b.teil("Switch:SW_Push", "SW301", "Reset", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "GND", "2": "NRST"})
     b.teil("Device:R", "R301", "10k", fp=R0603, netze={"1": "BOOT0", "2": "GND"})
     b.teil("Switch:SW_Push", "SW302", "BOOT", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "+3V3", "2": "BOOT0"},
-           info="gedrückt halten + Reset → USB-DFU")
+           info="gedrückt halten + Reset → ROM-Bootloader über USART1 an J302 (kein USB mehr, HW-09)")
     b.teil("Device:R", "R302", "10k", fp=R0603, netze={"1": "GND", "2": "BOOT1"}, info="PB2/BOOT1 nach GND")
     # Takt
     b.teil("Device:Crystal_GND24", "Y301", "25MHz 12pF", fp="Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm", lcsc="C9006",
@@ -226,21 +230,40 @@ def mcu(p):
     b.teil("Device:LED", "D301", "LTST-S220KGKT", fp="Bienen:LED_Lite-On_LTST-S220_SideView", lcsc="C160469",
            netze={"A": "LED_A", "K": "LED"},
            info="Lite-On, seitlich abstrahlend, grün (AlInGaP 574 nm), am Rand vor dem Lichtleiter; mit 1 kΩ ca. 1,3 mA – Helligkeit am Muster prüfen [P]")
-    # USB-C
-    b.teil("Connector:USB_C_Receptacle_USB2.0_16P", "J301", "USB-C", fp="Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
-           lcsc="C165948", netze={"A1": "GND", "A12": "GND", "B1": "GND", "B12": "GND", "A4": "VBUS", "A9": "VBUS", "B4": "VBUS",
-                                  "B9": "VBUS", "A5": "USB_CC1", "B5": "USB_CC2", "A6": "USB_DP", "B6": "USB_DP",
-                                  "A7": "USB_DM", "B7": "USB_DM", "A8": "NC", "B8": "NC", "SH": "GND"},
-           info="Schirm direkt an GND [A]")
-    b.teil("Device:R", "R303", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC1"}, info="USB-2.0-Gerät")
-    b.teil("Device:R", "R304", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC2"})
-    # HW-05 (14.10.2026): USB auch für Programmierung und Kommunikation (CDC) → VBUS-Erkennung nach ST AN4879
-    b.teil("Device:R", "R307", "33k", fp=R0603, netze={"1": "VBUS", "2": "VBUS_SENSE"},
-           info="VBUS-Teiler AN4879: 5 V → 3,6 V an PB13 (5-V-tolerant); D+-Pull-up nur bei gestecktem Kabel")
-    b.teil("Device:R", "R308", "82k", fp=R0603, netze={"1": "VBUS_SENSE", "2": "GND"},
-           info="VBUS-Teiler AN4879; 43 µA nur bei gestecktem USB")
-    b.teil("Power_Protection:USBLC6-2SC6", "U302", "USBLC6-2SC6", fp="Package_TO_SOT_SMD:SOT-23-6", lcsc="C7519",
-           netze={"1": "USB_DM", "6": "USB_DM", "3": "USB_DP", "4": "USB_DP", "5": "VBUS", "2": "GND"})
+    # HW-09 (Philipp, 18.10.2026): USB-C-Buchse entfällt (PA11/PA12 sind USART6 für das BLE-Modul, kein USB-Gerät mehr).
+    # Laden am Tisch über zwei Lötpads J301 (Stiftleiste nicht bestückt): 5 V → D203 → Ladereingang; D203 schützt gegen
+    # Verpolung, TVS und Eingangsregelung des Laders wie bei den Panels (versorgung.md 3.1). USBLC6 und VBUS-Teiler entfallen.
+    b.teil("Connector_Generic:Conn_01x02", "J301", "Laden 5 V", fp="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+           dnp=True, netze={"1": "GND", "2": "VBUS"},
+           info="= J9: zwei Lötpads 2,54 mm (1 GND, 2 +5 V), Stiftleiste nicht bestückt; Laden aus einem 5-V-Netzteil, Verpolung sperrt D203 (HW-09)")
+    # HW-09 (18.10.2026): BLE-Modul Microchip RN4871 (mcu-funk.md 1.6): Transparent-UART an USART6 (PA11 TX, PA12 RX, AF8),
+    # Versorgung über P-FET Q301 aus +3V3, geschaltet von PB13 (low = ein; im Standby hochohmig → R309 sperrt).
+    b.teil("Bienen:RN4871", "U303", "RN4871-I/RM130", fp="Bienen:Microchip_RN4871", lcsc="C633942",
+           netze={"VBAT": "BLE_VCC", "RST_N": "BLE_RST", "UART_RX": "BLE_RXD", "UART_TX": "BLE_TXD", "P2_0": "BLE_MODE",
+                  "GND": "GND", "P1_6": "NC", "P1_2": "NC", "P1_3": "NC", "P1_7": "NC", "P3_6": "NC", "P0_0": "NC",
+                  "P0_2": "NC", "P2_7": "NC", "NC": "NC"},
+           info="Microchip DS50002489D: BLE 5.0, Chip-Antenne, −40 … +85 °C (-I); Modul an die Platinenkante, Antenne nach außen, "
+                "Metall (Zelle!) ≥ 30 mm entfernt; unbenutzte Pins offen (intern hochgezogen); Flusskontrolle in der Modul-"
+                "Einstellung aus [P]; LCSC C633942 Extended, 50 Stück am 18.10.2026, ca. 12 $ [V]")
+    b.teil("Transistor_FET:AO3401A", "Q301", "AO3401A", fp="Package_TO_SOT_SMD:SOT-23", lcsc="C15127",
+           netze={"G": "BLE_EIN", "S": "+3V3", "D": "BLE_VCC"},
+           info="Lastschalter BLE: PB13 low = Modul ein; Gate-Pull-up R309 hält das Modul aus, solange PB13 hochohmig ist (Standby)")
+    b.teil("Device:R", "R309", "100k", fp=R0603, netze={"1": "+3V3", "2": "BLE_EIN"}, info="Gate-Pull-up: Modul aus bei hochohmigem PB13")
+    b.teil("Device:R", "R310", "1k", fp=R0603, netze={"1": "USART6_TX", "2": "BLE_RXD"},
+           info="Reihenwiderstand: begrenzt Rückspeisung in das abgeschaltete Modul und Querstrom bei externem Adapter an J704 Pin 9")
+    b.teil("Device:R", "R311", "1k", fp=R0603, netze={"1": "USART6_RX", "2": "BLE_TXD"}, info="wie R310")
+    b.teil("Device:R", "R312", "10k", fp=R0603, netze={"1": "BLE_VCC", "2": "BLE_MODE"},
+           info="P2_0 high = Anwendungsmodus; an BLE_VCC (nicht +3V3), damit nichts in das abgeschaltete Modul speist; "
+                "Testmodus für Modul-Firmware-Update: J704 Pin 11 an GND (Pin 12)")
+    b.teil("Device:C", "C314", "10µ 6,3V X5R", fp=C0805, netze={"1": "BLE_VCC", "2": "GND"}, info="Datenblatt Fig. 5-4: 10 µF X5R an VBAT")
+    b.teil("Device:C", "C315", "100n", fp=C0603, netze={"1": "BLE_VCC", "2": "GND"}, info="direkt an Pin 14")
+    b.teil("Device:C", "C316", "100n", fp=C0603, netze={"1": "BLE_RST", "2": "GND"},
+           info="Anlaufverzögerung mit dem internen Pull-up (48 kΩ typ.) ≈ 5 ms [A]; Reset = Abschalten über Q301, kein MCU-Pin")
+    b.teil("Jumper:SolderJumper_2_Open", "JP301", "BLE dauernd", bom=False, fp="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+           netze={"A": "BLE_VCC", "B": "+3V3"},
+           info="offen lassen; geschlossen: Modul dauernd versorgt (Entwicklung, Modul-Firmware-Update über J704 ohne laufende MCU)")
+    b.teil("power:PWR_FLAG", "#FLG302", "PWR_FLAG", netze={"1": "BLE_VCC"},
+           info="aus +3V3 über den Lastschalter Q301 (FET ist für den ERC kein Treiber); REG26-09")
     # Debug
     # SCH26-09: Pinfolge wie anschluesse.md J10 (führend für den Kabelplan); netz_tests.py vergleicht beide.
     # GND an Pin 5: SWD-Adapter an Pin 1–5 und USB-Seriell-Adapter (GND, RX, TX) an Pin 5–7 je am Stück.
@@ -255,17 +278,21 @@ def mcu(p):
 def zeichne_mcu(b, T):
     """Platzierung und Leitungen (A3 quer, mm). Mitte der STM32; oben die 3,3-V-Versorgung mit den
     Abblockkondensatoren, links Reset/BOOT und Quarze, rechts Magnet/Taster. Leitungen zu anderen
-    Blättern und zu den Gruppen USB-C und Debug enden an Netznamen."""
+    Blättern und zu den Gruppen Ladepads und Debug enden an Netznamen."""
     S, D, L = b.setze, b.draht, b.label
     U = S(T["U301"], 200.66, 139.7, text="unten")
 
     b.text("1  Versorgung: VDD je 100 nF am Pin, VDDA über Ferrit, VBAT an 3,3 V, VCAP 4,7 µF", 144.78, 48.26, 2.0)
     b.text("2  Reset, BOOT, Quarze 25 MHz und 32,768 kHz (CL ≤ 7 pF)", 30.48, 81.28, 2.0)
     b.text("3  Magnet/Taster weckt (WKUP1), LED unter dem Lichtleiter", 236.22, 60.96, 2.0)
-    b.text("4  USB-C (Aufspielen, Laden am Tisch) mit ESD-Schutz", 279.4, 157.48, 2.0)
-    b.text("5  Debug-Leiste: SWD und Serial1", 279.4, 101.6, 2.0)
+    b.text("4  Ladepads J301 (HW-09, statt USB-C): 5 V → D203 → Lader; Verpolung sperrt D203", 279.4, 157.48, 2.0)
+    b.text("5  Debug-Leiste: SWD und Serial1 (auch ROM-Bootloader über USART1)", 279.4, 101.6, 2.0)
+    b.text("6  BLE-Modul RN4871 (HW-09)", 30.48, 172.72, 2.0)
+    b.text("Versorgung über Q301 aus +3V3, PB13 low = ein (Ruhestrom 0); UART an USART6 PA11/PA12 (AF8) über 1 kΩ", 160.02, 189.23, 1.5)
+    b.text("Modul-UART und P2_0 auch an J704 Pin 9–11 (Modul-Firmware-Update: JP301 zu, Pin 11 an GND, MCU in Reset)", 160.02, 193.04, 1.5)
+    b.text("Firmware: PA11/PA12 bei abgeschaltetem Modul hochohmig, sonst Rückspeisung über die Modul-Schutzdioden", 160.02, 196.85, 1.5)
     b.text("Netznamen ohne Gegenstück auf diesem Blatt führen zu den Blättern Versorgung, Funk + Flash, Waage, "
-           "Mikrofon und Anschlüsse (mcu-funk.md 4).", 30.48, 233.68, 1.5)
+           "Mikrofon und Anschlüsse (mcu-funk.md 4).", 30.48, 241.3, 1.5)
 
     # --- 1 Versorgung oben ---------------------------------------------------
     y_r = 66.04                      # +3V3-Schiene
@@ -354,30 +381,49 @@ def zeichne_mcu(b, T):
     for pin in ("2", "3", "4", "6", "7"):      # Pin 1 +3V3 und Pin 5 GND als Versorgungssymbol (SCH26-09)
         stub(b, J, pin, 10.16)
 
-    # --- 4 USB-C ------------------------------------------------------------
-    K = S(T["J301"], 345.44, 193.04, rot=180, text="oben")
-    D(K.p("A6"), (327.66, K.p("A6")[1]), (327.66, K.p("B6")[1]), K.p("B6"))   # D+ A/B
-    D(K.p("A7"), (325.12, K.p("A7")[1]), (325.12, K.p("B7")[1]), K.p("B7"))   # D− A/B
-    D((327.66, K.p("A6")[1]), (314.96, K.p("A6")[1]))
-    D((325.12, K.p("A7")[1]), (314.96, K.p("A7")[1]))
-    L("USB_DP", 314.96, K.p("A6")[1], 180)
-    L("USB_DM", 314.96, K.p("A7")[1], 180)
-    stub(b, K, "A5", 10.16)
-    stub(b, K, "B5", 10.16)
-    for ref, x in (("R303", 292.1), ("R304", 304.8)):
-        R = S(T[ref], x, 223.52, rot=180, text="rechts")
-        stub(b, R, "2", 5.08)
-    D(K.p("A4"), (314.96, K.p("A4")[1]))
-    L("VBUS", 314.96, K.p("A4")[1], 180)
-    R7 = S(T["R307"], 266.7, 200.66, text="links")
-    S(T["R308"], 266.7, 213.36, text="links")
-    stub(b, R7, "1", 5.08)
-    D(R7.p("2"), T["R308"].p("1"))
-    D((266.7, 207.01), (259.08, 207.01))
-    L("VBUS_SENSE", 259.08, 207.01, 180)
-    E = S(T["U302"], 289.56, 182.88, text="unten")
-    for pin in ("1", "3", "4", "6", "5"):
-        stub(b, E, pin, 5.08)
+    # --- 4 Ladepads (HW-09, statt USB-C) --------------------------------------
+    K = S(T["J301"], 330.2, 170.18, text="rechts")
+    D(K.p("2"), (309.88, K.p("2")[1]))
+    L("VBUS", 309.88, K.p("2")[1], 180)
+    D(K.p("1"), (317.5, K.p("1")[1]))
+    b.versorgung("GND", 317.5, K.p("1")[1], "unten")
+
+    # --- 6 BLE-Modul RN4871 (HW-09) -------------------------------------------
+    # Links der Lastschalter: +3V3 → Q301 (Source oben, Drain unten) → BLE_VCC-Schiene nach rechts zum Modul;
+    # JP301 überbrückt den FET; Gate mit Pull-up R309 und Netzname BLE_EIN (PB13).
+    B = S(T["U303"], 129.54, 208.28, text="oben")
+    Q = S(T["Q301"], 58.42, 187.96, rot=180, text="links")
+    x_q = Q.p("S")[0]                                   # senkrechte Achse Source/Drain des FET
+    y_o, y_v = 180.34, B.p("VBAT")[1]                   # +3V3-Schiene, BLE_VCC-Schiene (Höhe des VBAT-Pins)
+    D(Q.p("S"), (x_q, y_o), (71.12, y_o))
+    b.versorgung("+3V3", x_q, y_o, "oben")
+    D(Q.p("D"), (x_q, y_v), B.p("VBAT"))
+    D(Q.p("G"), (78.74, Q.p("G")[1]))
+    L("BLE_EIN", 78.74, Q.p("G")[1])
+    S(T["R309"], 71.12, 184.15, text="rechts")          # Pin 1 auf der +3V3-Schiene, Pin 2 auf der Gate-Leitung
+    JP = S(T["JP301"], 38.1, 187.96, rot=90, text="links")
+    D(JP.p("B"), (38.1, y_o), (x_q, y_o))
+    D(JP.p("A"), (38.1, y_v), (x_q, y_v))
+    for ref, x in (("C314", 63.5), ("C315", 71.12), ("R312", 78.74)):
+        S(T[ref], x, y_v + 3.81, text="links" if ref == "C314" else "rechts")
+    D(T["R312"].p("2"), (78.74, B.p("P2_0")[1]), B.p("P2_0"))
+    L("BLE_MODE", 88.9, B.p("P2_0")[1])
+    S(T["#FLG302"], 106.68, y_v)
+    L("BLE_VCC", 88.9, y_v)
+    for pin, netz in (("RST_N", "BLE_RST"), ("UART_RX", "BLE_RXD"), ("UART_TX", "BLE_TXD")):
+        D(B.p(pin), (101.6, B.p(pin)[1]))
+        L(netz, 101.6, B.p(pin)[1], 180)
+    # GND-Pins des Moduls gemeinsam
+    g1, g2 = B.p("2"), B.p("13")
+    D(g1, (g1[0], g1[1] + 2.54), (g2[0], g2[1] + 2.54), g2)
+    b.versorgung("GND", (g1[0] + g2[0]) / 2, g1[1] + 2.54, "unten")
+    # Reihenwiderstände MCU ↔ Modul und Reset-Kondensator, über Netznamen
+    for ref, y in (("R310", 205.74), ("R311", 213.36)):
+        R = S(T[ref], 190.5, y, rot=90, text="oben" if ref == "R310" else "unten")
+        stub(b, R, "1", 7.62)
+        stub(b, R, "2", 7.62)
+    C = S(T["C316"], 165.1, 220.98, text="rechts")
+    stub(b, C, "1", 5.08)
 
 def funk(p):
     """Blatt Funk + Flash (mcu-funk.md 2, 3.1, 3.2): Ra-01SH an SPI1, SPI-Flash 64 Mbit am selben Bus."""
@@ -663,9 +709,13 @@ def mikrofon(p):
     Bauart am Audio-ADC TLV320ADC3101 (U601): Elektret analog, pseudo-differenziell an IN2L(P)/IN3L(M) (linker Kanal),
     MEMS IM69D127 als PDM an DMDIN/DMCLK (rechter Kanal). Ausgang I²S an I2S3 des STM32 (PB12 CK, PA15 WS, PB5 SD),
     Einstellung über I²C (Adresse 0x18). RJ45-Buchse J601 (= J5) für Cat7 S/FTP (4 Paare) mit ESD.
+    HW-10 (18.10.2026): dritter Mikrofoneingang – zweite Elektretkapsel pseudo-differenziell am rechten Analogeingang
+    IN2R(P)/IN3R(M) mit MICBIAS2 über die Pins 5/6 der RJ45-Buchse J601 (bisher Masse-Paarpartner von VDD und DATA; Philipp:
+    ein Stecker für alle drei Mikrofone) mit ESD D602. Der rechte Kanal misst je Messung
+    entweder das PDM-Mikrofon oder Elektret 2 (Datenblatt 10.3.12.6: Digitalmikrofon je Kanal wählbar [V]).
     Kennzeichnung: [V] Datenblatt, [A] Annahme/Rechnung, [P] am Muster bzw. vor der Bestellung prüfen."""
     b = p.blatt("Mikrofon", "mikrofon.kicad_sch",
-                titel="Mikrofon: Audio-ADC TLV320ADC3101, Elektret (analog) + MEMS IM69D127 (PDM), I²S an I2S3")
+                titel="Mikrofon: Audio-ADC TLV320ADC3101, Elektret 1 + 2 (analog) + MEMS IM69D127 (PDM), I²S an I2S3")
     # --- 1 Versorgung ---------------------------------------------------------------------------
     b.teil("Device:FerriteBead_Small", "FB601", "600R@100MHz", fp="Inductor_SMD:L_0603_1608Metric",
            netze={"1": "3V3_SW", "2": "MIC_FB"}, info="wie FB301; Teil wählen [P]")
@@ -690,13 +740,14 @@ def mikrofon(p):
     b.teil("power:PWR_FLAG", "#FLG603", "PWR_FLAG", netze={"1": "3V3_MEMS"}, info="3V3_MEMS aus 3V3_SW über FB602")
     # --- 2 Audio-ADC ------------------------------------------------------------------------------
     b.teil("Bienen:TLV320ADC3101", "U601", "TLV320ADC3101IRGET", fp="Package_DFN_QFN:VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm",
-           netze={"IN2L(P)": "MIC_INP", "IN3L(M)": "MIC_INN", "IN1L(P)": "NC", "IN1R(M)": "NC", "IN2R(P)": "NC",
-                  "IN3R(M)": "NC", "MICBIAS1": "MICBIAS", "MICBIAS2": "NC", "DMDIN/GPIO1": "PDM_DATA",
+           netze={"IN2L(P)": "MIC_INP", "IN3L(M)": "MIC_INN", "IN1L(P)": "NC", "IN1R(M)": "NC", "IN2R(P)": "MIC3_INP",
+                  "IN3R(M)": "MIC3_INN", "MICBIAS1": "MICBIAS", "MICBIAS2": "MICBIAS2", "DMDIN/GPIO1": "PDM_DATA",
                   "DMCLK/GPIO2": "PDM_CLK_ADC", "BCLK": "I2S_CK", "WCLK": "I2S_WS", "DOUT": "I2S_SD", "MCLK": "GND",
                   "SCL": "I2C_SCL", "SDA": "I2C_SDA", "~{RESET}": "ADC_RESET", "I2C_ADR0": "GND", "I2C_ADR1": "GND",
                   "AVDD": "3V3_ANA", "DVDD": "1V8_ADC", "IOVDD": "3V3_SW", "AVSS": "GND", "DVSS": "GND", "EP": "GND"},
-           info="Elektret links (IN2L/IN3L, pseudo-differenziell), PDM-Mikrofon rechts (DMDIN, Abschnitt 10.3.12.6: "
-                "Digitalmikrofon je Kanal wählbar [V]); Takt aus BCLK über die PLL (MCLK unbenutzt, an GND); "
+           info="Elektret 1 links (IN2L/IN3L, pseudo-differenziell); rechts wählbar: PDM-Mikrofon (DMDIN) oder Elektret 2 "
+                "(IN2R/IN3R, MICBIAS2) – Abschnitt 10.3.12.6: Digitalmikrofon je Kanal wählbar [V] (HW-10); "
+                "Takt aus BCLK über die PLL (MCLK unbenutzt, an GND); "
                 "DMCLK = ADC_MOD_CLK = AOSR·fS muss 2,8–6,2 MHz sein [V] → fS 24 576 Hz, AOSR 128 = 3,146 MHz "
                 "(IM69D127-Band 2,9–3,3 MHz [V]); I²C 0x18; LCSC [P]")
     for ref, wert, netz, fp, info in (
@@ -733,12 +784,25 @@ def mikrofon(p):
            info="Serienterminierung am Taktausgang [A]; Flanke am Mikrofon messen (T4) [P]")
     b.teil("Device:R", "R613", "22", fp=R0603, netze={"1": "PDM_DATA_K", "2": "PDM_DATA"},
            info="Schutzwiderstand vor DMDIN; Quellterminierung ca. 100 Ω sitzt am Mikrofon (Infineon) [P]")
+    # --- 6 Mikrofon 3 am rechten Analogeingang (HW-10): gleiche Beschaltung wie Elektret 1, Anschluss J601 Pin 5/6 ----
+    b.teil("Device:R", "R614", "1k", fp=R0603, netze={"1": "MICBIAS2", "2": "MIC3_P"},
+           info="Vorspannung aus MICBIAS2 (2,5 V, max. 4 mA [V]); symmetrisch mit R615 wie R610/R611")
+    b.teil("Device:R", "R615", "1k", fp=R0603, netze={"1": "MIC3_N", "2": "GND"}, info="Gegenstück zu R614")
+    b.teil("Device:C", "C629", "1µ", fp=C0603, netze={"1": "MICBIAS2", "2": "GND"}, info="MICBIAS2-Siebung wie C621")
+    b.teil("Device:C", "C625", "1µ X7R", fp=C0603, netze={"1": "MIC3_P", "2": "MIC3_INP"}, info="Koppelkondensator wie C619")
+    b.teil("Device:C", "C626", "1µ X7R", fp=C0603, netze={"1": "MIC3_N", "2": "MIC3_INN"}, info="Koppelkondensator wie C620")
+    b.teil("Device:C", "C627", "100p C0G", fp=C0603, netze={"1": "MIC3_P", "2": "GND"}, info="HF-Ableitung an der Klemme")
+    b.teil("Device:C", "C628", "100p C0G", fp=C0603, netze={"1": "MIC3_N", "2": "GND"}, info="HF-Ableitung an der Klemme")
+    b.teil("Power_Protection:ESDS304", "D602", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
+           netze={"1": "MIC3_N", "3": "MIC3_P", "4": "NC", "5": "NC", "2": "GND"},
+           info="direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
     # --- 5 Klemme und ESD -----------------------------------------------------------------------------------
-    b.teil("Connector:RJ45_Shielded", "J601", "Mikrofone", fp="Connector_RJ:RJ45_RCH_RC01937",
-           netze={"1": "GND", "2": "PDM_CLK", "3": "PDM_DATA_K", "4": "3V3_MEMS", "5": "GND", "6": "GND",
+    b.teil("Connector:RJ45_Shielded", "J601", "Mikrofone 1–3", fp="Connector_RJ:RJ45_RCH_RC01937",
+           netze={"1": "GND", "2": "PDM_CLK", "3": "PDM_DATA_K", "4": "3V3_MEMS", "5": "MIC3_P", "6": "MIC3_N",
                   "7": "MIC_P", "8": "MIC_N", "SH": "GND"},
-           info="= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+GND, "
-                "4/5 VDD+GND, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); Schirm nur hier an Masse; "
+           info="= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, "
+                "4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 "
+                "(vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; "
                 "Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
     b.teil("Power_Protection:ESDS304", "D601", "ESDS304DBVR", fp="Package_TO_SOT_SMD:SOT-23-5",
            netze={"1": "PDM_CLK", "3": "PDM_DATA_K", "4": "MIC_P", "5": "MIC_N", "2": "GND"},
@@ -753,16 +817,19 @@ def zeichne_mikrofon(b, T):
     S, D, L = b.setze, b.draht, b.label
     b.text("1  Versorgung: 3V3_ANA (AVDD, Ferrit + 10 Ω), 1V8_ADC (DVDD, TPS70918), 3V3_MEMS (Ferrit, über das Kabel)",
            30.48, 35.56, 2.0)
-    b.text("2  Audio-ADC TLV320ADC3101: links Elektret (analog), rechts MEMS (PDM); I²S an I2S3, I²C 0x18",
+    b.text("2  Audio-ADC TLV320ADC3101: links Elektret 1 (analog), rechts MEMS (PDM) oder Elektret 2 (analog, HW-10); I²S an I2S3, I²C 0x18",
            175.26, 111.76, 2.0)
-    b.text("3  RJ45-Buchse J601 (= J5): MIC−, MIC+ (Elektret, MICBIAS 2,5 V über 2 × 1 kΩ), VDD, DATA, CLK (Schmitt-Puffer)",
+    b.text("6  Mikrofon 3 (zweite Elektretkapsel) an J601 Pin 5/6, pseudo-differenziell an IN2R(P)/IN3R(M), MICBIAS2 über 2 × 1 kΩ (HW-10)",
+           160.02, 198.12, 2.0)
+    b.text("3  RJ45-Buchse J601 (= J5): MIC−, MIC+ (Elektret 1), MIC3+/MIC3− (Pin 5/6, HW-10), VDD, DATA, CLK (Schmitt-Puffer)",
            30.48, 96.52, 2.0)
-    b.text("ESD D601 direkt an J601", 43.18, 236.22, 1.5)
+    b.text("ESD D601 und D602 direkt an J601", 96.52, 241.3, 1.5)
     b.text("Kabel: Cat7 S/FTP mit geschirmtem RJ45-Stecker, 0,5–1 m, Paare T568B; Schirm nur hier an Masse; kein Netzwerk/PoE anstecken. "
            "Mikrofonkopf am Gitterboden: fertige IM69D127-Platine (100 nF, ca. 100 Ω in DATA, L/R-Wahl) + Elektretkapsel.",
            30.48, 264.16, 1.5)
     b.text("Firmware: 3V3_SW aus → I²S- und I²C-Pins hochohmig (keine Rückspeisung in U601); fS 24 576 Hz, "
-           "AOSR 128, DMCLK 3,146 MHz; Messung ohne Funk und ohne 5-V-Wandler (mikrofon.md).", 30.48, 269.24, 1.5)
+           "AOSR 128, DMCLK 3,146 MHz; Messung ohne Funk und ohne 5-V-Wandler; rechter Kanal je Messung PDM oder Elektret 2 (mikrofon.md).",
+           30.48, 269.24, 1.5)
 
     def zwei(ref, x, y, laenge=2.54, rot=0):
         t = S(T[ref], x, y, rot=rot, text="rechts")
@@ -795,7 +862,7 @@ def zeichne_mikrofon(b, T):
 
     # --- 2 Audio-ADC (Mitte) -------------------------------------------------------------------------
     U = S(T["U601"], 220.98, 149.86, text=(233.68, 116.84))
-    for pin in ("IN2L(P)", "IN3L(M)", "MICBIAS1", "DMDIN/GPIO1", "DMCLK/GPIO2",
+    for pin in ("IN2L(P)", "IN3L(M)", "MICBIAS1", "IN2R(P)", "IN3R(M)", "MICBIAS2", "DMDIN/GPIO1", "DMCLK/GPIO2",
                 "BCLK", "WCLK", "DOUT", "SCL", "SDA", "~{RESET}"):
         stub(b, U, pin, 10.16)
     for pin in ("AVDD", "DVDD", "IOVDD"):
@@ -807,6 +874,8 @@ def zeichne_mikrofon(b, T):
     knick = {"8": 53.34, "7": 58.42, "2": 53.34, "3": 58.42, "4": 63.5}
     for pin, y in zeilen.items():
         D(J.p(pin), (knick[pin], J.p(pin)[1]), (knick[pin], y), (68.58, y))
+    for pin in ("5", "6"):                  # HW-10: Mikrofon 3, Filtergruppe unter dem ADC über Netznamen
+        stub(b, J, pin, 7.62)
 
     def quer(ref, x, y):                    # Zweipol in der Zeile (Pin 1 links)
         return S(T[ref], x, y, rot=90, text="oben")
@@ -860,9 +929,38 @@ def zeichne_mikrofon(b, T):
     D((68.58, y), (76.2, y))
     L("3V3_MEMS", 68.58, y)
     # ESD direkt an der Klemme, Anschluss über Netznamen
-    E = S(T["D601"], 30.48, 236.22, text=(38.1, 246.38))
+    E = S(T["D601"], 30.48, 243.84, text=(38.1, 253.99))
     for pin in ("1", "3", "4", "5"):
         stub(b, E, pin, 5.08)
+
+    # --- 6 Mikrofon 3 (HW-10): Filtergruppe unter dem ADC, Anschluss an J601 Pin 5/6 über Netznamen -------------
+    zeilen2 = {"6": 208.28, "5": 223.52}                 # MIC3− (Pin 6), MIC3+ (Pin 5)
+    x_a, x_e = 180.34, 195.58                           # Zeilenanfang (Netzname), Ende vor dem Koppel-C
+    for pin, y in zeilen2.items():
+        D((x_a, y), (x_e, y))
+        L({"6": "MIC3_N", "5": "MIC3_P"}[pin], x_a, y, 180)
+    # MIC3− (Pin 6): HF-C, 1 kΩ nach GND, Koppel-C zum ADC
+    y = zeilen2["6"]
+    ab("C628", 193.04, y)
+    ab("R615", 208.28, y)
+    C = quer("C626", 233.68, y)
+    D((x_e, y), C.p("1"))
+    D(C.p("2"), (254.0, y))
+    L("MIC3_INN", 254.0, y)
+    # MIC3+ (Pin 5): HF-C, Vorspannung aus MICBIAS2 über 1 kΩ, Koppel-C zum ADC
+    y = zeilen2["5"]
+    ab("C627", 203.2, y)
+    R = S(T["R614"], 223.52, y - 3.81, text="rechts")
+    stub(b, R, "1", 2.54)
+    C = quer("C625", 233.68, y)
+    D((x_e, y), C.p("1"))
+    D(C.p("2"), (254.0, y))
+    L("MIC3_INP", 254.0, y)
+    S(T["C629"], 276.86, 205.74, text="rechts")
+    stub(b, T["C629"], "1", 2.54)
+    E2 = S(T["D602"], 60.96, 243.84, text=(68.58, 253.99))
+    for pin in ("1", "3"):
+        stub(b, E2, pin, 5.08)
 
 
 def anschluesse(p):
@@ -895,8 +993,10 @@ def anschluesse(p):
     b.teil("Connector_Generic:Conn_02x06_Odd_Even", "J704", "Erweiterung",
            fp="Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical",
            netze={"1": "+3V3", "2": "3V3_SW", "3": "GND", "4": "GND", "5": "I2C_SDA", "6": "I2C_SCL", "7": "DBG_TX",
-                  "8": "DBG_RX", "9": "NC", "10": "NC", "11": "NC", "12": "GND"},
-           info="= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1); Pins 9–11 frei: seit HW-05 ist PB13 die VBUS-Erkennung, seit HW-07 sind PA15/PB12 der I²S-Bus zum Audio-ADC")
+                  "8": "DBG_RX", "9": "BLE_RXD", "10": "BLE_TXD", "11": "BLE_MODE", "12": "GND"},
+           info="= J11 (HW26-13): innen, ohne ESD; I²C-Geräte hier zählen zur Buskapazität (anschluesse.md 3.1); Pins 9–11 seit HW-09 "
+                "Modul-UART und Modus des BLE-Moduls (Firmware-Update des Moduls: Pin 11 an Pin 12); keine freien GPIOs mehr "
+                "(PB13 Lastschalter BLE, PA15/PB12 I²S seit HW-07)")
     zeichne_anschluesse(b, {t.ref: t for t in b.teile})
     return b
 
@@ -907,7 +1007,7 @@ def zeichne_anschluesse(b, T):
     S, D, L = b.setze, b.draht, b.label
     b.text("1  DS18B20 (1-Wire, PA8): J701 = J6, J702 = J7, gemeinsamer Bus, Pull-up 4,7 kΩ an 3V3_SW", 30.48, 60.96, 2.0)
     b.text("2  BME280 (I²C, PB6/PB7): J703 = J8, 6-polig, Pull-ups 1,8 kΩ an 3V3_SW, Takt 50 kHz, Kabel ≤ 1 m", 30.48, 137.16, 2.0)
-    b.text("3  Erweiterung J704 = J11 (innen, ohne ESD)", 233.68, 71.12, 2.0)
+    b.text("3  Erweiterung J704 = J11 (innen, ohne ESD); Pin 9–11: BLE-Modul (HW-09)", 233.68, 71.12, 2.0)
     b.text("Regeln (anschluesse.md 1, 4): Masse an Pin 1, Versorgung am anderen Ende; jede Klemme eigene Polzahl; ESD direkt hinter "
            "der Klemme mit kurzer Masseanbindung; alle Außenklemmen an einer Kante.", 30.48, 228.6, 1.5)
     b.text("Pull-ups nur an 3V3_SW (HW26-04): im Standby keine Rückspeisung über Sensorleitungen.", 30.48, 233.68, 1.5)
@@ -951,9 +1051,9 @@ def zeichne_anschluesse(b, T):
 
     # --- 3 Erweiterungsleiste ---------------------------------------------------------------
     X = S(T["J704"], 266.7, 106.68, text="oben")
-    for pin in ("5", "7"):                      # Pins 9–11 frei (HW-05, HW-07), No-Connect
+    for pin in ("5", "7", "9", "11"):           # Pins 9–11 seit HW-09 BLE-Modul (vorher frei)
         stub(b, X, pin, 10.16)
-    for pin in ("2", "6", "8"):
+    for pin in ("2", "6", "8", "10"):
         stub(b, X, pin, 10.16)
     # Versorgung: Leitungen außen um die Netznamen herum, damit Symbole und Texte frei stehen
     x1, y1_ = X.p("1")
@@ -992,7 +1092,7 @@ def versorgung(p):
                netze={"1": "GND", "2": "PV2"}, info="wie J201"),
         b.teil("Diode:SS34", "D201", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "PV1", "K": "VIN_LADER"}, info="je Panel eine Schottky"),
         b.teil("Diode:SS34", "D202", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "PV2", "K": "VIN_LADER"}),
-        b.teil("Diode:SS34", "D203", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "VBUS", "K": "VIN_LADER"}, info="USB lädt, speist nie ins Panel"),
+        b.teil("Diode:SS34", "D203", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "VBUS", "K": "VIN_LADER"}, info="Ladepads J301 (5 V, HW-09): lädt, speist nie ins Panel, sperrt Verpolung"),
         b.teil("Diode:SMAJ12A", "D204", "SMAJ12A", fp="Diode_SMD:D_SMA", netze={"1": "VIN_LADER", "2": "GND"},  # Pin 1 = Kathode
                info="TVS 12 V, begrenzt Störungen unter 25 V (BQ25185 abs.)"),
         b.teil("Device:C", "C201", "4,7µ 50V X7R", fp=C1206, netze={"1": "VIN_LADER", "2": "GND"}, info="≥ 1 µF an IN; 50 V wegen 25 V abs. am Eingang und DC-Bias (SCH26-08)"),
@@ -1236,7 +1336,7 @@ def zeichne_akku(b, T):
 
 def baue():
     p = Projekt("logger", os.path.join(HIER, "hauptplatine"), firma="Bienenlogger – Philipp Schnabel",
-                rev="0.1 Entwurf", datum="2026-10-09", eigene_bibs={"Bienen": BIB},
+                rev="0.1 Layout-Stand", datum="2026-10-18", eigene_bibs={"Bienen": BIB},
                 kommentare=["Board-Kennung PCB-MAIN-0.1 (REG26-10)",
                             "Umgebung [A]: Gehäuse −20 … +60 °C, Betauung möglich; VIN ≤ 12 V dauernd, 25 V absolut"])
     p.schnittstellen = set(SCHNITTSTELLEN)

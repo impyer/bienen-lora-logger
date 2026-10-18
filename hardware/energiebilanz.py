@@ -27,6 +27,8 @@ RUHE = [
     ("Lastschalter AO3401A gesperrt, Leckstrom", 0.1, "A", "AOS AO3401A IDSS ≤ 1 µA bei 30 V; bei 3,3 V deutlich weniger"),
     ("5-V-Wandler TPS61240 aus (EN low)", 1.5, "V", "TI TPS61240 Datenblatt S. 5, Shutdown typ. 1,5 µA"),
     ("SPI-Flash 64 Mbit im Deep Power-down (dauernd versorgt)", 1.0, "A", "W25Q-Familie: 1 µA laut LCSC-Angabe (V); andere Hersteller bis 3 µA typ. (V, Zetta) – Typ bei Bestellung"),
+    ("BLE-Modul RN4871 abgeschaltet: Lastschalter Q301 AO3401A gesperrt (HW-09)", 0.1, "A",
+     "AOS AO3401A IDSS ≤ 1 µA bei 30 V, bei 3,3 V deutlich weniger; Modul selbst stromlos (Schlafmodus des Moduls wären 1–2,9 µA, DS50002489D Tab. 2-3)"),
     # Ladesperre (2 × TMP390, Pull-ups, LDO TPS70933) hängt an TMP_VCC aus dem Ladereingang:
     # nachts 0 µA aus der Zelle (SCH26-01, versorgung.md 3.3)
 ]
@@ -68,6 +70,18 @@ SZENARIEN = {
 
 # Ungünstiger Fall zusätzlich: schlechte Funkverbindung, SF12 (2,79 s Airtime) mit +14 dBm Standard-PA
 SF12_ZUSATZ_MAS = 90.0 * (2.794 - 0.118)
+
+# ---------------------------------------------------------------------------
+# 2a. BLE-Service-Sitzung (HW-09): Modul nur auf Anforderung ein, Werte DS50002489D Tab. 2-4 (3,3 V, Firmware 1.18, V)
+# ---------------------------------------------------------------------------
+BLE_ADVERTISING_1S_MA = 0.089        # V: Advertising 1000 ms Intervall
+BLE_VERBUNDEN_100MS_MA = 2.10        # V: verbunden, 100 ms Verbindungsintervall
+BLE_SITZUNG_MIN = 30                 # A: eine Servicesitzung am Stand
+BLE_WARTEN_MIN = 10                  # A: Advertising nach dem Magnetimpuls, falls sich niemand verbindet
+
+# 2b. Drittes Mikrofon (HW-10): zweiter Durchgang mit Elektret 2 statt MEMS am rechten Kanal, nur wenn bestückt
+MIK2_MA = 4.2 + 2 * 0.3              # A: ADC 4,2 mA + zwei Elektretkapseln je 0,3 mA (kein MEMS im zweiten Durchgang)
+MIK2_S = 1.5                         # A: wie der erste Durchgang
 
 # ---------------------------------------------------------------------------
 # 3. Selbstentladung und nutzbare Kapazität
@@ -122,6 +136,14 @@ def main():
                   f"  →  {nutzbar / tag:.0f} Tage ohne Laden")
         tag_sf12 = last + selbst_max + mas_zu_mah(SF12_ZUSATZ_MAS) * ZYKLEN_PRO_TAG
         print(f"   Ungünstig (SF12 jedes Mal, 5 %/Monat): {tag_sf12:.1f} mAh/Tag  →  {nutzbar / tag_sf12:.0f} Tage")
+
+    sitzung = BLE_VERBUNDEN_100MS_MA * BLE_SITZUNG_MIN / 60 + BLE_ADVERTISING_1S_MA * BLE_WARTEN_MIN / 60
+    dauernd = BLE_ADVERTISING_1S_MA * 24
+    mik2 = mas_zu_mah(MIK2_MA * MIK2_S) * ZYKLEN_PRO_TAG
+    print(f"\n2b. Drittes Mikrofon (HW-10, nur wenn bestückt): zweiter Durchgang {MIK2_MA:.1f} mA × {MIK2_S} s = "
+          f"{MIK2_MA * MIK2_S:.1f} mAs je Zyklus → +{mik2:.2f} mAh/Tag (ca. {100 * mik2 / 3.02:.0f} % der Last in Szenario B).")
+    print(f"\n2a. BLE-Sitzung (HW-09, nur auf Anforderung): {BLE_SITZUNG_MIN} min verbunden (100 ms) + {BLE_WARTEN_MIN} min Advertising (1 s)"
+          f" = {sitzung:.2f} mAh je Sitzung; dauerndes Advertising (1 s) kostete {dauernd:.2f} mAh/Tag – deshalb nicht dauernd an.")
 
     print(f"\n3. Nutzbare Kapazität: {KAPAZITAET_MAH} mAh × {LADESCHLUSS_FAKTOR} (4,1 V) × {ENTLADEFENSTER}"
           f" (bis 3,3 V) × {KAELTE_FAKTOR} (Kälte) = {nutzbar:.0f} mAh")

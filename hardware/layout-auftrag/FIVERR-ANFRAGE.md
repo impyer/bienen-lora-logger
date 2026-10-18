@@ -18,13 +18,13 @@ I am looking for a quote for the layout of an open-hardware beehive logger. The 
 
 Board
 - 121 x 121 mm, 4 or 6 layers (your choice), 1.6 mm, 4 fixed mounting holes, all parts on top, max. 40 mm height
-- approx. 172 parts: STM32F411 (QFN-48), Ra-01SH LoRa module (SX1262, IPEX), BQ25185 charger (WSON, 0.4 mm pitch), 5 V boost converter, HX711 load-cell ADC, TLV320ADC3101 audio ADC (analog + PDM microphone), USB-C, 18650 holder, pluggable terminals, RJ45
+- approx. 185 parts: STM32F411 (QFN-48), Ra-01SH LoRa module (SX1262, IPEX), RN4871 BLE module (chip antenna, keep-out zones), BQ25185 charger (WSON, 0.4 mm pitch), 5 V boost converter, HX711 load-cell ADC, TLV320ADC3101 audio ADC (analog + PDM microphone), 18650 holder, pluggable terminals, RJ45 (no USB; two charge pads)
 - Mixed-signal: low-noise analog paths next to a boost converter and a LoRa radio; battery minus must stay separate from GND
 
 Scope
 1. Placement (you choose connector positions within given constraints), my review before routing
 2. Routing with a continuous GND plane under the top layer, DRC clean
-3. LCSC part selection for about 150 of 172 BOM lines (Basic parts preferred), approved by me
+3. LCSC part selection for about 164 of 185 BOM lines (Basic parts preferred), approved by me
 4. JLCPCB files: Gerber, drill, BOM, CPL, plus IPC-D-356 netlist
 5. Editable source files; any EDA tool is fine (design data are KiCad 10, board should import into KiCad)
 6. Support until the JLCPCB file check passes

@@ -5,7 +5,7 @@ Kennzeichnung:
 - **[A]** Annahme oder Rechnung
 - **[P]** vor dem Schaltplan bzw. am Muster prüfen
 
-Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung Antenne (Philipp, 08.10.2026): **kleine Antenne an der IPEX-Buchse des Moduls**, im Gehäuse.
+Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung Antenne (Philipp, 08.10.2026): **kleine Antenne an der IPEX-Buchse des Moduls**, im Gehäuse. **HW-09 (18.10.2026):** Bluetooth-Low-Energy-Modul RN4871 an USART6 als Service-Schnittstelle; USB-C-Buchse entfällt, Laden am Tisch über zwei Pads (Abschnitte 1.3 und 1.6).
 
 ## 1. Mikrocontroller STM32F411CEU6 (UFQFPN-48)
 
@@ -19,35 +19,81 @@ Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung
 | VCAP_1 (22) | **4,7 µF keramisch, ESR < 1 Ω**, sehr nah. Der UFQFPN-48 hat nur diesen einen VCAP-Pin. |
 | VBAT (1) | an 3,3 V (dauernd) + 100 nF; **keine Knopfzelle** (versorgung.md, V6). Nie an den Akku: nur 1,65–3,6 V zulässig. |
 | NRST (7) | 100 nF nach GND (interner Pull-up), Reset-Taster nach GND |
-| BOOT0 (44) | 10 kΩ nach GND [A, üblicher Wert], Taster nach 3,3 V für den USB-Bootloader |
+| BOOT0 (44) | 10 kΩ nach GND [A, üblicher Wert], Taster nach 3,3 V für den ROM-Bootloader (seit HW-09 über USART1 an J10, 1.3) |
 | PB2/BOOT1 (20) | 10 kΩ nach GND, sonst frei. Wirkt nur bei BOOT0 = 1. |
 
 ### 1.2 Takt
 
 | Quarz | Teil | Begründung |
 |---|---|---|
-| HSE 25 MHz | YXC X322525MOB4SI, 3225, CL 12 pF (LCSC **C9006, Basic** [V]) | wie die BlackPill; USB braucht einen Quarz |
+| HSE 25 MHz | YXC X322525MOB4SI, 3225, CL 12 pF (LCSC **C9006, Basic** [V]) | wie die BlackPill (USB bräuchte einen Quarz; seit HW-09 ohne USB, Quarz bleibt für die BlackPill-Kompatibilität K2) |
 | Lastkondensatoren HSE | 2 × 18 pF C0G [A]: C = 2 · (CL − Cstray), Cstray 3–5 pF angenommen | **[P]** am Muster Frequenz messen |
 | LSE 32,768 kHz | **Seiko SC-32S, 7 pF**, 3215 (LCSC **C97604**, 152.555 Stück am 08.10.2026 [V]) | ST AN4488: für STM32F4 „strongly recommended CL ≤ 7 pF“ und „Never use a resonator with CL 12.5 pF“ [V]. Die üblichen 12,5-pF-Basic-Quarze (z. B. C32346) scheiden damit aus. |
 | Lastkondensatoren LSE | 2 × 8,2 pF C0G [A]: 2 · (7 − ca. 3 pF) | **[P]** Anschwingen bei −20 °C und Gangabweichung der RTC prüfen. Die Firmware gleicht die Zeit zwar täglich ab, das Weckraster braucht trotzdem einen stabilen Quarz. |
 
 Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz und Pin. PC14/PC15 nicht anderweitig nutzen [V: AN2867, AN4488].
 
-### 1.3 USB-C (Aufspielen und Laden)
+### 1.3 Laden am Tisch über zwei Pads (USB-C entfällt, HW-09)
 
-- Buchse 16-polig, z. B. TYPE-C-31-M-12 (LCSC C165948, Extended [V]); eine Basic-Buchse ist nicht bekannt.
-- CC1 und CC2 je 5,1 kΩ nach GND (USB-2.0-Gerät) [A, Type-C-Spezifikation].
-- **ESD-Schutz USBLC6-2SC6** (LCSC C7519, Extended) an D+/D− (PA12/PA11).
-- **VBUS → Schottky → Eingang des BQ25185**, parallel zu den Panels. So lädt der Logger am Tisch über USB, und USB speist nie zurück ins Panel [A].
-- Bootloader: BOOT0-Taster gedrückt halten, Reset → DFU über USB. Ob der Bootloader des F411 mit 25-MHz-Quarz zuverlässig startet, ist in AN2606 für F411 nicht gelesen. Ein ST-Forumsbeitrag berichtet Probleme [V, Forum]. Die BlackPill macht es aber serienmäßig. **[P]** am Muster prüfen. **SWD bleibt der sichere Weg.**
+**Stand HW-09 (18.10.2026, Entscheidung Philipp):** PA11/PA12 sind **USART6** für das BLE-Modul (1.6). Damit gibt es **keine USB-Datenfunktion** mehr (kein USB-CDC, kein ROM-DFU über USB), und die **USB-C-Buchse entfällt ganz**. Zum Laden am Tisch bleiben **zwei Lötpads J301** (= J9, Raster 2,54 mm, Stiftleiste nicht bestückt): **1 GND, 2 +5 V** → D203 → Eingang des BQ25185, parallel zu den Panels. D203 sperrt Verpolung und Rückspeisung ins Panel; TVS D204 und die Eingangsspannungsregelung des Laders gelten wie bei den Panels (`versorgung.md` 3.1). Quelle: beliebiges 5-V-Netzteil (z. B. USB-Netzteil mit abgeschnittenem Kabel) oder das strombegrenzte Netzteil des Prüfaufbaus (`sicherheit-akku.md`). USBLC6 U302, VBUS-Teiler R307/R308 und CC-Widerstände entfallen; PB13 ist frei für den Lastschalter des BLE-Moduls.
 
-**USB-Rolle (SCH26-10) – entschieden: Laden, Aufspielen und Kommunikation (Philipp, 14.10.2026, HW-05; ersetzt Variante A „nur Laden und Aufspielen“ vom 10.10.2026, HW-01):**
+- Masse an Pin 1 wie bei allen Anschlüssen (`anschluesse.md` 1); Aufdruck „5 V“ und „GND“ an den Pads. Keine Durchsteckstellen mehr für USB; die beiden Pads zählen bei der Bestückung nicht (DNP).
+- **Aufspielen** ohne USB: SWD an J10 (sicherer Weg) oder der **ROM-Bootloader über USART1** (PA9/PA10 an J10 Pin 6/7, BOOT0-Taster + Reset, z. B. `stm32flash`) [V: ST AN2606, USART1 gehört zum Bootloader des F411]. Der BOOT0-Taster SW302 bleibt deshalb.
+- **Kommunikation** ohne USB: Service-Konsole über das BLE-Modul (Transparent-UART, 1.6) oder über Serial1 an J10.
+- Folge für die Firmware: keine USB-Peripherie, keine 48-MHz-PLL-Anforderung mehr; VBUS ist nicht mehr erkennbar (die Firmware sieht nur die Ladereingangsspannung über ADC_SOLAR, `versorgung.md` 3.1).
+
+**Vorgeschichte** (bleibt zur Nachvollziehbarkeit): USB-Rolle (SCH26-10) – entschieden: Laden, Aufspielen und Kommunikation (Philipp, 14.10.2026, HW-05; ersetzt Variante A „nur Laden und Aufspielen“ vom 10.10.2026, HW-01); **mit HW-09 ersetzt**, die Buchse TYPE-C-31-M-12 (LCSC C165948) und der ESD-Schutz USBLC6-2SC6 (C7519) sind gestrichen. Die Beschreibung der HW-05-Schaltung:
 - USB lädt (VBUS → D203 → BQ25185), dient zum **Aufspielen** (ROM-DFU über BOOT0 + Reset oder aus der Anwendung) und zur **Kommunikation** (USB-CDC als Service-Konsole, Auslesen des Flashs).
 - **VBUS-Erkennung** nach ST AN4879 [V: AN4879, „VBUS sensing detection“]: Teiler **R307 33 kΩ / R308 82 kΩ** von VBUS an **PB13** (5-V-tolerant) → 5,0 V ergeben 3,57 V am Pin, 43 µA nur bei gestecktem Kabel [A, gerechnet]. Die Firmware schaltet USB-Peripherie und D+-Pull-up nur bei erkannter VBUS ein; ohne Kabel bleibt USB aus (Ruhestrom unverändert, USB-Spezifikation: kein Pull-up ohne VBUS).
 - **Takt:** 48 MHz für USB aus der PLL (25 MHz HSE, z. B. PLLM 25, PLLN 192, PLLQ 4 → 48 MHz; SYSCLK 96 MHz mit PLLP 2) [A, nach RM0383 zu bestätigen].
 - Folge: PB13 steht nicht mehr am Erweiterungsstecker zur Verfügung (J11/J704 Pin 11 frei).
 - Service-Konsole über **Serial1 an J10/J302** und SWD bleiben als Rückfall.
 - Prüfung am Muster (T4): Erkennung beim Stecken/Ziehen, CDC-Enumeration am PC, ROM-DFU mit 25-MHz-Quarz, Laden über USB, gesteckter USB ohne Einfluss auf den Ruhestrom nach dem Ziehen.
+
+### 1.6 Bluetooth Low Energy: Modul RN4871 (HW-09, 18.10.2026)
+
+**Zweck:** Service-Zugang ohne Öffnen des Gehäuses (Lastenheft F7) – Konsole, Konfiguration, Auslesen des Flashs vom Smartphone oder Notebook; ersetzt die USB-CDC-Konsole aus HW-05. Grundlage: Vorschlagspaket „USB → BLE RN4871“ vom 18.10.2026 (Pinwahl USART6, Modul übernommen; Versorgung, Reset und USB-Laden hier anders gelöst, siehe unten).
+
+**Modul:** Microchip **RN4871-I/RM130** – BLE 5.0, Chip-Antenne, geschirmt, 9 × 11,5 mm, 16 Stempelpads, −40 … +85 °C (Variante -I; -V nur −20 … +70 °C), 1,9–3,6 V, UART mit ASCII-Befehlen und **Transparent-UART-Dienst**, Zertifizierungen FCC/ISED/CE/KCC/NCC/SRRC laut Datenblatt (Kapitel 10; Unterlagen vor dem Release ablegen [P]) [V: Microchip DS50002489D, Tab. 1-1, 2-1, Kap. 10]. „RM130“ = Firmware 1.30 [V: Tab. 1-1 Note 1]. Bezug: LCSC/JLCPCB **C633942**, Extended, **50 Stück, ca. 12 $** (18.10.2026) [V: LCSC/JLCPCB-Teiledaten]. Teuer und knapp – **Rückfall** bei Lieferproblemen: Ai-Thinker **PB-03F** (PHY6252, BLE 5.2, AT-Firmware mit UART-Transparentmodus, LCSC C2980027, ca. 8 000 Stück, ca. 1,1 $ [V: LCSC 18.10.2026]; anderer Footprint 24 × 16 mm, Dokumentation und Zertifikate schwächer – eigene Prüfung nötig [P]).
+
+**Pinbelegung des RN4871** [V: DS50002489D Tab. 1-2 (Spalte RN4871), Fig. 5-4]:
+
+| Pin | Name | Beschaltung |
+|---|---|---|
+| 1 | NC | offen |
+| 2, 13 | GND | Masse |
+| 7 | UART_RX | **BLE_RXD** ← R310 1 kΩ ← PA11 (USART6_TX, AF8); auch J11 Pin 9 |
+| 8 | UART_TX | **BLE_TXD** → R311 1 kΩ → PA12 (USART6_RX, AF8); auch J11 Pin 10 |
+| 10 | RST_N | intern hochgezogen (48 kΩ typ.); C316 100 nF nach GND als Anlaufverzögerung ≈ 5 ms [A]; kein MCU-Pin – Reset = Abschalten über Q301 |
+| 14 | VBAT | **BLE_VCC** aus +3V3 über den Lastschalter Q301; C314 10 µF X5R + C315 100 nF (Datenblatt Fig. 5-4: 10 µF) |
+| 16 | P2_0 | Modus: high = Anwendung, low = Testmodus (Firmware-Update des Moduls); R312 10 kΩ nach **BLE_VCC**; auch J11 Pin 11 (Brücke 11–12 = Testmodus) |
+| 3, 4, 5, 6, 9, 11, 12, 15 | P1_2, P1_3, P1_7, P1_6, P3_6, P0_0, P0_2, P2_7 | offen (intern hochgezogen). P0_0 ist per Voreinstellung UART_CTS, P3_6 UART_RTS: **Flusskontrolle in der Moduleinstellung ausschalten** [P: RN4870/71 User's Guide DS50002466]. P1_6 (UART-RX-Indication) bleibt offen, weil der Low-Power-Modus des Moduls nicht genutzt wird (Abschaltung statt Schlafmodus). |
+
+**Versorgung und Ruhestrom:** Das Modul hängt **nicht** dauernd an 3,3 V. P-Kanal-FET **Q301 AO3401A** (LCSC C15127, Basic) schaltet BLE_VCC; Gate an **PB13** (low = ein) mit Pull-up **R309 100 kΩ** an +3V3. Im Standby ist PB13 hochohmig → Modul aus, Ruhestrom nur der Sperrstrom des FET (≤ 0,1 µA [A], `energiebilanz.py`). Gründe gegen den Schlafmodus des Moduls: „Shutdown Low-Power Mode“ 1–2,9 µA [V: Tab. 2-3] wären bis zu 18 % des Ruhestrombudgets (V7), und der Zustand hinge an der Modulfirmware; ein Power-Cycle ist zugleich der sichere Reset. **Lötbrücke JP301** (offen) überbrückt Q301 für Entwicklung und Modul-Firmware-Update.
+
+**Rückspeisung (Regel):** Alle Pull-ups am Modul (R312) liegen an BLE_VCC, nie an +3V3. Die Firmware schaltet PA11 und PA12 bei abgeschaltetem Modul auf **analog/hochohmig** (PA12 nicht mit internem Pull-up): Ein high an PA11 würde über R310 und die Schutzdiode des Moduls BLE_VCC auf ca. 2,6 V ziehen (3 mA, undefinierter Zustand). R310/R311 begrenzen den Strom auch dann auf < 3,3 mA und schützen beim Anschluss eines USB-Seriell-Adapters an J11 Pin 9/10 (Querstrom gegen PA11, falls die MCU nicht in Reset ist). `netz_tests.py` prüft R312 an BLE_VCC mit Gegenprobe.
+
+**Energie je Sitzung** [V: Tab. 2-4, Firmware 1.18, 3,3 V]: Advertising 1 s 89 µA, 100 ms 298 µA; verbunden 1 s 80 µA, 100 ms 2,1 mA; TX/RX-Spitze 10 mA (13 mA bei 85 °C). Dauerhaftes Advertising (1 s) kostete 2,1 mAh/Tag ≈ 70 % der Tageslast (Szenario B) – deshalb **nur auf Anforderung**: Magnet kurz anlegen (F7) → Modul für z. B. 10 min ein, Advertising 1 s; bei Verbindung Konsole über Transparent-UART; Abschaltung nach Zeit oder Befehl. Eine 30-min-Sitzung bei 100 ms Verbindungsintervall ≈ 1,1 mAh (ein Drittel eines Tages, `energiebilanz.py` Abschnitt 5). Prüfpunkt **[P]**: Strom des Moduls im Advertising mit Firmware 1.30 messen (Tab. 2-4 gilt für 1.18).
+
+**Antenne und Layout** [V: DS50002489D 4.3, Fig. 4-7/4-8/4-13; Fig. 8-2: 0,1 dBi, 42,7 % Wirkungsgrad]:
+- Modul an die **Platinenkante**, Chip-Antenne (Modul-Oberseite, y 7,5 … 11,5 mm) nach außen zur Gehäusewand („best“ in Fig. 4-13); Gehäuse Polycarbonat, kein Hindernis.
+- **Empfohlene Montage (Fig. 4-9 [V]): der Antennenteil des Moduls (y 7,5 … 11,5 mm) ragt über die Platinenkante hinaus**, die Platinenkante liegt an der Grenze zum Pad-Bereich (y = 7,5); Massefläche oben und unten bis an die Modulseiten. **Keine Kupferfläche auf allen Lagen** unter und neben der Antenne, falls sie doch über der Platine liegt (Sperrzone im Footprint `Bienen:Microchip_RN4871`, 1 mm über Modulbreite und Oberkante hinaus [A]); **keine Kupferfläche oben** in den zwei Testpunkt-Sperrflächen x 1,0 … 3,0 / y 4,6 … 7,5 und x 4,3 … 8,0 / y 1,5 … 7,0 (Fig. 4-8 [V], Sperrzonen F.Cu). Durchgehende Masse unter dem restlichen Modul, Masse-Vias am Rand.
+- **Metall ≥ 30 mm von der Antenne**: Zelle BT801 im Halter (88 × 22 mm Metallhalter!), Klemmen, RJ45, Stiftleisten, Lichtleiter-Halter; damit auch nicht an der Funkkante direkt neben der FPC-Antenne des Ra-01SH (868 MHz; gegenseitige Verstimmung gering, aber die 30-mm-Regel gilt für beide Antennen [A]).
+- Pads 0,7 × 1,5 mm, 0,5 mm über die Modulkante hinaus, Raster 1,2 mm (Fig. 4-8 [V]); vor der Bestellung mit dem LCSC/EasyEDA-Footprint zu C633942 gegenprüfen **[P]**. Löten: ein Reflow, nicht waschen (Feuchte unter dem Schirm), Spitze ≤ 250 °C [V: 4.5].
+- Koexistenz mit LoRa: **nie gleichzeitig** mit einer LoRa-Übertragung oder einer Mikrofonmessung (Lastenheft A5 gilt auch für BLE) [A].
+
+**Firmware (neue Platinenfirmware, Eckpunkte):** USART6 115 200 Bd 8N1 (Modulvorgabe; Fehler 0,64 % [V: Tab. 9-1]); nach dem Einschalten ≥ 68 ms bis „UART ready“ [V: Fig. 9-2], dann Befehlsmodus (`$$$`), Name/Dienste setzen, Transparent-UART einschalten, Advertising starten; Kopplung mit PIN/Just-Works nach Festlegung [P]; Verbindungs- und Trennmeldungen des Moduls auswerten; Sitzungsende → PA11/PA12 analog, PB13 hochohmig. Flusskontrolle aus. Modul-Firmware-Update: JP301 zu oder Firmware „BLE dauernd“, MCU in Reset (J10 Pin 4 an GND) oder PA11/PA12 analog, Brücke J11 11–12, USB-Seriell-Adapter (3,3 V) an J11 9/10/GND, Microchip-Update-Werkzeug [V: Fig. 5-1].
+
+**Prüfplan am Muster (T4, offen):**
+
+| Test | Durchführung | Erwartung |
+|---|---|---|
+| B-1 Ruhestrom | PB13 hochohmig, Strom an J801 | Beitrag des BLE-Zweigs ≤ 0,1 µA (Differenz mit/ohne U303 bestückt oder JP301) |
+| B-2 Anlauf | PB13 low, Oszilloskop an BLE_VCC und BLE_TXD | UART-Meldung des Moduls innerhalb ca. 100 ms, keine Rücksetzschleife |
+| B-3 Rückspeisung | Modul aus, PA11 versehentlich high | BLE_VCC < 0,5 V mit korrekter Firmware; mit PA11 high messen, wie hoch BLE_VCC steigt (Dokumentation) |
+| B-4 Reichweite | Smartphone, Gehäuse geschlossen, Blechdeckel der Beute | Verbindung im Abstand ≥ 3 m [A]; RSSI protokollieren |
+| B-5 Sitzungsstrom | Advertising 1 s und verbunden 100 ms, Multimeter/Shunt | nahe Tab. 2-4; Firmwarestand 1.30 notieren |
+| B-6 Koexistenz | BLE-Sitzung während LoRa-TX und Mikrofonmessung (nur zur Messung) | Störung dokumentieren; Firmware verhindert Gleichzeitigkeit |
 
 ### 1.4 Debug
 
@@ -58,7 +104,7 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 
 Anlass: Frage von Philipp, ob ein günstiger FPGA oder ein Mikrocontroller mit besserem Preis-Leistungs-Verhältnis sinnvoll wäre. Ergebnis: **STM32F411CEU6 bleibt, kein FPGA, kein externer RAM.**
 
-**Bedarf** (aus `docs/fft-konzept.md`, `hardware/energiebilanz.py`): ADC 8192 Hz, FFT N = 512 mit Welch-Mittelung, ca. 41 KB RAM mit Mikrofon; dazu LoRaWAN-Stack (RadioLib), HX711, 1-Wire, I²C, SPI-Flash, USB-DFU und USB-CDC (HW-05), RTC mit LSE. Genauen RAM-/Flash-Bedarf des Gesamtprogramms nach dem ersten Build der Platinenfirmware nachtragen [P].
+**Bedarf** (aus `docs/fft-konzept.md`, `hardware/energiebilanz.py`): ADC 8192 Hz, FFT N = 512 mit Welch-Mittelung, ca. 41 KB RAM mit Mikrofon; dazu LoRaWAN-Stack (RadioLib), HX711, 1-Wire, I²C, SPI-Flash, BLE-Konsole über USART6 (HW-09; vorher USB-DFU/USB-CDC nach HW-05), RTC mit LSE. Genauen RAM-/Flash-Bedarf des Gesamtprogramms nach dem ersten Build der Platinenfirmware nachtragen [P].
 
 Preise JLCPCB/LCSC am 13.10.2026, 10 Stück, in US-Dollar [V: JLCPCB-Teilesuche]:
 
@@ -167,7 +213,7 @@ Backup-Register des STM32 (20 × 32 Bit) reichen für die Sitzung nicht. Backup-
 
 | Punkt | Festlegung |
 |---|---|
-| Zweck | 1. **LoRaWAN-Sitzung** (3.1, 64 KB). 2. **Messwerte** als Ringpuffer: Lücken bei Funkausfall schließen, später über Serial1/SWD auslesen oder per Funk nachsenden (USB nur Laden/Aufspielen, 1.3). 3. **FFT-Rohdaten nur als einzelne Schnappschüsse** (auf Befehl oder bei Auffälligkeiten), nicht bei jeder Messung (HW26-12). |
+| Zweck | 1. **LoRaWAN-Sitzung** (3.1, 64 KB). 2. **Messwerte** als Ringpuffer: Lücken bei Funkausfall schließen, später über BLE (1.6), Serial1 oder SWD auslesen oder per Funk nachsenden (USB nur Laden, 1.3). 3. **FFT-Rohdaten nur als einzelne Schnappschüsse** (auf Befehl oder bei Auffälligkeiten), nicht bei jeder Messung (HW26-12). |
 | Bauart | serieller NOR-Flash, **SOIC-8 208 mil**, Standard-Pinbelegung der 25er-Reihe (CS, DO, WP, GND / DI, CLK, HOLD, VCC), 2,7–3,6 V, JEDEC-Befehlssatz |
 | Größe | **64 Mbit (8 MB)**. Aufteilung [A]: 64 KB Sitzung, ca. 6 MB Messwerte, ca. 2 MB Rohdaten-Schnappschüsse. |
 | Reichweite (HW26-12) | **Messwerte:** 64 Byte alle 15 min = 6 KB/Tag → 6 MB reichen für etwa **2,7 Jahre** [A]. **FFT-Rohdaten:** ein Schnappschuss sind 9.342 Werte × 2 Byte ≈ 18,7 KB. Bei jeder Messung wären das 1,8 MB/Tag, der ganze Flash wäre nach **4,7 Tagen** voll (Rechnung Review HW26-12, nachgeprüft). Deshalb nur Schnappschüsse: 2 MB fassen etwa **110**. Beide Bereiche sind Ringpuffer; die ältesten Daten werden überschrieben. |
@@ -219,7 +265,7 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PA4–PA7 | Ra-01SH NSS, SCK, MISO, MOSI (SPI1, gemeinsam mit dem Flash) | je 33 Ω; NSS Pull-up 100 kΩ |
 | PA8 | 1-Wire DS18B20 | Pull-up 4,7 kΩ an geschalteter Schiene, 1 kΩ in Reihe |
 | PA9 / PA10 | Serial1 TX / RX | Debug-Leiste |
-| PA11 / PA12 | USB D− / D+ | USBLC6 |
+| PA11 / PA12 | USART6 TX / RX (AF8) zum BLE-Modul RN4871 (HW-09) | je 1 kΩ in Reihe (R310/R311); bei abgeschaltetem Modul analog/hochohmig |
 | PA13 / PA14 | SWDIO / SWCLK | Debug-Leiste |
 | PA15 | I2S3_WS zum Audio-ADC U601 (HW-07) | nach „nur SWD“; AF laut ST-Pindaten [V] |
 | PB0 | Akkuspannung (ADC1_IN8) | Teiler 2 × 2,2 MΩ + 100 nF |
@@ -232,13 +278,13 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PB8 / PB9 | HX711 Nr. 1 DOUT / SCK | 1 kΩ in Reihe |
 | PB10 | 5-V-Wandler der Waage ein (high = ein) | Pull-down 100 kΩ; siehe waage.md |
 | PB12 | I2S3_CK zum Audio-ADC U601 (HW-07) | STM32 ist I²S-Master; AF laut ST-Pindaten [V] |
-| PB13 | VBUS-Erkennung (HW-05) | Teiler 33 kΩ / 82 kΩ von VBUS (AN4879) |
+| PB13 | Lastschalter BLE-Modul (HW-09): low = ein | Gate Q301 AO3401A, Pull-up 100 kΩ (Modul aus bei hochohmigem Pin); vorher VBUS-Erkennung (HW-05) |
 | PB14 / PB15 | Ra-01SH TXEN / RXEN | über offene Lötbrücken |
 | PC13 | LED (low = an), am Platinenrand unter dem Lichtleiter | Signale siehe 3.3; Vorwiderstand ≥ 1 kΩ |
 | PC14 / PC15 | LSE 32,768 kHz | |
 | PH0 / PH1 | HSE 25 MHz | |
 
-Frei für den Erweiterungsstecker (F9): keine GPIOs mehr (PB13 seit HW-05 VBUS-Erkennung, PA15/PB12 seit HW-07 I²S). PB11 gibt es beim UFQFPN-48 nicht [V]. Rückfall der Sensorschiene auf AO3401A: dann PA1 low = ein, Pull-up 1 MΩ.
+Frei für den Erweiterungsstecker (F9): keine GPIOs mehr (PB13 seit HW-09 Lastschalter BLE, vorher VBUS-Erkennung; PA15/PB12 seit HW-07 I²S). J11 Pin 9–11 führen seit HW-09 die Modul-UART und P2_0 des BLE-Moduls (1.6). PB11 gibt es beim UFQFPN-48 nicht [V]. Rückfall der Sensorschiene auf AO3401A: dann PA1 low = ein, Pull-up 1 MΩ.
 
 ## 5. Regeln für den Block
 
@@ -248,7 +294,8 @@ Frei für den Erweiterungsstecker (F9): keine GPIOs mehr (PB13 seit HW-05 VBUS-E
 4. Audio-ADC U601 und I²S-Leitungen weit weg von Funkmodul und SPI (Lastenheft A3).
 5. Ungewisse Modulpins (TXEN/RXEN) über Lötbrücken an freie Pins führen, statt sich festzulegen. Die zugehörigen MCU-Pins (PB14/PB15) bleiben in der Firmware **Eingänge** (2.1).
 6. Alles, was am I²C-Bus hängt, an derselben (geschalteten) Schiene.
-7. SWD immer zugänglich, auch wenn USB-DFU vorgesehen ist.
+7. SWD immer zugänglich; Aufspielen ohne USB über SWD oder den ROM-Bootloader an USART1 (J10).
+8. BLE-Modul (1.6): alle Pull-ups an BLE_VCC, nie an +3V3; PA11/PA12 bei abgeschaltetem Modul hochohmig; Modul an die Kante, Antenne nach außen, Metall ≥ 30 mm; BLE nie gleichzeitig mit LoRa-Sendung oder Mikrofonmessung.
 
 ## 6. Offene Prüfpunkte
 
@@ -260,6 +307,7 @@ Frei für den Erweiterungsstecker (F9): keine GPIOs mehr (PB13 seit HW-05 VBUS-E
 6. Lastkondensatoren HSE/LSE am Muster prüfen (Frequenz, Anschwingen in der Kälte)
 7. TVS für den 3,3-V-Eingang des Moduls auswählen
 8. FPC-Antenne: passende Größe für die Gehäusewand wählen (CBHUB-02: Innenhöhe 58,9 mm)
+9. RN4871 (HW-09): Footprint gegen LCSC/EasyEDA C633942 prüfen; Flusskontrolle und Kopplung in der Moduleinstellung festlegen (User's Guide DS50002466); Zertifikate ablegen; Prüfplan B-1 … B-6 (1.6); Bestand/Preis vor der Bestellung
 
 ### 6.1 Prüfplan Funkmodul am Steckbrett (SCH26-11, T4, durch Philipp)
 

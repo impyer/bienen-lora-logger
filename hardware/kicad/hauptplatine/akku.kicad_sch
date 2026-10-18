@@ -6,8 +6,8 @@
 	(paper "A3")
 	(title_block
 		(title "Akku: Zelle 18650, Zellschutz, Temperatur-Ladesperre")
-		(date "2026-10-09")
-		(rev "0.1 Entwurf")
+		(date "2026-10-18")
+		(rev "0.1 Layout-Stand")
 		(company "Bienenlogger – Philipp Schnabel")
 		(comment 1 "Erzeugt mit hardware/kicad/werkzeug – nicht von Hand ändern, sondern das Skript")
 		(comment 2 "Board-Kennung PCB-MAIN-0.1 (REG26-10)")
