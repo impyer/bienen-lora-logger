@@ -62,7 +62,15 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 
 - **Do not change the circuit** (in KiCad or in a schematic you re-create in your tool). Edits would be lost.
 - Footprint changes, pin swaps, value changes, added test points or parts: send a **change request** (list with reference, old, new, reason). The client changes the generator and sends an updated schematic/netlist; you then update your board from it (in KiCad: *Tools → Update PCB from Schematic*, F8).
-- Gate/pin swaps for routing convenience are possible **only** after agreement (e.g. STM32 GPIOs are fixed by alternate functions, see `doku/mcu-funk.md` §4).
+- Gate/pin swaps for routing convenience are possible **only** after agreement (e.g. STM32 GPIOs are fixed by alternate functions, see `doku/mcu-funk.md` §4). To make that quick, the table below lists the STM32 pins that **may be swapped among each other** (plain GPIO, no alternate function needed) – propose the swap as a change request, it will be accepted and the generator updated:
+
+| Swap group | Pins (current signal) | Constraint |
+|---|---|---|
+| G1 plain GPIO | PA1 SENSOR_EIN, PA3 LORA_BUSY, PB3 FLASH_CS, PB4 LORA_RST, PB8 HX_DOUT, PB9 HX_SCK, PB10 WAAGE_EIN, PB13 BLE_EIN, PB14 LORA_TXEN, PB15 LORA_RXEN | any permutation; PA2 LORA_DIO1 may join (needs an EXTI line – every GPIO has one) |
+| G2 I²C1 | PB6 SCL / PB7 SDA ↔ PB8 SCL / PB9 SDA | whole pair only (alternate function I2C1); then PB6/PB7 become plain GPIO for the HX711 lines |
+| fixed | PA0 WKUP, PA4–PA7 SPI1, PA8 1-Wire (keep, has 1-Wire timing), PA9/PA10 USART1, PA11/PA12 USART6, PA13/PA14 SWD, PA15/PB5/PB12 I2S3, PB0/PB1 ADC, PC13 LED (low-drive pin, LED only), PC14/PC15 LSE, PH0/PH1 HSE | do not swap |
+
+Within a terminal block or the RJ45 the pin order is fixed (cable plans in `doku/anschluesse.md`).
 
 ## 3. Board and mechanics
 

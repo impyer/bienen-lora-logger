@@ -263,7 +263,7 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PA2 | Ra-01SH DIO1 | Interrupt |
 | PA3 | Ra-01SH BUSY | |
 | PA4–PA7 | Ra-01SH NSS, SCK, MISO, MOSI (SPI1, gemeinsam mit dem Flash) | je 33 Ω; NSS Pull-up 100 kΩ |
-| PA8 | 1-Wire DS18B20 | Pull-up 4,7 kΩ an geschalteter Schiene, 1 kΩ in Reihe |
+| PA8 | 1-Wire DS18B20 | Pull-up 4,7 kΩ an geschalteter Schiene (R701); kein Reihenwiderstand (ESDS304 D701 an der Klemme; Text bis 18.10.2026 widersprach dem Schaltplan) |
 | PA9 / PA10 | Serial1 TX / RX | Debug-Leiste |
 | PA11 / PA12 | USART6 TX / RX (AF8) zum BLE-Modul RN4871 (HW-09) | je 1 kΩ in Reihe (R310/R311); bei abgeschaltetem Modul analog/hochohmig |
 | PA13 / PA14 | SWDIO / SWCLK | Debug-Leiste |

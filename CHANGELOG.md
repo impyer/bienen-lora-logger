@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-18 – Schaltplan-Review mit SPICE-Modell: Einsparungen, Kniffe, Leckstrom-Befund
+
+- Neu `hardware/schaltplan_spice.py` (GPL-3.0-or-later): treibt die ngspice-Bibliothek aus KiCad 10 (`ngspice.dll` bzw. `libngspice0`) über ctypes und prüft 12 Größen mit Grenzen – Elektretpfad (Hochpass 5 Hz, Kapsel 1,9 V), HX711-AVDD 4,30 V (Eckwerte 4,24–4,36 V), BLE-Lastschalter (Einbruch auf 3,06 V heute, Sanftanlauf 10 kΩ + 47 nF → 55 mA), RN4871-Reset 4–9 ms, BLE_VCC-Entladung 2,4 s, ADC-Teiler-Leckstromfehler, Sensorschiene 25 mA, 1-Wire 3,1 µs. Ohne Bibliothek meldet das Skript ÜBERSPRUNGEN (nicht bestanden). CI-Job `hardware-rechnungen` installiert `libngspice0` und führt es aus.
+- Bericht [2026-10-18-schaltplan-optimierung](docs/testberichte/2026-10-18-schaltplan-optimierung.md): keine Fehler; Vorschläge **−6 Teile ohne Funktionsverlust** (R302, C308, FB301, C306, R407, R408), **5-V-Wandler der Waage zur Entscheidung** (−6 Teile, −0,5 mAh/Tag, PB10 frei; Gleichtakt am Steckbrett prüfen), **Sanftanlauf BLE** (2 Teile), **Pin-Tauschgruppen** für den Layouter (Pflichtenheft 2.3, neue Tabelle). Nicht umgesetzt (Layout-Stand eingefroren) – Entscheidung HW-11 offen.
+- Befundregister: **HW26-21** (ADC-Teiler-Leckstrom, analysiert/akzeptiert mit Firmware-Kalibrierung). `mcu-funk.md` 4: PA8 ohne Reihenwiderstand (Text widersprach dem Schaltplan). CLAUDE.md und `hardware/README.md`: neuer Prüfbefehl.
+
 ## 2026-10-18 – Dritter Mikrofoneingang (HW-10)
 
 - **HW-10 (Philipp):** alle drei Anschlussmöglichkeiten des TLV320ADC3101 belegt: zusätzlich **Elektret 2** pseudo-differenziell am rechten Analogeingang IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615 1 kΩ, C629 1 µF, Koppel-C C625/C626 1 µF X7R, C627/C628 100 pF), auf den **Pins 5 (MIC3+) und 6 (MIC3−) der RJ45-Buchse J601** (Philipp: ein Stecker für alle drei Mikrofone; die Pins waren Masse-Paarpartner von VDD und DATA) mit ESDS304 D602. Bis zu drei Mikrofone; rechter Kanal je Messung PDM oder Elektret 2 (zwei Durchgänge, `energiebilanz.py` 2b: +0,2 mAh/Tag).
