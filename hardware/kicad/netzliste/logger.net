@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "C:\\Users\\schnp\\Documents\\Bienen\\bienen-lora-logger\\hardware\\kicad\\hauptplatine\\logger.kicad_sch")
-		(date "2026-10-18T18:52:23")
+		(date "2026-10-18T19:02:29")
 		(tool "Eeschema 10.0.7")
 		(sheet
 			(number "1")
@@ -8472,7 +8472,7 @@
 			(ref "D602")
 			(value "ESDS304DBVR")
 			(footprint "Package_TO_SOT_SMD:SOT-23-5")
-			(description "direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
+			(description "direkt hinter J601 neben D601 (anschluesse.md 3): Paar 4/5 der Buchse; zwei Kanäle frei; LCSC [P]")
 			(fields
 				(field
 					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
@@ -8480,7 +8480,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
+					(name "Description") "direkt hinter J601 neben D601 (anschluesse.md 3): Paar 4/5 der Buchse; zwei Kanäle frei; LCSC [P]")
 			)
 			(libsource
 				(lib "Power_Protection")
@@ -8643,7 +8643,7 @@
 			(ref "J601")
 			(value "Mikrofone 1–3")
 			(footprint "Connector_RJ:RJ45_RCH_RC01937")
-			(description "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, 4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 (vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
+			(description "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+VDD, 4/5 MIC3+/MIC3−, 7/8 MIC+/MIC− (jedes Mikrofon auf einem eigenen Paar, Elektrets am Rand, weit weg vom Takt; HW-10: Mikrofon 3 auf 4/5, VDD von 4 auf 6; VDD ist für DATA der Rückleiter, am Kopf 100 nF und hier C611); Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
 			(fields
 				(field
 					(name "Footprint") "Connector_RJ:RJ45_RCH_RC01937")
@@ -8651,7 +8651,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, 4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 (vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
+					(name "Description") "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+VDD, 4/5 MIC3+/MIC3−, 7/8 MIC+/MIC− (jedes Mikrofon auf einem eigenen Paar, Elektrets am Rand, weit weg vom Takt; HW-10: Mikrofon 3 auf 4/5, VDD von 4 auf 6; VDD ist für DATA der Rückleiter, am Kopf 100 nF und hier C611); Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
 			)
 			(libsource
 				(lib "Connector")
@@ -14757,7 +14757,7 @@
 			)
 			(node
 				(ref "J601")
-				(pin "4")
+				(pin "6")
 				(pintype "passive")
 			)
 		)
@@ -14836,7 +14836,7 @@
 			)
 			(node
 				(ref "J601")
-				(pin "6")
+				(pin "5")
 				(pintype "passive")
 			)
 			(node
@@ -14867,7 +14867,7 @@
 			)
 			(node
 				(ref "J601")
-				(pin "5")
+				(pin "4")
 				(pintype "passive")
 			)
 			(node
