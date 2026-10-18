@@ -90,6 +90,9 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
    const restored=new Promise((resolve,reject)=>outage.once('exit',code=>code===0?resolve():reject(Error('DB fixture outage helper failed'))));
    try{
     await Promise.race([new Promise(resolve=>outage.stdout.once('data',resolve)),restored.then(()=>{throw Error('Outage helper exited before ready');})]);
+    const unavailable=await context.request.get(config.origin+'/api/v1/stockkarte/session');
+    assert.equal(unavailable.status(),503);assert.equal(unavailable.headers()['retry-after'],'30');
+    assert.deepEqual(await unavailable.json(),{detail:'Messdatenbank derzeit nicht erreichbar'});
     await page.getByRole('button',{name:'7 Tage',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('#umStatus')?.textContent.includes('automatische Abfrage versucht es erneut'),null,{timeout:10000});
     assert.equal(await page.locator('.um-chart').count(),0,'DB outage must remove stale curves');
