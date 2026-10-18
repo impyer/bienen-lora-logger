@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "C:\\Users\\schnp\\Documents\\Bienen\\bienen-lora-logger\\hardware\\kicad\\hauptplatine\\logger.kicad_sch")
-		(date "2026-10-18T18:12:10")
+		(date "2026-10-18T18:45:08")
 		(tool "Eeschema 10.0.7")
 		(sheet
 			(number "1")
@@ -3886,6 +3886,60 @@
 			)
 		)
 		(comp
+			(ref "R313")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "entlädt C314 nach dem Abschalten (τ ≈ 1 s): definierter Aus-Zustand, kurzer Aus-Ein-Zyklus wirkt als Reset; 33 µA nur bei eingeschaltetem Modul [A]")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "entlädt C314 nach dem Abschalten (τ ≈ 1 s): definierter Aus-Zustand, kurzer Aus-Ein-Zyklus wirkt als Reset; 33 µA nur bei eingeschaltetem Modul [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "MCU")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mcu.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/MCU/")
+				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
+			)
+			(tstamps "ffa53f8f-c978-5b14-8a86-f92179e26146")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
 			(ref "SW301")
 			(value "Reset")
 			(footprint "Button_Switch_SMD:SW_SPST_TL3342")
@@ -6399,12 +6453,10 @@
 		)
 		(comp
 			(ref "Q501")
-			(value "S8550")
+			(value "S8550 (1 B, 2 E, 3 C)")
 			(footprint "Package_TO_SOT_SMD:SOT-23")
 			(description "PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
 			(fields
-				(field
-					(name "LCSC") "C397181")
 				(field
 					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
 				(field
@@ -6417,10 +6469,6 @@
 				(lib "Transistor_BJT")
 				(part "SS8550")
 				(description "General Purpose PNP Transistor, 1.5A Ic, 25V Vce, SOT-23")
-			)
-			(property
-				(name "LCSC")
-				(value "C397181")
 			)
 			(property
 				(name "Sheetname")
@@ -14291,6 +14339,11 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "R313")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
 				(ref "U303")
 				(pin "14")
 				(pinfunction "VBAT_14")
@@ -16460,6 +16513,11 @@
 			)
 			(node
 				(ref "R305")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R313")
 				(pin "2")
 				(pintype "passive")
 			)

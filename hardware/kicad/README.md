@@ -67,7 +67,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 ## Offene Punkte [P]
 
 - Projektfootprints (`werkzeug/footprints.py` → `Bienen.pretty`, reproduzierbar, in `pruefen.sh`): BQ25185 DLH0010A nach TI 4226298/A und Ra-01SH nach Ai-Thinker-Datenblatt V1.1 S. 13 angelegt (13.10.2026). Reedkontakt MiRelay MRS03-B-3 und Side-View-LED Lite-On LTST-S220KGKT gewählt, Footprints nach Datenblatt (13.10.2026); Akkuhalter **Keystone 1042 (SMD)** festgelegt (HW-02, 13.10.2026), Footprint aus der KiCad-Bibliothek; Klemmen auf einreihige DEGSON 15EDGRC-3.5 umgestellt (SCH26-13), 5 Footprints in `Bienen.pretty`. Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
-- Datenblatt-Pinbelegung noch nicht gelesen ([A]/[P] in `pin_footprint.md`): SPI-Flash (je gewähltem Typ), AO3400A, AO3401A, S8550 (C397181), Quarz Y301, Side-View-LED, TVS D401.
+- Datenblatt-Pinbelegung noch nicht gelesen ([A]/[P] in `pin_footprint.md`): SPI-Flash (je gewähltem Typ), S8550 (Hersteller offen, Pinfolge 1 B, 2 E, 3 C gefordert), Quarz Y301, Side-View-LED, TVS D401.
 - Blatt MCU, BLE-Modul (HW-09): Footprint `Bienen:Microchip_RN4871` nach DS50002489D Fig. 4-7/4-8/4-9 [V] gegen LCSC/EasyEDA C633942 gegenprüfen; Bestand (50 Stück am 18.10.2026); Prüfplan B-1 … B-6 in `../mcu-funk.md` 1.6; Entscheidung USB-C-Buchse behalten oder entfernen. HY2111, FS8205, RT9080, Ra-01SH nur aus früherer Sitzung ([V*]) – beim Footprint-Anlegen erneut lesen.
 - Blatt MCU: Ferrit FB301 (LCSC-Nummer); LED-Helligkeit mit 1 kΩ und Lichtleiter am Muster prüfen; Schaltabstand Reedkontakt am Prototyp.
 - Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.
@@ -79,7 +79,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
 - Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
-## Stückliste (bisher, 185 Teile; erzeugt aus dem Generator)
+## Stückliste (bisher, 186 Teile; erzeugt aus dem Generator)
 
 | Ref. | Wert | Symbol | Footprint | LCSC | Blatt |
 |---|---|---|---|---|---|
@@ -186,7 +186,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | JP801 | Messbrücke B+ (kein Bestückteil) | Jumper:SolderJumper_2_Bridged | SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm |  | Akku |
 | L501 | 1µ | Device:L | L_0805_2012Metric |  | Waage |
 | Q301 | AO3401A | Transistor_FET:AO3401A | SOT-23 | C15127 | MCU |
-| Q501 | S8550 | Transistor_BJT:SS8550 | SOT-23 | C397181 | Waage |
+| Q501 | S8550 (1 B, 2 E, 3 C) | Transistor_BJT:SS8550 | SOT-23 |  | Waage |
 | Q801 | FS8205 | Bienen:FS8205 | SOT-23-6 | C32254 | Akku |
 | Q802 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku |
 | Q803 | AO3400A | Transistor_FET:AO3400A | SOT-23 |  | Akku |
@@ -207,6 +207,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R310 | 1k | Device:R | R_0603_1608Metric |  | MCU |
 | R311 | 1k | Device:R | R_0603_1608Metric |  | MCU |
 | R312 | 10k | Device:R | R_0603_1608Metric |  | MCU |
+| R313 | 100k | Device:R | R_0603_1608Metric |  | MCU |
 | R401 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R402 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R403 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |

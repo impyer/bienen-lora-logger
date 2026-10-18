@@ -39,7 +39,8 @@ Mikrofon 3 (Elektret 2) ─ MIC3+ ── Paar 4/5 (mit VDD) ── J601.5 ─┬
            MICBIAS2 2,5 V ─ 1 kΩ ─ MIC3+ ;  MIC3− ─ 1 kΩ ─ GND                       │
 IM69D127 ─ DATA ─ ca.100 Ω ── Paar 3/6 ───── J601.3 ─ ESD ─ 22 Ω ─ DMDIN          │  I²S → PB12/PA15/PB5
          ─ CLK ─────────────── Paar 1/2 ───── J601.2 ─ ESD ─ 33 Ω ─ 74LVC1G17 ─ DMCLK┘  I²C 0x18
-         ─ VDD/GND ─────────── Paar 4/5 ───── J601.4/5 ─ 3V3_MEMS (Ferrit, 1 µF);  Schirm → SH
+         ─ VDD ──────────────── Paar 4/5 ───── J601.4 ─ 3V3_MEMS (Ferrit, 1 µF);  GND über Paar 1/2 → J601.1;  Schirm → SH
+         (seit HW-10: Pin 5 = MIC3+ im Paar mit VDD, Pin 6 = MIC3− im Paar mit DATA; vorher beide GND)
 ```
 
 ### 2.1 Bauteile
@@ -57,7 +58,7 @@ IM69D127 ─ DATA ─ ca.100 Ω ── Paar 3/6 ───── J601.3 ─ ESD �
 | U603, C624 | 74LVC1G17, 100 nF | Schmitt-Puffer für den PDM-Takt ins Kabel; Pinbelegung Herstellerdatenblatt prüfen [P] |
 | R612, R613 | 33 Ω, 22 Ω | Takt-Serienwiderstand; Schutz vor DMDIN |
 | FB602, C611 | 600 Ω, 1 µF | 3V3_MEMS über das Kabel zum IM69D127 (1,65–3,6 V [V]) |
-| J601, D601 | RJ45 geschirmt ohne Übertrager (Footprint-Vorschlag RCH RC01937; Teil wählt der Layouter), ESDS304 | Buchse (= J5): 1 GND, 2 CLK, 3 DATA, 4 VDD, 5 GND, 6 GND, 7 MIC+, 8 MIC−, SH Schirm; ESD an CLK, DATA, MIC+, MIC− |
+| J601, D601 | RJ45 geschirmt ohne Übertrager (Footprint-Vorschlag RCH RC01937; Teil wählt der Layouter), ESDS304 | Buchse (= J5): 1 GND, 2 CLK, 3 DATA, 4 VDD, **5 MIC3+, 6 MIC3−** (HW-10; vorher GND), 7 MIC+, 8 MIC−, SH Schirm; ESD D601 an CLK, DATA, MIC+, MIC−, D602 an MIC3+, MIC3− |
 | R614, R615, C629 | 2 × 1 kΩ, 1 µF | **HW-10:** Vorspannung Elektret 2 aus MICBIAS2 (2,5 V, max. 4 mA [V]), symmetrisch wie R610/R611 |
 | C625, C626, C627, C628 | 2 × 1 µF X7R, 2 × 100 pF C0G | Koppel- und HF-Kondensatoren Elektret 2 wie C619/C620/C622/C623 (gleicher Hochpass 4,5 Hz) |
 | D602 | ESDS304 | ESD an MIC3+/MIC3− (J601 Pin 5/6), direkt neben D601; zwei Kanäle frei |

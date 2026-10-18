@@ -20,7 +20,7 @@
 | 1 | Review the package, ask questions, confirm feasibility (section 9, milestone M0) | yes |
 | 2 | **Component placement** inside the given board frame, respecting sections 3–6 | yes |
 | 3 | **Routing** of all nets on **4 or 6 layers (your choice)**, copper zones, stitching vias | yes |
-| 4 | **LCSC part selection** for every BOM line without an LCSC number (164 of 185 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
+| 4 | **LCSC part selection** for every BOM line without an LCSC number (166 of 186 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
 | 5 | **Manufacturing outputs** for JLCPCB: Gerber, drill files, BOM and CPL in JLCPCB format (section 8) | yes |
 | 6 | **Editable source files** of the routed board in the tool you used (section 2.2) | yes |
 | 7 | Support until the JLCPCB DFM/assembly check passes without errors | yes |
@@ -148,9 +148,9 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 
 ## 7. Part selection (LCSC)
 
-- 21 BOM lines already have an LCSC number (fixed – keep them). For the others, propose an LCSC part per line: **JLCPCB Basic part preferred**, otherwise Extended with stock ≥ 100; footprint must match the schematic footprint, or state the needed footprint change.
+- 20 BOM lines already have an LCSC number (fixed – keep them). For the others, propose an LCSC part per line: **JLCPCB Basic part preferred**, otherwise Extended with stock ≥ 100; footprint must match the schematic footprint, or state the needed footprint change.
 - Values with tolerance/voltage/dielectric in the schematic are binding (e.g. "4,7µ 16V X7R", "2,49k 1%", "C0G").
-- Parts with open choice (marked [P] in the docs): RJ45 J601 (**shielded, without magnetics, without LEDs**, through-hole; footprint proposal `RJ45_RCH_RC01937`), ferrites FB301/FB501/FB502/FB601/FB602, L501 (1 µH, Isat ≥ 0.7 A), TVS D401 (3.3 V), SPI flash U402 (64 Mbit SOIC-8 208 mil, e.g. XT25F64B/ZD25Q64D), DEGSON terminals (part numbers per pole count in `doku/anschluesse.md` §2), Elektret capsule / MEMS board are off-board (not on the BOM).
+- Parts with open choice (marked [P] in the docs): RJ45 J601 (**shielded, without magnetics, without LEDs**, through-hole; footprint proposal `RJ45_RCH_RC01937`), ferrites FB301/FB501/FB502/FB601/FB602, L501 (1 µH, Isat ≥ 0.7 A), TVS D401 (3.3 V), SPI flash U402 (64 Mbit SOIC-8 208 mil, e.g. XT25F64B/ZD25Q64D), **Q501 PNP S8550/SS8550 in SOT-23 with pinout 1 = Base, 2 = Emitter, 3 = Collector exactly as the KiCad symbol (manufacturers differ – attach the datasheet pin drawing)**, DEGSON terminals (part numbers per pole count in `doku/anschluesse.md` §2), Elektret capsule / MEMS board are off-board (not on the BOM).
 - Fixed parts with low stock – flag them in your proposal if the stock changed: U303 RN4871-I/RM130 (C633942, Extended, 50 pcs on 18 Oct 2026), U401 Ra-01SH (C2764087).
 - Not assembled (DNP, keep the footprints): J301 charge pads (header not fitted), J801 current-measurement header; solder jumpers JP301/JP401/JP402 (open) and JP801 (bridged) and test points TP201/TP202 are not BOM items.
 - Deliver the proposals as a table (reference, value, LCSC number, Basic/Extended, stock, price, remark). **The client approves before ordering.**

@@ -255,6 +255,9 @@ def mcu(p):
     b.teil("Device:R", "R312", "10k", fp=R0603, netze={"1": "BLE_VCC", "2": "BLE_MODE"},
            info="P2_0 high = Anwendungsmodus; an BLE_VCC (nicht +3V3), damit nichts in das abgeschaltete Modul speist; "
                 "Testmodus für Modul-Firmware-Update: J704 Pin 11 an GND (Pin 12)")
+    b.teil("Device:R", "R313", "100k", fp=R0603, netze={"1": "BLE_VCC", "2": "GND"},
+           info="entlädt C314 nach dem Abschalten (τ ≈ 1 s): definierter Aus-Zustand, kurzer Aus-Ein-Zyklus wirkt als Reset; "
+                "33 µA nur bei eingeschaltetem Modul [A]")
     b.teil("Device:C", "C314", "10µ 6,3V X5R", fp=C0805, netze={"1": "BLE_VCC", "2": "GND"}, info="Datenblatt Fig. 5-4: 10 µF X5R an VBAT")
     b.teil("Device:C", "C315", "100n", fp=C0603, netze={"1": "BLE_VCC", "2": "GND"}, info="direkt an Pin 14")
     b.teil("Device:C", "C316", "100n", fp=C0603, netze={"1": "BLE_RST", "2": "GND"},
@@ -288,9 +291,9 @@ def zeichne_mcu(b, T):
     b.text("4  Ladepads J301 (HW-09, statt USB-C): 5 V → D203 → Lader; Verpolung sperrt D203", 279.4, 157.48, 2.0)
     b.text("5  Debug-Leiste: SWD und Serial1 (auch ROM-Bootloader über USART1)", 279.4, 101.6, 2.0)
     b.text("6  BLE-Modul RN4871 (HW-09)", 30.48, 172.72, 2.0)
-    b.text("Versorgung über Q301 aus +3V3, PB13 low = ein (Ruhestrom 0); UART an USART6 PA11/PA12 (AF8) über 1 kΩ", 160.02, 189.23, 1.5)
-    b.text("Modul-UART und P2_0 auch an J704 Pin 9–11 (Modul-Firmware-Update: JP301 zu, Pin 11 an GND, MCU in Reset)", 160.02, 193.04, 1.5)
-    b.text("Firmware: PA11/PA12 bei abgeschaltetem Modul hochohmig, sonst Rückspeisung über die Modul-Schutzdioden", 160.02, 196.85, 1.5)
+    b.text("Versorgung über Q301 aus +3V3, PB13 low = ein (Ruhestrom 0), R313 entlädt beim Abschalten; UART an USART6 PA11/PA12 (AF8) über 1 kΩ", 165.1, 189.23, 1.5)
+    b.text("Modul-UART und P2_0 auch an J704 Pin 9–11 (Modul-Firmware-Update: JP301 zu, Pin 11 an GND, MCU in Reset)", 165.1, 193.04, 1.5)
+    b.text("Firmware: PA11/PA12 bei abgeschaltetem Modul hochohmig, sonst Rückspeisung über die Modul-Schutzdioden", 165.1, 196.85, 1.5)
     b.text("Netznamen ohne Gegenstück auf diesem Blatt führen zu den Blättern Versorgung, Funk + Flash, Waage, "
            "Mikrofon und Anschlüsse (mcu-funk.md 4).", 30.48, 241.3, 1.5)
 
@@ -391,7 +394,7 @@ def zeichne_mcu(b, T):
     # --- 6 BLE-Modul RN4871 (HW-09) -------------------------------------------
     # Links der Lastschalter: +3V3 → Q301 (Source oben, Drain unten) → BLE_VCC-Schiene nach rechts zum Modul;
     # JP301 überbrückt den FET; Gate mit Pull-up R309 und Netzname BLE_EIN (PB13).
-    B = S(T["U303"], 129.54, 208.28, text="oben")
+    B = S(T["U303"], 137.16, 208.28, text="oben")
     Q = S(T["Q301"], 58.42, 187.96, rot=180, text="links")
     x_q = Q.p("S")[0]                                   # senkrechte Achse Source/Drain des FET
     y_o, y_v = 180.34, B.p("VBAT")[1]                   # +3V3-Schiene, BLE_VCC-Schiene (Höhe des VBAT-Pins)
@@ -404,15 +407,15 @@ def zeichne_mcu(b, T):
     JP = S(T["JP301"], 38.1, 187.96, rot=90, text="links")
     D(JP.p("B"), (38.1, y_o), (x_q, y_o))
     D(JP.p("A"), (38.1, y_v), (x_q, y_v))
-    for ref, x in (("C314", 63.5), ("C315", 71.12), ("R312", 78.74)):
+    for ref, x in (("C314", 63.5), ("C315", 71.12), ("R312", 78.74), ("R313", 86.36)):
         S(T[ref], x, y_v + 3.81, text="links" if ref == "C314" else "rechts")
     D(T["R312"].p("2"), (78.74, B.p("P2_0")[1]), B.p("P2_0"))
-    L("BLE_MODE", 88.9, B.p("P2_0")[1])
-    S(T["#FLG302"], 106.68, y_v)
-    L("BLE_VCC", 88.9, y_v)
+    L("BLE_MODE", 96.52, B.p("P2_0")[1])
+    S(T["#FLG302"], 111.76, y_v)
+    L("BLE_VCC", 93.98, y_v)
     for pin, netz in (("RST_N", "BLE_RST"), ("UART_RX", "BLE_RXD"), ("UART_TX", "BLE_TXD")):
-        D(B.p(pin), (101.6, B.p(pin)[1]))
-        L(netz, 101.6, B.p(pin)[1], 180)
+        D(B.p(pin), (109.22, B.p(pin)[1]))
+        L(netz, 109.22, B.p(pin)[1], 180)
     # GND-Pins des Moduls gemeinsam
     g1, g2 = B.p("2"), B.p("13")
     D(g1, (g1[0], g1[1] + 2.54), (g2[0], g2[1] + 2.54), g2)
@@ -555,7 +558,7 @@ def waage(p):
                   "INA-": "HX_INN", "INA+": "HX_INP", "INB-": "HX_INB", "INB+": "HX_INB", "PD_SCK": "HX_PD_SCK",
                   "DOUT": "HX_DOUT_IC", "XO": "NC", "XI": "GND", "RATE": "GND", "DVDD": "3V3_SW"},
            info="Kanal A, Verstärkung 128; RATE an GND = 10 Werte/s; XI an GND = interner Takt [V]")
-    b.teil("Transistor_BJT:SS8550", "Q501", "S8550", fp="Package_TO_SOT_SMD:SOT-23", lcsc="C397181",
+    b.teil("Transistor_BJT:SS8550", "Q501", "S8550 (1 B, 2 E, 3 C)", fp="Package_TO_SOT_SMD:SOT-23",
            netze={"B": "HX_BASE", "E": "VSUP_HX", "C": "HX_AVDD"},
            info="PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
     b.teil("Device:R", "R503", "20k 1%", fp=R0603, netze={"1": "HX_AVDD", "2": "HX_VFB"},

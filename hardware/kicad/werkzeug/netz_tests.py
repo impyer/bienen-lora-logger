@@ -307,7 +307,8 @@ def ble(h, h_pin, h_wert):
            h_pin.get(("R309", "1")) == "+3V3" and h_wert.get("R309") == "100k", (h_pin.get(("R309", "1")), h_wert.get("R309")))
     pruefe("Q301 ist AO3401A (P-Kanal), Source an +3V3", h_wert.get("Q301", "").startswith("AO3401") and h_pin.get(("Q301", "2")) == "+3V3",
            (h_wert.get("Q301"), h_pin.get(("Q301", "2"))))
-    genau(h, "BLE_VCC", {("Q301", "3"), ("U303", "14"), ("C314", "1"), ("C315", "1"), ("R312", "1"), ("JP301", "1")})
+    genau(h, "BLE_VCC", {("Q301", "3"), ("U303", "14"), ("C314", "1"), ("C315", "1"), ("R312", "1"), ("R313", "1"), ("JP301", "1")})
+    pruefe("R313 (Entladung BLE_VCC) 100k nach GND", h_pin.get(("R313", "2")) == "GND" and h_wert.get("R313") == "100k", (h_pin.get(("R313", "2")), h_wert.get("R313")))
     pruefe("JP301 (BLE dauernd) ist offene Lötbrücke", "_Open_" in h_wert.get("JP301:footprint", ""), h_wert.get("JP301:footprint"))
     pruefe("U303 ist RN4871", h_wert.get("U303", "").startswith("RN4871"), h_wert.get("U303"))
     genau(h, "USART6_TX", {("U301", "32"), ("R310", "1")})                              # PA11 (AF8)
