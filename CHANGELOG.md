@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-18 – Schaltplan für den Layout-Auftrag freigegeben (Layout-Stand)
+
+- Titelblock aller Blätter: Rev „0.1 Layout-Stand“, Datum 2026-10-18 (Generator `hauptplatine.py`). Pflichtenheft **issue 3**: HW-09 (BLE-Modul, Ladepads), Prüfstand im Paketinhalt, Bauteile mit knappem Bestand (RN4871, Ra-01SH), DNP-Teile und Lötbrücken benannt.
+- Nachweis (KiCad 10.0.7, Windows; Bericht [2026-10-18-layout-uebergabe](docs/testberichte/2026-10-18-layout-uebergabe.md)): `pruefen.sh` reproduzierbar, ERC 0, Netzprüfung 220/220, Pin/Footprint 177 Bauteile / 0 Abweichungen / 0 offen; Rahmenplatine DRC 0; Übergabepaket `build/layout-auftrag-PCB-MAIN-0.1-4c36898.zip` (41 Dateien) entpackt mit ERC 0 und DRC 0 geprüft; `netz_vergleich.py --selbsttest` ok; Formatter-Tests 14/14, 14/14, 12/12. C++-/PHP-Tests über die CI.
+- Freigabe: Schaltplan zur Layout-Bearbeitung (HW-08); keine Bestell- oder Laborfreigabe, D3-Gates unverändert offen.
+
 ## 2026-10-18 – BLE-Modul RN4871 statt USB-Daten (HW-09)
 
 - **HW-09 (Philipp, Vorschlagspaket „USB → BLE RN4871“ eingearbeitet):** Blatt MCU: Microchip **RN4871-I/RM130** (U303, LCSC C633942) an **USART6** PA11/PA12 (AF8) als Transparent-UART-Service-Konsole; Versorgung über P-FET **Q301 AO3401A** an PB13 (low = ein, Ruhestrom ≈ 0), Gate-Pull-up R309, 1 kΩ R310/R311 im UART, R312 10 kΩ (P2_0) an BLE_VCC, C314 10 µF + C315 100 nF, C316 an RST_N, Lötbrücke JP301 „BLE dauernd“; Modul-UART und Modus an **J704 Pin 9–11** (Modul-Firmware-Update, Brücke 11–12 = Testmodus). Abweichung vom Vorschlag: Modul geschaltet statt dauernd versorgt, RST_N ohne MCU-Pin, USB-C bleibt Ladebuchse.
