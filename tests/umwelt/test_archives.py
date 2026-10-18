@@ -36,6 +36,29 @@ class ArchiveTests(unittest.TestCase):
         self.run_import();self.assertEqual(len(self.latest()),2)
         self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_archiv_datei'),2)
 
+    def test_conflict_quality_survives_batch_and_month_boundaries(self):
+        from umwelt import archive_batch
+        for boundary in ('same','batch','month'):
+            with self.subTest(boundary=boundary):
+                # Separate instants make each scenario independent in one DB.
+                stamp={'same':'2026-10-20','batch':'2026-10-21','month':'2026-10-22'}[boundary]+'T00:00Z'
+                first=soil_row(stamp,'12;13;14','first-'+boundary)
+                conflict=soil_row(stamp,'22;23;24','second-'+boundary)
+                self.file.write_text(SOIL_HEADER+first)
+                if boundary=='month':
+                    self.run_import()
+                    (self.root/'soil-2026-11.csv').write_text(SOIL_HEADER+conflict)
+                else:
+                    filler=soil_row('2026-10-23T00:00Z','1;2;3','filler') if boundary=='batch' else ''
+                    self.file.write_text(SOIL_HEADER+first+filler+conflict)
+                with patch.object(archive_import,'BATCH_SIZE',2):self.run_import()
+                row=self.conn.execute("SELECT wert,qualitaet FROM bienen.um_messwert_aktuell m JOIN bienen.kanal k ON k.id=m.kanal_id WHERE k.quellfeld='temp_5cm' AND zeit=%s",(stamp,)).fetchone()
+                self.assertEqual(row[0],22)
+                self.assertIn('quellkonflikt_selber_zeitpunkt',row[1])
+                count=self.scalar('SELECT count(*) FROM bienen.um_messwert_revision')
+                self.run_import();self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_messwert_revision'),count)
+                self.assertEqual(self.scalar("SELECT count(*) FROM bienen.um_rohdatensatz WHERE felder->>'message_id'=ANY(%s)",(['first-'+boundary,'second-'+boundary],)),2)
+
     def test_append_partial_tail_then_complete_and_restart(self):
         self.run_import();old=self.scalar('SELECT offset_bytes FROM bienen.um_archiv_datei')
         row=soil_row('2026-10-26T00:30:00Z','25;26;27','append')

@@ -46,7 +46,9 @@ def main():
     parser.add_argument('--pg-bin', type=Path)
     parser.add_argument('--output', type=Path, default=Path(tempfile.mkdtemp(prefix='bienen-r1-e2e-')))
     parser.add_argument('--long-history', action='store_true', help='35 days, >5000 values through the real stack')
+    parser.add_argument('--stability',action='store_true',help='Default channels and three real automatic chart polls')
     args = parser.parse_args()
+    if args.stability:args.long_history=True
     if not args.caddy:
         parser.error('Caddy executable required')
     work = args.output.resolve();work.mkdir(parents=True, exist_ok=True)
@@ -182,12 +184,13 @@ def main():
             'ca_pins':','.join(pins),'screenshot':str(work/'environment-mobile.png')}
         browser_input['last_known'] = (second+timedelta(microseconds=2) if args.long_history else second).isoformat()
         browser_input['last_value'] = 77.25 if args.long_history else 14
+        browser_input['stability']=args.stability
         bundle=work/'node-trusted-ca.pem'
         existing_ca=Path(os.environ['NODE_EXTRA_CA_CERTS']).read_bytes() if os.environ.get('NODE_EXTRA_CA_CERTS') else b''
         bundle.write_bytes(existing_ca+b'\n'+ca.read_bytes())
         browser_env=dict(env,BIENEN_IMPORT_DSN=import_env['BIENEN_IMPORT_DSN'],R1_PYTHON=sys.executable,R1_BROWSER_INPUT=json.dumps(browser_input),NODE_EXTRA_CA_CERTS=str(bundle))
         browser_script = 'long_browser_e2e.js' if args.long_history else 'browser_e2e.js'
-        result=subprocess.run(['node',str(ROOT/'tests/umwelt'/browser_script)],env=browser_env,cwd=ROOT,capture_output=True,text=True,timeout=150)
+        result=subprocess.run(['node',str(ROOT/'tests/umwelt'/browser_script)],env=browser_env,cwd=ROOT,capture_output=True,text=True,timeout=300 if args.stability else 150)
         safe_output=re.sub(r'(?im)^.*(?:cookie|authorization):.*$', '[sensitive header redacted]', result.stdout+result.stderr)
         (work/'browser.log').write_text(safe_output)
         if result.returncode:

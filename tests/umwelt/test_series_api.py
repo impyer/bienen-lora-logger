@@ -4,6 +4,10 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+import psycopg
 
 from argon2 import PasswordHasher
 from fastapi.testclient import TestClient
@@ -37,6 +41,45 @@ def seed_series(conn, source_id, count=1200):
 
 
 class SeriesApiTests(unittest.TestCase):
+    def test_parallel_queries_have_bounded_admission_and_recover(self):
+        with psycopg.connect(os.environ['BIENEN_TEST_DSN']) as blocker, ThreadPoolExecutor(2) as pool:
+            blocker.execute('LOCK TABLE bienen.um_messwert_revision IN ACCESS EXCLUSIVE MODE')
+            pending=[pool.submit(self.client.get,self.path,params=self.params) for _ in range(2)]
+            timer=None
+            try:
+                deadline=time.monotonic()+4
+                while time.monotonic()<deadline:
+                    count=self.conn.execute("SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock'").fetchone()[0]
+                    if count>=2:break
+                    time.sleep(.02)
+                self.assertGreaterEqual(count,2,'two real SQL queries must be in flight')
+                timer=threading.Timer(2,blocker.rollback);timer.start()
+                response=self.client.get(self.path,params=self.params)
+                self.assertEqual(response.status_code,503)
+                self.assertIn('gleichzeitige',response.json()['detail'])
+            finally:
+                if timer:timer.cancel();timer.join()
+                blocker.rollback()
+                for future in pending:self.assertEqual(future.result(timeout=10).status_code,200)
+        self.assertEqual(self.client.get(self.path,params=self.params).status_code,200)
+
+    def test_offsets_half_open_boundaries_and_frozen_correction(self):
+        params=dict(self.params,von='2026-10-25T02:30:00+02:00',bis='2026-10-25T02:31:00+02:00',limit=1)
+        first=self.client.get(self.path,params=params).json()
+        self.assertEqual(first['source_points'],5)
+        self.file.write_text(SOIL_HEADER+soil_row(values='22;;13'))
+        import_source(self.conn,self.sid)
+        pages=[first]
+        while pages[-1]['next_cursor']:
+            pages.append(self.client.get(self.path,params=dict(params,cursor=pages[-1]['next_cursor'])).json())
+        self.assertEqual(sum(p['returned_points'] for p in pages),5)
+        self.assertTrue(all(point['revision']==1 for p in pages for s in p['series'] for point in s['points']))
+        self.assertTrue(all(point['time']=='2026-10-25T00:30:00Z' for p in pages for s in p['series'] for point in s['points']))
+        fresh=self.client.get(self.path,params=dict(params,limit=5000)).json()
+        self.assertTrue(any(point['revision']==2 for s in fresh['series'] for point in s['points']))
+        empty=self.client.get(self.path,params=dict(params,von='2026-10-25T02:31:00+02:00')).status_code
+        self.assertEqual(empty,422)
+
     def setUp(self):
         self.conn=reset_database();self.temp=tempfile.TemporaryDirectory()
         self.file=Path(self.temp.name)/'soil.csv';self.file.write_text(SOIL_HEADER+soil_row())

@@ -18,6 +18,7 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   await page.locator('#umLogin input[name="password"]').fill(config.password);
   await page.locator('#umLogin button[type="submit"]').click();
   await page.locator('.um-chart[aria-label*="Bodentemperatur"]').waitFor();
+  if(config.stability)assert.equal(await page.locator('#umFields input:checked').count(),4,'dynamic temperature overview must be the default');
   async function complete(action){await action();try{await page.waitForFunction(()=>document.querySelector('#umStatus')?.textContent.startsWith('Vollständig geladen'));}catch(error){console.error('Chart status:',await page.locator('#umStatus').textContent());console.error('Page errors:',errors);throw error;}}
   async function newest(range){
    const values=await page.locator('.um-chart[aria-label*="Bodentemperatur"]').evaluate(node=>window.echarts.getInstanceByDom(node).getOption().series.flatMap(s=>s.data.map(p=>p.value[1])));
@@ -45,6 +46,25 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   assert.equal(await page.locator('.um-chart').count(),0);
   await complete(()=>page.locator('#umStand').selectOption(String(config.stand_id)));
   await newest('apiary-return');
+  if(config.stability){
+   await complete(()=>page.getByRole('button',{name:'30 Tage',exact:true}).click());
+   await page.locator('.um-chart[aria-label*="Bodentemperatur"]').evaluate(node=>{
+    const chart=window.echarts.getInstanceByDom(node);window.stabilityChart=chart;window.stabilityNode=node;
+    chart.dispatchAction({type:'dataZoom',start:20,end:80});
+    chart.dispatchAction({type:'legendUnSelect',name:'Bodentemperatur 20 cm'});
+   });
+   for(let cycle=0;cycle<3;cycle++){
+    const response=await page.waitForResponse(r=>r.url().includes('/zeitreihen?')&&r.ok(),{timeout:45000});
+    await response.finished();await page.waitForFunction(()=>document.querySelector('#umStatus')?.textContent.startsWith('Vollständig geladen'));
+    await page.locator('.um-chart[aria-label*="Bodentemperatur"]').evaluate(node=>{
+     const c=window.echarts.getInstanceByDom(node),o=c.getOption();
+     if(c!==window.stabilityChart||node!==window.stabilityNode)throw Error('Chart recreated during regular poll');
+     if(o.dataZoom[0].start!==20||o.dataZoom[0].end!==80)throw Error('Zoom lost during poll');
+     if(o.legend[0].selected['Bodentemperatur 20 cm']!==false)throw Error('Legend state lost');
+    });
+    assert.equal(await page.locator('.um-chart').count(),2,'no leaked chart instances');
+   }
+  }
   const started=Date.now();fs.appendFileSync(config.soil_file,config.new_row);
   await page.waitForFunction(()=>{
    const node=document.querySelector('.um-chart[aria-label*="Bodentemperatur"]');
