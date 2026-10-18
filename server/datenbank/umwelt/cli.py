@@ -38,6 +38,9 @@ def main():
     sub.add_parser('inventory', help='Nur lesende DB-Inventur, keine Dateipfade oder Geheimnisse')
     inspect=sub.add_parser('inspect-config',help='Explizite synthetische CSV-Konfiguration nur lesend inventarisieren')
     inspect.add_argument('--config',required=True)
+    sync=sub.add_parser('sync-synthetic',help='Deklarierte synthetische Monatskopien atomar bereitstellen')
+    sync.add_argument('--config',required=True)
+    sync.add_argument('--interval',type=int,help='Optionaler Wiederholungstakt, 5–3600 Sekunden')
     login = sub.add_parser('import-login', help='Expliziter Admin-Schritt für isolierten Import-Login')
     login.add_argument('--role',required=True)
     login.add_argument('--password-stdin',action='store_true',required=True)
@@ -51,6 +54,19 @@ def main():
     grant.add_argument('--username', required=True)
     grant.add_argument('--stand-id', required=True, type=int)
     args = parser.parse_args()
+    if args.operation=='sync-synthetic':
+        from .staging_sync import sync_synthetic
+        if args.interval is not None and not 5<=args.interval<=3600:parser.error('Sync-Intervall muss 5–3600 Sekunden sein')
+        with open(args.config,encoding='utf-8') as file:config=json.load(file)
+        while True:
+            from .ingest import SourceReadError
+            try:result=sync_synthetic(config)
+            except (OSError,SourceReadError):result={'synthetic':True,'success':False,'error':'Sync-Quelle/Staging nicht lesbar oder unsicher; nächster Lauf kann erneut prüfen'}
+            print(json.dumps(result),flush=True)
+            if args.interval is None:
+                if not result['success']:raise SystemExit(1)
+                return
+            time.sleep(args.interval)
     if args.operation=='inspect-config':
         from .inventory import inspect_config
         with open(args.config,encoding='utf-8') as file:config=json.load(file)

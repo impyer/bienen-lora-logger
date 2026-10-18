@@ -37,7 +37,6 @@ class ArchiveTests(unittest.TestCase):
         self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_archiv_datei'),2)
 
     def test_conflict_quality_survives_batch_and_month_boundaries(self):
-        from umwelt import archive_batch
         for boundary in ('same','batch','month'):
             with self.subTest(boundary=boundary):
                 # Separate instants make each scenario independent in one DB.
@@ -58,6 +57,23 @@ class ArchiveTests(unittest.TestCase):
                 count=self.scalar('SELECT count(*) FROM bienen.um_messwert_revision')
                 self.run_import();self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_messwert_revision'),count)
                 self.assertEqual(self.scalar("SELECT count(*) FROM bienen.um_rohdatensatz WHERE felder->>'message_id'=ANY(%s)",(['first-'+boundary,'second-'+boundary],)),2)
+
+    def test_synthetic_sync_to_actual_import_preserves_correction_and_provenance(self):
+        from umwelt.staging_sync import sync_synthetic
+        receiver=self.root/'receiver';staging=self.root/'staging';receiver.mkdir();staging.mkdir()
+        original=receiver/self.file.name;original.write_text(SOIL_HEADER+soil_row())
+        config=dict(source=str(receiver),staging=str(staging),pattern=self.config['pattern'],profile='boden',
+            source_stand='synthetic',source_device='synthetic-soil',synthetic=True)
+        ident=register_source(self.conn,**dict(self.config,key='sync-import',path=staging))
+        def sync_import():
+            before=hashlib.sha256(original.read_bytes()).digest()
+            self.assertTrue(sync_synthetic(config)['success']);import_source(self.conn,ident)
+            self.assertEqual(before,hashlib.sha256(original.read_bytes()).digest())
+        sync_import();original.write_text(SOIL_HEADER+soil_row(values='22;;13'));sync_import()
+        (receiver/'soil-2026-11.csv').write_text(SOIL_HEADER+soil_row());sync_import();sync_import()
+        self.assertEqual(self.scalar("SELECT wert FROM bienen.um_messwert_aktuell m JOIN bienen.kanal k ON k.id=m.kanal_id WHERE k.quellfeld='temp_5cm'"),22)
+        self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_messwert_revision'),10)
+        self.assertEqual(self.scalar('SELECT count(*) FROM bienen.um_roh_fundstelle'),3)
 
     def test_append_partial_tail_then_complete_and_restart(self):
         self.run_import();old=self.scalar('SELECT offset_bytes FROM bienen.um_archiv_datei')
