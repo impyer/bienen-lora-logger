@@ -13,8 +13,8 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 - Vergleich mit BEEP base v3: [`beep-vergleich.md`](beep-vergleich.md) (Übernahmen: TPS22917, Reedkontakt, ESD-Arrays, 4 Lagen zur Entscheidung)
 - Block Mikrofon: [`mikrofon.md`](mikrofon.md); seit **HW-07 (14.10.2026)** zwei Mikrofone verschiedener Bauart (Elektret analog + MEMS IM69D127 digital) am Audio-ADC TLV320ADC3101 statt GY-MAX4466 mit Analogfilter
 - Block Waage: [`waage.md`](waage.md) (5 V über TPS61240, H40A 404 Ω, Auflösung, Energie)
-- Block Mikrocontroller und Funk: [`mcu-funk.md`](mcu-funk.md) (Beschaltung, Quarz 7 pF, USB-C, Antenne an IPEX, LLCC68-Hinweis, Pinbelegung)
-- **HW-09 (18.10.2026):** Bluetooth-Low-Energy-Modul **RN4871** an USART6 (PA11/PA12) als Service-Schnittstelle ohne Öffnen; USB-C nur noch zum Laden (K5, K6, F9; [`mcu-funk.md`](mcu-funk.md) 1.3 und 1.6)
+- Block Mikrocontroller und Funk: [`mcu-funk.md`](mcu-funk.md) (Beschaltung, Quarz 7 pF, Ladepads, Antenne an IPEX, LLCC68-Hinweis, Pinbelegung)
+- **HW-09 (18.10.2026):** Bluetooth-Low-Energy-Modul **RN4871** an USART6 (PA11/PA12) als Service-Schnittstelle ohne Öffnen; USB-C-Buchse entfällt, Laden am Tisch über zwei Pads (K5, K6, F9; [`mcu-funk.md`](mcu-funk.md) 1.3 und 1.6)
 
 Änderungen gegen 0.2:
 - Ra-01SH festgelegt.
@@ -30,12 +30,12 @@ Kennzeichnung: **[M]** Muss, **[S]** Soll, **[K]** Kann, **[P]** offener Prüfpu
 | K2 [S] | **25-MHz-Quarz (HSE)** wie bei der BlackPill. So bleibt die fertige Arduino-Variante „BlackPill F411CE“ nutzbar, und eine gekaufte BlackPill mit Ra-01SH-Adapter dient als Entwicklungsplattform, bevor die Platine da ist. |
 | K3 [M] | **32,768-kHz-Quarz (LSE)** an PC14/PC15 für die RTC. |
 | K4 [M] | ~~EEPROM AT24C256~~ entfällt (09.10.2026, HW26-10): LoRaWAN-Sitzung und Messwerte im dauernd versorgten SPI-Flash (F11), Sitzung mit Generationszähler und CRC. `mcu-funk.md` 3.1. |
-| K5 [S] | **USB-C nur zum Laden** (HW-09, 18.10.2026; ersetzt HW-05 „Laden, Aufspielen und Kommunikation“): VBUS → Schottky → Ladereingang, CC-Widerstände, **D+/D− unbeschaltet** (PA11/PA12 sind USART6 für K6). Aufspielen über SWD oder den ROM-Bootloader an USART1 (J10, BOOT0-Taster); Kommunikation über BLE (K6) oder Serial1. **Offen (Philipp):** Buchse behalten (so umgesetzt) oder ganz entfernen. `mcu-funk.md` 1.3. |
+| K5 [S] | **Kein USB** (HW-09, Philipp 18.10.2026; ersetzt HW-05 „USB-C: Laden, Aufspielen und Kommunikation“): PA11/PA12 sind USART6 für K6. **Laden am Tisch über zwei Lötpads J9/J301** (1 GND, 2 +5 V → Schottky D203 → Ladereingang; Verpolung sperrt die Diode). Aufspielen über SWD oder den ROM-Bootloader an USART1 (J10, BOOT0-Taster); Kommunikation über BLE (K6) oder Serial1. `mcu-funk.md` 1.3. |
 | K6 [S] | **Bluetooth Low Energy** (HW-09, 18.10.2026): Modul **Microchip RN4871-I/RM130** (Chip-Antenne, −40 … +85 °C, LCSC C633942) an **USART6** (PA11 TX, PA12 RX) als Transparent-UART-Konsole; Versorgung über Lastschalter an **PB13** (im Standby aus, Ruhestrom ≈ 0); nur auf Anforderung (Magnet, F7) für begrenzte Zeit ein; Modul-UART und Modus auch an J11 Pin 9–11 (Firmware-Update des Moduls). Modul an der Platinenkante, Antenne nach außen, **Metall ≥ 30 mm** (Zelle!). Rückfall bei Lieferproblemen: Ai-Thinker PB-03F (anderer Footprint). `mcu-funk.md` 1.6. |
 
 ### Pinbelegung
 
-Stand 0.4 mit Beschaltung, Quarzen, USB und Debug: **[`mcu-funk.md`](mcu-funk.md), Abschnitt 4.** Änderungen gegen 0.3:
+Stand 0.4 mit Beschaltung, Quarzen, Ladepads, BLE und Debug: **[`mcu-funk.md`](mcu-funk.md), Abschnitt 4.** Änderungen gegen 0.3:
 - Ra-01SH TXEN/RXEN über Lötbrücken an PB14/PB15
 - Erweiterung: keine freien GPIOs mehr am Erweiterungsstecker (PB13 seit HW-09 Lastschalter des BLE-Moduls, vorher VBUS-Erkennung; PA15/PB12 seit HW-07 I²S zum Audio-ADC, dazu PB5 als I²S-Daten und die Sensorschiene von PB5 auf PA1; PB10 schaltet den 5-V-Wandler der Waage, PB3 ist CS des SPI-Flashs; nur noch ein HX711); J11 Pin 9–11 seit HW-09 Modul-UART und Modus des BLE-Moduls
 - PA15 nicht mehr für den Regensensor
@@ -136,10 +136,10 @@ Ausgewertet mit OpenCascade (Strahlschnitte im 1-mm-Raster und Einzelschnitte); 
 | M2 [M] | Auf der **Unterseite** keine Bauteile. **Platine auf glatten Distanzhülsen 10 mm über den Domen** (HW-03, 13.10.2026), selbstformende Schrauben durch Platine und Hülse in die Dombohrung Ø 2,4 mm (Blatt 4, STEP; Schraube Ø 3 mm für Kunststoff); damit genug Freiraum unter der Platine auch in den eingeschränkten Feldern, THT-Lötstellen müssen nicht gekürzt werden [A]. **Bauhöhe über der Platine höchstens 40 mm** (inkl. gesteckter Klemmen- und RJ45-Stecker und Zelle im Halter, M3). Höhe der Lichtleiter-Bohrung (F7) aus dem STEP berechnet (4.1a, `mcu-funk.md` 3.3), am ersten Muster bestätigen. **STEP-Kontrolle (13.10.2026): bestanden**, mindestens 4,3 mm Reserve über den 40 mm. |
 | M3 [S] | **Akkuhalter** Keystone 1042 (88 × 22 mm Courtyard) **auf der Hauptplatine** (HW-06). Bauhöhe 18650 im Halter ca. 21 mm [A], unter den 40 mm über der Platine (M2/HW-03) und unter dem STEP-Freiraum ≥ 44,3 mm (4.1a). Nicht an der Funkkante; TMP390/NTC unter der Zelle. Halterung bei Erschütterung am Muster prüfen [P]. |
 | M4 [M] | Innen **steckbare Schraubklemmen**, Raster **3,5 mm** (Mikrofone seit HW-07 über eine geschirmte **RJ45-Buchse**) (**DEGSON 15EDGRC-3.5**, einreihig; Teilenummern je Polzahl in `anschluesse.md` 2; SCH26-13), damit jeder Sensor ohne Löten getauscht werden kann. Masse/Schirm immer Pin 1; Aufdruck an jeder Klemme; Jede Sensorklemme eigene Polzahl: **J8 (BME280) 6-polig**, J4 (Wägezelle) 5-polig, dazu Steckerfarbe (09.10.2026). Belegung J1–J11: [`anschluesse.md`](anschluesse.md). |
-| M5 [S] | **Lage der Außenanschlüsse legt der Layouter fest** (Philipp 14.10.2026): möglichst an einer Kante zu den Kabeldurchführungen hin, zwei Kanten zulässig; ESD direkt hinter jedem Anschluss; Funkmodul mit IPEX an der Kante gegenüber; **BLE-Modul U303 an einer Platinenkante, Antenne nach außen, Sperrzonen des Footprints frei, Metall (Zelle, Klemmen, Buchsen) ≥ 30 mm** (HW-09, mcu-funk.md 1.6); USB, Debug, Erweiterung, BOOT/Reset innen gut erreichbar; Lichtleiter-LED und Reedkontakt an einer Seitenkante (mcu-funk.md 3.3). Vorschläge und Gründe in [`anschluesse.md`](anschluesse.md) 4. |
+| M5 [S] | **Lage der Außenanschlüsse legt der Layouter fest** (Philipp 14.10.2026): möglichst an einer Kante zu den Kabeldurchführungen hin, zwei Kanten zulässig; ESD direkt hinter jedem Anschluss; Funkmodul mit IPEX an der Kante gegenüber; **BLE-Modul U303 an einer Platinenkante, Antenne nach außen, Sperrzonen des Footprints frei, Metall (Zelle, Klemmen, Buchsen) ≥ 30 mm** (HW-09, mcu-funk.md 1.6); Ladepads, Debug, Erweiterung, BOOT/Reset innen gut erreichbar; Lichtleiter-LED und Reedkontakt an einer Seitenkante (mcu-funk.md 3.3). Vorschläge und Gründe in [`anschluesse.md`](anschluesse.md) 4. |
 | M6 [K] | Kabeldurchführungen: zurückgestellt, Festlegung später. |
 | M7 [M] | Bestückung **komplett bei JLCPCB, auch die Durchsteckteile** (Festlegung 09.10.2026; anschluesse.md 5). SMD einseitig, möglichst JLCPCB-„Basic Parts“; „Extended Parts“ (STM32, HX711, CN3065, Ra-01SH …) nur wo nötig. |
-| M8 [M] | **4 oder 6 Lagen nach Wahl des Layouters** (Philipp 14.10.2026, Preise geprüft; vorher 4 Lagen, 09.10.2026), 1,6 mm, Aufbau nach JLCPCB-Standard. Pflicht: **Lage unter L1 durchgehende Masse**, jede Signallage mit Masse-Nachbarlage. 4 Lagen: L1 Signal/Bauteile, L2 Masse, L3 Versorgung (3,3 V, SYS, 5 V) mit Masse-Füllung, L4 Signal; 6 Lagen (Vorschlag): L1 Signal, L2 Masse, L3 Signal, L4 Versorgung, L5 Masse, L6 Signal. Masselage nicht auftrennen; Masse-Durchkontaktierungen entlang der Platinenkante und um Funkmodul, Wandler und Waagen-/Mikrofonzweig. HASL bleifrei oder ENIG; Schutzlack nach dem Test; Klemmen, USB, Antennenanschluss und das BLE-Modul (Chip-Antenne, Schirm nicht waschen) abdecken. |
+| M8 [M] | **4 oder 6 Lagen nach Wahl des Layouters** (Philipp 14.10.2026, Preise geprüft; vorher 4 Lagen, 09.10.2026), 1,6 mm, Aufbau nach JLCPCB-Standard. Pflicht: **Lage unter L1 durchgehende Masse**, jede Signallage mit Masse-Nachbarlage. 4 Lagen: L1 Signal/Bauteile, L2 Masse, L3 Versorgung (3,3 V, SYS, 5 V) mit Masse-Füllung, L4 Signal; 6 Lagen (Vorschlag): L1 Signal, L2 Masse, L3 Signal, L4 Versorgung, L5 Masse, L6 Signal. Masselage nicht auftrennen; Masse-Durchkontaktierungen entlang der Platinenkante und um Funkmodul, Wandler und Waagen-/Mikrofonzweig. HASL bleifrei oder ENIG; Schutzlack nach dem Test; Klemmen, Ladepads, Antennenanschluss und das BLE-Modul (Chip-Antenne, Schirm nicht waschen) abdecken. |
 | M9 [S] | Testpunkte für 3,3 V, Akku, Solar, GND, PDM-Takt und I²S (HW-07). |
 | M10 [M] | Temperaturbereich: alle Bauteile mindestens −20 bis +70 °C. |
 | M11 [M] | **Board-Kennung und Umgebung** im Titelblock jedes Schaltplans und später im Bestückungsdruck: **PCB-AKKU-0.1**, **PCB-MAIN-0.1** (REG26-10). Auslegungsumgebung [A]: Gehäuse innen −20 … +60 °C, Betauung möglich (Bienenstock); Laden nur +5 … 42 °C (`sicherheit-akku.md`); Solar-Eingang ≤ 12 V dauernd, 25 V absolut. Jede Änderung von Schaltung oder Leiterplatte erhöht die Kennung. |
@@ -179,11 +179,11 @@ Entschieden (08.10.2026):
 - Gehäuse CBHUB-02-GY, Hauptplatine im Unterteil
 - Daten weiter an den eigenen beelogger-Webserver
 - Durchführungen später
-- BLE-Modul RN4871 statt USB-Daten (HW-09, 18.10.2026; `mcu-funk.md` 1.6)
+- BLE-Modul RN4871 statt USB; USB-C-Buchse entfällt, Laden über zwei Pads (HW-09, 18.10.2026; `mcu-funk.md` 1.3/1.6)
 
 Offen:
 
-- USB-C-Buchse als reine Ladebuchse behalten oder entfernen (HW-09, `mcu-funk.md` 1.3); RN4871: Footprint-Abgleich, Bestand, Prüfplan B-1 … B-6
+- RN4871: Footprint-Abgleich mit C633942, Bestand, Prüfplan B-1 … B-6 (HW26-20)
 
 - Webserver-Skripte prüfen: Felder für Mikrofon und Deckeltemperatur (S4, `docs/datenformat.md`)
 - Prüfpunkte der Versorgung, `versorgung.md` Abschnitt 7 (u. a. Panel-Messung, BQ25185-Eingangsbereich, HY2111-Variante)

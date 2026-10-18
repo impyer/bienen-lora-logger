@@ -22,7 +22,7 @@ Bezug:
 | J6 (Platine: J701) | DS18B20 Nr. 1 (TempIn) | steckbare Klemme 3,5 mm, 3-polig | 1 GND, 2 DQ, 3 3V3_SW | **ESDS304** (ein Array für J6 + J7) | Fühlerkabel |
 | J7 (Platine: J702) | DS18B20 Nr. 2 (TempIn2) | wie J6, am selben 1-Wire-Bus | 1 GND, 2 DQ, 3 3V3_SW | wie J6 | Fühlerkabel |
 | J8 (Platine: J703) | BME280 (Strahlungsschutz) | steckbare Klemme 3,5 mm, **6-polig** | 1 Schirm, 2 GND, 3 SDA, 4 SCL, 5 3V3_SW, 6 frei (nur Verwechslungsschutz) | **ESDS304** an SDA, SCL, 3V3_SW | **Outdoor-Netzwerkkabel** (Cat 5e/6, PE-Mantel), Paare SDA+GND, SCL+GND, 3V3+GND, Schirm falls vorhanden an Pin 1; **≤ 1 m** (siehe 3.1, HW26-09) |
-| J9 (Platine: J301) | USB-C | Buchse 16-polig (mcu-funk.md 1.3) | – (nur VBUS, GND, CC; D+/D− offen) | – | am Tisch: **nur Laden** (HW-09, 18.10.2026; Aufspielen und Kommunikation seitdem über SWD/Serial1 bzw. BLE, mcu-funk.md 1.6) |
+| J9 (Platine: J301) | Laden 5 V | **zwei Lötpads** 2,54 mm (Stiftleiste nicht bestückt), mcu-funk.md 1.3 | 1 GND, 2 +5V | Schottky D203 (sperrt Verpolung), TVS D204 (versorgung.md 3.1) | am Tisch: Laden aus einem 5-V-Netzteil (HW-09, 18.10.2026; USB-C-Buchse entfällt; Aufspielen über SWD/Serial1, Kommunikation über BLE, mcu-funk.md 1.6) |
 | J10 (Platine: J302) | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen; Pinfolge siehe 1.2 (SCH26-09) |
 | J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 BLE_RXD, 10 BLE_TXD, 11 BLE_MODE, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1); Pins 9–11 seit **HW-09** (18.10.2026): UART-Eingang und -Ausgang des BLE-Moduls (hinter 1 kΩ zum STM32) und P2_0 (Modus) für das Firmware-Update des Moduls (Brücke 11–12 = Testmodus, mcu-funk.md 1.6); keine freien GPIOs mehr (PB13 Lastschalter BLE, PA15/PB12 I²S seit HW-07) |
 | – | Antenne | IPEX am Funkmodul | – | – | FPC-Antenne innen (mcu-funk.md 2.3) |
@@ -119,19 +119,19 @@ Bewertung:
 - Vorschlag Reihenfolge: J1/J2 Solar – J8 BME280 – J6/J7 DS18B20 – J5 Mikrofone (neben dem Audio-ADC) – J4 Wägezelle (neben dem HX711); Mikrofon- und Waagenzweig weit weg vom 5-V-Wandler und vom Funkmodul (A3).
 - **Der ESD-Schutz sitzt direkt hinter jedem Anschluss**, vor allen anderen Bauteilen. Der Masseanschluss geht auf kürzestem Weg mit mehreren Durchkontaktierungen auf die Massefläche (L2).
 - Das Funkmodul mit der IPEX-Buchse sitzt an der Kante gegenüber, die Antenne an der Wand daneben.
-- USB J9, Debug J10, Erweiterung J11, BOOT und Reset innen, gut erreichbar beim Öffnen. Akkuhalter auf der Hauptplatine (HW-06), Zellwechsel nach dem Öffnen; TMP390/NTC unter der Zelle.
+- Ladepads J9, Debug J10, Erweiterung J11, BOOT und Reset innen, gut erreichbar beim Öffnen. Akkuhalter auf der Hauptplatine (HW-06), Zellwechsel nach dem Öffnen; TMP390/NTC unter der Zelle.
 - **Lichtleiter-LED und Reedkontakt** an einer Seitenkante (mcu-funk.md 3.3; Bohrungsmitte des Lichtleiters ca. 22,7 mm über dem Gehäuseboden).
 - **[P]** Mit gesteckten 15EDGK-Steckern am Muster prüfen, ob die Klemmen nebeneinander passen und sich lösen lassen.
 
 ## 5. Fertigung
 
-- **Festlegung (Philipp, 09.10.2026): JLCPCB lötet alles ein**, auch die Durchsteckteile (Klemmen, Stiftleisten, JST-Buchse, Befestigungsstifte der USB-Buchse).
-  - Durchsteckstellen auf der Platine: ca. 25 Klemmenpins, 5 JST, 19 Stiftleiste (1 × 7 + 2 × 6), 4 USB-Befestigung, also **rund 50** [A, nach Tabelle 1].
+- **Festlegung (Philipp, 09.10.2026): JLCPCB lötet alles ein**, auch die Durchsteckteile (Klemmen, Stiftleisten).
+  - Durchsteckstellen auf der Platine: ca. 25 Klemmenpins, 19 Stiftleiste (1 × 7 + 2 × 6), also **rund 45** [A, nach Tabelle 1]; JST (seit HW-06) und USB-Buchse (seit HW-09) entfallen, die Ladepads J9 werden nicht bestückt.
   - Preis laut einer Übersicht von 04/2024: ca. 0,0135 $ je Durchsteckpin plus Grundgebühr je Auftrag [A, nicht von JLCPCB bestätigt]. Das wären unter 1 $ je Platine. **[P]** Im Angebot prüfen.
   - **[P]** Ob „Economic PCBA“ Durchsteckteile erlaubt oder „Standard PCBA“ nötig ist, habe ich nicht sicher gefunden. Das Funkmodul Ra-01SH könnte ohnehin „Standard only“ sein. Beides im Bestellformular prüfen.
   - Die **Gegenstecker** (DEGSON 15EDGK) werden nicht gelötet. Sie werden bei LCSC mitbestellt.
 - Laut M2 dürfen unten keine Bauteile sitzen. Die Lötstellen der Durchsteckteile liegen unten; in den zwei Feldern mit wenig Freiraum kurz abschneiden. Die Klemmen liegen am Rand, außerhalb dieser Felder **[P]** mit dem STEP-Modell prüfen.
-- Schutzlack nach dem Test; Klemmen, Stiftleisten, USB, IPEX und Lichtleiter-LED abdecken (M8).
+- Schutzlack nach dem Test; Klemmen, Stiftleisten, Ladepads, IPEX, BLE-Modul und Lichtleiter-LED abdecken (M8).
 
 ## 6. Offene Prüfpunkte
 

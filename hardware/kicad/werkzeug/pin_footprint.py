@@ -114,7 +114,6 @@ DATENBLATT = {
     "Device:Crystal": ("Seiko SC-32S, 2 Pads, ungepolt", "[A]", {"1": ("XTAL", "1"), "2": ("XTAL", "2")}),
     "Device:Battery_Cell": ("Keystone 1042 (HW-02): Pad 1 = Plus laut KiCad-Footprint (Silkscreen „+“)", "[A] [P]", {"1": ("+", "+"), "2": ("−", "-")}),
     "Switch:SW_Reed": ("MiRelay MRS03-B-3, ungepolt (Datenblatt Abschnitt 5)", "[V]", {"1": ("1", "1"), "2": ("2", "2")}),
-    "Connector:USB_C_Receptacle_USB2.0_16P": ("KiCad-Symbol mit HRO-Footprint (Pads geprüft)", "[A]", None),
     "MCU_ST_STM32F4:STM32F411CEUx": ("ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinbelegung mcu-funk.md 4", "[A]", None),
 }
 PASSIV = ("Device:R", "Device:C", "Device:L", "Device:FerriteBead_Small", "Device:Thermistor_NTC", "Connector:TestPoint",

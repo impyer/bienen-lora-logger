@@ -5,7 +5,8 @@
 
 Stand 18.10.2026: alle Blätter im Entwurf: „Versorgung“, „MCU“, „Funk + Flash“, „Waage“, „Mikrofon“, „Anschlüsse“, „Akku“
 (HW-06: Zelle und Zellschutz auf der Hauptplatine, Akku-Platine entfällt); Netze zwischen den Blättern sind globale Labels.
-HW-09 (18.10.2026): BLE-Modul RN4871 an USART6 (PA11/PA12) statt USB-Daten; USB-C nur noch zum Laden.
+HW-09 (18.10.2026): BLE-Modul RN4871 an USART6 (PA11/PA12) statt USB-Daten; USB-C-Buchse entfällt (Philipp), Laden am Tisch
+über zwei Lötpads J301 (5 V → D203 → Ladereingang).
 
 Quellen der Werte: hardware/versorgung.md (3.1–3.8), LASTENHEFT.md V1–V7, mcu-funk.md, waage.md, mikrofon.md.
 Aufruf: python3 hardware/kicad/hauptplatine.py
@@ -32,7 +33,7 @@ def klemme(n):
 
 # Netze, die zu anderen (noch folgenden) Blättern gehen
 SCHNITTSTELLEN = {
-    "VBUS",        # USB-C (Blatt MCU) → Diode → Ladereingang
+    "VBUS",        # Ladepads J301 (Blatt MCU) → Diode D203 → Ladereingang
     "BLE_RXD", "BLE_TXD", "BLE_MODE",   # HW-09: Modul-UART und Modus des RN4871 (Blatt MCU) auch an J704 Pin 9–11
     "ADC_SOLAR",   # PB1
     "ADC_AKKU",    # Akkuteiler → ADC (Pin auf Blatt MCU)
@@ -57,7 +58,7 @@ def zeichne_versorgung(b, T):
     yv = 76.2                        # obere Schiene VIN_LADER / SYS
     y3 = 180.34                      # untere Schiene SYS / +3V3 / 3V3_SW
 
-    b.text("1  Solar und USB → Schottky-Dioden → VIN_LADER (TVS, Messung der Eingangsspannung)", 30.48, 55.88, 2.0)
+    b.text("1  Solar und Ladepads (5 V) → Schottky-Dioden → VIN_LADER (TVS, Messung der Eingangsspannung)", 30.48, 55.88, 2.0)
     b.text("2  Laderegler BQ25185: 4,1 V, 150 mA; CE und TS kommen von der Ladesperre (Blatt Akku)", 152.4, 63.5, 2.0)
     b.text("3  Zum Blatt Akku: VBAT, CE_LADEN, NTC, TMP_VCC", 175.26, 124.46, 2.0)
     b.text("4  SYS → 3,3 V (RT9080) → geschaltete Sensorschiene 3V3_SW (TPS22917, Ein/Aus von der MCU)", 152.4, 215.9, 2.0)
@@ -177,9 +178,9 @@ STM32_FP = "Package_DFN_QFN:QFN-48-1EP_7x7mm_P0.5mm_EP5.6x5.6mm"
 
 
 def mcu(p):
-    """Blatt MCU (mcu-funk.md 1, 1.6, 3.3, 4): STM32F411CEU6, Takt, Reset/BOOT, USB-C (nur Laden), Debug, Magnet/Taster, LED,
+    """Blatt MCU (mcu-funk.md 1, 1.6, 3.3, 4): STM32F411CEU6, Takt, Reset/BOOT, Ladepads, Debug, Magnet/Taster, LED,
     BLE-Modul RN4871 (HW-09)."""
-    b = p.blatt("MCU", "mcu.kicad_sch", titel="MCU: STM32F411CEU6, Takt, USB-C (Laden), BLE RN4871, Debug, Magnet und LED")
+    b = p.blatt("MCU", "mcu.kicad_sch", titel="MCU: STM32F411CEU6, Takt, Ladepads, BLE RN4871, Debug, Magnet und LED")
     pins = {"VDD": "+3V3", "VBAT": "+3V3", "VDDA": "VDDA", "VSS": "GND", "VSSA": "GND", "VCAP1": "VCAP",
             "NRST": "NRST", "BOOT0": "BOOT0", "PH0": "HSE_IN", "PH1": "HSE_OUT", "PC14": "LSE_IN", "PC15": "LSE_OUT",
             "PC13": "LED", "PA0": "WAKE", "PA1": "SENSOR_EIN", "PA2": "LORA_DIO1", "PA3": "LORA_BUSY", "PA4": "LORA_NSS",
@@ -208,7 +209,7 @@ def mcu(p):
     b.teil("Switch:SW_Push", "SW301", "Reset", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "GND", "2": "NRST"})
     b.teil("Device:R", "R301", "10k", fp=R0603, netze={"1": "BOOT0", "2": "GND"})
     b.teil("Switch:SW_Push", "SW302", "BOOT", fp="Button_Switch_SMD:SW_SPST_TL3342", netze={"1": "+3V3", "2": "BOOT0"},
-           info="gedrückt halten + Reset → USB-DFU")
+           info="gedrückt halten + Reset → ROM-Bootloader über USART1 an J302 (kein USB mehr, HW-09)")
     b.teil("Device:R", "R302", "10k", fp=R0603, netze={"1": "GND", "2": "BOOT1"}, info="PB2/BOOT1 nach GND")
     # Takt
     b.teil("Device:Crystal_GND24", "Y301", "25MHz 12pF", fp="Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm", lcsc="C9006",
@@ -229,15 +230,12 @@ def mcu(p):
     b.teil("Device:LED", "D301", "LTST-S220KGKT", fp="Bienen:LED_Lite-On_LTST-S220_SideView", lcsc="C160469",
            netze={"A": "LED_A", "K": "LED"},
            info="Lite-On, seitlich abstrahlend, grün (AlInGaP 574 nm), am Rand vor dem Lichtleiter; mit 1 kΩ ca. 1,3 mA – Helligkeit am Muster prüfen [P]")
-    # USB-C: seit HW-09 (18.10.2026) nur Laden (VBUS → D203 → Lader); D+/D− unbeschaltet, weil PA11/PA12 USART6 für das
-    # BLE-Modul sind. USBLC6 und VBUS-Teiler (HW-05) entfallen. Entscheidung offen: Buchse ganz entfernen (mcu-funk.md 1.3).
-    b.teil("Connector:USB_C_Receptacle_USB2.0_16P", "J301", "USB-C (nur Laden)", fp="Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
-           lcsc="C165948", netze={"A1": "GND", "A12": "GND", "B1": "GND", "B12": "GND", "A4": "VBUS", "A9": "VBUS", "B4": "VBUS",
-                                  "B9": "VBUS", "A5": "USB_CC1", "B5": "USB_CC2", "A6": "NC", "B6": "NC",
-                                  "A7": "NC", "B7": "NC", "A8": "NC", "B8": "NC", "SH": "GND"},
-           info="HW-09: nur Laden am Tisch, D+/D− offen (kein USB-Gerät mehr); CC 5,1 kΩ für 5 V aus C-C-Kabeln; Schirm an GND [A]")
-    b.teil("Device:R", "R303", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC1"}, info="Senke 5 V (USB-Type-C Rd)")
-    b.teil("Device:R", "R304", "5,1k", fp=R0603, netze={"1": "GND", "2": "USB_CC2"})
+    # HW-09 (Philipp, 18.10.2026): USB-C-Buchse entfällt (PA11/PA12 sind USART6 für das BLE-Modul, kein USB-Gerät mehr).
+    # Laden am Tisch über zwei Lötpads J301 (Stiftleiste nicht bestückt): 5 V → D203 → Ladereingang; D203 schützt gegen
+    # Verpolung, TVS und Eingangsregelung des Laders wie bei den Panels (versorgung.md 3.1). USBLC6 und VBUS-Teiler entfallen.
+    b.teil("Connector_Generic:Conn_01x02", "J301", "Laden 5 V", fp="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+           dnp=True, netze={"1": "GND", "2": "VBUS"},
+           info="= J9: zwei Lötpads 2,54 mm (1 GND, 2 +5 V), Stiftleiste nicht bestückt; Laden aus einem 5-V-Netzteil, Verpolung sperrt D203 (HW-09)")
     # HW-09 (18.10.2026): BLE-Modul Microchip RN4871 (mcu-funk.md 1.6): Transparent-UART an USART6 (PA11 TX, PA12 RX, AF8),
     # Versorgung über P-FET Q301 aus +3V3, geschaltet von PB13 (low = ein; im Standby hochohmig → R309 sperrt).
     b.teil("Bienen:RN4871", "U303", "RN4871-I/RM130", fp="Bienen:Microchip_RN4871", lcsc="C633942",
@@ -280,14 +278,14 @@ def mcu(p):
 def zeichne_mcu(b, T):
     """Platzierung und Leitungen (A3 quer, mm). Mitte der STM32; oben die 3,3-V-Versorgung mit den
     Abblockkondensatoren, links Reset/BOOT und Quarze, rechts Magnet/Taster. Leitungen zu anderen
-    Blättern und zu den Gruppen USB-C und Debug enden an Netznamen."""
+    Blättern und zu den Gruppen Ladepads und Debug enden an Netznamen."""
     S, D, L = b.setze, b.draht, b.label
     U = S(T["U301"], 200.66, 139.7, text="unten")
 
     b.text("1  Versorgung: VDD je 100 nF am Pin, VDDA über Ferrit, VBAT an 3,3 V, VCAP 4,7 µF", 144.78, 48.26, 2.0)
     b.text("2  Reset, BOOT, Quarze 25 MHz und 32,768 kHz (CL ≤ 7 pF)", 30.48, 81.28, 2.0)
     b.text("3  Magnet/Taster weckt (WKUP1), LED unter dem Lichtleiter", 236.22, 60.96, 2.0)
-    b.text("4  USB-C nur zum Laden (HW-09): VBUS → D203 → Lader; D+/D− offen", 279.4, 157.48, 2.0)
+    b.text("4  Ladepads J301 (HW-09, statt USB-C): 5 V → D203 → Lader; Verpolung sperrt D203", 279.4, 157.48, 2.0)
     b.text("5  Debug-Leiste: SWD und Serial1 (auch ROM-Bootloader über USART1)", 279.4, 101.6, 2.0)
     b.text("6  BLE-Modul RN4871 (HW-09)", 30.48, 172.72, 2.0)
     b.text("Versorgung über Q301 aus +3V3, PB13 low = ein (Ruhestrom 0); UART an USART6 PA11/PA12 (AF8) über 1 kΩ", 160.02, 189.23, 1.5)
@@ -383,15 +381,10 @@ def zeichne_mcu(b, T):
     for pin in ("2", "3", "4", "6", "7"):      # Pin 1 +3V3 und Pin 5 GND als Versorgungssymbol (SCH26-09)
         stub(b, J, pin, 10.16)
 
-    # --- 4 USB-C (nur Laden, HW-09) -------------------------------------------
-    K = S(T["J301"], 345.44, 193.04, rot=180, text="oben")
-    stub(b, K, "A5", 10.16)
-    stub(b, K, "B5", 10.16)
-    for ref, x in (("R303", 292.1), ("R304", 304.8)):
-        R = S(T[ref], x, 223.52, rot=180, text="rechts")
-        stub(b, R, "2", 5.08)
-    D(K.p("A4"), (314.96, K.p("A4")[1]))
-    L("VBUS", 314.96, K.p("A4")[1], 180)
+    # --- 4 Ladepads (HW-09, statt USB-C) --------------------------------------
+    K = S(T["J301"], 330.2, 170.18, text="rechts")
+    D(K.p("2"), (309.88, K.p("2")[1]))
+    L("VBUS", 309.88, K.p("2")[1], 180)
 
     # --- 6 BLE-Modul RN4871 (HW-09) -------------------------------------------
     # Links der Lastschalter: +3V3 → Q301 (Source oben, Drain unten) → BLE_VCC-Schiene nach rechts zum Modul;
@@ -1045,7 +1038,7 @@ def versorgung(p):
                netze={"1": "GND", "2": "PV2"}, info="wie J201"),
         b.teil("Diode:SS34", "D201", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "PV1", "K": "VIN_LADER"}, info="je Panel eine Schottky"),
         b.teil("Diode:SS34", "D202", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "PV2", "K": "VIN_LADER"}),
-        b.teil("Diode:SS34", "D203", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "VBUS", "K": "VIN_LADER"}, info="USB lädt, speist nie ins Panel"),
+        b.teil("Diode:SS34", "D203", "SS34", fp="Diode_SMD:D_SMA", netze={"A": "VBUS", "K": "VIN_LADER"}, info="Ladepads J301 (5 V, HW-09): lädt, speist nie ins Panel, sperrt Verpolung"),
         b.teil("Diode:SMAJ12A", "D204", "SMAJ12A", fp="Diode_SMD:D_SMA", netze={"1": "VIN_LADER", "2": "GND"},  # Pin 1 = Kathode
                info="TVS 12 V, begrenzt Störungen unter 25 V (BQ25185 abs.)"),
         b.teil("Device:C", "C201", "4,7µ 50V X7R", fp=C1206, netze={"1": "VIN_LADER", "2": "GND"}, info="≥ 1 µF an IN; 50 V wegen 25 V abs. am Eingang und DC-Bias (SCH26-08)"),

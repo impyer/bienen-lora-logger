@@ -7,7 +7,7 @@ Seit SCH26-09 zusätzlich: Pinbelegung der Stecker laut hardware/anschluesse.md 
 gegen die Netzliste, mit Gegenprobe (vertauschter Pin muss auffallen).
 Seit SCH26-07 (Blatt Waage): Wandler-Ansteuerung, HX711-Versorgung, AVDD aus dem Teiler, Zellenleitungen.
 Seit HW-09 (18.10.2026): BLE-Modul RN4871 (Lastschalter an PB13, USART6, Pull-ups nur an BLE_VCC, J704 Pin 9–11),
-USB-C nur noch Laden (D+/D− offen, kein USBLC6, kein VBUS-Teiler).
+USB-C-Buchse entfällt, Laden über zwei Pads J301 (kein USBLC6, kein VBUS-Teiler).
 Aufruf (nach pruefen.sh): python3 werkzeug/netz_tests.py
 """
 import math
@@ -37,6 +37,7 @@ STECKER_DOKU = {
     "J6": ("J701", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
     "J7": ("J702", {"GND": "GND", "DQ": "ONEWIRE", "3V3_SW": "3V3_SW"}),
     "J8": ("J703", {"Schirm": "GND", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "3V3_SW": "3V3_SW", "frei": OFFEN}),
+    "J9": ("J301", {"GND": "GND", "+5V": "VBUS"}),
     "J11": ("J704", {"3V3": "+3V3", "3V3_SW": "3V3_SW", "GND": "GND", "SDA": "I2C_SDA", "SCL": "I2C_SCL", "TX1": "DBG_TX",
                      "RX1": "DBG_RX", "BLE_RXD": "BLE_RXD", "BLE_TXD": "BLE_TXD", "BLE_MODE": "BLE_MODE"}),
 }
@@ -278,7 +279,7 @@ def anschluesse(h, h_pin, h_wert):
 
 def ble(h, h_pin, h_wert):
     """HW-09: BLE-Modul RN4871 an USART6, Versorgung über Q301 (PB13), Modul-UART und Modus an J704 Pin 9–11;
-    USB-C nur noch Laden. Regeln: kein Pull-up des abgeschalteten Moduls an +3V3 (Rückspeisung), Reihenwiderstände
+    USB-C-Buchse entfällt (Ladepads J301). Regeln: kein Pull-up des abgeschalteten Moduls an +3V3 (Rückspeisung), Reihenwiderstände
     im UART, Lastschalter aus bei hochohmigem PB13."""
     genau(h, "BLE_EIN", {("U301", "26"), ("Q301", "1"), ("R309", "2")})                 # PB13 → Gate
     pruefe("R309 (Gate-Pull-up) an +3V3, 100k: Modul aus bei hochohmigem PB13",
@@ -308,13 +309,11 @@ def ble(h, h_pin, h_wert):
     falsch = dict(h_pin)
     falsch[("R312", "1")] = "+3V3"
     pruefe("Gegenprobe: R312 an +3V3 wird erkannt", not nur_ble_vcc(falsch))
-    # USB-C nur Laden (HW-09): D+/D− offen, kein USBLC6, kein VBUS-Teiler; VBUS nur Buchse und D203
-    for pin in ("A6", "B6", "A7", "B7"):
-        pruefe("J301 Pin %s (D+/D−) offen" % pin, h_pin.get(("J301", pin), "unconnected").startswith("unconnected"), h_pin.get(("J301", pin)))
-    genau(h, "VBUS", {("J301", "A4"), ("J301", "A9"), ("J301", "B4"), ("J301", "B9"), ("D203", "2")})
-    pruefe("kein USBLC6 (U302) und kein VBUS-Teiler (R307/R308) mehr", not any(r in h_wert for r in ("U302", "R307", "R308")))
-    for ref in ("R303", "R304"):
-        pruefe("%s = 5,1k (CC-Senke)" % ref, h_wert.get(ref) == "5,1k", h_wert.get(ref))
+    # Ladepads statt USB-C (HW-09, Philipp): J301 nur GND und VBUS → D203; kein USBLC6, kein VBUS-Teiler, keine CC-Widerstände
+    genau(h, "VBUS", {("J301", "2"), ("D203", "2")})
+    pruefe("J301 Pin 1 = GND (Masse an Pin 1)", h_pin.get(("J301", "1")) == "GND", h_pin.get(("J301", "1")))
+    pruefe("J301 ist 1 × 2 (nur zwei Pads)", len({p for (r, p) in h_pin if r == "J301"}) == 2)
+    pruefe("kein USB mehr: U302, R303, R304, R307, R308 entfallen", not any(r in h_wert for r in ("U302", "R303", "R304", "R307", "R308")))
 
 
 def modell_netze(modul):

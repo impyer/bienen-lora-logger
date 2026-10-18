@@ -2,7 +2,7 @@
 
 Erzeugt von `werkzeug/pin_footprint.py` aus den Generatoren; nicht von Hand ändern. Kennzeichnung: [V] in dieser Prüfung im Datenblatt gelesen, [V*] früher gelesen (Symbolkommentar), [A] Konvention/Annahme, [P] vor der Bestellung prüfen.
 
-Ergebnis: 179 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
+Ergebnis: 177 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 
 | Ref. | Platine | Blatt | Wert | Footprint | Footprint-Prüfung | Datenblatt-Prüfung | Quelle |
 |---|---|---|---|---|---|---|---|
@@ -88,7 +88,7 @@ Ergebnis: 179 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | FB602 | Haupt | Mikrofon | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | J201 | Haupt | Versorgung | Solar 1 | `DEGSON_15EDGRC-3.5-02P` | Pads = Pins (2); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J202 | Haupt | Versorgung | Solar 2 | `DEGSON_15EDGRC-3.5-02P` | Pads = Pins (2); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
-| J301 | Haupt | MCU | USB-C (nur Laden) | `USB_C_Receptacle_HRO_TYPE-C-31-M-12` | Pads = Pins (17) | [A] | KiCad-Symbol mit HRO-Footprint (Pads geprüft) |
+| J301 | Haupt | MCU | Laden 5 V | `PinHeader_1x02_P2.54mm_Vertical` | Pads = Pins (2) | passiv/Stecker | – |
 | J302 | Haupt | MCU | Debug (SWD + Serial1) | `PinHeader_1x07_P2.54mm_Vertical` | Pads = Pins (7) | passiv/Stecker | – |
 | J501 | Haupt | Waage | Wägezelle | `DEGSON_15EDGRC-3.5-05P` | Pads = Pins (5); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | passiv/Stecker | – |
 | J601 | Haupt | Mikrofon | Mikrofone | `RJ45_RCH_RC01937` | Pads = Pins (9); Platzhalter: DEGSON 15EDGRC-3.5: Geometrie aus EasyEDA/LCSC, gegen DEGSON-Zeichnung prüfen [P] | [A] [P] 9 Pins = Datenblatt | RJ45 8P8C, Kontakte 1–8 nach IEC 60603-7, SH = Schirmblech; Footprint RCH RC01937 (KiCad, LCSC-Datenblatt) – Teil wählt der Layouter |
@@ -118,8 +118,6 @@ Ergebnis: 179 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | R209 | Haupt | Versorgung | 0 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R301 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R302 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R303 | Haupt | MCU | 5,1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R304 | Haupt | MCU | 5,1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R305 | Haupt | MCU | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R306 | Haupt | MCU | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R309 | Haupt | MCU | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |

@@ -2098,6 +2098,17 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "1  Solar und Ladepads (5 V) → Schottky-Dioden → VIN_LADER (TVS, Messung der Eingangsspannung)"
+		(exclude_from_sim no)
+		(at 30.48 55.88 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left bottom)
+		)
+		(uuid "0b54ba71-0e45-57ca-9a8a-ea45306aa9a5")
+	)
 	(text "4  SYS → 3,3 V (RT9080) → geschaltete Sensorschiene 3V3_SW (TPS22917, Ein/Aus von der MCU)"
 		(exclude_from_sim no)
 		(at 152.4 215.9 0)
@@ -2141,17 +2152,6 @@
 			(justify left bottom)
 		)
 		(uuid "b2eded16-55f7-540a-9737-c61cac00b776")
-	)
-	(text "1  Solar und USB → Schottky-Dioden → VIN_LADER (TVS, Messung der Eingangsspannung)"
-		(exclude_from_sim no)
-		(at 30.48 55.88 0)
-		(effects
-			(font
-				(size 2 2)
-			)
-			(justify left bottom)
-		)
-		(uuid "dd4432b2-6dbc-5a1b-973a-7562a123c0d9")
 	)
 	(text "Regeln: Pull-ups nur an 3V3_SW; TS/MR nie aktiv auf Masse (Werksmodus); Laderegler nicht neben der Zelle; SPI-Flash an +3V3 (dauernd)."
 		(exclude_from_sim no)
@@ -5018,7 +5018,7 @@
 				)
 			)
 		)
-		(property "Description" "USB lädt, speist nie ins Panel"
+		(property "Description" "Ladepads J301 (5 V, HW-09): lädt, speist nie ins Panel, sperrt Verpolung"
 			(at 55.88 116.84 0)
 			(hide yes)
 			(show_name no)

@@ -1,6 +1,6 @@
 # KiCad-Projekte (KiCad 10)
 
-Stand 14.10.2026: alle Blätter der Hauptplatine (**Versorgung**, **MCU**, **Funk + Flash**, **Waage**, **Mikrofon**, **Anschlüsse**, **Akku**) im Entwurf (SCH26-07). **Seit HW-06 gibt es nur noch eine Platine:** Zelle, Zellschutz und Ladesperre liegen auf dem Blatt „Akku“ der Hauptplatine; die frühere Akku-Platine (`akku_platine.py`, `akku-platine/`) ist entfernt und steht in der Git-Historie. Seit HW-07 zwei Mikrofone (Elektret + MEMS IM69D127) am Audio-ADC TLV320ADC3101, I²S an PB12/PA15/PB5. **Seit HW-09 (18.10.2026)** BLE-Modul Microchip RN4871 (U303) an USART6 PA11/PA12, geschaltet über PB13; USB-C nur noch zum Laden (D+/D− offen, kein USBLC6, keine VBUS-Erkennung). **Entwurf, keine Fertigungsfreigabe.**
+Stand 14.10.2026: alle Blätter der Hauptplatine (**Versorgung**, **MCU**, **Funk + Flash**, **Waage**, **Mikrofon**, **Anschlüsse**, **Akku**) im Entwurf (SCH26-07). **Seit HW-06 gibt es nur noch eine Platine:** Zelle, Zellschutz und Ladesperre liegen auf dem Blatt „Akku“ der Hauptplatine; die frühere Akku-Platine (`akku_platine.py`, `akku-platine/`) ist entfernt und steht in der Git-Historie. Seit HW-07 zwei Mikrofone (Elektret + MEMS IM69D127) am Audio-ADC TLV320ADC3101, I²S an PB12/PA15/PB5. **Seit HW-09 (18.10.2026)** BLE-Modul Microchip RN4871 (U303) an USART6 PA11/PA12, geschaltet über PB13; USB-C-Buchse entfällt, Laden am Tisch über zwei Lötpads J301 (kein USBLC6, keine VBUS-Erkennung). **Entwurf, keine Fertigungsfreigabe.**
 
 | Ordner/Datei | Inhalt |
 |---|---|
@@ -27,7 +27,7 @@ Stand 14.10.2026: alle Blätter der Hauptplatine (**Versorgung**, **MCU**, **Fun
 1. zweimal erzeugen, Prüfsummen **aller** erzeugten Blätter und der Symbolbibliothek vergleichen (reproduzierbar). Die Liste entsteht aus den Ordnern; jedes von einem Wurzelblatt verwiesene Blatt muss darin stehen, verwaiste `.kicad_sch` lassen die Prüfung scheitern (SCH26-12). `bash pruefen.sh --gegenprobe` erzeugt absichtlich mit Zufalls-UUIDs und zeigt, dass jede Blattdatei als abweichend erkannt wird.
 2. ERC mit **allen Schweregraden** gegen `erc_erwartet.json` (`werkzeug/erc_pruefen.py`)
 3. PDF- und Netzlisten-Export
-4. `werkzeug/netz_tests.py`: 187 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung, gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Zelle B− getrennt von GND (Schutz-FET im Minuspfad), Widerstandswerte; **BLE-Modul nach HW-09**: Lastschalter Q301 an PB13 mit Gate-Pull-up, BLE_VCC-Netz, USART6-Netze mit 1 kΩ, Pull-up R312 nur an BLE_VCC (Gegenprobe), Modulpins offen/GND, J704 Pin 9–12, USB-C ohne D+/D−, kein U302/R307/R308), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon (HW-07): Versorgungen 3V3_ANA/1V8_ADC/3V3_MEMS, Audio-ADC TLV320ADC3101 (nicht 3100) mit I²S an PB12/PA15/PB5 und I²C 0x18, Elektret-Vorspannung symmetrisch und Hochpass der Koppel-C aus den Bauteilwerten, PDM-Weg mit Takttreiber, ESD direkt an der Buchse, RJ45 J5/J601 gegen `anschluesse.md` (mit Gegenprobe vertauschter CLK/DATA); Blatt Anschlüsse: 1-Wire- und I²C-Netze, **Pull-ups nur an 3V3_SW** (HW26-04, mit Gegenprobe), ESD-Arrays, J8-Pin 6 frei, eigene Polzahl bzw. Bauform je Sensoranschluss, Masse an Pin 1, J6/J7/J8/J11 gegen `anschluesse.md` (J11 Pins 9–11 BLE-Modul)
+4. `werkzeug/netz_tests.py`: 187 Prüfungen **in den von KiCad exportierten Netzlisten**: vollständiger Netzvergleich Zeichnung ↔ Netzbeschreibung, gezielte Prüfungen sicherheitsrelevanter Netze (Ladesperre ohne Verbindung zu B+/B−, CE- und NTC-Pfad, Zelle B− getrennt von GND (Schutz-FET im Minuspfad), Widerstandswerte; **BLE-Modul nach HW-09**: Lastschalter Q301 an PB13 mit Gate-Pull-up, BLE_VCC-Netz, USART6-Netze mit 1 kΩ, Pull-up R312 nur an BLE_VCC (Gegenprobe), Modulpins offen/GND, J704 Pin 9–12, Ladepads J301 statt USB-C, kein U302/R303/R304/R307/R308), Debug-Leiste J302 je Pin und **Pinbelegung der Stecker laut `hardware/anschluesse.md` gegen die Netzliste** (J1/J201, J2/J202, J9/J301, J10/J302) mit Gegenprobe (SCH26-09), Ra-01SH: JP401/JP402 als offene Lötbrücken, DIO2 unbeschaltet (SCH26-11); Blatt Waage: Wandler an SYS mit EN-Pull-down an PB10, FB an VOUT, HX711-DVDD an 3V3_SW, **AVDD aus den Teilerwerten 4,2–4,4 V und ≥ 0,1 V unter VSUP** (mit eingebauter Gegenprobe), Zellenleitungen nur an Klemme, ESD und Reihenwiderstand, J4/J501 gegen `anschluesse.md` (SCH26-07); Blatt Mikrofon (HW-07): Versorgungen 3V3_ANA/1V8_ADC/3V3_MEMS, Audio-ADC TLV320ADC3101 (nicht 3100) mit I²S an PB12/PA15/PB5 und I²C 0x18, Elektret-Vorspannung symmetrisch und Hochpass der Koppel-C aus den Bauteilwerten, PDM-Weg mit Takttreiber, ESD direkt an der Buchse, RJ45 J5/J601 gegen `anschluesse.md` (mit Gegenprobe vertauschter CLK/DATA); Blatt Anschlüsse: 1-Wire- und I²C-Netze, **Pull-ups nur an 3V3_SW** (HW26-04, mit Gegenprobe), ESD-Arrays, J8-Pin 6 frei, eigene Polzahl bzw. Bauform je Sensoranschluss, Masse an Pin 1, J6/J7/J8/J11 gegen `anschluesse.md` (J11 Pins 9–11 BLE-Modul)
 5. `werkzeug/pin_footprint.py` (REG26-08): für jedes Bauteil Footprint vorhanden, **Symbol-Pins = Footprint-Pads** und **Symbol-Pinnamen = Pinbelegung laut Datenblatt** (Tabelle mit Quelle und Status [V]/[V*]/[A]/[P] im Skript); schreibt [`pin_footprint.md`](pin_footprint.md), Exit 1 bei Abweichung. Alle Footprints vorhanden (13.10.2026)
 
 Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA aus und verlangt danach `git diff --exit-code`.
@@ -79,7 +79,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
 - Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
-## Stückliste (bisher, 179 Teile; erzeugt aus dem Generator)
+## Stückliste (bisher, 177 Teile; erzeugt aus dem Generator)
 
 | Ref. | Wert | Symbol | Footprint | LCSC | Blatt |
 |---|---|---|---|---|---|
@@ -165,7 +165,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | FB602 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Mikrofon |
 | J201 | Solar 1 | Connector_Generic:Conn_01x02 | DEGSON_15EDGRC-3.5-02P | C5160225 | Versorgung |
 | J202 | Solar 2 | Connector_Generic:Conn_01x02 | DEGSON_15EDGRC-3.5-02P | C5160225 | Versorgung |
-| J301 | USB-C (nur Laden) | Connector:USB_C_Receptacle_USB2.0_16P | USB_C_Receptacle_HRO_TYPE-C-31-M-12 | C165948 | MCU |
+| J301 | Laden 5 V (DNP) | Connector_Generic:Conn_01x02 | PinHeader_1x02_P2.54mm_Vertical |  | MCU |
 | J302 | Debug (SWD + Serial1) | Connector_Generic:Conn_01x07 | PinHeader_1x07_P2.54mm_Vertical |  | MCU |
 | J501 | Wägezelle | Connector_Generic:Conn_01x05 | DEGSON_15EDGRC-3.5-05P | C7603439 | Waage |
 | J601 | Mikrofone | Connector:RJ45_Shielded | RJ45_RCH_RC01937 |  | Mikrofon |
@@ -195,8 +195,6 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R209 | 0 | Device:R | R_0603_1608Metric |  | Versorgung |
 | R301 | 10k | Device:R | R_0603_1608Metric |  | MCU |
 | R302 | 10k | Device:R | R_0603_1608Metric |  | MCU |
-| R303 | 5,1k | Device:R | R_0603_1608Metric |  | MCU |
-| R304 | 5,1k | Device:R | R_0603_1608Metric |  | MCU |
 | R305 | 100k | Device:R | R_0603_1608Metric |  | MCU |
 | R306 | 1k | Device:R | R_0603_1608Metric |  | MCU |
 | R309 | 100k | Device:R | R_0603_1608Metric |  | MCU |

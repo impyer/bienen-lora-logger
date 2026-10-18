@@ -5,7 +5,7 @@ Kennzeichnung:
 - **[A]** Annahme oder Rechnung
 - **[P]** vor dem Schaltplan bzw. am Muster prüfen
 
-Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung Antenne (Philipp, 08.10.2026): **kleine Antenne an der IPEX-Buchse des Moduls**, im Gehäuse. **HW-09 (18.10.2026):** Bluetooth-Low-Energy-Modul RN4871 an USART6 als Service-Schnittstelle, USB-C nur noch zum Laden (Abschnitte 1.3 und 1.6).
+Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung Antenne (Philipp, 08.10.2026): **kleine Antenne an der IPEX-Buchse des Moduls**, im Gehäuse. **HW-09 (18.10.2026):** Bluetooth-Low-Energy-Modul RN4871 an USART6 als Service-Schnittstelle; USB-C-Buchse entfällt, Laden am Tisch über zwei Pads (Abschnitte 1.3 und 1.6).
 
 ## 1. Mikrocontroller STM32F411CEU6 (UFQFPN-48)
 
@@ -19,30 +19,30 @@ Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung
 | VCAP_1 (22) | **4,7 µF keramisch, ESR < 1 Ω**, sehr nah. Der UFQFPN-48 hat nur diesen einen VCAP-Pin. |
 | VBAT (1) | an 3,3 V (dauernd) + 100 nF; **keine Knopfzelle** (versorgung.md, V6). Nie an den Akku: nur 1,65–3,6 V zulässig. |
 | NRST (7) | 100 nF nach GND (interner Pull-up), Reset-Taster nach GND |
-| BOOT0 (44) | 10 kΩ nach GND [A, üblicher Wert], Taster nach 3,3 V für den USB-Bootloader |
+| BOOT0 (44) | 10 kΩ nach GND [A, üblicher Wert], Taster nach 3,3 V für den ROM-Bootloader (seit HW-09 über USART1 an J10, 1.3) |
 | PB2/BOOT1 (20) | 10 kΩ nach GND, sonst frei. Wirkt nur bei BOOT0 = 1. |
 
 ### 1.2 Takt
 
 | Quarz | Teil | Begründung |
 |---|---|---|
-| HSE 25 MHz | YXC X322525MOB4SI, 3225, CL 12 pF (LCSC **C9006, Basic** [V]) | wie die BlackPill; USB braucht einen Quarz |
+| HSE 25 MHz | YXC X322525MOB4SI, 3225, CL 12 pF (LCSC **C9006, Basic** [V]) | wie die BlackPill (USB bräuchte einen Quarz; seit HW-09 ohne USB, Quarz bleibt für die BlackPill-Kompatibilität K2) |
 | Lastkondensatoren HSE | 2 × 18 pF C0G [A]: C = 2 · (CL − Cstray), Cstray 3–5 pF angenommen | **[P]** am Muster Frequenz messen |
 | LSE 32,768 kHz | **Seiko SC-32S, 7 pF**, 3215 (LCSC **C97604**, 152.555 Stück am 08.10.2026 [V]) | ST AN4488: für STM32F4 „strongly recommended CL ≤ 7 pF“ und „Never use a resonator with CL 12.5 pF“ [V]. Die üblichen 12,5-pF-Basic-Quarze (z. B. C32346) scheiden damit aus. |
 | Lastkondensatoren LSE | 2 × 8,2 pF C0G [A]: 2 · (7 − ca. 3 pF) | **[P]** Anschwingen bei −20 °C und Gangabweichung der RTC prüfen. Die Firmware gleicht die Zeit zwar täglich ab, das Weckraster braucht trotzdem einen stabilen Quarz. |
 
 Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz und Pin. PC14/PC15 nicht anderweitig nutzen [V: AN2867, AN4488].
 
-### 1.3 USB-C (seit HW-09 nur Laden)
+### 1.3 Laden am Tisch über zwei Pads (USB-C entfällt, HW-09)
 
-**Stand HW-09 (18.10.2026):** PA11/PA12 sind **USART6** für das BLE-Modul (1.6). Damit gibt es **keine USB-Datenfunktion** mehr (kein USB-CDC, kein ROM-DFU über USB). Die Buchse J301 bleibt vorerst als **reine Ladebuchse**: VBUS → D203 → Eingang des BQ25185 (parallel zu den Panels, USB speist nie zurück ins Panel [A]); CC1/CC2 je 5,1 kΩ nach GND, damit auch C-C-Kabel 5 V liefern [A, Type-C-Spezifikation]; **D+/D− unbeschaltet**; USBLC6 U302 und der VBUS-Teiler R307/R308 entfallen, PB13 ist frei für den Lastschalter des BLE-Moduls.
+**Stand HW-09 (18.10.2026, Entscheidung Philipp):** PA11/PA12 sind **USART6** für das BLE-Modul (1.6). Damit gibt es **keine USB-Datenfunktion** mehr (kein USB-CDC, kein ROM-DFU über USB), und die **USB-C-Buchse entfällt ganz**. Zum Laden am Tisch bleiben **zwei Lötpads J301** (= J9, Raster 2,54 mm, Stiftleiste nicht bestückt): **1 GND, 2 +5 V** → D203 → Eingang des BQ25185, parallel zu den Panels. D203 sperrt Verpolung und Rückspeisung ins Panel; TVS D204 und die Eingangsspannungsregelung des Laders gelten wie bei den Panels (`versorgung.md` 3.1). Quelle: beliebiges 5-V-Netzteil (z. B. USB-Netzteil mit abgeschnittenem Kabel) oder das strombegrenzte Netzteil des Prüfaufbaus (`sicherheit-akku.md`). USBLC6 U302, VBUS-Teiler R307/R308 und CC-Widerstände entfallen; PB13 ist frei für den Lastschalter des BLE-Moduls.
 
-- Buchse 16-polig TYPE-C-31-M-12 (LCSC C165948, Extended [V]). **Entscheidung offen (Philipp):** Buchse behalten (Laden am Tisch ohne Labornetzteil, Kosten ca. 0,3 $ plus 4 Durchsteckstellen) oder entfernen (dann Laden am Tisch nur über ein Netzteil an J201, `sicherheit-akku.md` Prüfaufbau). Der Vorschlag vom 18.10.2026 sah das Entfernen vor; hier ist die Buchse behalten, weil sie nur die Pins D+/D− und drei Bauteile kostet.
+- Masse an Pin 1 wie bei allen Anschlüssen (`anschluesse.md` 1); Aufdruck „5 V“ und „GND“ an den Pads. Keine Durchsteckstellen mehr für USB; die beiden Pads zählen bei der Bestückung nicht (DNP).
 - **Aufspielen** ohne USB: SWD an J10 (sicherer Weg) oder der **ROM-Bootloader über USART1** (PA9/PA10 an J10 Pin 6/7, BOOT0-Taster + Reset, z. B. `stm32flash`) [V: ST AN2606, USART1 gehört zum Bootloader des F411]. Der BOOT0-Taster SW302 bleibt deshalb.
 - **Kommunikation** ohne USB: Service-Konsole über das BLE-Modul (Transparent-UART, 1.6) oder über Serial1 an J10.
 - Folge für die Firmware: keine USB-Peripherie, keine 48-MHz-PLL-Anforderung mehr; VBUS ist nicht mehr erkennbar (die Firmware sieht nur die Ladereingangsspannung über ADC_SOLAR, `versorgung.md` 3.1).
 
-**Vorgeschichte** (bleibt zur Nachvollziehbarkeit): USB-Rolle (SCH26-10) – entschieden: Laden, Aufspielen und Kommunikation (Philipp, 14.10.2026, HW-05; ersetzt Variante A „nur Laden und Aufspielen“ vom 10.10.2026, HW-01); **mit HW-09 ersetzt**. Die Beschreibung der HW-05-Schaltung:
+**Vorgeschichte** (bleibt zur Nachvollziehbarkeit): USB-Rolle (SCH26-10) – entschieden: Laden, Aufspielen und Kommunikation (Philipp, 14.10.2026, HW-05; ersetzt Variante A „nur Laden und Aufspielen“ vom 10.10.2026, HW-01); **mit HW-09 ersetzt**, die Buchse TYPE-C-31-M-12 (LCSC C165948) und der ESD-Schutz USBLC6-2SC6 (C7519) sind gestrichen. Die Beschreibung der HW-05-Schaltung:
 - USB lädt (VBUS → D203 → BQ25185), dient zum **Aufspielen** (ROM-DFU über BOOT0 + Reset oder aus der Anwendung) und zur **Kommunikation** (USB-CDC als Service-Konsole, Auslesen des Flashs).
 - **VBUS-Erkennung** nach ST AN4879 [V: AN4879, „VBUS sensing detection“]: Teiler **R307 33 kΩ / R308 82 kΩ** von VBUS an **PB13** (5-V-tolerant) → 5,0 V ergeben 3,57 V am Pin, 43 µA nur bei gestecktem Kabel [A, gerechnet]. Die Firmware schaltet USB-Peripherie und D+-Pull-up nur bei erkannter VBUS ein; ohne Kabel bleibt USB aus (Ruhestrom unverändert, USB-Spezifikation: kein Pull-up ohne VBUS).
 - **Takt:** 48 MHz für USB aus der PLL (25 MHz HSE, z. B. PLLM 25, PLLN 192, PLLQ 4 → 48 MHz; SYSCLK 96 MHz mit PLLP 2) [A, nach RM0383 zu bestätigen].
@@ -78,7 +78,7 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 **Antenne und Layout** [V: DS50002489D 4.3, Fig. 4-7/4-8/4-13; Fig. 8-2: 0,1 dBi, 42,7 % Wirkungsgrad]:
 - Modul an die **Platinenkante**, Chip-Antenne (Modul-Oberseite, y 7,5 … 11,5 mm) nach außen zur Gehäusewand („best“ in Fig. 4-13); Gehäuse Polycarbonat, kein Hindernis.
 - **Empfohlene Montage (Fig. 4-9 [V]): der Antennenteil des Moduls (y 7,5 … 11,5 mm) ragt über die Platinenkante hinaus**, die Platinenkante liegt an der Grenze zum Pad-Bereich (y = 7,5); Massefläche oben und unten bis an die Modulseiten. **Keine Kupferfläche auf allen Lagen** unter und neben der Antenne, falls sie doch über der Platine liegt (Sperrzone im Footprint `Bienen:Microchip_RN4871`, 1 mm über Modulbreite und Oberkante hinaus [A]); **keine Kupferfläche oben** in den zwei Testpunkt-Sperrflächen x 1,0 … 3,0 / y 4,6 … 7,5 und x 4,3 … 8,0 / y 1,5 … 7,0 (Fig. 4-8 [V], Sperrzonen F.Cu). Durchgehende Masse unter dem restlichen Modul, Masse-Vias am Rand.
-- **Metall ≥ 30 mm von der Antenne**: Zelle BT801 im Halter (88 × 22 mm Metallhalter!), Klemmen, RJ45, USB-Buchse, Lichtleiter-Halter; damit auch nicht an der Funkkante direkt neben der FPC-Antenne des Ra-01SH (868 MHz; gegenseitige Verstimmung gering, aber die 30-mm-Regel gilt für beide Antennen [A]).
+- **Metall ≥ 30 mm von der Antenne**: Zelle BT801 im Halter (88 × 22 mm Metallhalter!), Klemmen, RJ45, Stiftleisten, Lichtleiter-Halter; damit auch nicht an der Funkkante direkt neben der FPC-Antenne des Ra-01SH (868 MHz; gegenseitige Verstimmung gering, aber die 30-mm-Regel gilt für beide Antennen [A]).
 - Pads 0,7 × 1,5 mm, 0,5 mm über die Modulkante hinaus, Raster 1,2 mm (Fig. 4-8 [V]); vor der Bestellung mit dem LCSC/EasyEDA-Footprint zu C633942 gegenprüfen **[P]**. Löten: ein Reflow, nicht waschen (Feuchte unter dem Schirm), Spitze ≤ 250 °C [V: 4.5].
 - Koexistenz mit LoRa: **nie gleichzeitig** mit einer LoRa-Übertragung oder einer Mikrofonmessung (Lastenheft A5 gilt auch für BLE) [A].
 
@@ -307,7 +307,7 @@ Frei für den Erweiterungsstecker (F9): keine GPIOs mehr (PB13 seit HW-09 Lastsc
 6. Lastkondensatoren HSE/LSE am Muster prüfen (Frequenz, Anschwingen in der Kälte)
 7. TVS für den 3,3-V-Eingang des Moduls auswählen
 8. FPC-Antenne: passende Größe für die Gehäusewand wählen (CBHUB-02: Innenhöhe 58,9 mm)
-9. RN4871 (HW-09): Footprint gegen LCSC/EasyEDA C633942 prüfen; Flusskontrolle und Kopplung in der Moduleinstellung festlegen (User's Guide DS50002466); Zertifikate ablegen; Prüfplan B-1 … B-6 (1.6); Bestand/Preis vor der Bestellung; Entscheidung USB-C-Buchse behalten oder entfernen (1.3)
+9. RN4871 (HW-09): Footprint gegen LCSC/EasyEDA C633942 prüfen; Flusskontrolle und Kopplung in der Moduleinstellung festlegen (User's Guide DS50002466); Zertifikate ablegen; Prüfplan B-1 … B-6 (1.6); Bestand/Preis vor der Bestellung
 
 ### 6.1 Prüfplan Funkmodul am Steckbrett (SCH26-11, T4, durch Philipp)
 
