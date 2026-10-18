@@ -385,6 +385,8 @@ def zeichne_mcu(b, T):
     K = S(T["J301"], 330.2, 170.18, text="rechts")
     D(K.p("2"), (309.88, K.p("2")[1]))
     L("VBUS", 309.88, K.p("2")[1], 180)
+    D(K.p("1"), (317.5, K.p("1")[1]))
+    b.versorgung("GND", 317.5, K.p("1")[1], "unten")
 
     # --- 6 BLE-Modul RN4871 (HW-09) -------------------------------------------
     # Links der Lastschalter: +3V3 → Q301 (Source oben, Drain unten) → BLE_VCC-Schiene nach rechts zum Modul;
