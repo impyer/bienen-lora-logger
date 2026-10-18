@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "C:\\Users\\schnp\\Documents\\Bienen\\bienen-lora-logger\\hardware\\kicad\\hauptplatine\\logger.kicad_sch")
-		(date "2026-10-18T18:45:08")
+		(date "2026-10-18T18:52:23")
 		(tool "Eeschema 10.0.7")
 		(sheet
 			(number "1")
