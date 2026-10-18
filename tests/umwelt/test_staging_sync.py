@@ -38,7 +38,7 @@ class SyncTests(unittest.TestCase):
         self.file.chmod(0o600)
         self.file.write_text(self.file.read_text()+soil_row('2026-10-26T00:00Z','1;2;3','next'))
         self.run_sync();self.assertEqual(destination.read_bytes(),self.file.read_bytes())
-        self.file.write_text(SOIL_HEADER+soil_row(values='22;;13'));self.run_sync()
+        self.file.write_text(self.file.read_text().replace(';12;;13;',';22;;13;'));self.run_sync()
         (self.source/'soil-2026-11.csv').write_text(SOIL_HEADER+soil_row('2026-11-01T00:00Z','1;2;3','nov'))
         self.assertEqual(len(self.run_sync()['files']),2)
         self.assertEqual(destination.read_bytes(),self.file.read_bytes())
