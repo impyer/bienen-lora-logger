@@ -62,11 +62,11 @@ Nach der Freigabe kamen zwei Aufträge des Maintainers: **HW-10** (alle drei Mik
 
 - **HW-10:** Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615, C625–C629), auf **J601 Pin 5 (MIC3+) / 6 (MIC3−)** (Philipp: ein Stecker für alle drei Mikrofone; vorher Masse-Paarpartner), ESD D602 neben D601; Blatt Mikrofon Abschnitt 6; Pflichtenheft Regel 1/2 und Netztabelle (MIC3-Paar), 185 Teile / 21 LCSC. Regel: Mikrofon 3 nur bei stehendem PDM-Takt messen.
 - **Pin-Review:** eigener Bericht [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md) – keine Abweichung; `pin_footprint.py` für STM32, AO3400A, AO3401A, HY2111, FS8205, 74LVC1G17 auf [V].
-- **Nachweis (Commit `23aed6e`):** `pruefen.sh` reproduzierbar, ERC **0**, Netzprüfung **236/236**, Pin-/Footprint-Abgleich **186 Bauteile, 0 Abweichungen**; Sichtprüfung Blatt Mikrofon (PNG); Paket **`layout-auftrag-PCB-MAIN-0.1-23aed6e.zip`** (38 Dateien, bom_aktuell.csv 186 Zeilen) entpackt: ERC **0**, DRC **0**. Dieses Paket ersetzt das aus `4c36898`.
+- **Nachweis (Commit `bec9a04`):** `pruefen.sh` reproduzierbar, ERC **0**, Netzprüfung **229/229**, Pin-/Footprint-Abgleich **185 Bauteile, 0 Abweichungen**; Sichtprüfung Blatt Mikrofon (PNG); Paket **`layout-auftrag-PCB-MAIN-0.1-bec9a04.zip`** (38 Dateien, bom_aktuell.csv 185 Zeilen) entpackt: ERC **0**, DRC **0**. Dieses Paket ersetzt die aus `4c36898` und `23aed6e` (Zwischenstand mit eigener Klemme J602).
 
 ## Freigabeentscheidung
 
 - **Betroffenes Gate:** G1 (Quellstand) – **bestanden, vorbehaltlich grüner CI**; G2/G3/G4 unverändert offen
 - **Entscheidung:** Schaltplan **zur Layout-Bearbeitung freigegeben** (Platzierung/Routing durch den Layouter, HW-08); keine Freigabe zur Bestellung
 - **Begründung und Verantwortliche:** alle Prüfungen L-1 … L-6 bestanden; Maintainer bestätigt mit dem Merge und dem Versand des Pakets
-- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA (gültig: `23aed6e`); Pin-Review [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md); Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)
+- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA (gültig: `bec9a04`); Pin-Review [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md); Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)
