@@ -9,7 +9,8 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
  try{
   const context=await browser.newContext();
   const page=await context.newPage();
-  const replies=[],errors=[];
+  const replies=[],errors=[],windows=[];
+  page.on('request',r=>{if(r.url().includes('/zeitreihen?'))windows.push(new URL(r.url()).searchParams);});
   page.on('response',response=>{if(response.url().includes('/zeitreihen?')&&response.ok())replies.push(response.json());});
   page.on('pageerror',error=>errors.push(error.message));
   await page.goto(config.origin);
@@ -28,6 +29,10 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   for(const range of ['24 h','7 Tage','30 Tage','Saison']){
    await complete(()=>page.getByRole('button',{name:range,exact:true}).click());
    await newest(range);
+   if(config.stability&&range==='Saison'){
+    const year=Number(new Intl.DateTimeFormat('en',{timeZone:'Europe/Berlin',year:'numeric'}).format(new Date()));
+    assert.equal(windows.at(-1).get('von'),new Date(Date.UTC(year,0,1)-3600000).toISOString(),'season must start at Berlin midnight');
+   }
   }
   await complete(()=>page.getByRole('button',{name:'7 Tage',exact:true}).click());
   await complete(()=>page.locator('#umResolution').selectOption('raw'));
@@ -64,6 +69,18 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
     });
     assert.equal(await page.locator('.um-chart').count(),2,'no leaked chart instances');
    }
+   await page.locator('.um-range input[name="from"]').fill('2024-01-01T00:00');
+   await page.locator('.um-range input[name="to"]').fill('2027-01-01T00:00');
+   await page.getByRole('button',{name:'Zeitraum anwenden',exact:true}).click();
+   await page.waitForFunction(()=>document.querySelector('#umStatus')?.textContent.includes('Zeitraum verkürzen'));
+   assert.equal(await page.locator('.um-chart').count(),0,'limit error must not leave apparently successful curves');
+   await complete(()=>page.getByRole('button',{name:'7 Tage',exact:true}).click());
+   const registry=await (await context.request.get(config.origin+'/api/v1/umwelt/kanaele?stand_id='+config.stand_id)).json();
+   const humidity=registry.find(c=>c.field==='h');assert.ok(humidity);
+   await complete(()=>page.locator('#umFields input[value="'+humidity.id+'"]').check());
+   assert.equal(await page.locator('.um-chart').count(),3,'additional actual registry channel must be selectable');
+   await complete(()=>page.locator('#umFields input[value="'+humidity.id+'"]').uncheck());
+   assert.equal(await page.locator('.um-chart').count(),2);
   }
   const started=Date.now();fs.appendFileSync(config.soil_file,config.new_row);
   await page.waitForFunction(()=>{
@@ -82,6 +99,6 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   assert.ok([...snapshots.values()].some(n=>n>1),'real browser must request multiple pages');
   assert.ok(pages.some(p=>p.source_points>5000));
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({result:'PASS',checks:['long-7d','long-30d','season-latest','raw-pages','free-window','rapid-change','apiary-switch','microsecond-order','live-poll','mobile'],live_update_ms:liveUpdate,browser:browser.version()}));
+  console.log(JSON.stringify({result:'PASS',checks:['long-7d','long-30d','season-latest','raw-pages','free-window','rapid-change','apiary-switch','microsecond-order','live-poll','mobile',...(config.stability?['temperature-defaults','three-polls-same-instance','zoom-legend-retained','real-limit-error-recovery','dynamic-channel-add']:[])],live_update_ms:liveUpdate,browser:browser.version()}));
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1});

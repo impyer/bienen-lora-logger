@@ -484,8 +484,17 @@ function buildControls(){
 }
 function windowParams(){
  if(fixed)return fixed;
- const end=new Date(),start=days?new Date(end.getTime()-days*86400000):new Date(Date.UTC(end.getUTCFullYear(),0,1));
+ const end=new Date(),start=days?new Date(end.getTime()-days*86400000):seasonStart(end);
  return [start.toISOString(),end.toISOString()];
+}
+function seasonStart(end){
+ const year=Number(new Intl.DateTimeFormat('en',{timeZone:'Europe/Berlin',year:'numeric'}).format(end));
+ const january=new Date(Date.UTC(year,0,1));
+ const offset=new Intl.DateTimeFormat('en',{timeZone:'Europe/Berlin',timeZoneName:'longOffset'}).formatToParts(january).find(p=>p.type==='timeZoneName')?.value;
+ const match=/^GMT([+-])(\d{2}):(\d{2})$/.exec(offset||'');
+ if(!match)throw Error('Berliner Saisonbeginn konnte nicht bestimmt werden. Freies UTC-Zeitfenster wählen.');
+ const minutes=(Number(match[2])*60+Number(match[3]))*(match[1]==='+'?1:-1);
+ return new Date(january.getTime()-minutes*60000);
 }
 function plotData(points,interval){
  const data=[];let previous=null;

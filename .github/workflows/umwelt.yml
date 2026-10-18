@@ -68,7 +68,7 @@ jobs:
       - name: Real Caddy HTTPS, CSV watcher, FastAPI, PostgreSQL and ECharts browser
         run: python tests/umwelt/e2e.py --output build/r1-e2e
       - name: Long windows, real paging, live CSV append and restricted importer
-        run: python tests/umwelt/e2e.py --long-history --output build/r11-e2e
+        run: python tests/umwelt/e2e.py --stability --output build/r11-e2e
       - name: Synthetic yearly archive and bounded API resource profile
         run: python tests/umwelt/year_load.py --output build/r11-year
       - name: Synthetic evidence only; never upload private CA keys or credentials
