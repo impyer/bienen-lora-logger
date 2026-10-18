@@ -2,6 +2,8 @@
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const cp=require('node:child_process');
+const path=require('node:path');
 const {chromium}=require('playwright');
 const config=JSON.parse(process.env.R1_BROWSER_INPUT);
 (async()=>{
@@ -84,6 +86,16 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
    assert.equal(await page.locator('.um-chart').count(),3,'additional actual registry channel must be selectable');
    await complete(()=>page.locator('#umFields input[value="'+humidity.id+'"]').uncheck());
    assert.equal(await page.locator('.um-chart').count(),2);
+   const outage=cp.spawn(process.env.R1_PYTHON,[path.join(__dirname,'db_outage.py')],{env:process.env,stdio:['pipe','pipe','pipe']});
+   const restored=new Promise((resolve,reject)=>outage.once('exit',code=>code===0?resolve():reject(Error('DB fixture outage helper failed'))));
+   try{
+    await Promise.race([new Promise(resolve=>outage.stdout.once('data',resolve)),restored.then(()=>{throw Error('Outage helper exited before ready');})]);
+    await page.getByRole('button',{name:'7 Tage',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('#umStatus')?.textContent.includes('automatische Abfrage versucht es erneut'),null,{timeout:10000});
+    assert.equal(await page.locator('.um-chart').count(),0,'DB outage must remove stale curves');
+   }finally{outage.stdin.end('resume\n');await restored;}
+   await complete(()=>page.getByRole('button',{name:'7 Tage',exact:true}).click());
+   await newest('database-recovery');
   }
   const started=Date.now();fs.appendFileSync(config.soil_file,config.new_row);
   await page.waitForFunction(()=>{
@@ -102,6 +114,6 @@ const config=JSON.parse(process.env.R1_BROWSER_INPUT);
   assert.ok([...snapshots.values()].some(n=>n>1),'real browser must request multiple pages');
   assert.ok(pages.some(p=>p.source_points>5000));
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({result:'PASS',checks:['long-7d','long-30d','season-latest','raw-pages','free-window','rapid-change','apiary-switch','microsecond-order','live-poll','mobile',...(config.stability?['temperature-defaults','berlin-season-start','three-polls-same-instance','zoom-legend-retained','real-limit-error-recovery','dynamic-channel-add']:[])],poll_heap_bytes:heapSamples,live_update_ms:liveUpdate,browser:browser.version()}));
+  console.log(JSON.stringify({result:'PASS',checks:['long-7d','long-30d','season-latest','raw-pages','free-window','rapid-change','apiary-switch','microsecond-order','live-poll','mobile',...(config.stability?['temperature-defaults','berlin-season-start','three-polls-same-instance','zoom-legend-retained','real-limit-error-recovery','dynamic-channel-add','actual-db-outage-recovery']:[])],poll_heap_bytes:heapSamples,live_update_ms:liveUpdate,browser:browser.version()}));
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1});
