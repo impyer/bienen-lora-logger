@@ -53,6 +53,12 @@ class SyncTests(unittest.TestCase):
             self.assertEqual((self.target/self.file.name).read_bytes(),before)
         self.file.write_text(SOIL_HEADER+soil_row(values='25;;13'));self.assertTrue(self.run_sync()['success'])
 
+    def test_unexpected_valid_truncation_cannot_erase_last_staged_copy(self):
+        self.run_sync();before=(self.target/self.file.name).read_bytes()
+        self.file.write_text(SOIL_HEADER)
+        self.assertFalse(self.run_sync()['success'])
+        self.assertEqual((self.target/self.file.name).read_bytes(),before)
+
     def test_publication_failure_and_source_change_leave_no_partial_destination(self):
         with patch.object(staging_sync.os,'replace',side_effect=OSError('synthetic interruption')):
             self.assertFalse(self.run_sync()['success'])

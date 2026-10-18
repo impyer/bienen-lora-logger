@@ -38,6 +38,8 @@ def _publish(source_fd,target_fd,name,config):
             digest=hash_prefix(source,info.st_size,deadline)
             try:
                 with read_file(target_fd,name) as (existing,target_info):
+                    if info.st_size<target_info.st_size:
+                        raise SourceReadError('sync_quelle_verkuerzt_betreiberpruefung_noetig')
                     if target_info.st_nlink!=1 or (target_info.st_dev,target_info.st_ino)==(info.st_dev,info.st_ino):
                         raise SourceReadError('sync_staging_hardlink_unzulaessig')
                     if hash_prefix(existing,target_info.st_size,deadline)==digest:
