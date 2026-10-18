@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "C:\\Users\\schnp\\Documents\\Bienen\\bienen-lora-logger\\hardware\\kicad\\hauptplatine\\logger.kicad_sch")
-		(date "2026-10-18T18:12:10")
+		(date "2026-10-18T19:46:46")
 		(tool "Eeschema 10.0.7")
 		(sheet
 			(number "1")
@@ -2449,6 +2449,7 @@
 			(ref "C305")
 			(value "100n")
 			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "VDDA/VREF+ (Pin 9) direkt am Pin (HW-11)")
 			(fields
 				(field
 					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
@@ -2456,8 +2457,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description")
-				)
+					(name "Description") "VDDA/VREF+ (Pin 9) direkt am Pin (HW-11)")
 			)
 			(libsource
 				(lib "Device")
@@ -2485,60 +2485,6 @@
 				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
 			)
 			(tstamps "851666f8-9a08-5df0-b3f0-818ecfab49e8")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "C306")
-			(value "1µ")
-			(footprint "Capacitor_SMD:C_0603_1608Metric")
-			(fields
-				(field
-					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description")
-				)
-			)
-			(libsource
-				(lib "Device")
-				(part "C")
-				(description "Unpolarized capacitor")
-			)
-			(property
-				(name "Sheetname")
-				(value "MCU")
-			)
-			(property
-				(name "Sheetfile")
-				(value "mcu.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "cap capacitor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "C_*")
-			)
-			(sheetpath
-				(names "/MCU/")
-				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
-			)
-			(tstamps "47cde002-56fe-5f32-b275-d9519be52b93")
 			(units
 				(unit
 					(name "A")
@@ -2593,60 +2539,6 @@
 				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
 			)
 			(tstamps "ce234541-2b82-51f5-916e-6270e4b97c63")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "C308")
-			(value "100n")
-			(footprint "Capacitor_SMD:C_0603_1608Metric")
-			(description "VBAT an 3,3 V, keine Knopfzelle (V6)")
-			(fields
-				(field
-					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "VBAT an 3,3 V, keine Knopfzelle (V6)")
-			)
-			(libsource
-				(lib "Device")
-				(part "C")
-				(description "Unpolarized capacitor")
-			)
-			(property
-				(name "Sheetname")
-				(value "MCU")
-			)
-			(property
-				(name "Sheetfile")
-				(value "mcu.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "cap capacitor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "C_*")
-			)
-			(sheetpath
-				(names "/MCU/")
-				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
-			)
-			(tstamps "9b3470d7-1e26-564d-96dd-8a08fde29103")
 			(units
 				(unit
 					(name "A")
@@ -3094,6 +2986,60 @@
 			)
 		)
 		(comp
+			(ref "C317")
+			(value "47n")
+			(footprint "Capacitor_SMD:C_0603_1608Metric")
+			(description "Gate–Drain: dU/dt = I_Gate / C ≈ 0,33 mA / 47 nF → 3,3 V in ca. 0,5 ms [A]")
+			(fields
+				(field
+					(name "Footprint") "Capacitor_SMD:C_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Gate–Drain: dU/dt = I_Gate / C ≈ 0,33 mA / 47 nF → 3,3 V in ca. 0,5 ms [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "C")
+				(description "Unpolarized capacitor")
+			)
+			(property
+				(name "Sheetname")
+				(value "MCU")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mcu.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "cap capacitor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "C_*")
+			)
+			(sheetpath
+				(names "/MCU/")
+				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
+			)
+			(tstamps "07535b42-209a-5a49-9b49-7a59abd1e49d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
 			(ref "D301")
 			(value "LTST-S220KGKT")
 			(footprint "Bienen:LED_Lite-On_LTST-S220_SideView")
@@ -3139,60 +3085,6 @@
 				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
 			)
 			(tstamps "dc340f63-9449-5602-b325-99556e3e1054")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "FB301")
-			(value "600R@100MHz")
-			(footprint "Inductor_SMD:L_0603_1608Metric")
-			(description "VDDA für die Mikrofonmessung beruhigt [A]")
-			(fields
-				(field
-					(name "Footprint") "Inductor_SMD:L_0603_1608Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "VDDA für die Mikrofonmessung beruhigt [A]")
-			)
-			(libsource
-				(lib "Device")
-				(part "FerriteBead_Small")
-				(description "Ferrite bead, small symbol")
-			)
-			(property
-				(name "Sheetname")
-				(value "MCU")
-			)
-			(property
-				(name "Sheetfile")
-				(value "mcu.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "L ferrite bead inductor filter")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "Inductor_* L_* *Ferrite*")
-			)
-			(sheetpath
-				(names "/MCU/")
-				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
-			)
-			(tstamps "9f3fd09a-ba23-5da3-b22a-065172d999ab")
 			(units
 				(unit
 					(name "A")
@@ -3394,7 +3286,7 @@
 			(ref "Q301")
 			(value "AO3401A")
 			(footprint "Package_TO_SOT_SMD:SOT-23")
-			(description "Lastschalter BLE: PB13 low = Modul ein; Gate-Pull-up R309 hält das Modul aus, solange PB13 hochohmig ist (Standby)")
+			(description "Lastschalter BLE: PB13 low = Modul ein; Gate-Pull-up R309 hält das Modul aus, solange PB13 hochohmig ist (Standby); Sanftanlauf über R314/C317 (HW-11)")
 			(fields
 				(field
 					(name "LCSC") "C15127")
@@ -3404,7 +3296,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "Lastschalter BLE: PB13 low = Modul ein; Gate-Pull-up R309 hält das Modul aus, solange PB13 hochohmig ist (Standby)")
+					(name "Description") "Lastschalter BLE: PB13 low = Modul ein; Gate-Pull-up R309 hält das Modul aus, solange PB13 hochohmig ist (Standby); Sanftanlauf über R314/C317 (HW-11)")
 			)
 			(libsource
 				(lib "Transistor_FET")
@@ -3493,60 +3385,6 @@
 				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
 			)
 			(tstamps "66d0ad5c-e7ee-5290-98e9-46000a641a36")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "R302")
-			(value "10k")
-			(footprint "Resistor_SMD:R_0603_1608Metric")
-			(description "PB2/BOOT1 nach GND")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description") "PB2/BOOT1 nach GND")
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "MCU")
-			)
-			(property
-				(name "Sheetfile")
-				(value "mcu.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/MCU/")
-				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
-			)
-			(tstamps "e170e6c5-ff45-5642-a351-fdce8041db21")
 			(units
 				(unit
 					(name "A")
@@ -3871,6 +3709,114 @@
 				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
 			)
 			(tstamps "1f2f209e-7b31-528c-aa3b-e96d2591a1fd")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R313")
+			(value "100k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "entlädt C314 nach dem Abschalten (τ ≈ 1 s): definierter Aus-Zustand, kurzer Aus-Ein-Zyklus wirkt als Reset; 33 µA nur bei eingeschaltetem Modul [A]")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "entlädt C314 nach dem Abschalten (τ ≈ 1 s): definierter Aus-Zustand, kurzer Aus-Ein-Zyklus wirkt als Reset; 33 µA nur bei eingeschaltetem Modul [A]")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "MCU")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mcu.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/MCU/")
+				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
+			)
+			(tstamps "ffa53f8f-c978-5b14-8a86-f92179e26146")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R314")
+			(value "10k")
+			(footprint "Resistor_SMD:R_0603_1608Metric")
+			(description "Sanftanlauf (HW-11): mit C317 Miller-Rampe, Einschaltstrom ca. 55 mA statt 1,2 A (schaltplan_spice.py S3)")
+			(fields
+				(field
+					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "Sanftanlauf (HW-11): mit C317 Miller-Rampe, Einschaltstrom ca. 55 mA statt 1,2 A (schaltplan_spice.py S3)")
+			)
+			(libsource
+				(lib "Device")
+				(part "R")
+				(description "Resistor")
+			)
+			(property
+				(name "Sheetname")
+				(value "MCU")
+			)
+			(property
+				(name "Sheetfile")
+				(value "mcu.kicad_sch")
+			)
+			(property
+				(name "ki_keywords")
+				(value "R res resistor")
+			)
+			(property
+				(name "ki_fp_filters")
+				(value "R_*")
+			)
+			(sheetpath
+				(names "/MCU/")
+				(tstamps "/946b3ffb-4c44-5887-a68a-7af9186c1b58/")
+			)
+			(tstamps "b10e3d2f-d251-5196-a70f-5433a0748319")
 			(units
 				(unit
 					(name "A")
@@ -5215,114 +5161,6 @@
 			)
 		)
 		(comp
-			(ref "R407")
-			(value "10k")
-			(footprint "Resistor_SMD:R_0603_1608Metric")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description")
-				)
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "Funk + Flash")
-			)
-			(property
-				(name "Sheetfile")
-				(value "funk.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/Funk + Flash/")
-				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
-			)
-			(tstamps "5d79b344-9df0-5ec8-be01-33b99d0182b5")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
-			(ref "R408")
-			(value "10k")
-			(footprint "Resistor_SMD:R_0603_1608Metric")
-			(fields
-				(field
-					(name "Footprint") "Resistor_SMD:R_0603_1608Metric")
-				(field
-					(name "Datasheet")
-				)
-				(field
-					(name "Description")
-				)
-			)
-			(libsource
-				(lib "Device")
-				(part "R")
-				(description "Resistor")
-			)
-			(property
-				(name "Sheetname")
-				(value "Funk + Flash")
-			)
-			(property
-				(name "Sheetfile")
-				(value "funk.kicad_sch")
-			)
-			(property
-				(name "ki_keywords")
-				(value "R res resistor")
-			)
-			(property
-				(name "ki_fp_filters")
-				(value "R_*")
-			)
-			(sheetpath
-				(names "/Funk + Flash/")
-				(tstamps "/24bb1957-0e1d-5b8d-8126-98e840da7728/")
-			)
-			(tstamps "9cb7f9ab-8915-5ab3-8d63-213392fa89eb")
-			(units
-				(unit
-					(name "A")
-					(pins
-						(pin
-							(num "1")
-						)
-						(pin
-							(num "2")
-						)
-					)
-				)
-			)
-		)
-		(comp
 			(ref "U401")
 			(value "Ra-01SH")
 			(footprint "Bienen:Ai-Thinker_Ra-01SH")
@@ -6399,12 +6237,10 @@
 		)
 		(comp
 			(ref "Q501")
-			(value "S8550")
+			(value "S8550 (1 B, 2 E, 3 C)")
 			(footprint "Package_TO_SOT_SMD:SOT-23")
 			(description "PNP-Regler für AVDD nach HX711-Datenblatt Fig. 1 [V]; Ersatz C111271; Pinfolge des Lieferteils mit 1 B, 2 E, 3 C vergleichen [P]")
 			(fields
-				(field
-					(name "LCSC") "C397181")
 				(field
 					(name "Footprint") "Package_TO_SOT_SMD:SOT-23")
 				(field
@@ -6417,10 +6253,6 @@
 				(lib "Transistor_BJT")
 				(part "SS8550")
 				(description "General Purpose PNP Transistor, 1.5A Ic, 25V Vce, SOT-23")
-			)
-			(property
-				(name "LCSC")
-				(value "C397181")
 			)
 			(property
 				(name "Sheetname")
@@ -8424,7 +8256,7 @@
 			(ref "D602")
 			(value "ESDS304DBVR")
 			(footprint "Package_TO_SOT_SMD:SOT-23-5")
-			(description "direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
+			(description "direkt hinter J601 neben D601 (anschluesse.md 3): Paar 4/5 der Buchse; zwei Kanäle frei; LCSC [P]")
 			(fields
 				(field
 					(name "Footprint") "Package_TO_SOT_SMD:SOT-23-5")
@@ -8432,7 +8264,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]")
+					(name "Description") "direkt hinter J601 neben D601 (anschluesse.md 3): Paar 4/5 der Buchse; zwei Kanäle frei; LCSC [P]")
 			)
 			(libsource
 				(lib "Power_Protection")
@@ -8595,7 +8427,7 @@
 			(ref "J601")
 			(value "Mikrofone 1–3")
 			(footprint "Connector_RJ:RJ45_RCH_RC01937")
-			(description "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, 4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 (vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
+			(description "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+VDD, 4/5 MIC3+/MIC3−, 7/8 MIC+/MIC− (jedes Mikrofon auf einem eigenen Paar, Elektrets am Rand, weit weg vom Takt; HW-10: Mikrofon 3 auf 4/5, VDD von 4 auf 6; VDD ist für DATA der Rückleiter, am Kopf 100 nF und hier C611); Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
 			(fields
 				(field
 					(name "Footprint") "Connector_RJ:RJ45_RCH_RC01937")
@@ -8603,7 +8435,7 @@
 					(name "Datasheet")
 				)
 				(field
-					(name "Description") "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, 4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 (vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
+					(name "Description") "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+VDD, 4/5 MIC3+/MIC3−, 7/8 MIC+/MIC− (jedes Mikrofon auf einem eigenen Paar, Elektrets am Rand, weit weg vom Takt; HW-10: Mikrofon 3 auf 4/5, VDD von 4 auf 6; VDD ist für DATA der Rückleiter, am Kopf 100 nF und hier C611); Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden")
 			)
 			(libsource
 				(lib "Connector")
@@ -13661,7 +13493,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "C308")
+				(ref "C305")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13689,11 +13521,6 @@
 				(ref "D401")
 				(pin "1")
 				(pinfunction "A1_1")
-				(pintype "passive")
-			)
-			(node
-				(ref "FB301")
-				(pin "1")
 				(pintype "passive")
 			)
 			(node
@@ -13737,16 +13564,6 @@
 			)
 			(node
 				(ref "R406")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "R407")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "R408")
 				(pin "1")
 				(pintype "passive")
 			)
@@ -13805,10 +13622,28 @@
 				(pintype "power_in")
 			)
 			(node
+				(ref "U301")
+				(pin "9")
+				(pinfunction "VDDA_9")
+				(pintype "power_in")
+			)
+			(node
 				(ref "U401")
 				(pin "3")
 				(pinfunction "3.3V_3")
 				(pintype "power_in")
+			)
+			(node
+				(ref "U402")
+				(pin "3")
+				(pinfunction "~{WP}/IO_{2}_3")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U402")
+				(pin "7")
+				(pinfunction "~{HOLD}/~{RESET}/IO_{3}_7")
+				(pintype "bidirectional")
 			)
 			(node
 				(ref "U402")
@@ -14093,38 +13928,6 @@
 		)
 		(net
 			(code "16")
-			(name "/Funk + Flash/FLASH_HOLD")
-			(class "Default")
-			(node
-				(ref "R408")
-				(pin "2")
-				(pintype "passive")
-			)
-			(node
-				(ref "U402")
-				(pin "7")
-				(pinfunction "~{HOLD}/~{RESET}/IO_{3}_7")
-				(pintype "bidirectional")
-			)
-		)
-		(net
-			(code "17")
-			(name "/Funk + Flash/FLASH_WP")
-			(class "Default")
-			(node
-				(ref "R407")
-				(pin "2")
-				(pintype "passive")
-			)
-			(node
-				(ref "U402")
-				(pin "3")
-				(pinfunction "~{WP}/IO_{2}_3")
-				(pintype "bidirectional")
-			)
-		)
-		(net
-			(code "18")
 			(name "/Funk + Flash/RF_MISO")
 			(class "Default")
 			(node
@@ -14140,7 +13943,7 @@
 			)
 		)
 		(net
-			(code "19")
+			(code "17")
 			(name "/Funk + Flash/RF_MOSI")
 			(class "Default")
 			(node
@@ -14156,7 +13959,7 @@
 			)
 		)
 		(net
-			(code "20")
+			(code "18")
 			(name "/Funk + Flash/RF_NSS")
 			(class "Default")
 			(node
@@ -14172,7 +13975,7 @@
 			)
 		)
 		(net
-			(code "21")
+			(code "19")
 			(name "/Funk + Flash/RF_SCK")
 			(class "Default")
 			(node
@@ -14188,7 +13991,7 @@
 			)
 		)
 		(net
-			(code "22")
+			(code "20")
 			(name "/Funk + Flash/RXEN_MOD")
 			(class "Default")
 			(node
@@ -14205,7 +14008,7 @@
 			)
 		)
 		(net
-			(code "23")
+			(code "21")
 			(name "/Funk + Flash/TXEN_MOD")
 			(class "Default")
 			(node
@@ -14222,9 +14025,30 @@
 			)
 		)
 		(net
-			(code "24")
+			(code "22")
 			(name "/MCU/BLE_EIN")
 			(class "Default")
+			(node
+				(ref "R314")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U301")
+				(pin "26")
+				(pinfunction "PB13_26")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "23")
+			(name "/MCU/BLE_GATE")
+			(class "Default")
+			(node
+				(ref "C317")
+				(pin "1")
+				(pintype "passive")
+			)
 			(node
 				(ref "Q301")
 				(pin "1")
@@ -14237,14 +14061,13 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "U301")
-				(pin "26")
-				(pinfunction "PB13_26")
-				(pintype "bidirectional")
+				(ref "R314")
+				(pin "1")
+				(pintype "passive")
 			)
 		)
 		(net
-			(code "25")
+			(code "24")
 			(name "/MCU/BLE_RST")
 			(class "Default")
 			(node
@@ -14260,7 +14083,7 @@
 			)
 		)
 		(net
-			(code "26")
+			(code "25")
 			(name "/MCU/BLE_VCC")
 			(class "Default")
 			(node
@@ -14271,6 +14094,11 @@
 			(node
 				(ref "C315")
 				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C317")
+				(pin "2")
 				(pintype "passive")
 			)
 			(node
@@ -14291,6 +14119,11 @@
 				(pintype "passive")
 			)
 			(node
+				(ref "R313")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
 				(ref "U303")
 				(pin "14")
 				(pinfunction "VBAT_14")
@@ -14298,7 +14131,7 @@
 			)
 		)
 		(net
-			(code "27")
+			(code "26")
 			(name "/MCU/BOOT0")
 			(class "Default")
 			(node
@@ -14320,23 +14153,7 @@
 			)
 		)
 		(net
-			(code "28")
-			(name "/MCU/BOOT1")
-			(class "Default")
-			(node
-				(ref "R302")
-				(pin "2")
-				(pintype "passive")
-			)
-			(node
-				(ref "U301")
-				(pin "20")
-				(pinfunction "PB2_20")
-				(pintype "bidirectional")
-			)
-		)
-		(net
-			(code "29")
+			(code "27")
 			(name "/MCU/HSE_IN")
 			(class "Default")
 			(node
@@ -14358,7 +14175,7 @@
 			)
 		)
 		(net
-			(code "30")
+			(code "28")
 			(name "/MCU/HSE_OUT")
 			(class "Default")
 			(node
@@ -14380,7 +14197,7 @@
 			)
 		)
 		(net
-			(code "31")
+			(code "29")
 			(name "/MCU/LED")
 			(class "Default")
 			(node
@@ -14397,7 +14214,7 @@
 			)
 		)
 		(net
-			(code "32")
+			(code "30")
 			(name "/MCU/LED_A")
 			(class "Default")
 			(node
@@ -14413,7 +14230,7 @@
 			)
 		)
 		(net
-			(code "33")
+			(code "31")
 			(name "/MCU/LSE_IN")
 			(class "Default")
 			(node
@@ -14435,7 +14252,7 @@
 			)
 		)
 		(net
-			(code "34")
+			(code "32")
 			(name "/MCU/LSE_OUT")
 			(class "Default")
 			(node
@@ -14457,7 +14274,7 @@
 			)
 		)
 		(net
-			(code "35")
+			(code "33")
 			(name "/MCU/NRST")
 			(class "Default")
 			(node
@@ -14485,7 +14302,7 @@
 			)
 		)
 		(net
-			(code "36")
+			(code "34")
 			(name "/MCU/SWCLK")
 			(class "Default")
 			(node
@@ -14502,7 +14319,7 @@
 			)
 		)
 		(net
-			(code "37")
+			(code "35")
 			(name "/MCU/SWDIO")
 			(class "Default")
 			(node
@@ -14519,7 +14336,7 @@
 			)
 		)
 		(net
-			(code "38")
+			(code "36")
 			(name "/MCU/USART6_RX")
 			(class "Default")
 			(node
@@ -14535,7 +14352,7 @@
 			)
 		)
 		(net
-			(code "39")
+			(code "37")
 			(name "/MCU/USART6_TX")
 			(class "Default")
 			(node
@@ -14551,7 +14368,7 @@
 			)
 		)
 		(net
-			(code "40")
+			(code "38")
 			(name "/MCU/VCAP")
 			(class "Default")
 			(node
@@ -14567,33 +14384,7 @@
 			)
 		)
 		(net
-			(code "41")
-			(name "/MCU/VDDA")
-			(class "Default")
-			(node
-				(ref "C305")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "C306")
-				(pin "1")
-				(pintype "passive")
-			)
-			(node
-				(ref "FB301")
-				(pin "2")
-				(pintype "passive")
-			)
-			(node
-				(ref "U301")
-				(pin "9")
-				(pinfunction "VDDA_9")
-				(pintype "power_in")
-			)
-		)
-		(net
-			(code "42")
+			(code "39")
 			(name "/MCU/WAKE")
 			(class "Default")
 			(node
@@ -14621,7 +14412,7 @@
 			)
 		)
 		(net
-			(code "43")
+			(code "40")
 			(name "/Mikrofon/1V8_ADC")
 			(class "Default")
 			(node
@@ -14653,7 +14444,7 @@
 			)
 		)
 		(net
-			(code "44")
+			(code "41")
 			(name "/Mikrofon/3V3_ANA")
 			(class "Default")
 			(node
@@ -14689,7 +14480,7 @@
 			)
 		)
 		(net
-			(code "45")
+			(code "42")
 			(name "/Mikrofon/3V3_MEMS")
 			(class "Default")
 			(node
@@ -14704,12 +14495,12 @@
 			)
 			(node
 				(ref "J601")
-				(pin "4")
+				(pin "6")
 				(pintype "passive")
 			)
 		)
 		(net
-			(code "46")
+			(code "43")
 			(name "/Mikrofon/ADC_RESET")
 			(class "Default")
 			(node
@@ -14730,7 +14521,7 @@
 			)
 		)
 		(net
-			(code "47")
+			(code "44")
 			(name "/Mikrofon/MIC3_INN")
 			(class "Default")
 			(node
@@ -14746,7 +14537,7 @@
 			)
 		)
 		(net
-			(code "48")
+			(code "45")
 			(name "/Mikrofon/MIC3_INP")
 			(class "Default")
 			(node
@@ -14762,7 +14553,7 @@
 			)
 		)
 		(net
-			(code "49")
+			(code "46")
 			(name "/Mikrofon/MIC3_N")
 			(class "Default")
 			(node
@@ -14783,7 +14574,7 @@
 			)
 			(node
 				(ref "J601")
-				(pin "6")
+				(pin "5")
 				(pintype "passive")
 			)
 			(node
@@ -14793,7 +14584,7 @@
 			)
 		)
 		(net
-			(code "50")
+			(code "47")
 			(name "/Mikrofon/MIC3_P")
 			(class "Default")
 			(node
@@ -14814,7 +14605,7 @@
 			)
 			(node
 				(ref "J601")
-				(pin "5")
+				(pin "4")
 				(pintype "passive")
 			)
 			(node
@@ -14824,7 +14615,7 @@
 			)
 		)
 		(net
-			(code "51")
+			(code "48")
 			(name "/Mikrofon/MICBIAS")
 			(class "Default")
 			(node
@@ -14845,7 +14636,7 @@
 			)
 		)
 		(net
-			(code "52")
+			(code "49")
 			(name "/Mikrofon/MICBIAS2")
 			(class "Default")
 			(node
@@ -14866,7 +14657,7 @@
 			)
 		)
 		(net
-			(code "53")
+			(code "50")
 			(name "/Mikrofon/MIC_FB")
 			(class "Default")
 			(node
@@ -14881,7 +14672,7 @@
 			)
 		)
 		(net
-			(code "54")
+			(code "51")
 			(name "/Mikrofon/MIC_INN")
 			(class "Default")
 			(node
@@ -14897,7 +14688,7 @@
 			)
 		)
 		(net
-			(code "55")
+			(code "52")
 			(name "/Mikrofon/MIC_INP")
 			(class "Default")
 			(node
@@ -14913,7 +14704,7 @@
 			)
 		)
 		(net
-			(code "56")
+			(code "53")
 			(name "/Mikrofon/MIC_N")
 			(class "Default")
 			(node
@@ -14944,7 +14735,7 @@
 			)
 		)
 		(net
-			(code "57")
+			(code "54")
 			(name "/Mikrofon/MIC_P")
 			(class "Default")
 			(node
@@ -14975,7 +14766,7 @@
 			)
 		)
 		(net
-			(code "58")
+			(code "55")
 			(name "/Mikrofon/PDM_CLK")
 			(class "Default")
 			(node
@@ -14996,7 +14787,7 @@
 			)
 		)
 		(net
-			(code "59")
+			(code "56")
 			(name "/Mikrofon/PDM_CLK_ADC")
 			(class "Default")
 			(node
@@ -15012,7 +14803,7 @@
 			)
 		)
 		(net
-			(code "60")
+			(code "57")
 			(name "/Mikrofon/PDM_CLK_BUF")
 			(class "Default")
 			(node
@@ -15027,7 +14818,7 @@
 			)
 		)
 		(net
-			(code "61")
+			(code "58")
 			(name "/Mikrofon/PDM_DATA")
 			(class "Default")
 			(node
@@ -15043,7 +14834,7 @@
 			)
 		)
 		(net
-			(code "62")
+			(code "59")
 			(name "/Mikrofon/PDM_DATA_K")
 			(class "Default")
 			(node
@@ -15064,7 +14855,7 @@
 			)
 		)
 		(net
-			(code "63")
+			(code "60")
 			(name "/Versorgung/ILIM")
 			(class "Default")
 			(node
@@ -15080,7 +14871,7 @@
 			)
 		)
 		(net
-			(code "64")
+			(code "61")
 			(name "/Versorgung/ISET")
 			(class "Default")
 			(node
@@ -15096,7 +14887,7 @@
 			)
 		)
 		(net
-			(code "65")
+			(code "62")
 			(name "/Versorgung/LADE_STAT1")
 			(class "Default")
 			(node
@@ -15113,7 +14904,7 @@
 			)
 		)
 		(net
-			(code "66")
+			(code "63")
 			(name "/Versorgung/LADE_STAT2")
 			(class "Default")
 			(node
@@ -15130,7 +14921,7 @@
 			)
 		)
 		(net
-			(code "67")
+			(code "64")
 			(name "/Versorgung/PV1")
 			(class "Default")
 			(node
@@ -15147,7 +14938,7 @@
 			)
 		)
 		(net
-			(code "68")
+			(code "65")
 			(name "/Versorgung/PV2")
 			(class "Default")
 			(node
@@ -15164,7 +14955,7 @@
 			)
 		)
 		(net
-			(code "69")
+			(code "66")
 			(name "/Versorgung/SW_CT")
 			(class "Default")
 			(node
@@ -15180,7 +14971,7 @@
 			)
 		)
 		(net
-			(code "70")
+			(code "67")
 			(name "/Versorgung/SW_QOD")
 			(class "Default")
 			(node
@@ -15196,7 +14987,7 @@
 			)
 		)
 		(net
-			(code "71")
+			(code "68")
 			(name "/Versorgung/VIN_LADER")
 			(class "Default")
 			(node
@@ -15252,7 +15043,7 @@
 			)
 		)
 		(net
-			(code "72")
+			(code "69")
 			(name "/Waage/5V_WAAGE")
 			(class "Default")
 			(node
@@ -15284,7 +15075,7 @@
 			)
 		)
 		(net
-			(code "73")
+			(code "70")
 			(name "/Waage/HX_AVDD")
 			(class "Default")
 			(node
@@ -15321,7 +15112,7 @@
 			)
 		)
 		(net
-			(code "74")
+			(code "71")
 			(name "/Waage/HX_BASE")
 			(class "Default")
 			(node
@@ -15338,7 +15129,7 @@
 			)
 		)
 		(net
-			(code "75")
+			(code "72")
 			(name "/Waage/HX_DOUT_IC")
 			(class "Default")
 			(node
@@ -15354,7 +15145,7 @@
 			)
 		)
 		(net
-			(code "76")
+			(code "73")
 			(name "/Waage/HX_INB")
 			(class "Default")
 			(node
@@ -15376,7 +15167,7 @@
 			)
 		)
 		(net
-			(code "77")
+			(code "74")
 			(name "/Waage/HX_INN")
 			(class "Default")
 			(node
@@ -15407,7 +15198,7 @@
 			)
 		)
 		(net
-			(code "78")
+			(code "75")
 			(name "/Waage/HX_INP")
 			(class "Default")
 			(node
@@ -15433,7 +15224,7 @@
 			)
 		)
 		(net
-			(code "79")
+			(code "76")
 			(name "/Waage/HX_PD_SCK")
 			(class "Default")
 			(node
@@ -15449,7 +15240,7 @@
 			)
 		)
 		(net
-			(code "80")
+			(code "77")
 			(name "/Waage/HX_VBG")
 			(class "Default")
 			(node
@@ -15465,7 +15256,7 @@
 			)
 		)
 		(net
-			(code "81")
+			(code "78")
 			(name "/Waage/HX_VFB")
 			(class "Default")
 			(node
@@ -15486,7 +15277,7 @@
 			)
 		)
 		(net
-			(code "82")
+			(code "79")
 			(name "/Waage/L_5V")
 			(class "Default")
 			(node
@@ -15503,7 +15294,7 @@
 			)
 		)
 		(net
-			(code "83")
+			(code "80")
 			(name "/Waage/VSUP_HX")
 			(class "Default")
 			(node
@@ -15535,7 +15326,7 @@
 			)
 		)
 		(net
-			(code "84")
+			(code "81")
 			(name "/Waage/ZELLE_EP")
 			(class "Default")
 			(node
@@ -15557,7 +15348,7 @@
 			)
 		)
 		(net
-			(code "85")
+			(code "82")
 			(name "/Waage/ZELLE_SN")
 			(class "Default")
 			(node
@@ -15579,7 +15370,7 @@
 			)
 		)
 		(net
-			(code "86")
+			(code "83")
 			(name "/Waage/ZELLE_SP")
 			(class "Default")
 			(node
@@ -15601,7 +15392,7 @@
 			)
 		)
 		(net
-			(code "87")
+			(code "84")
 			(name "3V3_SW")
 			(class "Default")
 			(node
@@ -15743,7 +15534,7 @@
 			)
 		)
 		(net
-			(code "88")
+			(code "85")
 			(name "ADC_AKKU")
 			(class "Default")
 			(node
@@ -15769,7 +15560,7 @@
 			)
 		)
 		(net
-			(code "89")
+			(code "86")
 			(name "ADC_SOLAR")
 			(class "Default")
 			(node
@@ -15795,7 +15586,7 @@
 			)
 		)
 		(net
-			(code "90")
+			(code "87")
 			(name "BLE_MODE")
 			(class "Default")
 			(node
@@ -15817,7 +15608,7 @@
 			)
 		)
 		(net
-			(code "91")
+			(code "88")
 			(name "BLE_RXD")
 			(class "Default")
 			(node
@@ -15839,7 +15630,7 @@
 			)
 		)
 		(net
-			(code "92")
+			(code "89")
 			(name "BLE_TXD")
 			(class "Default")
 			(node
@@ -15861,7 +15652,7 @@
 			)
 		)
 		(net
-			(code "93")
+			(code "90")
 			(name "CE_LADEN")
 			(class "Default")
 			(node
@@ -15888,7 +15679,7 @@
 			)
 		)
 		(net
-			(code "94")
+			(code "91")
 			(name "DBG_RX")
 			(class "Default")
 			(node
@@ -15911,7 +15702,7 @@
 			)
 		)
 		(net
-			(code "95")
+			(code "92")
 			(name "DBG_TX")
 			(class "Default")
 			(node
@@ -15934,7 +15725,7 @@
 			)
 		)
 		(net
-			(code "96")
+			(code "93")
 			(name "FLASH_CS")
 			(class "Default")
 			(node
@@ -15956,7 +15747,7 @@
 			)
 		)
 		(net
-			(code "97")
+			(code "94")
 			(name "GND")
 			(class "Default")
 			(node
@@ -16040,17 +15831,7 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "C306")
-				(pin "2")
-				(pintype "passive")
-			)
-			(node
 				(ref "C307")
-				(pin "2")
-				(pintype "passive")
-			)
-			(node
-				(ref "C308")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -16454,12 +16235,12 @@
 				(pintype "passive")
 			)
 			(node
-				(ref "R302")
-				(pin "1")
+				(ref "R305")
+				(pin "2")
 				(pintype "passive")
 			)
 			(node
-				(ref "R305")
+				(ref "R313")
 				(pin "2")
 				(pintype "passive")
 			)
@@ -16548,6 +16329,12 @@
 				(pin "2")
 				(pinfunction "GND_2")
 				(pintype "power_in")
+			)
+			(node
+				(ref "U301")
+				(pin "20")
+				(pinfunction "PB2_20")
+				(pintype "bidirectional")
 			)
 			(node
 				(ref "U301")
@@ -16719,7 +16506,7 @@
 			)
 		)
 		(net
-			(code "98")
+			(code "95")
 			(name "HX_DOUT")
 			(class "Default")
 			(node
@@ -16735,7 +16522,7 @@
 			)
 		)
 		(net
-			(code "99")
+			(code "96")
 			(name "HX_SCK")
 			(class "Default")
 			(node
@@ -16751,7 +16538,7 @@
 			)
 		)
 		(net
-			(code "100")
+			(code "97")
 			(name "I2C_SCL")
 			(class "Default")
 			(node
@@ -16791,7 +16578,7 @@
 			)
 		)
 		(net
-			(code "101")
+			(code "98")
 			(name "I2C_SDA")
 			(class "Default")
 			(node
@@ -16831,7 +16618,7 @@
 			)
 		)
 		(net
-			(code "102")
+			(code "99")
 			(name "I2S_CK")
 			(class "Default")
 			(node
@@ -16848,7 +16635,7 @@
 			)
 		)
 		(net
-			(code "103")
+			(code "100")
 			(name "I2S_SD")
 			(class "Default")
 			(node
@@ -16865,7 +16652,7 @@
 			)
 		)
 		(net
-			(code "104")
+			(code "101")
 			(name "I2S_WS")
 			(class "Default")
 			(node
@@ -16882,7 +16669,7 @@
 			)
 		)
 		(net
-			(code "105")
+			(code "102")
 			(name "LORA_BUSY")
 			(class "Default")
 			(node
@@ -16899,7 +16686,7 @@
 			)
 		)
 		(net
-			(code "106")
+			(code "103")
 			(name "LORA_DIO1")
 			(class "Default")
 			(node
@@ -16916,7 +16703,7 @@
 			)
 		)
 		(net
-			(code "107")
+			(code "104")
 			(name "LORA_NSS")
 			(class "Default")
 			(node
@@ -16937,7 +16724,7 @@
 			)
 		)
 		(net
-			(code "108")
+			(code "105")
 			(name "LORA_RST")
 			(class "Default")
 			(node
@@ -16954,7 +16741,7 @@
 			)
 		)
 		(net
-			(code "109")
+			(code "106")
 			(name "LORA_RXEN")
 			(class "Default")
 			(node
@@ -16971,7 +16758,7 @@
 			)
 		)
 		(net
-			(code "110")
+			(code "107")
 			(name "LORA_TXEN")
 			(class "Default")
 			(node
@@ -16988,7 +16775,7 @@
 			)
 		)
 		(net
-			(code "111")
+			(code "108")
 			(name "NTC")
 			(class "Default")
 			(node
@@ -17004,7 +16791,7 @@
 			)
 		)
 		(net
-			(code "112")
+			(code "109")
 			(name "ONEWIRE")
 			(class "Default")
 			(node
@@ -17038,7 +16825,7 @@
 			)
 		)
 		(net
-			(code "113")
+			(code "110")
 			(name "SENSOR_EIN")
 			(class "Default")
 			(node
@@ -17060,7 +16847,7 @@
 			)
 		)
 		(net
-			(code "114")
+			(code "111")
 			(name "SPI_MISO")
 			(class "Default")
 			(node
@@ -17082,7 +16869,7 @@
 			)
 		)
 		(net
-			(code "115")
+			(code "112")
 			(name "SPI_MOSI")
 			(class "Default")
 			(node
@@ -17104,7 +16891,7 @@
 			)
 		)
 		(net
-			(code "116")
+			(code "113")
 			(name "SPI_SCK")
 			(class "Default")
 			(node
@@ -17126,7 +16913,7 @@
 			)
 		)
 		(net
-			(code "117")
+			(code "114")
 			(name "SYS")
 			(class "Default")
 			(node
@@ -17181,7 +16968,7 @@
 			)
 		)
 		(net
-			(code "118")
+			(code "115")
 			(name "TMP_VCC")
 			(class "Default")
 			(node
@@ -17229,7 +17016,7 @@
 			)
 		)
 		(net
-			(code "119")
+			(code "116")
 			(name "VBAT")
 			(class "Default")
 			(node
@@ -17262,7 +17049,7 @@
 			)
 		)
 		(net
-			(code "120")
+			(code "117")
 			(name "VBUS")
 			(class "Default")
 			(node
@@ -17279,7 +17066,7 @@
 			)
 		)
 		(net
-			(code "121")
+			(code "118")
 			(name "WAAGE_EIN")
 			(class "Default")
 			(node
@@ -17301,7 +17088,7 @@
 			)
 		)
 		(net
-			(code "122")
+			(code "119")
 			(name "unconnected-(D501-D2--Pad5)")
 			(class "Default")
 			(node
@@ -17312,7 +17099,7 @@
 			)
 		)
 		(net
-			(code "123")
+			(code "120")
 			(name "unconnected-(D501-NC-Pad6)")
 			(class "Default")
 			(node
@@ -17323,7 +17110,7 @@
 			)
 		)
 		(net
-			(code "124")
+			(code "121")
 			(name "unconnected-(D501-NC-Pad7)")
 			(class "Default")
 			(node
@@ -17334,7 +17121,7 @@
 			)
 		)
 		(net
-			(code "125")
+			(code "122")
 			(name "unconnected-(D501-NC-Pad9)")
 			(class "Default")
 			(node
@@ -17345,7 +17132,7 @@
 			)
 		)
 		(net
-			(code "126")
+			(code "123")
 			(name "unconnected-(D501-NC-Pad10)")
 			(class "Default")
 			(node
@@ -17356,7 +17143,7 @@
 			)
 		)
 		(net
-			(code "127")
+			(code "124")
 			(name "unconnected-(D602-K-Pad4)")
 			(class "Default")
 			(node
@@ -17367,7 +17154,7 @@
 			)
 		)
 		(net
-			(code "128")
+			(code "125")
 			(name "unconnected-(D602-K-Pad5)")
 			(class "Default")
 			(node
@@ -17378,7 +17165,7 @@
 			)
 		)
 		(net
-			(code "129")
+			(code "126")
 			(name "unconnected-(D701-K-Pad4)")
 			(class "Default")
 			(node
@@ -17389,7 +17176,7 @@
 			)
 		)
 		(net
-			(code "130")
+			(code "127")
 			(name "unconnected-(D701-K-Pad5)")
 			(class "Default")
 			(node
@@ -17400,7 +17187,7 @@
 			)
 		)
 		(net
-			(code "131")
+			(code "128")
 			(name "unconnected-(D702-K-Pad5)")
 			(class "Default")
 			(node
@@ -17411,7 +17198,7 @@
 			)
 		)
 		(net
-			(code "132")
+			(code "129")
 			(name "unconnected-(J703-Pin_6-Pad6)")
 			(class "Default")
 			(node
@@ -17422,7 +17209,7 @@
 			)
 		)
 		(net
-			(code "133")
+			(code "130")
 			(name "unconnected-(U202-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17433,7 +17220,7 @@
 			)
 		)
 		(net
-			(code "134")
+			(code "131")
 			(name "unconnected-(U204-EN-Pad3)")
 			(class "Default")
 			(node
@@ -17444,7 +17231,7 @@
 			)
 		)
 		(net
-			(code "135")
+			(code "132")
 			(name "unconnected-(U204-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17455,7 +17242,7 @@
 			)
 		)
 		(net
-			(code "136")
+			(code "133")
 			(name "unconnected-(U303-NC-Pad1)")
 			(class "Default")
 			(node
@@ -17466,7 +17253,7 @@
 			)
 		)
 		(net
-			(code "137")
+			(code "134")
 			(name "unconnected-(U303-P0_0-Pad11)")
 			(class "Default")
 			(node
@@ -17477,7 +17264,7 @@
 			)
 		)
 		(net
-			(code "138")
+			(code "135")
 			(name "unconnected-(U303-P0_2-Pad12)")
 			(class "Default")
 			(node
@@ -17488,7 +17275,7 @@
 			)
 		)
 		(net
-			(code "139")
+			(code "136")
 			(name "unconnected-(U303-P1_2-Pad3)")
 			(class "Default")
 			(node
@@ -17499,7 +17286,7 @@
 			)
 		)
 		(net
-			(code "140")
+			(code "137")
 			(name "unconnected-(U303-P1_3-Pad4)")
 			(class "Default")
 			(node
@@ -17510,7 +17297,7 @@
 			)
 		)
 		(net
-			(code "141")
+			(code "138")
 			(name "unconnected-(U303-P1_6-Pad6)")
 			(class "Default")
 			(node
@@ -17521,7 +17308,7 @@
 			)
 		)
 		(net
-			(code "142")
+			(code "139")
 			(name "unconnected-(U303-P1_7-Pad5)")
 			(class "Default")
 			(node
@@ -17532,7 +17319,7 @@
 			)
 		)
 		(net
-			(code "143")
+			(code "140")
 			(name "unconnected-(U303-P2_7-Pad15)")
 			(class "Default")
 			(node
@@ -17543,7 +17330,7 @@
 			)
 		)
 		(net
-			(code "144")
+			(code "141")
 			(name "unconnected-(U303-P3_6-Pad9)")
 			(class "Default")
 			(node
@@ -17554,7 +17341,7 @@
 			)
 		)
 		(net
-			(code "145")
+			(code "142")
 			(name "unconnected-(U401-ANT-Pad1)")
 			(class "Default")
 			(node
@@ -17565,7 +17352,7 @@
 			)
 		)
 		(net
-			(code "146")
+			(code "143")
 			(name "unconnected-(U401-DIO2-Pad7)")
 			(class "Default")
 			(node
@@ -17576,7 +17363,7 @@
 			)
 		)
 		(net
-			(code "147")
+			(code "144")
 			(name "unconnected-(U401-DIO3-Pad8)")
 			(class "Default")
 			(node
@@ -17587,7 +17374,7 @@
 			)
 		)
 		(net
-			(code "148")
+			(code "145")
 			(name "unconnected-(U502-XO-Pad13)")
 			(class "Default")
 			(node
@@ -17598,7 +17385,7 @@
 			)
 		)
 		(net
-			(code "149")
+			(code "146")
 			(name "unconnected-(U601-IN1L(P)-Pad8)")
 			(class "Default")
 			(node
@@ -17609,7 +17396,7 @@
 			)
 		)
 		(net
-			(code "150")
+			(code "147")
 			(name "unconnected-(U601-IN1R(M)-Pad11)")
 			(class "Default")
 			(node
@@ -17620,7 +17407,7 @@
 			)
 		)
 		(net
-			(code "151")
+			(code "148")
 			(name "unconnected-(U602-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17631,7 +17418,7 @@
 			)
 		)
 		(net
-			(code "152")
+			(code "149")
 			(name "unconnected-(U603-NC-Pad1)")
 			(class "Default")
 			(node
@@ -17642,7 +17429,7 @@
 			)
 		)
 		(net
-			(code "153")
+			(code "150")
 			(name "unconnected-(U801-NC-Pad4)")
 			(class "Default")
 			(node
@@ -17653,7 +17440,7 @@
 			)
 		)
 		(net
-			(code "154")
+			(code "151")
 			(name "unconnected-(U803-~{OUTB}-Pad4)")
 			(class "Default")
 			(node

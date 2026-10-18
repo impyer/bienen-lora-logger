@@ -46,7 +46,7 @@ Entscheidungen (Philipp, 08.10.2026):
 | VSUP | 5 V vom Wandler | [V] Bereich 2,7–5,5 V |
 | AVDD | **4,30 V**: AVDD = 1,25 V × (1 + 20 kΩ / 8,2 kΩ) über externen PNP S8550 | [V] Formel und S8550 aus Datenblatt Fig. 1; Werte 20k/8,2k aus SparkFun-Forum, nachgerechnet |
 | Abstand zu VSUP | ≥ 100 mV (5,0 − 4,3 = 0,7 V) | [V] |
-| PNP | S8550, SOT-23 (LCSC C397181 oder C111271, Extended) | [V] |
+| PNP | S8550/SS8550, SOT-23, **Pinfolge 1 B, 2 E, 3 C** (KiCad-Symbol SS8550). LCSC-Teil erst nach Prüfung des Pinbilds im Herstellerdatenblatt – C397181 (AnBon) zeigt keines (18.10.2026), deshalb keine Nummer im Schaltplan; Vorschlag durch den Layouter (Pflichtenheft 7) | [P] |
 | DVDD | **3,3 V geschaltete Sensorschiene**; damit passen die Logikpegel zum STM32 | [V] DVDD 2,6–5,5 V, unabhängig von VSUP |
 | Takt | XI an GND (interner Oszillator), XO offen | [V] |
 | RATE | an GND: **10 Werte/s** (geringeres Rauschen, 50 nV) | [V] |

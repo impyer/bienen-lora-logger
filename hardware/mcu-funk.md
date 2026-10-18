@@ -14,13 +14,13 @@ Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung
 | Pin | Beschaltung |
 |---|---|
 | VDD (24, 36, 48) | je 100 nF direkt am Pin, dazu 1 × 10 µF in der Nähe (ST: mind. 4,7 µF) |
-| VDDA/VREF+ (9) | 100 nF + 1 µF; über Ferrit (z. B. 600 Ω bei 100 MHz) an 3,3 V [A]. Ursprünglich für die Mikrofonmessung an PA1 (seit HW-07 Audio-ADC per I²S); für die Akku- und Solar-ADC-Messung weiter sinnvoll. ST schreibt den Ferrit nicht vor. |
+| VDDA/VREF+ (9) | **direkt an 3,3 V, 100 nF am Pin (C305)** – HW-11 (18.10.2026): Ferrit und 1 µF entfallen, weil der ADC nur noch Akku- und Solarspannung über MΩ-Teiler misst (Genauigkeit durch den Leckstrom begrenzt, HW26-21); die Mikrofone laufen seit HW-07 über den Audio-ADC. ST schreibt den Ferrit nicht vor. |
 | VSSA (8), VSS (23, 35, 47), Thermal-Pad | an die Massefläche; Thermal-Pad mit Durchkontaktierungen |
 | VCAP_1 (22) | **4,7 µF keramisch, ESR < 1 Ω**, sehr nah. Der UFQFPN-48 hat nur diesen einen VCAP-Pin. |
-| VBAT (1) | an 3,3 V (dauernd) + 100 nF; **keine Knopfzelle** (versorgung.md, V6). Nie an den Akku: nur 1,65–3,6 V zulässig. |
+| VBAT (1) | an 3,3 V (dauernd), ohne eigenen Kondensator (HW-11: die VDD-Abblockung deckt den Pin ab; ein eigener wäre nur mit Pufferzelle nötig [A: ST AN4488]); **keine Knopfzelle** (versorgung.md, V6). Nie an den Akku: nur 1,65–3,6 V zulässig. |
 | NRST (7) | 100 nF nach GND (interner Pull-up), Reset-Taster nach GND |
 | BOOT0 (44) | 10 kΩ nach GND [A, üblicher Wert], Taster nach 3,3 V für den ROM-Bootloader (seit HW-09 über USART1 an J10, 1.3) |
-| PB2/BOOT1 (20) | 10 kΩ nach GND, sonst frei. Wirkt nur bei BOOT0 = 1. |
+| PB2/BOOT1 (20) | direkt an GND (HW-11; vorher 10 kΩ). Wirkt nur bei BOOT0 = 1; PB2 damit nicht als GPIO nutzbar (war ohnehin frei). |
 
 ### 1.2 Takt
 
@@ -65,11 +65,11 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 | 7 | UART_RX | **BLE_RXD** ← R310 1 kΩ ← PA11 (USART6_TX, AF8); auch J11 Pin 9 |
 | 8 | UART_TX | **BLE_TXD** → R311 1 kΩ → PA12 (USART6_RX, AF8); auch J11 Pin 10 |
 | 10 | RST_N | intern hochgezogen (48 kΩ typ.); C316 100 nF nach GND als Anlaufverzögerung ≈ 5 ms [A]; kein MCU-Pin – Reset = Abschalten über Q301 |
-| 14 | VBAT | **BLE_VCC** aus +3V3 über den Lastschalter Q301; C314 10 µF X5R + C315 100 nF (Datenblatt Fig. 5-4: 10 µF) |
+| 14 | VBAT | **BLE_VCC** aus +3V3 über den Lastschalter Q301; C314 10 µF X5R + C315 100 nF (Datenblatt Fig. 5-4: 10 µF); R313 100 kΩ nach GND (Entladung im Aus) |
 | 16 | P2_0 | Modus: high = Anwendung, low = Testmodus (Firmware-Update des Moduls); R312 10 kΩ nach **BLE_VCC**; auch J11 Pin 11 (Brücke 11–12 = Testmodus) |
-| 3, 4, 5, 6, 9, 11, 12, 15 | P1_2, P1_3, P1_7, P1_6, P3_6, P0_0, P0_2, P2_7 | offen (intern hochgezogen). P0_0 ist per Voreinstellung UART_CTS, P3_6 UART_RTS: **Flusskontrolle in der Moduleinstellung ausschalten** [P: RN4870/71 User's Guide DS50002466]. P1_6 (UART-RX-Indication) bleibt offen, weil der Low-Power-Modus des Moduls nicht genutzt wird (Abschaltung statt Schlafmodus). |
+| 3, 4, 5, 6, 9, 11, 12, 15 | P1_2, P1_3, P1_7, P1_6, P3_6, P0_0, P0_2, P2_7 | offen (GPIO „Input; pulled-high“ [V: DS50002489D Tab. 1-2, S. 3–4]). P0_0 ist per Voreinstellung UART_CTS, P3_6 UART_RTS; die **Flusskontrolle ist ab Werk aus** [V: User's Guide DS50002466C Tab. 1-1, S. 13] – Bit 0x8000 der Einstellung SR nie setzen (Firmware-Absatz unten), die Pins bleiben deshalb offen. P1_6 (UART_RX_Indication) bleibt offen, weil der Low-Power-Modus des Moduls nicht genutzt wird (Abschaltung statt Schlafmodus); **falls P1_6 später an eine MCU-Leitung geführt wird**, muss sie in den ersten ca. 22 ms nach dem Start hochohmig oder low sein [V: DS Tab. 1-2, S. 4]. P2_7 ist UART_TX_IND (Ausgang, offen) [V: ebd.]. |
 
-**Versorgung und Ruhestrom:** Das Modul hängt **nicht** dauernd an 3,3 V. P-Kanal-FET **Q301 AO3401A** (LCSC C15127, Basic) schaltet BLE_VCC; Gate an **PB13** (low = ein) mit Pull-up **R309 100 kΩ** an +3V3. Im Standby ist PB13 hochohmig → Modul aus, Ruhestrom nur der Sperrstrom des FET (≤ 0,1 µA [A], `energiebilanz.py`). Gründe gegen den Schlafmodus des Moduls: „Shutdown Low-Power Mode“ 1–2,9 µA [V: Tab. 2-3] wären bis zu 18 % des Ruhestrombudgets (V7), und der Zustand hinge an der Modulfirmware; ein Power-Cycle ist zugleich der sichere Reset. **Lötbrücke JP301** (offen) überbrückt Q301 für Entwicklung und Modul-Firmware-Update.
+**Versorgung und Ruhestrom:** Das Modul hängt **nicht** dauernd an 3,3 V. P-Kanal-FET **Q301 AO3401A** (LCSC C15127, Basic) schaltet BLE_VCC; Gate an **PB13** (low = ein) über **R314 10 kΩ**, Pull-up **R309 100 kΩ** an +3V3 und **C317 47 nF** zwischen Gate und Drain als Sanftanlauf (HW-11): Die Miller-Rampe begrenzt den Einschaltstrom in C314 auf ca. 55 mA statt 1,2 A und den Einbruch der 3,3-V-Schiene auf 0,01 V statt 0,24 V (`schaltplan_spice.py` S3 [A]). Im Standby ist PB13 hochohmig → Modul aus, Ruhestrom nur der Sperrstrom des FET (≤ 0,1 µA [A], `energiebilanz.py`). Gründe gegen den Schlafmodus des Moduls: „Shutdown Low-Power Mode“ 1–2,9 µA [V: Tab. 2-3] wären bis zu 18 % des Ruhestrombudgets (V7), und der Zustand hinge an der Modulfirmware; ein Power-Cycle ist zugleich der sichere Reset. **R313 100 kΩ** von BLE_VCC nach GND entlädt C314 nach dem Abschalten (τ ≈ 1 s), damit der Aus-Zustand definiert ist und ein kurzer Aus-Ein-Zyklus als Reset wirkt (33 µA nur während einer Sitzung) [A]. **Lötbrücke JP301** (offen) überbrückt Q301 für Entwicklung und Modul-Firmware-Update.
 
 **Rückspeisung (Regel):** Alle Pull-ups am Modul (R312) liegen an BLE_VCC, nie an +3V3. Die Firmware schaltet PA11 und PA12 bei abgeschaltetem Modul auf **analog/hochohmig** (PA12 nicht mit internem Pull-up): Ein high an PA11 würde über R310 und die Schutzdiode des Moduls BLE_VCC auf ca. 2,6 V ziehen (3 mA, undefinierter Zustand). R310/R311 begrenzen den Strom auch dann auf < 3,3 mA und schützen beim Anschluss eines USB-Seriell-Adapters an J11 Pin 9/10 (Querstrom gegen PA11, falls die MCU nicht in Reset ist). `netz_tests.py` prüft R312 an BLE_VCC mit Gegenprobe.
 
@@ -82,7 +82,39 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 - Pads 0,7 × 1,5 mm, 0,5 mm über die Modulkante hinaus, Raster 1,2 mm (Fig. 4-8 [V]); vor der Bestellung mit dem LCSC/EasyEDA-Footprint zu C633942 gegenprüfen **[P]**. Löten: ein Reflow, nicht waschen (Feuchte unter dem Schirm), Spitze ≤ 250 °C [V: 4.5].
 - Koexistenz mit LoRa: **nie gleichzeitig** mit einer LoRa-Übertragung oder einer Mikrofonmessung (Lastenheft A5 gilt auch für BLE) [A].
 
-**Firmware (neue Platinenfirmware, Eckpunkte):** USART6 115 200 Bd 8N1 (Modulvorgabe; Fehler 0,64 % [V: Tab. 9-1]); nach dem Einschalten ≥ 68 ms bis „UART ready“ [V: Fig. 9-2], dann Befehlsmodus (`$$$`), Name/Dienste setzen, Transparent-UART einschalten, Advertising starten; Kopplung mit PIN/Just-Works nach Festlegung [P]; Verbindungs- und Trennmeldungen des Moduls auswerten; Sitzungsende → PA11/PA12 analog, PB13 hochohmig. Flusskontrolle aus. Modul-Firmware-Update: JP301 zu oder Firmware „BLE dauernd“, MCU in Reset (J10 Pin 4 an GND) oder PA11/PA12 analog, Brücke J11 11–12, USB-Seriell-Adapter (3,3 V) an J11 9/10/GND, Microchip-Update-Werkzeug [V: Fig. 5-1].
+**Firmware (neue Platinenfirmware, Eckpunkte)** – am 18.10.2026 gegen das **RN4870/71 User's Guide DS50002466C** (Juli 2018, 75 Seiten; im Folgenden „UG“) und das Datenblatt DS50002489D („DS“) geprüft. Das UG beschreibt die Firmware ab v1.28, das Modul trägt v1.30 (RM130): Abweichungen sind nicht ausgeschlossen **[P]**; am Muster mit dem Befehl `V` die Version lesen. Seitenzahlen sind die Seitenzahlen im jeweiligen Dokument.
+
+1. **UART und Anlauf.** Voreinstellung **115 200 Bd, 8 Datenbits, keine Parität, 1 Stoppbit, Flusskontrolle aus** [V: UG Tab. 1-1, S. 13]; entspricht `SB,03` (Voreinstellung, Tab. 2-3: 00 = 921 600 … 03 = 115 200 … 0B = 2 400) [V: UG 2.4.5, S. 17–18]. Baudratenfehler 0,64 % [V: DS Tab. 9-1, S. 36]. Nach dem Einschalten ist die UART nach **68 ms** bereit; das Modul meldet das Ende des Resets selbst über die UART [V: DS Kap. 9, Fig. 9-2, S. 35–36]. Die Meldung ist vermutlich `%REBOOT%` („Reboot finished“, UG Tab. D-1, S. 71) **[A]**; im Prüfpunkt B-2 mitschneiden. **Alle Set-Befehle liegen im NVM des Moduls, überstehen Neustart und Abschalten und wirken erst nach einem Neustart** (`R,1`, Hardreset oder Power-Cycle) [V: UG 2.2, S. 15]. Folge: Name, Dienste und Kopplung einmal **bei der Inbetriebnahme** einstellen (Provisionierung), **nicht bei jeder Sitzung** schreiben; die Schreibzyklenzahl des NVM nennt das UG nicht **[P]**.
+
+2. **Flusskontrolle:** ist **ab Werk aus** [V: UG Tab. 1-1, S. 13]. Sie wird nur durch Bit **0x8000** („Enable Flow Control“) der Funktionsmaske **`SR,<hex16>`** eingeschaltet; Voreinstellung `0000`, das Beispiel `SR,A000` schaltet sie (zusammen mit Fast Mode 0x2000) ein [V: UG 2.4.21, Tab. 2-6, S. 22–23]. Die Pins P0_0 (CTS) und P3_6 (RTS) haben intern einen Pull-up [V: DS Tab. 1-2, S. 4]; bei **gesetztem** Bit und offenem CTS würde das Modul vermutlich nicht senden **[A]**. Regel: Bit 0x8000 **nicht setzen** und nach der Provisionierung mit **`D`** („Device Features“ = SR, [V: UG 2.6.17, S. 34]) prüfen. Ebenso **Bit 0x2000 (Fast Mode) nie setzen**: dann geht das Modul auch bei `$$$` nicht in den Befehlsmodus [V: UG 1.4 Hinweis, S. 13; Tab. 2-6]. Der Entwurfstext vom 18.10. („Flusskontrolle in der Moduleinstellung ausschalten“) ist damit präzisiert: nichts abzuschalten, nur nicht einschalten. Bit 0x4000 („No Prompt“) unterdrückt `CMD>`; nur nutzen, wenn die Firmware allein `AOK`/`ERR` auswertet **[A]**.
+
+3. **Befehlsfolge** (jeder Befehl endet mit `<CR>`, der nächste folgt erst nach der Antwort [V: UG 1.4, S. 13]; Befehle sind unabhängig von Groß-/Kleinschreibung, Textwerte nicht [V: UG 2.2, S. 15]):
+
+| Schritt | Befehl | Antwort / Wirkung | Beleg |
+|---|---|---|---|
+| Befehlsmodus | `$$$` (ohne `<CR>`, nach ≥ 100 ms Pause vor dem ersten `$`) | `CMD>` | [V: UG 1.3, S. 12; 2.6.2, S. 28] |
+| Name (einmalig) | `SN,<Text>` (bis 20 Zeichen) oder `S-,<Text>` (bis 15 Zeichen, **hängt die letzten zwei Byte der MAC an**, z. B. `Bienen_A1B2`, eindeutig je Logger) | `AOK` | [V: UG 2.4.18, S. 21; 2.4.1, S. 16] |
+| Transparent-UART (einmalig) | **`SS,C0`** (0x80 Device Information + 0x40 UART Transparent); Voreinstellung `00` = **aus**. `SS` löscht eigene Dienste (hier keine) | `AOK`, wirkt nach Neustart | [V: UG 2.4.22, Tab. 2-7, S. 23; Beispiel in 4.2, S. 61] |
+| Neustart | `R,1` | `%REBOOT%` | [V: UG 2.6.28, S. 38] |
+| Kontrolle | `D` (MAC, Name, Authentifizierung, Features, Dienste, PIN), `V` (Firmware) | Ausgabe | [V: UG 2.6.17, S. 34; 2.6.31, S. 39] |
+| **Sitzung:** Advertising | `A,<Intervall in ms, hex>,<Dauer in 640-ms-Einheiten, hex>`, z. B. **`A,03E8,03A9`** = 1 s Intervall, 937 × 0,64 s ≈ 600 s (gerechnet **[A]**). Ohne Parameter: 20 ms schnell für 30 s, danach 961 ms, unbegrenzt. Die Dauer muss zeitlich größer sein als das Intervall | `AOK`; nach Ablauf `%ADV_TIMEOUT%` | [V: UG 2.6.12, S. 32; Tab. D-1, S. 71] |
+| Verbindung | `%CONNECT,<0\|1>,<Adresse>%` (0 öffentliche, 1 zufällige Adresse), `%STREAM_OPEN%` (Transparent-UART-Strecke steht), bei Kopplung `%SECURED%`/`%BONDED%`, bei Fehlschlag `%ERR_SEC%`; beim Verbindungsende `%DISCONNECT%`. Nach Verbindung wie nach dem Trennen wechselt die UART **selbstständig in den Datenmodus** (bei eingeschaltetem Transparent-UART) | – | [V: UG 1.4, S. 13; Tab. D-1, S. 71–72; 2.6.13–2.6.16, S. 33–34] |
+| Zustand | `GK` (Gegenstelle, Adresstyp, Transparent 0/1; ohne Verbindung „none“) | Ausgabe | [V: UG 2.5.1, S. 27] |
+| Ende | Befehlsmodus holen mit `$$$`, dann `K,1` → `AOK` und `%DISCONNECT%`; `---` kehrt in den Datenmodus zurück (`END`). Danach PA11/PA12 analog, PB13 hochohmig | – | [V: UG 2.6.25, S. 37; 2.6.3, S. 28] |
+
+   **Statusmeldungen (`%…%`) kommen im Befehls- und im Datenmodus** auf der UART; die Firmware muss sie aus dem Nutzdatenstrom herausfiltern [V: UG D.1, S. 71]. Die Begrenzer ließen sich mit `S%` ändern [V: UG 2.4.3, S. 16], hier nicht nötig. Der Befehlsmodus ist aus dem Datenmodus nur über `$$$` (nach 100 ms Pause) erreichbar; Bit 0x0008 „Command Mode Guard“ (ab v1.28) lässt `$$$` nur ohne umgebende Bytes in einem 1-s-Fenster gelten und schützt so vor einer zufälligen `$$$`-Folge im Nutzstrom [V: UG Tab. 2-6, S. 23; 2.6.2, S. 28]; für die Konsole erwägen **[A]**.
+
+4. **Kopplung (`SA,<0–5>`, `SP,<PIN>`):** Voreinstellung **`SA,2` = NoInputNoOutput** (das Modul bestätigt den Schlüssel selbst, die Gegenstelle bestätigt durch Tippen; in der BLE-Sprache „Just Works“, das UG gebraucht den Namen nicht **[A]**); `SA,0` = NoInputNoOutput **mit Bonding**, `SA,1` DisplayYesNo, `SA,3` KeyboardOnly, **`SA,4` DisplayOnly** (die Gegenstelle gibt den Schlüssel ein), `SA,5` Keyboard Display [V: UG 2.4.4, Tab. 2-2, S. 17]. Mit **`SP,<6 Ziffern>`** (Voreinstellung `000000`) wird bei DisplayOnly ein **fester Schlüssel** verwendet; das UG verweist ausdrücklich auf die Sicherheitsfolgen eines festen Schlüssels [V: UG 2.4.20, S. 22]. Ein 4-stelliger PIN betrifft nur den Fernbefehlsmodus `!,1` (nicht genutzt). Nach der Kopplung speichert das Modul Schlüssel für **bis zu 8 Gegenstellen** im NVM, die neunte ersetzt die erste; `LB` listet, `U,<1–8>` bzw. `U,Z` löscht [V: UG 2.4.4, S. 17; 2.6.30, S. 39; 2.9.1, S. 46]. LE Secure Connections ist ab v1.28 voreingestellt aktiv [V: UG 1.1, S. 11]. **Empfehlung für den unbeaufsichtigten Außenlogger [A]:** **`SA,4` mit festem 6-stelligem PIN je Logger**, der nicht im Repository liegt (wie `Config_Geraet.h`); Just Works (`SA,2`/`SA,0`) lässt jedes Gerät in Funkreichweite koppeln und damit auf die Konsole und das Auslesen des Flashs zugreifen. Die kurze Funkzeit (nur ca. 10 min nach Magnetanforderung) begrenzt die Angriffsfläche zusätzlich. Das UG sagt nicht, ob die Transparent-UART-Merkmale eine verschlüsselte Verbindung erzwingen: am Muster prüfen, ob ein nicht gekoppeltes Smartphone die UART nutzen kann **[P]**; bis dahin gilt: Die Konsole nimmt ohne Anwendungs-Authentifizierung keine auslesenden oder schreibenden Befehle an **[A]**. Entscheidung des Verfahrens: Philipp **[P]**.
+
+5. **Energiesparen und Abschaltung:** `SO,1` = **Low-Power-Modus**: 32-kHz-Takt, BLE-Verbindung bleibt, die **UART ist nicht betriebsbereit**; Aufwecken durch **UART_RX_IND (RN4871: P1_6) low**, die UART geht danach nach 5 ms; Voreinstellung `SO,0` (16 MHz dauernd) [V: UG 2.4.19, S. 21–22; Anhang C, S. 69; Tab. 2-9, S. 25]. Strom im Low-Power-Modus 60 µA typ. bei 25 °C [V: DS Tab. 2-3, S. 12]. **`O,0`** = **Dormant**: sofort, ohne UART-Antwort, ohne Funk; Aufwachen **wie nach einem Reset**; nur durch P1_6 low (wenn `SO,1` aktiv und P1_6 vorher high war) oder durch **Hardreset** [V: UG 2.6.27, S. 38; Anhang C, S. 69]; Strom „Shutdown Low-Power Mode“ 1 … 2,9 µA [V: DS Tab. 2-3, S. 12]. **Folgerung: Die Abschaltung über Q301/PB13 bleibt die bessere Wahl:** ≤ 0,1 µA [A] gegen 1–2,9 µA (Dormant) bzw. 60 µA (`SO,1`); Dormant brauchte zum Aufwecken P1_6 oder RST_N an einer MCU-Leitung (hier beide offen) und `SO,1` im NVM; der Power-Cycle ist zugleich ein sauberer Hardreset. Der Preis, 68 ms Anlauf + 100 ms Pause vor `$$$` + wenige Befehle (insgesamt etwa 0,3 s bei ca. 10 mA), ist gegenüber einer Sitzung von Minuten vernachlässigbar [A].
+
+6. **Modul-Firmware-Update (nur über UART):** Das UG enthält **keine** Update-Anleitung (Volltextsuche nach „test mode“, „P2_0“, „firmware update“ ohne Treffer [V]). Das Datenblatt sagt: **P2_0 = 1 Anwendungsmodus, P2_0 = 0 Testmodus / Flash-Update / EEPROM-Konfiguration**, intern hochgezogen [V: DS Tab. 1-2, S. 4]; der Pegel wird beim Einschalten bzw. Reset übernommen (Fig. 9-1/9-2: P2_0 vor dem Einschalten legen; im Testmodus ist die UART nach ca. 25 ms bereit, im Anwendungsmodus nach 68 ms) [V: DS S. 35–36]. Die Programmierleitungen sind **P2_0, VBAT, RXD, TXD, GND** [V: DS Fig. 5-1, S. 25] – das ist J704 Pin 9–12 plus Versorgung (JP301 oder „BLE dauernd“); die Zeichnung nennt das Werkzeug nicht. Nach Microchips Laboranleitung zum RN4870 ist das PC-Werkzeug **ISUpdate** (115 200 Bd, Speichertyp „Flash/Embedded“); die Seite war am 18.10.2026 wegen Wartung nicht abrufbar, die Angabe stammt aus einem Suchergebnis **[A]**. Vor dem Einsatz Werkzeug und Firmwarepaket von der Microchip-Produktseite laden und am Muster mit USB-Seriell-Adapter (3,3 V) üben **[P]**; Name, Dienste und PIN nach einem Update neu setzen und mit `D` prüfen **[A]**.
+
+**Sitzung der Platinenfirmware [A]:** USART6 initialisieren (Leerlauf high), **dann** PB13 low → ≥ 68 ms warten, `%REBOOT%` lesen → 100 ms Ruhe, `$$$` → `A,03E8,03A9` → auf `%CONNECT…%`/`%STREAM_OPEN%` oder `%ADV_TIMEOUT%` warten → Konsole im Datenmodus, `%DISCONNECT%`, Zeit oder Befehl beenden die Sitzung → PA11/PA12 analog, PB13 hochohmig.
+
+**Abgleich mit dem Schaltplan (18.10.2026):** kein Widerspruch. Nach UG/DS darf jeder offene Pin (P0_0, P3_6, P1_6, P2_7, P1_2, P1_3, P1_7, P0_2) offen bleiben, solange die Flusskontrolle aus ist; RST_N und P2_0 sind intern hochgezogen (R312 ist redundant, aber unschädlich) [V: DS Tab. 1-2, S. 4]. Zu beachten: UART_RX des Moduls (Pin 7) hat laut DS keinen genannten Pull-up; PA11 treibt ihn über R310, daher die Reihenfolge „USART6 zuerst, dann PB13“ **[A]**; bei gehaltenem MCU-Reset (Modulupdate) ist PA11 hochohmig, der Adapter an J11 Pin 9/10 treibt die Leitung.
+
+**Quellen Firmware:** Microchip **RN4870/71 Bluetooth Low Energy Module User's Guide DS50002466C** (Rev. C, Juli 2018; Rev. B vom September 2017 verglichen), `https://ww1.microchip.com/downloads/en/DeviceDoc/RN4870-71-Bluetooth-Low-Energy-Module-User-Guide-DS50002466C.pdf`; **RN4870/71 Datenblatt DS50002489D** (S. 3–4, 12, 25, 35–36); Update-Werkzeug ISUpdate nur aus einem Suchergebnis (Microchip Developer Help „Firmware Update on a RN4870 Bluetooth Low Energy module“) **[A]**.
 
 **Prüfplan am Muster (T4, offen):**
 
@@ -221,7 +253,7 @@ Backup-Register des STM32 (20 × 32 Bit) reichen für die Sitzung nicht. Backup-
 | Bus | **SPI1 gemeinsam mit dem Funkmodul**, eigener Chip-Select an **PB3** |
 | Versorgung | **3,3 V dauernd**, im Ruhezustand im Deep Power-down. Grund: Der Bus ist mit dem Funkmodul gemeinsam. Ein unversorgter Flash würde über SCK/MOSI mitgespeist (Rückspeisung). Ruhestrom: Winbond 1 µA laut LCSC, Zetta 3 µA typ. [V]; gerechnet mit 1 µA. |
 | CS-Pull-up | **100 kΩ nach 3,3 V an PB3**: Im Standby ist PB3 hochohmig, der Flash darf dann nicht ausgewählt sein [A]. Das gilt genauso für NSS des Funkmoduls (PA4). |
-| WP, HOLD | über 10 kΩ an 3,3 V (nicht genutzt) |
+| WP, HOLD | direkt an 3,3 V (nicht genutzt; HW-11, vorher je 10 kΩ) |
 | Haltbarkeit | ≥ 100.000 Lösch-/Schreibzyklen je Sektor, 20 Jahre Datenerhalt (Macronix-Datenblatt; übliche Werte der Reihe) [V/A] |
 
 Seit 09.10.2026 liegt auch die LoRaWAN-Sitzung im Flash (3.1); der EEPROM entfällt.
@@ -263,14 +295,14 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PA2 | Ra-01SH DIO1 | Interrupt |
 | PA3 | Ra-01SH BUSY | |
 | PA4–PA7 | Ra-01SH NSS, SCK, MISO, MOSI (SPI1, gemeinsam mit dem Flash) | je 33 Ω; NSS Pull-up 100 kΩ |
-| PA8 | 1-Wire DS18B20 | Pull-up 4,7 kΩ an geschalteter Schiene, 1 kΩ in Reihe |
+| PA8 | 1-Wire DS18B20 | Pull-up 4,7 kΩ an geschalteter Schiene (R701); kein Reihenwiderstand (ESDS304 D701 an der Klemme; Text bis 18.10.2026 widersprach dem Schaltplan) |
 | PA9 / PA10 | Serial1 TX / RX | Debug-Leiste |
 | PA11 / PA12 | USART6 TX / RX (AF8) zum BLE-Modul RN4871 (HW-09) | je 1 kΩ in Reihe (R310/R311); bei abgeschaltetem Modul analog/hochohmig |
 | PA13 / PA14 | SWDIO / SWCLK | Debug-Leiste |
 | PA15 | I2S3_WS zum Audio-ADC U601 (HW-07) | nach „nur SWD“; AF laut ST-Pindaten [V] |
 | PB0 | Akkuspannung (ADC1_IN8) | Teiler 2 × 2,2 MΩ + 100 nF |
 | PB1 | Eingangsspannung Lader (ADC1_IN9) | Teiler 3,3 MΩ / 470 kΩ + 100 nF hinter den Schottky-Dioden (versorgung.md 3.1, HW26-08) |
-| PB2 | BOOT1 | 10 kΩ nach GND |
+| PB2 | BOOT1 | direkt an GND (HW-11) |
 | PB3 | Chip-Select SPI-Flash | Pull-up 100 kΩ; nach „nur SWD“ (3.2) |
 | PB4 | Ra-01SH RESET | |
 | PB5 | I2S3_SD vom Audio-ADC U601 (HW-07) | Empfang mit DMA; vorher Sensorschiene (jetzt PA1) |
@@ -278,7 +310,7 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PB8 / PB9 | HX711 Nr. 1 DOUT / SCK | 1 kΩ in Reihe |
 | PB10 | 5-V-Wandler der Waage ein (high = ein) | Pull-down 100 kΩ; siehe waage.md |
 | PB12 | I2S3_CK zum Audio-ADC U601 (HW-07) | STM32 ist I²S-Master; AF laut ST-Pindaten [V] |
-| PB13 | Lastschalter BLE-Modul (HW-09): low = ein | Gate Q301 AO3401A, Pull-up 100 kΩ (Modul aus bei hochohmigem Pin); vorher VBUS-Erkennung (HW-05) |
+| PB13 | Lastschalter BLE-Modul (HW-09): low = ein | über R314 10 kΩ an das Gate von Q301 AO3401A, Pull-up 100 kΩ, C317 47 nF Gate–Drain (Sanftanlauf, HW-11); vorher VBUS-Erkennung (HW-05) |
 | PB14 / PB15 | Ra-01SH TXEN / RXEN | über offene Lötbrücken |
 | PC13 | LED (low = an), am Platinenrand unter dem Lichtleiter | Signale siehe 3.3; Vorwiderstand ≥ 1 kΩ |
 | PC14 / PC15 | LSE 32,768 kHz | |
@@ -307,7 +339,7 @@ Frei für den Erweiterungsstecker (F9): keine GPIOs mehr (PB13 seit HW-09 Lastsc
 6. Lastkondensatoren HSE/LSE am Muster prüfen (Frequenz, Anschwingen in der Kälte)
 7. TVS für den 3,3-V-Eingang des Moduls auswählen
 8. FPC-Antenne: passende Größe für die Gehäusewand wählen (CBHUB-02: Innenhöhe 58,9 mm)
-9. RN4871 (HW-09): Footprint gegen LCSC/EasyEDA C633942 prüfen; Flusskontrolle und Kopplung in der Moduleinstellung festlegen (User's Guide DS50002466); Zertifikate ablegen; Prüfplan B-1 … B-6 (1.6); Bestand/Preis vor der Bestellung
+9. RN4871 (HW-09): Footprint gegen LCSC/EasyEDA C633942 prüfen; Kopplung (`SA,4` + fester PIN, Empfehlung 1.6) festlegen; Moduleinstellung (Name, `SS,C0`, `SR` = 0000, Kontrolle mit `D`) und Update-Werkzeug am Muster prüfen (User's Guide DS50002466C, 1.6); Zertifikate ablegen; Prüfplan B-1 … B-6 (1.6); Bestand/Preis vor der Bestellung; Entscheidung USB-C-Buchse behalten oder entfernen (1.3)
 
 ### 6.1 Prüfplan Funkmodul am Steckbrett (SCH26-11, T4, durch Philipp)
 

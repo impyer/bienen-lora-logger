@@ -1,4 +1,20 @@
 {
   "_hinweis": "Bekannte, begründete ERC-Warnungen. Jede neue Warnung oder jeder Fehler lässt pruefen.sh scheitern (SCH26-04).",
-  "hauptplatine/logger.kicad_sch": []
+  "hauptplatine/logger.kicad_sch": [
+    {
+      "type": "pin_to_pin",
+      "item": "Symbol U301 Pin 20",
+      "grund": "HW-11: PB2/BOOT1 direkt an GND; Pin ist im KiCad-Symbol bidirektional, wird nur bei BOOT0 = 1 als Eingang gelesen (RM0383)"
+    },
+    {
+      "type": "pin_to_pin",
+      "item": "Symbol U402 Pin 3",
+      "grund": "HW-11: Flash WP direkt an +3V3; Quad-I/O-Pin im Symbol bidirektional, hier nur Eingang (kein Quad-Modus)"
+    },
+    {
+      "type": "pin_to_pin",
+      "item": "Symbol U402 Pin 7",
+      "grund": "HW-11: Flash HOLD direkt an +3V3; Quad-I/O-Pin im Symbol bidirektional, hier nur Eingang (kein Quad-Modus)"
+    }
+  ]
 }

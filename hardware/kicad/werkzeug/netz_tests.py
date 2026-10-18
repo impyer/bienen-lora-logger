@@ -203,7 +203,7 @@ def mikrofon(h, h_pin, h_wert):
     pruefe("U602 IN und EN an 3V3_SW", h_pin.get(("U602", "1")) == h_pin.get(("U602", "3")) == "3V3_SW",
            (h_pin.get(("U602", "1")), h_pin.get(("U602", "3"))))
     pruefe("IOVDD (Pin 21) an 3V3_SW wie die I²C-Pull-ups", h_pin.get(("U601", "21")) == "3V3_SW", h_pin.get(("U601", "21")))
-    genau(h, "3V3_MEMS", {("FB602", "2"), ("C611", "1"), ("J601", "4")})
+    genau(h, "3V3_MEMS", {("FB602", "2"), ("C611", "1"), ("J601", "6")})
     for pin in ("9", "23", "25", "15", "16", "24"):
         pruefe("U601 Pin %s an GND (AVSS, DVSS, EP, I2C_ADR0/1 → 0x18, MCLK unbenutzt)" % pin,
                h_pin.get(("U601", pin)) == "GND", h_pin.get(("U601", pin)))
@@ -223,10 +223,10 @@ def mikrofon(h, h_pin, h_wert):
     genau(h, "MIC_INN", {("C620", "2"), ("U601", "6")})     # IN3L(M)
     pruefe("R611 nach GND, R610 = R611 (symmetrisch)",
            h_pin.get(("R611", "2")) == "GND" and h_wert.get("R610") == h_wert.get("R611"), (h_wert.get("R610"), h_wert.get("R611")))
-    # HW-10: Mikrofon 3 am rechten Analogeingang, gleiche Beschaltung, an J601 Pin 5/6 (Philipp) mit ESD D602
+    # HW-10: Mikrofon 3 am rechten Analogeingang, gleiche Beschaltung, an J601 Pin 4/5 (eigenes Paar; Philipp) mit ESD D602
     genau(h, "MICBIAS2", {("U601", "14"), ("R614", "1"), ("C629", "1")})
-    genau(h, "MIC3_P", {("R614", "2"), ("C625", "1"), ("C627", "1"), ("J601", "5"), ("D602", "3")})
-    genau(h, "MIC3_N", {("R615", "1"), ("C626", "1"), ("C628", "1"), ("J601", "6"), ("D602", "1")})
+    genau(h, "MIC3_P", {("R614", "2"), ("C625", "1"), ("C627", "1"), ("J601", "4"), ("D602", "3")})
+    genau(h, "MIC3_N", {("R615", "1"), ("C626", "1"), ("C628", "1"), ("J601", "5"), ("D602", "1")})
     genau(h, "MIC3_INP", {("C625", "2"), ("U601", "12")})     # IN2R(P)
     genau(h, "MIC3_INN", {("C626", "2"), ("U601", "13")})     # IN3R(M)
     pruefe("R615 nach GND, R614 = R615 = R610 (alle Kapseln gleich vorgespannt)",
@@ -238,12 +238,18 @@ def mikrofon(h, h_pin, h_wert):
            all(h_pin.get(("U601", p), "unconnected").startswith("unconnected") for p in ("8", "11")), (h_pin.get(("U601", "8")), h_pin.get(("U601", "11"))))
     pruefe("ESD D602 ist ESDS304, GND an Pin 2, schützt MIC3−/MIC3+", h_wert.get("D602", "").startswith("ESDS304") and h_pin.get(("D602", "2")) == "GND"
            and {h_pin.get(("D602", "1")), h_pin.get(("D602", "3"))} == {"MIC3_N", "MIC3_P"}, (h_wert.get("D602"), h_pin.get(("D602", "2"))))
-    pruefe("J601 Pin 5 = MIC3+ (Paarpartner VDD), Pin 6 = MIC3− (Paarpartner DATA)",
-           h_pin.get(("J601", "5")) == "MIC3_P" and h_pin.get(("J601", "6")) == "MIC3_N", (h_pin.get(("J601", "5")), h_pin.get(("J601", "6"))))
+    pruefe("J601 Paar 4/5 = MIC3+/MIC3− (eigenes T568B-Paar), Pin 6 = VDD (Paar mit DATA)",
+           h_pin.get(("J601", "4")) == "MIC3_P" and h_pin.get(("J601", "5")) == "MIC3_N" and h_pin.get(("J601", "6")) == "3V3_MEMS",
+           (h_pin.get(("J601", "4")), h_pin.get(("J601", "5")), h_pin.get(("J601", "6"))))
+    paare = {("1", "2"), ("3", "6"), ("4", "5"), ("7", "8")}
+    def paar_von(p):
+        return next(q for q in paare if p in q)
+    pruefe("T568B: MIC+/MIC− und MIC3+/MIC3− liegen je auf einem Paar, CLK mit GND",
+           paar_von("7") == ("7", "8") and paar_von("4") == ("4", "5") and h_pin.get(("J601", "1")) == "GND")
     falsch = dict(h_pin)
-    falsch[("J601", "5")], falsch[("J601", "6")] = "MIC3_N", "MIC3_P"
+    falsch[("J601", "4")], falsch[("J601", "5")] = "MIC3_N", "MIC3_P"
     pruefe("Gegenprobe: vertauschte MIC3+/MIC3− an J601 werden erkannt",
-           stecker_abweichungen(falsch, "J601", {"5": "MIC3_P", "6": "MIC3_N"}) != [])
+           stecker_abweichungen(falsch, "J601", {"4": "MIC3_P", "5": "MIC3_N"}) != [])
     fh = 1 / (2 * math.pi * 35e3 * farad(h_wert.get("C619", "1n")))
     pruefe(("Hochpass Koppel-C mit 35 kΩ Eingang = %.1f Hz (≤ 20 Hz, Nutzband ab 60 Hz)" % fh).replace(".", ","), fh <= 20)
     # PDM-Mikrofon
@@ -302,12 +308,25 @@ def ble(h, h_pin, h_wert):
     """HW-09: BLE-Modul RN4871 an USART6, Versorgung über Q301 (PB13), Modul-UART und Modus an J704 Pin 9–11;
     USB-C-Buchse entfällt (Ladepads J301). Regeln: kein Pull-up des abgeschalteten Moduls an +3V3 (Rückspeisung), Reihenwiderstände
     im UART, Lastschalter aus bei hochohmigem PB13."""
-    genau(h, "BLE_EIN", {("U301", "26"), ("Q301", "1"), ("R309", "2")})                 # PB13 → Gate
+    genau(h, "BLE_EIN", {("U301", "26"), ("R314", "2")})                                # PB13 → R314 → Gate
+    genau(h, "BLE_GATE", {("R314", "1"), ("Q301", "1"), ("R309", "2"), ("C317", "1")})   # HW-11: Sanftanlauf
     pruefe("R309 (Gate-Pull-up) an +3V3, 100k: Modul aus bei hochohmigem PB13",
            h_pin.get(("R309", "1")) == "+3V3" and h_wert.get("R309") == "100k", (h_pin.get(("R309", "1")), h_wert.get("R309")))
+    pruefe("Sanftanlauf: R314 10k, C317 47n zwischen Gate und BLE_VCC (HW-11)",
+           h_wert.get("R314") == "10k" and h_wert.get("C317") == "47n" and h_pin.get(("C317", "2")) == "BLE_VCC",
+           (h_wert.get("R314"), h_wert.get("C317"), h_pin.get(("C317", "2"))))
+    # HW-11: direkte Verbindungen statt Widerständen/Filtern
+    pruefe("PB2/BOOT1 direkt an GND (R302 entfällt)", h_pin.get(("U301", "20")) == "GND", h_pin.get(("U301", "20")))
+    pruefe("VDDA direkt an +3V3 (FB301/C306 entfallen), C305 an +3V3", h_pin.get(("U301", "9")) == "+3V3" and h_pin.get(("C305", "1")) == "+3V3",
+           (h_pin.get(("U301", "9")), h_pin.get(("C305", "1"))))
+    pruefe("Flash WP/HOLD direkt an +3V3 (R407/R408 entfallen)", h_pin.get(("U402", "3")) == "+3V3" and h_pin.get(("U402", "7")) == "+3V3",
+           (h_pin.get(("U402", "3")), h_pin.get(("U402", "7"))))
+    pruefe("entfallene Teile nicht mehr in der Netzliste: R302, C308, FB301, C306, R407, R408",
+           not any(r in h_wert for r in ("R302", "C308", "FB301", "C306", "R407", "R408")))
     pruefe("Q301 ist AO3401A (P-Kanal), Source an +3V3", h_wert.get("Q301", "").startswith("AO3401") and h_pin.get(("Q301", "2")) == "+3V3",
            (h_wert.get("Q301"), h_pin.get(("Q301", "2"))))
-    genau(h, "BLE_VCC", {("Q301", "3"), ("U303", "14"), ("C314", "1"), ("C315", "1"), ("R312", "1"), ("JP301", "1")})
+    genau(h, "BLE_VCC", {("Q301", "3"), ("U303", "14"), ("C314", "1"), ("C315", "1"), ("R312", "1"), ("R313", "1"), ("C317", "2"), ("JP301", "1")})
+    pruefe("R313 (Entladung BLE_VCC) 100k nach GND", h_pin.get(("R313", "2")) == "GND" and h_wert.get("R313") == "100k", (h_pin.get(("R313", "2")), h_wert.get("R313")))
     pruefe("JP301 (BLE dauernd) ist offene Lötbrücke", "_Open_" in h_wert.get("JP301:footprint", ""), h_wert.get("JP301:footprint"))
     pruefe("U303 ist RN4871", h_wert.get("U303", "").startswith("RN4871"), h_wert.get("U303"))
     genau(h, "USART6_TX", {("U301", "32"), ("R310", "1")})                              # PA11 (AF8)

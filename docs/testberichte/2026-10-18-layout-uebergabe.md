@@ -60,13 +60,23 @@ pdftoppm -r 75 -png hardware/kicad/pdf/logger.pdf blatt   # Sichtprüfung
 
 Nach der Freigabe kamen zwei Aufträge des Maintainers: **HW-10** (alle drei Mikrofonanschlüsse des Audio-ADC nutzen) und eine **Prüfung aller Pinfunktionen**. Beides ist eingearbeitet; der Layout-Stand wurde neu erzeugt und geprüft.
 
-- **HW-10:** Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615, C625–C629), auf **J601 Pin 5 (MIC3+) / 6 (MIC3−)** (Philipp: ein Stecker für alle drei Mikrofone; vorher Masse-Paarpartner), ESD D602 neben D601; Blatt Mikrofon Abschnitt 6; Pflichtenheft Regel 1/2 und Netztabelle (MIC3-Paar), 185 Teile / 21 LCSC. Regel: Mikrofon 3 nur bei stehendem PDM-Takt messen.
+- **HW-10:** Mikrofon 3 (zweite Elektretkapsel) pseudo-differenziell an IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615, C625–C629), auf **J601 Paar 4/5 (4 MIC3+, 5 MIC3−), VDD auf Pin 6** (Philipp: ein Stecker für alle drei Mikrofone, Pinreihenfolge so, dass jedes Mikrofon ein eigenes Paar hat), ESD D602 neben D601; Blatt Mikrofon Abschnitt 6; Pflichtenheft Regel 1/2 und Netztabelle (MIC3-Paar), 185 Teile / 21 LCSC. Durchgang 2 bevorzugt ohne PDM-Takt (Empfehlung).
 - **Pin-Review:** eigener Bericht [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md) – keine Abweichung; `pin_footprint.py` für STM32, AO3400A, AO3401A, HY2111, FS8205, 74LVC1G17 auf [V].
-- **Nachweis (Commit `bec9a04`):** `pruefen.sh` reproduzierbar, ERC **0**, Netzprüfung **229/229**, Pin-/Footprint-Abgleich **185 Bauteile, 0 Abweichungen**; Sichtprüfung Blatt Mikrofon (PNG); Paket **`layout-auftrag-PCB-MAIN-0.1-bec9a04.zip`** (38 Dateien, bom_aktuell.csv 185 Zeilen) entpackt: ERC **0**, DRC **0**. Dieses Paket ersetzt die aus `4c36898` und `23aed6e` (Zwischenstand mit eigener Klemme J602).
+- **Nachweis (Commit `55ddaa4`):** `pruefen.sh` reproduzierbar, ERC **0**, Netzprüfung **231/231**, Pin-/Footprint-Abgleich **186 Bauteile, 0 Abweichungen**; Paket **`layout-auftrag-PCB-MAIN-0.1-55ddaa4.zip`** (38 Dateien, bom_aktuell.csv 186 Zeilen, 20 mit LCSC, PDF aktuell) entpackt: ERC **0**, DRC **0**. Dieses Paket ersetzt alle früheren vom 18.10.2026 (`4c36898`, `23aed6e`, `bec9a04`, `6cdc364`, `295b2fa`).
+- **Review-Nachtrag (externe Prüfung):** `mikrofon.md` Bauteiltabelle/Schaltbild auf J601 Pin 5/6 = MIC3+/MIC3− berichtigt; Q501 ohne LCSC-Nummer, Pflichtenheft 7 verlangt Pinfolge 1 B, 2 E, 3 C mit Pinbild; R313 100 kΩ an BLE_VCC (definierter Aus-Zustand). BLE-Musterprüfungen B-1 … B-6 und Antennenlage bleiben offen (HW26-20, Pflichtenheft 11).
+
+## Nachtrag 18.10.2026 spät: HW-11 (sechs Bauteile weniger, Sanftanlauf BLE)
+
+Nach dem Schaltplan-Review ([Bericht](2026-10-18-schaltplan-optimierung.md)) hat Philipp HW-11 entschieden; der 5-V-Wandler der Waage bleibt. Umgesetzt und geprüft:
+
+- Entfallen: R302 (PB2 direkt an GND), C308 (VBAT fest an +3V3), FB301 und C306 (VDDA direkt an +3V3, C305 bleibt), R407 und R408 (Flash-WP/HOLD direkt an +3V3). Neu: R314 10 kΩ und C317 47 nF (Sanftanlauf Q301, Netz BLE_GATE). **182 Bauteile, 20 mit LCSC.**
+- ERC: **0 Fehler, 3 begründete Warnungen** (`pin_to_pin`: bidirektionale Symbolpins PB2, WP, HOLD direkt an Versorgung; in `erc_erwartet.json` mit Begründung). Netzprüfung **237/237**, Pin-/Footprint-Abgleich **182 Bauteile, 0 Abweichungen**, SPICE **12/12** (S3 jetzt mit Sanftanlauf: 55 mA, 3,29 V).
+- Paket **`layout-auftrag-PCB-MAIN-0.1-eadfaf8.zip`** (Commit `eadfaf8`, 38 Dateien, PDF aktuell) entpackt: ERC nur die drei begründeten Warnungen, DRC **0**. Dieses Paket ersetzt das aus `55ddaa4`.
+- Pflichtenheft: Regel 9 (kein VDDA-Filter mehr), Teilezahl 182, neue Pin-Tauschtabelle in 2.3 (aus dem Review).
 
 ## Freigabeentscheidung
 
 - **Betroffenes Gate:** G1 (Quellstand) – **bestanden, vorbehaltlich grüner CI**; G2/G3/G4 unverändert offen
 - **Entscheidung:** Schaltplan **zur Layout-Bearbeitung freigegeben** (Platzierung/Routing durch den Layouter, HW-08); keine Freigabe zur Bestellung
 - **Begründung und Verantwortliche:** alle Prüfungen L-1 … L-6 bestanden; Maintainer bestätigt mit dem Merge und dem Versand des Pakets
-- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA (gültig: `bec9a04`); Pin-Review [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md); Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)
+- **Reproduzierbare Daten:** Befehle oben; Paketname mit Commit-SHA (gültig: `eadfaf8`); Pin-Review [2026-10-18-pinfunktionen-review](2026-10-18-pinfunktionen-review.md); Berichte des HW-09-Stands [2026-10-18-hw09-ble-rn4871](2026-10-18-hw09-ble-rn4871.md)

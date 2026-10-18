@@ -1,11 +1,24 @@
 # Änderungen
 
+## 2026-10-18 – HW-11: sechs Bauteile weniger, Sanftanlauf am BLE-Schalter
+
+- **HW-11 (Philipp):** R302 (PB2 direkt GND), C308 (VBAT), FB301 + C306 (VDDA direkt an +3V3, C305 bleibt), R407 + R408 (Flash-WP/HOLD direkt an +3V3) entfallen; neu **R314 10 kΩ** und **C317 47 nF** als Sanftanlauf des BLE-Lastschalters (Netz BLE_GATE). 5-V-Wandler der Waage bleibt (Entscheidung Philipp). 186 → 182 Bauteile, kein PWR_FLAG für VDDA mehr.
+- `netz_tests.py`: BLE_GATE, R314/C317, direkte Verbindungen und Fehlen der gestrichenen Teile geprüft; `schaltplan_spice.py` S3 bewertet jetzt den Stand mit Sanftanlauf (55 mA, 3,29 V). Dokumente: `mcu-funk.md` 1.1/1.6/3.2/4, Pflichtenheft 9 und Teilezahl, Fiverr, KiCad-README, Entscheidungsregister HW-11. Layout-Stand neu erzeugt, Paket neu gebaut (Nachtrag im Übergabebericht).
+
+## 2026-10-18 – Schaltplan-Review mit SPICE-Modell: Einsparungen, Kniffe, Leckstrom-Befund
+
+- Neu `hardware/schaltplan_spice.py` (GPL-3.0-or-later): treibt die ngspice-Bibliothek aus KiCad 10 (`ngspice.dll` bzw. `libngspice0`) über ctypes und prüft 12 Größen mit Grenzen – Elektretpfad (Hochpass 5 Hz, Kapsel 1,9 V), HX711-AVDD 4,30 V (Eckwerte 4,24–4,36 V), BLE-Lastschalter (Einbruch auf 3,06 V heute, Sanftanlauf 10 kΩ + 47 nF → 55 mA), RN4871-Reset 4–9 ms, BLE_VCC-Entladung 2,4 s, ADC-Teiler-Leckstromfehler, Sensorschiene 25 mA, 1-Wire 3,1 µs. Ohne Bibliothek meldet das Skript ÜBERSPRUNGEN (nicht bestanden). CI-Job `hardware-rechnungen` installiert `libngspice0` und führt es aus.
+- Bericht [2026-10-18-schaltplan-optimierung](docs/testberichte/2026-10-18-schaltplan-optimierung.md): keine Fehler; Vorschläge **−6 Teile ohne Funktionsverlust** (R302, C308, FB301, C306, R407, R408), **5-V-Wandler der Waage zur Entscheidung** (−6 Teile, −0,5 mAh/Tag, PB10 frei; Gleichtakt am Steckbrett prüfen), **Sanftanlauf BLE** (2 Teile), **Pin-Tauschgruppen** für den Layouter (Pflichtenheft 2.3, neue Tabelle). Nicht umgesetzt (Layout-Stand eingefroren) – Entscheidung HW-11 offen.
+- Befundregister: **HW26-21** (ADC-Teiler-Leckstrom, analysiert/akzeptiert mit Firmware-Kalibrierung). `mcu-funk.md` 4: PA8 ohne Reihenwiderstand (Text widersprach dem Schaltplan). CLAUDE.md und `hardware/README.md`: neuer Prüfbefehl.
+
 ## 2026-10-18 – Dritter Mikrofoneingang (HW-10)
 
 - **HW-10 (Philipp):** alle drei Anschlussmöglichkeiten des TLV320ADC3101 belegt: zusätzlich **Elektret 2** pseudo-differenziell am rechten Analogeingang IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615 1 kΩ, C629 1 µF, Koppel-C C625/C626 1 µF X7R, C627/C628 100 pF), auf den **Pins 5 (MIC3+) und 6 (MIC3−) der RJ45-Buchse J601** (Philipp: ein Stecker für alle drei Mikrofone; die Pins waren Masse-Paarpartner von VDD und DATA) mit ESDS304 D602. Bis zu drei Mikrofone; rechter Kanal je Messung PDM oder Elektret 2 (zwei Durchgänge, `energiebilanz.py` 2b: +0,2 mAh/Tag).
 - `netz_tests.py`: MICBIAS2/MIC3-Netze, gleiche Vorspannung und Koppel-C wie Elektret 1, IN1L/IN1R offen, D602, J601 Pin 5/6 (mit Gegenprobe vertauschter Adern) und J5 gegen `anschluesse.md`.
 - Dokumente: `mikrofon.md` (1, 2, 2.1, 4, 5, 6, 7), `anschluesse.md` (J5 Pin 5/6), Lastenheft F6/A8, Pflichtenheft (D602 an J601, MIC3-Paar, 185 Teile / 21 LCSC), Fiverr, Entscheidungsregister HW-10, KiCad-README. Layout-Stand neu erzeugt und geprüft (Nachtrag im Übergabebericht).
 - Zählung und Anschluss festgelegt (Philipp): J5/J601 trägt **alle drei Mikrofone** – 1 Elektret (7/8), 2 MEMS (1–4), 3 Elektret 2 (5/6); die zuerst gezeichnete eigene Klemme J602/J12 entfällt wieder. Regel: Mikrofon 3 nur bei stehendem PDM-Takt messen.
+- **Pinreihenfolge J601 (Philipp, 18.10.2026 abends):** 4 MIC3+, 5 MIC3−, 6 VDD – jedes Mikrofon auf einem eigenen T568B-Paar (1/2 CLK+GND, 3/6 DATA+VDD, 4/5 MIC3, 7/8 MIC); Standardkabel und -stecker, kein Sonderlöten; die PDM-Regel für Durchgang 2 ist nur noch Empfehlung. `netz_tests.py` prüft die Paarzuordnung. Dokumente nachgezogen.
+- **Review-Nachtrag (18.10.2026 abends):** `mikrofon.md` Bauteiltabelle und Schaltbild auf J601 Pin 5/6 = MIC3+/MIC3− berichtigt (stand noch auf GND), Lastenheft A4 Paarung; **Q501** ohne LCSC-Nummer (AnBon-Datenblatt ohne Pinbild), Pflichtenheft 7 verlangt ein Teil mit 1 B, 2 E, 3 C; **R313 100 kΩ** von BLE_VCC nach GND (definierter Aus-Zustand, Power-Cycle als Reset). Offen bleiben die BLE-Musterprüfungen B-1 … B-6 (HW26-20) und die Antennenlage (Pflichtenheft 11, Layouter).
 - **Pin-Review** (auf Nachfrage): Pinfunktionen aller ICs und Module gegen die Datenblätter gelesen – STM32F411 (ST open pin data: USART6, I2S3, SPI1, I2C1, USART1, ADC, WKUP, SWD, OSC32), TLV320ADC3101, BQ25185, TPS22917 (CT-Kondensator an VIN laut Tab. 6-1), TPS61240, TMP390, HY2111, FS8205, AO3400A/AO3401A, 74LVC1G17, HX711, RN4871, Ra-01SH, ESD-Arrays: **keine Abweichung**; `pin_footprint.py` von [A]/[V*] auf [V] gehoben (AO3400A, AO3401A, HY2111, FS8205, 74LVC1G17, STM32). Offen bleiben S8550-Pinfolge (Hersteller), Flash-Typ, Keystone-1042-Polung, RJ45-Teil, DEGSON-Zeichnung, TVS D401. Bericht [2026-10-18-pinfunktionen-review](docs/testberichte/2026-10-18-pinfunktionen-review.md).
 
 ## 2026-10-18 – Schaltplan für den Layout-Auftrag freigegeben (Layout-Stand)
@@ -13,6 +26,11 @@
 - Titelblock aller Blätter: Rev „0.1 Layout-Stand“, Datum 2026-10-18 (Generator `hauptplatine.py`). Pflichtenheft **issue 3**: HW-09 (BLE-Modul, Ladepads), Prüfstand im Paketinhalt, Bauteile mit knappem Bestand (RN4871, Ra-01SH), DNP-Teile und Lötbrücken benannt.
 - Nachweis (KiCad 10.0.7, Windows; Bericht [2026-10-18-layout-uebergabe](docs/testberichte/2026-10-18-layout-uebergabe.md)): `pruefen.sh` reproduzierbar, ERC 0, Netzprüfung 220/220, Pin/Footprint 177 Bauteile / 0 Abweichungen / 0 offen; Rahmenplatine DRC 0; Übergabepaket `build/layout-auftrag-PCB-MAIN-0.1-4c36898.zip` (41 Dateien) entpackt mit ERC 0 und DRC 0 geprüft; `netz_vergleich.py --selbsttest` ok; Formatter-Tests 14/14, 14/14, 12/12. C++-/PHP-Tests über die CI.
 - Freigabe: Schaltplan zur Layout-Bearbeitung (HW-08); keine Bestell- oder Laborfreigabe, D3-Gates unverändert offen.
+
+## 2026-10-18 – BLE-Firmware-Eckpunkte gegen das RN4870/71 User's Guide geprüft (HW-09, HW26-20)
+
+- `hardware/mcu-funk.md` 1.6 (Firmware): gelesen **DS50002466C** (User's Guide, Rev. C 07/2018) und DS50002489D. Ergebnis: UART 115 200 8N1 und Flusskontrolle **ab Werk aus** (SR-Bit 0x8000 nie setzen, Fast Mode 0x2000 nie setzen); Befehlsfolge `$$$` → `SN`/`S-` → `SS,C0` → `R,1` (einmalig im NVM) und je Sitzung `A,03E8,03A9`, Statusmeldungen `%CONNECT%`, `%STREAM_OPEN%`, `%DISCONNECT%`, `%ADV_TIMEOUT%`; Kopplung `SA,4` + fester 6-stelliger PIN empfohlen (Entscheid Philipp offen); `SO,1` (60 µA) und `O,0` (1–2,9 µA, Aufwecken nur P1_6/Hardreset) bestätigen die Abschaltung über PB13; Modul-Update über P2_0 = low, UART, ISUpdate (Werkzeug nur aus Suchergebnis, **[A]**).
+- Kein Widerspruch zum Schaltplan, **keine KiCad-Änderung**. Befundregister: HW26-20 Beschreibung nachgeführt, Status unverändert. T0 (Dokumentenprüfung), keine Messung, keine BLE-Firmware.
 
 ## 2026-10-18 – BLE-Modul RN4871 statt USB-Daten (HW-09)
 

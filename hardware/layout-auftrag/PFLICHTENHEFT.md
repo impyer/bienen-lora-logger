@@ -1,7 +1,7 @@
 # PCB Layout Specification – Beehive Logger Main Board PCB-MAIN-0.1
 
 **Client:** Philipp Schnabel (GitHub `impyer`) · **Project:** open-hardware beehive logger, repository `impyer/bienen-lora-logger`
-**Document status:** issue 3, 18 Oct 2026 (issue 3: BLE module RN4871 added, USB-C replaced by two charge pads, decision HW-09; third microphone on J601 pins 5/6 with ESD D602, decision HW-10; issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: **V0.1 layout release of 18 Oct 2026** (title block "0.1 Layout-Stand", decisions HW-01 … HW-09; the git commit is in `STAND.txt` of the package)
+**Document status:** issue 3, 18 Oct 2026 (issue 3: BLE module RN4871 added, USB-C replaced by two charge pads, decision HW-09; third microphone on J601 pair 4/5 (VDD moved to pin 6) with ESD D602, decision HW-10; six parts removed and BLE soft start R314/C317, decision HW-11; issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: **V0.1 layout release of 18 Oct 2026** (title block "0.1 Layout-Stand", decisions HW-01 … HW-09; the git commit is in `STAND.txt` of the package)
 **License of the result:** CERN-OHL-S-2.0 (see section 10)
 
 > **Kurzfassung (Deutsch):** Auftrag an einen externen Layouter: Platzierung, Routing und JLCPCB-Fertigungsdaten
@@ -20,7 +20,7 @@
 | 1 | Review the package, ask questions, confirm feasibility (section 9, milestone M0) | yes |
 | 2 | **Component placement** inside the given board frame, respecting sections 3–6 | yes |
 | 3 | **Routing** of all nets on **4 or 6 layers (your choice)**, copper zones, stitching vias | yes |
-| 4 | **LCSC part selection** for every BOM line without an LCSC number (164 of 185 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
+| 4 | **LCSC part selection** for every BOM line without an LCSC number (162 of 182 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
 | 5 | **Manufacturing outputs** for JLCPCB: Gerber, drill files, BOM and CPL in JLCPCB format (section 8) | yes |
 | 6 | **Editable source files** of the routed board in the tool you used (section 2.2) | yes |
 | 7 | Support until the JLCPCB DFM/assembly check passes without errors | yes |
@@ -62,7 +62,15 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 
 - **Do not change the circuit** (in KiCad or in a schematic you re-create in your tool). Edits would be lost.
 - Footprint changes, pin swaps, value changes, added test points or parts: send a **change request** (list with reference, old, new, reason). The client changes the generator and sends an updated schematic/netlist; you then update your board from it (in KiCad: *Tools → Update PCB from Schematic*, F8).
-- Gate/pin swaps for routing convenience are possible **only** after agreement (e.g. STM32 GPIOs are fixed by alternate functions, see `doku/mcu-funk.md` §4).
+- Gate/pin swaps for routing convenience are possible **only** after agreement (e.g. STM32 GPIOs are fixed by alternate functions, see `doku/mcu-funk.md` §4). To make that quick, the table below lists the STM32 pins that **may be swapped among each other** (plain GPIO, no alternate function needed) – propose the swap as a change request, it will be accepted and the generator updated:
+
+| Swap group | Pins (current signal) | Constraint |
+|---|---|---|
+| G1 plain GPIO | PA1 SENSOR_EIN, PA3 LORA_BUSY, PB3 FLASH_CS, PB4 LORA_RST, PB8 HX_DOUT, PB9 HX_SCK, PB10 WAAGE_EIN, PB13 BLE_EIN, PB14 LORA_TXEN, PB15 LORA_RXEN | any permutation; PA2 LORA_DIO1 may join (needs an EXTI line – every GPIO has one) |
+| G2 I²C1 | PB6 SCL / PB7 SDA ↔ PB8 SCL / PB9 SDA | whole pair only (alternate function I2C1); then PB6/PB7 become plain GPIO for the HX711 lines |
+| fixed | PA0 WKUP, PA4–PA7 SPI1, PA8 1-Wire (keep, has 1-Wire timing), PA9/PA10 USART1, PA11/PA12 USART6, PA13/PA14 SWD, PA15/PB5/PB12 I2S3, PB0/PB1 ADC, PC13 LED (low-drive pin, LED only), PC14/PC15 LSE, PH0/PH1 HSE | do not swap |
+
+Within a terminal block or the RJ45 the pin order is fixed (cable plans in `doku/anschluesse.md`).
 
 ## 3. Board and mechanics
 
@@ -82,7 +90,7 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 
 **You decide the placement and the connector positions** (client decision HW-08). Constraints:
 
-1. **External connectors** J201/J202 (solar), J703 (BME280, 6-pin), J701/J702 (DS18B20), J501 (load cell, 5-pin), J601 (RJ45, microphones 1–3; since HW-10 pins 5/6 carry microphone 3): preferably along **one board edge** facing the future cable glands; two edges are acceptable. Each terminal must be pluggable/unpluggable with the mating plug (DEGSON 15EDGK) without touching neighbours. Width reference: between the hole keep-outs of one edge ~102 mm are free; the terminals need ~86 mm plus ~16 mm for the RJ45.
+1. **External connectors** J201/J202 (solar), J703 (BME280, 6-pin), J701/J702 (DS18B20), J501 (load cell, 5-pin), J601 (RJ45, microphones 1–3; since HW-10 pins 4/5 carry microphone 3 and pin 6 the MEMS supply): preferably along **one board edge** facing the future cable glands; two edges are acceptable. Each terminal must be pluggable/unpluggable with the mating plug (DEGSON 15EDGK) without touching neighbours. Width reference: between the hole keep-outs of one edge ~102 mm are free; the terminals need ~86 mm plus ~16 mm for the RJ45.
 2. **ESD parts directly behind each external connector**, before any other part: D204 (J201/J202), D702 (J703), D701 (J701/J702), D501 (J501), D601 and D602 (both at J601). Ground pin of the ESD part to L2 with ≥ 2 vias, shortest path.
 3. **Radio module U401 (Ra-01SH) at the board edge opposite the external connectors**, IPEX connector side towards the enclosure wall. **Pin 1 (ANT) must stay unconnected – no trace, no copper stub** (antenna via IPEX only; ANT pad and IPEX share RF_OUT inside the module).
 4. **Charge pads J301** (two 2.54 mm pads, 1 GND / 2 +5 V, header not assembled; replaces the USB-C socket since HW-09), debug header J302, expansion header J704, buttons SW301 (Reset), SW302 (BOOT), SW303 (Service): inside, easy to reach when the lid is open; J301 with silkscreen "5V" / "GND", not hidden under the cell.
@@ -91,7 +99,7 @@ The schematic files are **generated** by `hardware/kicad/hauptplatine.py` and ch
 6. Microphone/audio block (U601 audio ADC, J601) and load-cell block (U502 HX711, J501) **far from the 5 V boost converter U501/L501 and from the radio**; U601 close to J601.
 7. The 5 V boost converter U501 (TPS61240, 3.5 MHz) with C501, L501, C502 as a tight loop (TI layout example).
 8. Crystals Y301 (25 MHz) and Y302 (32.768 kHz) directly at the STM32 U301; load capacitors next to the crystal; no other signals between crystal and MCU pins; GND below.
-9. STM32 decoupling: each 100 nF next to its VDD/VSS pair, VCAP (C307, pin 22) and VDDA filter (FB301, C305, C306) close to their pins. Lesson from our own trial: put the capacitors **at the package corners** so the signal pins can escape.
+9. STM32 decoupling: each 100 nF next to its VDD/VSS pair, VCAP (C307, pin 22) and C305 at VDDA (pin 9) close to their pins; PB2 and VBAT are tied directly (HW-11). Lesson from our own trial: put the capacitors **at the package corners** so the signal pins can escape.
 10. Leave roughly one third of the area free/usable if possible (future extensions) – a wish, not a must.
 
 ## 5. Routing rules
@@ -132,7 +140,7 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 | **PDM_CLK** (U603 → R612 → J601 pin 2) | U603 and R612 close to J601; continuous GND below; required edge rate at the microphone ≤ 13 ns – keep it short on the board |
 | PDM_DATA_K → R613 → PDM_DATA (DMDIN) | short, GND reference |
 | **MIC_P / MIC_N** (J601 7/8 → C619/C620 → U601 IN2L/IN3L) | analog, **route as a pair**, symmetric, away from clocks/SPI/converter; C622/C623 at the connector |
-| **MIC3_P / MIC3_N** (J601 5/6 → C625/C626 → U601 IN2R/IN3R; HW-10) | same as MIC_P/MIC_N: pair, symmetric, C627/C628 and D602 at the connector, away from PDM_CLK and PDM_DATA on the board (in the cable they share pairs with VDD and DATA by design) |
+| **MIC3_P / MIC3_N** (J601 4/5 → C625/C626 → U601 IN2R/IN3R; HW-10) | same as MIC_P/MIC_N: pair, symmetric, C627/C628 and D602 at the connector, away from PDM_CLK and PDM_DATA on the board (they form their own cable pair 4/5) |
 | U601 supplies | 3V3_ANA, 1V8_ADC, 3V3_SW decoupling (100 nF + 1 µF each) directly at pins 10/22/21 |
 | HX711 (U502) and load cell lines ZELLE_EP/SP/SN | analog, short, symmetric S+/S−, away from U501; ferrites per schematic |
 | 1-Wire, I²C (ONEWIRE, I2C_SCL/SDA) | no special constraints; pull-ups at the connectors as drawn |
@@ -148,9 +156,9 @@ Track/space ≥ 0.15/0.15 mm (preferably 0.2 mm where possible), via 0.3 mm dril
 
 ## 7. Part selection (LCSC)
 
-- 21 BOM lines already have an LCSC number (fixed – keep them). For the others, propose an LCSC part per line: **JLCPCB Basic part preferred**, otherwise Extended with stock ≥ 100; footprint must match the schematic footprint, or state the needed footprint change.
+- 20 BOM lines already have an LCSC number (fixed – keep them). For the others, propose an LCSC part per line: **JLCPCB Basic part preferred**, otherwise Extended with stock ≥ 100; footprint must match the schematic footprint, or state the needed footprint change.
 - Values with tolerance/voltage/dielectric in the schematic are binding (e.g. "4,7µ 16V X7R", "2,49k 1%", "C0G").
-- Parts with open choice (marked [P] in the docs): RJ45 J601 (**shielded, without magnetics, without LEDs**, through-hole; footprint proposal `RJ45_RCH_RC01937`), ferrites FB301/FB501/FB502/FB601/FB602, L501 (1 µH, Isat ≥ 0.7 A), TVS D401 (3.3 V), SPI flash U402 (64 Mbit SOIC-8 208 mil, e.g. XT25F64B/ZD25Q64D), DEGSON terminals (part numbers per pole count in `doku/anschluesse.md` §2), Elektret capsule / MEMS board are off-board (not on the BOM).
+- Parts with open choice (marked [P] in the docs): RJ45 J601 (**shielded, without magnetics, without LEDs**, through-hole; footprint proposal `RJ45_RCH_RC01937`), ferrites FB301/FB501/FB502/FB601/FB602, L501 (1 µH, Isat ≥ 0.7 A), TVS D401 (3.3 V), SPI flash U402 (64 Mbit SOIC-8 208 mil, e.g. XT25F64B/ZD25Q64D), **Q501 PNP S8550/SS8550 in SOT-23 with pinout 1 = Base, 2 = Emitter, 3 = Collector exactly as the KiCad symbol (manufacturers differ – attach the datasheet pin drawing)**, DEGSON terminals (part numbers per pole count in `doku/anschluesse.md` §2), Elektret capsule / MEMS board are off-board (not on the BOM).
 - Fixed parts with low stock – flag them in your proposal if the stock changed: U303 RN4871-I/RM130 (C633942, Extended, 50 pcs on 18 Oct 2026), U401 Ra-01SH (C2764087).
 - Not assembled (DNP, keep the footprints): J301 charge pads (header not fitted), J801 current-measurement header; solder jumpers JP301/JP401/JP402 (open) and JP801 (bridged) and test points TP201/TP202 are not BOM items.
 - Deliver the proposals as a table (reference, value, LCSC number, Basic/Extended, stock, price, remark). **The client approves before ordering.**

@@ -131,6 +131,10 @@ jobs:
         run: python3 hardware/i2c_leitung.py
       - name: Funkmodul Ra-01SH (HF-Schalter-Logik, Funkstrecke; Fehler, wenn die Soll-Konfiguration nicht funktioniert)
         run: python3 hardware/funk_modell.py
+      - name: ngspice für die SPICE-Prüfung (Bibliothek wie bei KiCad)
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libngspice0
+      - name: SPICE-Prüfung Analogpfade (Elektret, HX711-AVDD, BLE-Lastschalter, RN4871-Reset, Teiler, 1-Wire)
+        run: python3 hardware/schaltplan_spice.py
 
   kicad-schaltplan:
     name: KiCad-10-Schaltpläne (Erzeugung reproduzierbar, ERC, Netzprüfungen)

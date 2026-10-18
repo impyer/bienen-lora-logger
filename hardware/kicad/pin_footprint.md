@@ -2,7 +2,7 @@
 
 Erzeugt von `werkzeug/pin_footprint.py` aus den Generatoren; nicht von Hand ändern. Kennzeichnung: [V] in dieser Prüfung im Datenblatt gelesen, [V*] früher gelesen (Symbolkommentar), [A] Konvention/Annahme, [P] vor der Bestellung prüfen.
 
-Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
+Ergebnis: 182 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 
 | Ref. | Platine | Blatt | Wert | Footprint | Footprint-Prüfung | Datenblatt-Prüfung | Quelle |
 |---|---|---|---|---|---|---|---|
@@ -24,9 +24,7 @@ Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | C303 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C304 | Haupt | MCU | 10µ 10V X5R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C305 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C306 | Haupt | MCU | 1µ | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C307 | Haupt | MCU | 4,7µ X7R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| C308 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C309 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C310 | Haupt | MCU | 18p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C311 | Haupt | MCU | 18p C0G | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -35,6 +33,7 @@ Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | C314 | Haupt | MCU | 10µ 6,3V X5R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C315 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C316 | Haupt | MCU | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| C317 | Haupt | MCU | 47n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C401 | Haupt | Funk + Flash | 100µ 6,3V X5R | `C_1210_3225Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C402 | Haupt | Funk + Flash | 10µ 10V X5R | `C_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | C403 | Haupt | Funk + Flash | 100n | `C_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -87,7 +86,6 @@ Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | D602 | Haupt | Mikrofon | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
 | D701 | Haupt | Anschlüsse | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
 | D702 | Haupt | Anschlüsse | ESDS304DBVR | `SOT-23-5` | Pads = Pins (5) | [V] 5 Pins = Datenblatt | TI ESDS304 Tab. 4-2 (DBV) |
-| FB301 | Haupt | MCU | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | FB501 | Haupt | Waage | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | FB502 | Haupt | Waage | Ferrit ≤ 0,1 Ω | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | FB601 | Haupt | Mikrofon | 600R@100MHz | `L_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
@@ -109,7 +107,7 @@ Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | JP801 | Haupt | Akku | Messbrücke B+ | `SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm` | Pads = Pins (2) | passiv/Stecker | – |
 | L501 | Haupt | Waage | 1µ | `L_0805_2012Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | Q301 | Haupt | MCU | AO3401A | `SOT-23` | Pads = Pins (3) | [V] 3 Pins = Datenblatt | AOS AO3401A Rev. 3.1 (12/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D |
-| Q501 | Haupt | Waage | S8550 | `SOT-23` | Pads = Pins (3) | [A] [P] 3 Pins = Datenblatt | S8550 SOT-23: KiCad-Symbol = Fairchild SS8550 (1 B, 2 E, 3 C); AnBon-Datenblatt zu C397181 zeigt kein Pinbild (18.10.2026) – Teil mit 1 B, 2 E, 3 C wählen oder Symbol anpassen |
+| Q501 | Haupt | Waage | S8550 (1 B, 2 E, 3 C) | `SOT-23` | Pads = Pins (3) | [A] [P] 3 Pins = Datenblatt | S8550 SOT-23: KiCad-Symbol = Fairchild SS8550 (1 B, 2 E, 3 C); AnBon-Datenblatt zu C397181 zeigt kein Pinbild (18.10.2026) – Teil mit 1 B, 2 E, 3 C wählen oder Symbol anpassen |
 | Q801 | Haupt | Akku | FS8205 | `SOT-23-6` | Pads = Pins (6) | [V] 6 Pins = Datenblatt | Fortune FS8205 Rev. 1.7, Abschnitt 4 Pin Assignment (18.10.2026 gelesen): 1 S1, 2 D12, 3 S2, 4 G2, 5 D12, 6 G1 |
 | Q802 | Haupt | Akku | AO3400A | `SOT-23` | Pads = Pins (3) | [V] 3 Pins = Datenblatt | AOS AO3400A Rev. 3.1 (07/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D |
 | Q803 | Haupt | Akku | AO3400A | `SOT-23` | Pads = Pins (3) | [V] 3 Pins = Datenblatt | AOS AO3400A Rev. 3.1 (07/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D |
@@ -123,21 +121,20 @@ Ergebnis: 185 Bauteile, 0 Abweichungen, 0 Footprints offen (–).
 | R208 | Haupt | Versorgung | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R209 | Haupt | Versorgung | 0 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R301 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R302 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R305 | Haupt | MCU | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R306 | Haupt | MCU | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R309 | Haupt | MCU | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R310 | Haupt | MCU | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R311 | Haupt | MCU | 1k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R312 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R313 | Haupt | MCU | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
+| R314 | Haupt | MCU | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R401 | Haupt | Funk + Flash | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R402 | Haupt | Funk + Flash | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R403 | Haupt | Funk + Flash | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R404 | Haupt | Funk + Flash | 33 | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R405 | Haupt | Funk + Flash | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R406 | Haupt | Funk + Flash | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R407 | Haupt | Funk + Flash | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
-| R408 | Haupt | Funk + Flash | 10k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R501 | Haupt | Waage | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R502 | Haupt | Waage | 100k | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |
 | R503 | Haupt | Waage | 20k 1% | `R_0603_1608Metric` | Pads = Pins (2) | passiv/Stecker | – |

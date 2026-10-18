@@ -2449,7 +2449,7 @@
 		)
 		(uuid "a05ec608-c53e-5afb-b8e1-ab58f04dc61d")
 	)
-	(text "3  RJ45-Buchse J601 (= J5): MIC−, MIC+ (Elektret 1), MIC3+/MIC3− (Pin 5/6, HW-10), VDD, DATA, CLK (Schmitt-Puffer)"
+	(text "3  RJ45-Buchse J601 (= J5): MIC−, MIC+ (Elektret 1, Paar 7/8), MIC3+/MIC3− (Paar 4/5, HW-10), VDD (Pin 6), DATA, CLK (Schmitt-Puffer)"
 		(exclude_from_sim no)
 		(at 30.48 96.52 0)
 		(effects
@@ -2471,7 +2471,7 @@
 		)
 		(uuid "d48ed9e5-c56b-5064-8dc1-131ef747ef3d")
 	)
-	(text "6  Mikrofon 3 (zweite Elektretkapsel) an J601 Pin 5/6, pseudo-differenziell an IN2R(P)/IN3R(M), MICBIAS2 über 2 × 1 kΩ (HW-10)"
+	(text "6  Mikrofon 3 (zweite Elektretkapsel) an J601 Pin 4/5 (eigenes Paar), pseudo-differenziell an IN2R(P)/IN3R(M), MICBIAS2 über 2 × 1 kΩ (HW-10)"
 		(exclude_from_sim no)
 		(at 160.02 198.12 0)
 		(effects
@@ -2596,7 +2596,7 @@
 	)
 	(wire
 		(pts
-			(xy 48.26 137.16) (xy 55.88 137.16)
+			(xy 48.26 139.7) (xy 55.88 139.7)
 		)
 		(stroke
 			(width 0)
@@ -2626,7 +2626,7 @@
 	)
 	(wire
 		(pts
-			(xy 48.26 134.62) (xy 55.88 134.62)
+			(xy 48.26 137.16) (xy 55.88 137.16)
 		)
 		(stroke
 			(width 0)
@@ -2906,7 +2906,7 @@
 	)
 	(wire
 		(pts
-			(xy 63.5 139.7) (xy 63.5 157.48)
+			(xy 63.5 134.62) (xy 63.5 157.48)
 		)
 		(stroke
 			(width 0)
@@ -3376,7 +3376,7 @@
 	)
 	(wire
 		(pts
-			(xy 48.26 139.7) (xy 63.5 139.7)
+			(xy 48.26 134.62) (xy 63.5 134.62)
 		)
 		(stroke
 			(width 0)
@@ -3555,7 +3555,7 @@
 		(uuid "20c33ef0-456b-5302-b11c-050b5e39198a")
 	)
 	(label "MIC3_P"
-		(at 55.88 137.16 0)
+		(at 55.88 139.7 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3895,7 +3895,7 @@
 		(uuid "c90c7bf8-84f6-51d6-bdd3-d4ebe52a5668")
 	)
 	(label "MIC3_N"
-		(at 55.88 134.62 0)
+		(at 55.88 137.16 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6965,7 +6965,7 @@
 				)
 			)
 		)
-		(property "Description" "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+MIC3−, 4/5 VDD+MIC3+, 7/8 MIC+/MIC− (Elektret am Rand, weit weg vom Takt); seit HW-10 Mikrofon 3 auf den Pins 5/6 (vorher Masse-Paarpartner) – Firmware misst Mikrofon 3 nur bei stehendem PDM-Takt; Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden"
+		(property "Description" "= J5 in anschluesse.md: RJ45 geschirmt ohne Übertrager; Paare nach T568B: 1/2 GND+CLK, 3/6 DATA+VDD, 4/5 MIC3+/MIC3−, 7/8 MIC+/MIC− (jedes Mikrofon auf einem eigenen Paar, Elektrets am Rand, weit weg vom Takt; HW-10: Mikrofon 3 auf 4/5, VDD von 4 auf 6; VDD ist für DATA der Rückleiter, am Kopf 100 nF und hier C611); Schirm nur hier an Masse; Teil und LCSC-Nummer wählt der Layouter [P]; NICHT mit Netzwerk-/PoE-Geräten verbinden"
 			(at 38.1 139.7 0)
 			(hide yes)
 			(show_name no)
@@ -9981,7 +9981,7 @@
 				)
 			)
 		)
-		(property "Description" "direkt hinter J601 neben D601 (anschluesse.md 3): Pins 5/6 der Buchse; zwei Kanäle frei; LCSC [P]"
+		(property "Description" "direkt hinter J601 neben D601 (anschluesse.md 3): Paar 4/5 der Buchse; zwei Kanäle frei; LCSC [P]"
 			(at 60.96 243.84 0)
 			(hide yes)
 			(show_name no)
