@@ -415,7 +415,7 @@ function timeOrder(t){const m=/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function make(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
 function clearCharts(){for(const chart of charts)chart.dispose();charts=[];}
-function reload(rebuild=true){activeRequest?.abort();generation++;loading=false;clearCharts();refresh(generation,rebuild);}
+function reload(rebuild=true){activeRequest?.abort();generation++;loading=false;clearCharts();root?.querySelector('#umPlots')?.replaceChildren();refresh(generation,rebuild);}
 function unmount(){activeRequest?.abort();generation++;clearInterval(timer);timer=null;clearCharts();root=null;loading=false;}
 async function request(url,{method='GET',body,csrf,signal}={}){
  const headers={Accept:'application/json'};
@@ -423,7 +423,7 @@ async function request(url,{method='GET',body,csrf,signal}={}){
  if(csrf)headers['X-CSRF-Token']=csrf;
  const response=await fetch(url,{method,headers,signal,credentials:'same-origin',cache:'no-store',redirect:'error',body:body===undefined?undefined:JSON.stringify(body)});
  let value;try{value=await response.json();}catch{value={};}
- if(!response.ok){const error=Error(response.status===401?'Sitzung fehlt oder ist abgelaufen':response.status===404?'Stand nicht freigegeben oder nicht vorhanden':typeof value.detail==='string'?value.detail:'Anfrage fehlgeschlagen ('+response.status+')');error.status=response.status;throw error;}
+ if(!response.ok){const error=Error(response.status===401?'Sitzung fehlt oder ist abgelaufen':response.status===404?'Stand nicht freigegeben oder nicht vorhanden. Stand wechseln oder Leserecht prüfen.':typeof value.detail==='string'?value.detail:'Anfrage fehlgeschlagen ('+response.status+')');error.status=response.status;if(response.status===422)error.message+=' Zeitraum verkürzen, weniger Kanäle oder automatische Darstellung wählen.';if(response.status===503)error.message+=' Die automatische Abfrage versucht es erneut; bei anhaltendem Fehler den Testbetrieb prüfen.';throw error;}
  return value;
 }
 function notice(text){if(root){const target=root.querySelector('#umStatus');if(target)target.textContent=text;}}
@@ -500,22 +500,29 @@ function plotData(points,interval){
  return data;
 }
 function renderPlots(series){
- clearCharts();const plots=root.querySelector('#umPlots');plots.replaceChildren();
+ const plots=root.querySelector('#umPlots');
+ const old=new Map(charts.map(c=>[c.getDom().dataset.group,c]));charts=[];
+ const sections=new Map([...plots.children].map(n=>[n.dataset.group,n]));
  const groups=new Map();
  for(const item of series){
   if(!selected.has(item.channel.id))continue;
   const key=item.channel.profile+' / '+item.channel.unit;
   if(!groups.has(key))groups.set(key,[]);groups.get(key).push(item);
  }
- if(!groups.size){plots.append(make('p','Keine ausgewählten Messkanäle.','empty'));return;}
+ for(const [key,chart] of old){if(!groups.has(key))chart.dispose();}
+ for(const [key,section] of sections){if(!groups.has(key))section.remove();}
+ if(!groups.size){plots.replaceChildren(make('p','Keine ausgewählten Messkanäle.','empty'));return;}
  for(const [key,items] of groups){
-  const section=make('section',undefined,'panel');section.append(make('h2',(items[0].channel.profile==='boden'?'Boden':'Wetter')+' · '+items[0].channel.unit));
+  let section=sections.get(key);
+  if(!section){section=make('section',undefined,'panel');section.dataset.group=key;section.append(make('h2',(items[0].channel.profile==='boden'?'Boden':'Wetter')+' · '+items[0].channel.unit),make('p','','small muted um-summary'));plots.append(section);}
   const summaries=items.map(item=>item.channel.name+': '+item.summary.source_points+' Quellwerte, '+item.summary.missing+' fehlend, '+(item.summary.method==='raw'?'Rohwerte vollständig':item.summary.rendered_points+' Originalpunkte aus Min/Max-Intervallen ('+item.summary.bucket_seconds+' s)'));
-  section.append(make('p',summaries.join(' · '),'small muted'));
-  if(!items.some(s=>s.points.some(p=>p.value!==null))){section.append(make('p','Keine Messwerte im ausgewählten Zeitraum.','empty'));plots.append(section);continue;}
-  const div=make('div',undefined,'um-chart');div.dataset.unit=items[0].channel.unit;div.setAttribute('role','img');div.setAttribute('aria-label',items.map(i=>i.channel.name).join(', '));section.append(div);plots.append(section);
-  const chart=window.echarts.init(div);charts.push(chart);
-  chart.setOption({animation:false,aria:{enabled:true},grid:{left:65,right:25,top:70,bottom:75,containLabel:true},
+  section.querySelector('.um-summary').textContent=summaries.join(' · ');
+  if(!items.some(s=>s.points.some(p=>p.value!==null))){old.get(key)?.dispose();section.querySelector('.um-chart')?.remove();if(!section.querySelector('.empty'))section.append(make('p','Keine Messwerte im ausgewählten Zeitraum.','empty'));continue;}
+  section.querySelector('.empty')?.remove();
+  const existing=old.get(key);
+  const div=existing?.getDom()||make('div',undefined,'um-chart');div.dataset.group=key;div.dataset.unit=items[0].channel.unit;div.setAttribute('role','img');div.setAttribute('aria-label',items.map(i=>i.channel.name).join(', '));if(!existing)section.append(div);
+  const chart=existing||window.echarts.init(div);charts.push(chart);
+  const option={animation:false,aria:{enabled:true},grid:{left:65,right:25,top:70,bottom:75,containLabel:true},
    legend:{type:'scroll',top:5},toolbox:{feature:{dataZoom:{yAxisIndex:'none'},restore:{}}},
    xAxis:{type:'time',axisLabel:{formatter:value=>new Intl.DateTimeFormat('de-DE',{timeZone:'Europe/Berlin',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value))}},
    yAxis:{type:'value',name:items[0].channel.unit,scale:true},dataZoom:[{type:'inside'},{type:'slider'}],
@@ -527,7 +534,9 @@ function renderPlots(series){
    }).filter(Boolean).join('<hr>')},
    series:items.map(item=>({id:String(item.channel.id),name:items.filter(other=>other.channel.name===item.channel.name).length>1?item.channel.name+' · '+item.channel.device_name:item.channel.name,type:item.channel.display==='balken'?'bar':item.channel.display==='punkte'?'scatter':'line',
     step:item.channel.display==='stufe'?'end':undefined,connectNulls:false,smooth:false,showSymbol:true,symbolSize:5,
-    data:plotData(item.points,item.channel.interval_seconds)}))});
+    data:plotData(item.points,item.channel.interval_seconds)}))};
+  if(existing){delete option.legend;delete option.dataZoom;delete option.toolbox;}
+  chart.setOption(option,{replaceMerge:['series']});
  }
 }
 async function loadEcharts(){
@@ -568,7 +577,11 @@ async function completeSeries(params,signal){
  }
 }
 function renderRegistry(registry,rebuild){
- if(selected===null)selected=new Set(registry.length<=30?registry.map(c=>c.id):[]);
+ if(selected===null){
+  const temperatures=registry.filter(c=>c.quantity==='temperatur').sort((a,b)=>a.id-b.id);
+  // Actual registry only: no invented probes, device IDs or fallback status series.
+  selected=new Set(temperatures.slice(0,30).map(c=>c.id));
+ }
  const ids=new Set(registry.map(c=>c.id));selected=new Set([...selected].filter(id=>ids.has(id)));
  const signature=JSON.stringify(registry);
  if(!rebuild&&signature===registrySignature)return;

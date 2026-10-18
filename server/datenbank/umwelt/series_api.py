@@ -2,6 +2,7 @@
 """Snapshot API: short consistent SQL read, bounded streaming reduction, stable pages."""
 from datetime import datetime, timedelta, timezone
 import json
+import threading
 from typing import Literal
 
 from fastapi import Depends, HTTPException, Query
@@ -26,6 +27,15 @@ ROW_QUERY = '''SELECT m.kanal_id,m.zeit,m.wert*k.faktor+k.versatz,m.qualitaet,
 
 def register_series_routes(router, connect, permitted, channels, principal):
     store = SnapshotStore()
+    slots=threading.BoundedSemaphore(2)
+
+    def admission():
+        if not slots.acquire(blocking=False):
+            raise HTTPException(503,'Zu viele gleichzeitige Diagrammabfragen; kurz warten und erneut versuchen')
+        try:
+            yield
+        finally:
+            slots.release()
 
     @router.get('/zeitreihen', response_model=DiagramPage)
     def diagram(stand_id: int = Query(gt=0), von: datetime = Query(), bis: datetime = Query(),
@@ -33,7 +43,8 @@ def register_series_routes(router, connect, permitted, channels, principal):
                 resolution: Literal['raw','auto','envelope'] = 'auto',
                 bucket_seconds: int | None = Query(default=None, ge=1, le=604800),
                 limit: int = Query(default=5000, ge=1, le=5000),
-                cursor: str | None = Query(default=None, max_length=200), actor=Depends(principal)):
+                cursor: str | None = Query(default=None, max_length=200), actor=Depends(principal),
+                slot=Depends(admission)):
         if von.tzinfo is None or bis.tzinfo is None or not timedelta(0)<bis-von<=timedelta(days=366):
             raise HTTPException(422, 'Zeitfenster mit expliziten Offsets erforderlich, höchstens 366 Tage')
         query = (stand_id, von.astimezone(timezone.utc).isoformat(), bis.astimezone(timezone.utc).isoformat(),

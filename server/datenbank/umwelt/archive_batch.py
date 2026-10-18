@@ -47,7 +47,7 @@ def flush(conn,batch,source_id,file_id,version,digest,time_quality):
         SELECT k.kanal_id,b.measured,coalesce(old.revision,0)+1,%s,b.id,v.value::double precision,
           b.quality || CASE WHEN old.revision IS NOT NULL THEN '["quellinhalt_geaendert"]'::jsonb ELSE '[]'::jsonb END
           || CASE WHEN v.value IS NULL THEN '["fehlender_wert"]'::jsonb ELSE '[]'::jsonb END
-          || CASE WHEN conflicts.clash
+          || CASE WHEN conflicts.clash OR (old.roh_id IS NOT NULL AND old.roh_id<>b.id)
              THEN '["quellkonflikt_selber_zeitpunkt"]'::jsonb ELSE '[]'::jsonb END,%s
         FROM (SELECT DISTINCT ON (s.measured) s.*,r.id FROM pg_temp.um_batch s
           JOIN bienen.um_rohdatensatz r ON r.quelle_id=%s AND r.ereignis_schluessel=s.event AND r.sha256=s.sha
@@ -55,7 +55,7 @@ def flush(conn,batch,source_id,file_id,version,digest,time_quality):
         JOIN conflicts ON conflicts.measured=b.measured
         CROSS JOIN LATERAL jsonb_each_text(b.vals) v
         JOIN bienen.um_quelle_kanal k ON k.quelle_id=%s AND k.quellfeld=v.key
-        LEFT JOIN LATERAL (SELECT revision FROM bienen.um_messwert_revision m
+        LEFT JOIN LATERAL (SELECT revision,roh_id FROM bienen.um_messwert_revision m
           WHERE m.kanal_id=k.kanal_id AND m.zeit=b.measured ORDER BY revision DESC LIMIT 1) old ON true''',
         (source_id,time_quality,source_id,source_id))
     return result.rowcount
