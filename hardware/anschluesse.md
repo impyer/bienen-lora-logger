@@ -25,6 +25,7 @@ Bezug:
 | J9 (Platine: J301) | Laden 5 V | **zwei Lötpads** 2,54 mm (Stiftleiste nicht bestückt), mcu-funk.md 1.3 | 1 GND, 2 +5V | Schottky D203 (sperrt Verpolung), TVS D204 (versorgung.md 3.1) | am Tisch: Laden aus einem 5-V-Netzteil (HW-09, 18.10.2026; USB-C-Buchse entfällt; Aufspielen über SWD/Serial1, Kommunikation über BLE, mcu-funk.md 1.6) |
 | J10 (Platine: J302) | Debug | Stiftleiste 2,54 mm, **1 × 7** (HW26-13) | 1 3V3, 2 SWDIO, 3 SWCLK, 4 NRST, 5 GND, 6 TX1, 7 RX1 (Serial1) | – | innen; Pinfolge siehe 1.2 (SCH26-09) |
 | J11 (Platine: J704) | Erweiterung | Stiftleiste 2,54 mm, **2 × 6** (HW26-13) | 1 3V3, 2 3V3_SW, 3 GND, 4 GND, 5 SDA, 6 SCL, 7 TX1, 8 RX1, 9 BLE_RXD, 10 BLE_TXD, 11 BLE_MODE, 12 GND | – | innen; I²C-Geräte hier zählen zur Buskapazität (3.1); Pins 9–11 seit **HW-09** (18.10.2026): UART-Eingang und -Ausgang des BLE-Moduls (hinter 1 kΩ zum STM32) und P2_0 (Modus) für das Firmware-Update des Moduls (Brücke 11–12 = Testmodus, mcu-funk.md 1.6); keine freien GPIOs mehr (PB13 Lastschalter BLE, PA15/PB12 I²S seit HW-07) |
+| J12 (Platine: J602) | Mikrofon 2 (Elektret, HW-10) | steckbare Klemme 3,5 mm, **4-polig** | 1 Schirm, 2 frei, 3 MIC2−, 4 MIC2+ | **ESDS304** D602 an MIC2−, MIC2+; 100 pF, 1 kΩ (mikrofon.md 2) | zweiadriges geschirmtes Kabel, 0,5–1 m [A]; Schirm nur hier an Masse |
 | – | Antenne | IPEX am Funkmodul | – | – | FPC-Antenne innen (mcu-funk.md 2.3) |
 | – | BLE-Antenne | Chip-Antenne auf dem Modul U303 (RN4871, HW-09) | – | – | keine Buchse; Modul an der Platinenkante, Antenne nach außen, Metall ≥ 30 mm (mcu-funk.md 1.6) |
 
@@ -36,7 +37,8 @@ Entfällt mit HW-06 (14.10.2026): Die Zelle sitzt im Halter Keystone 1042 auf de
 
 Die Klemmen-Pinbelegung folgt drei Regeln:
 - **Masse bzw. Schirm immer an Pin 1**, die Versorgung immer am anderen Ende. Ein um einen Pin versetzter Stecker legt so keine Versorgung auf einen Signaleingang.
-- **Jede Klemme hat eine andere Polzahl oder Kodierung**, wo Verwechslungen schaden würden. Wägezelle und BME280 hatten zuerst beide 5 Pole. **Festlegung (Philipp, 09.10.2026): J8 wird 6-polig (Pin 6 frei)**, zusätzlich Farbe als Hinweis. Damit hat jede Sensorklemme eine eigene Polzahl: Solar 2, DS18B20 3, Wägezelle 5, BME280 6. Die Mikrofone haben seit HW-07 eine **RJ45-Buchse** (andere Bauform, vorher Klemme 4-polig).
+- **Jede Klemme hat eine andere Polzahl oder Kodierung**, wo Verwechslungen schaden würden. Wägezelle und BME280 hatten zuerst beide 5 Pole. **Festlegung (Philipp, 09.10.2026): J8 wird 6-polig (Pin 6 frei)**, zusätzlich Farbe als Hinweis. Damit hat jede Sensorklemme eine eigene Polzahl: Solar 2, DS18B20 3, **Mikrofon 2 4 (HW-10, Pin 2 frei)**, Wägezelle 5, BME280 6. Die Mikrofone 1 (Elektret + MEMS) haben seit HW-07 eine **RJ45-Buchse** (andere Bauform, vorher Klemme 4-polig).
+  - Mikrofon-2-Stecker (4-polig) in J4 oder J8: Schirm auf Schirm, MIC2−/MIC2+ auf S−/S+ bzw. SDA/SCL – nur Signale, keine Versorgung; ein DS18B20-Stecker (3-polig) in J12 legt 3V3_SW über 1 kΩ an Masse (MIC2−) oder über 1 kΩ an MICBIAS2 (0,8 mA in den Ausgang, kurzzeitig unkritisch [A]) [A].
   - Gefährlicher Fall ausgeschlossen: Der 6-polige BME280-Stecker passt mechanisch nicht in J4. Sonst läge seine Versorgung an E+ = 4,3 V; der BME280 verträgt höchstens **4,25 V** [V: Bosch-Datenblatt, Tabelle 5].
   - Ein **kleinerer** Stecker lässt sich weiter in eine größere Buchse stecken, um eine Stelle versetzt [A]. Nachgerechnet für die Belegung oben:
     - Wägezelle in J8: Die Brücke hängt an 3V3_SW bzw. an SDA/SCL. Der I²C-Bus fällt aus; Spannungen über 3,3 V entstehen nicht.
@@ -116,7 +118,7 @@ Bewertung:
 **Die Lage legt der beauftragte Layouter fest** (Philipp 14.10.2026); hier stehen die Randbedingungen und ein Vorschlag.
 
 - Außenanschlüsse möglichst an **einer** Kante zu den späteren Kabeldurchführungen hin (bei einem an der Wand hängenden Gehäuse die Unterseite [A]); zwei Kanten sind zulässig. Breite zum Vergleich: zwischen den Sperrflächen der unteren Befestigungslöcher sind ca. 102 mm frei; die Klemmen J1/J2, J8, J6/J7, J4 brauchen zusammen ca. 86 mm, dazu die RJ45-Buchse J5 (ca. 16 mm) [A].
-- Vorschlag Reihenfolge: J1/J2 Solar – J8 BME280 – J6/J7 DS18B20 – J5 Mikrofone (neben dem Audio-ADC) – J4 Wägezelle (neben dem HX711); Mikrofon- und Waagenzweig weit weg vom 5-V-Wandler und vom Funkmodul (A3).
+- Vorschlag Reihenfolge: J1/J2 Solar – J8 BME280 – J6/J7 DS18B20 – J5 Mikrofone und **J12 Mikrofon 2** (neben dem Audio-ADC) – J4 Wägezelle (neben dem HX711); Mikrofon- und Waagenzweig weit weg vom 5-V-Wandler und vom Funkmodul (A3). Mit J12 (4-polig, ca. 14 mm) brauchen die Klemmen zusammen ca. 100 mm plus RJ45 16 mm: eine Kante reicht nicht mehr, **zwei Kanten** (M5) [A].
 - **Der ESD-Schutz sitzt direkt hinter jedem Anschluss**, vor allen anderen Bauteilen. Der Masseanschluss geht auf kürzestem Weg mit mehreren Durchkontaktierungen auf die Massefläche (L2).
 - Das Funkmodul mit der IPEX-Buchse sitzt an der Kante gegenüber, die Antenne an der Wand daneben.
 - Ladepads J9, Debug J10, Erweiterung J11, BOOT und Reset innen, gut erreichbar beim Öffnen. Akkuhalter auf der Hauptplatine (HW-06), Zellwechsel nach dem Öffnen; TMP390/NTC unter der Zelle.
@@ -126,7 +128,7 @@ Bewertung:
 ## 5. Fertigung
 
 - **Festlegung (Philipp, 09.10.2026): JLCPCB lötet alles ein**, auch die Durchsteckteile (Klemmen, Stiftleisten).
-  - Durchsteckstellen auf der Platine: ca. 25 Klemmenpins, 19 Stiftleiste (1 × 7 + 2 × 6), also **rund 45** [A, nach Tabelle 1]; JST (seit HW-06) und USB-Buchse (seit HW-09) entfallen, die Ladepads J9 werden nicht bestückt.
+  - Durchsteckstellen auf der Platine: ca. 29 Klemmenpins (mit J12), 19 Stiftleiste (1 × 7 + 2 × 6), also **rund 50** [A, nach Tabelle 1]; JST (seit HW-06) und USB-Buchse (seit HW-09) entfallen, die Ladepads J9 werden nicht bestückt.
   - Preis laut einer Übersicht von 04/2024: ca. 0,0135 $ je Durchsteckpin plus Grundgebühr je Auftrag [A, nicht von JLCPCB bestätigt]. Das wären unter 1 $ je Platine. **[P]** Im Angebot prüfen.
   - **[P]** Ob „Economic PCBA“ Durchsteckteile erlaubt oder „Standard PCBA“ nötig ist, habe ich nicht sicher gefunden. Das Funkmodul Ra-01SH könnte ohnehin „Standard only“ sein. Beides im Bestellformular prüfen.
   - Die **Gegenstecker** (DEGSON 15EDGK) werden nicht gelötet. Sie werden bei LCSC mitbestellt.

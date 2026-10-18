@@ -71,17 +71,17 @@ DATENBLATT = {
                                 "(KiCad, LCSC-Datenblatt) – Teil wählt der Layouter", "[A] [P]", {
         "1": ("1", ""), "2": ("2", ""), "3": ("3", ""), "4": ("4", ""), "5": ("5", ""), "6": ("6", ""), "7": ("7", ""),
         "8": ("8", ""), "SH": ("Schirm", "")}),
-    "74xGxx:74LVC1G17": ("KiCad-Symbol = übliche DCK-Belegung (SC-70-5): 1 NC, 2 A, 3 GND, 4 Y, 5 VCC; Datenblatt des "
-                         "gewählten Herstellers prüfen", "[A] [P]", {
+    "74xGxx:74LVC1G17": ("TI SN74LVC1G17 SCES??? Pin Functions, DCK (SC-70-5): 1 NC, 2 A, 3 GND, 4 Y, 5 VCC (18.10.2026 gelesen); "
+                         "Nexperia 74LVC1G17GW gleich belegt [A]", "[V]", {
         "1": ("NC", "NC"), "2": ("A", ""), "3": ("GND", "GND"), "4": ("Y", ""), "5": ("VCC", "VCC")}),
     "Analog_ADC:HX711": ("AVIA HX711 (engl. Datenblatt, SparkFun-Kopie), Pin-Tabelle; SOP-16L 3,9 × 9,9 mm", "[V]", {
         "1": ("VSUP", "VSUP"), "2": ("BASE", "BASE"), "3": ("AVDD", "AVDD"), "4": ("VFB", "VFB"), "5": ("AGND", "AGND"),
         "6": ("VBG", "VBG"), "7": ("INA-", "INA-"), "8": ("INA+", "INA+"), "9": ("INB-", "INB-"), "10": ("INB+", "INB+"),
         "11": ("PD_SCK", "PD_SCK"), "12": ("DOUT", "DOUT"), "13": ("XO", "XO"), "14": ("XI", "XI"), "15": ("RATE", "RATE"),
         "16": ("DVDD", "DVDD")}),
-    "Bienen:HY2111-GB": ("HYCON HY2111 (LCSC C82747), Abschnitt 7", "[V*]", {
+    "Bienen:HY2111-GB": ("HYCON DS-HY2111-V17, Abschnitt 7 (18.10.2026 gelesen): 1 OD, 2 CS, 3 OC, 4 NC, 5 VDD, 6 VSS", "[V]", {
         "1": ("OD", "OD"), "2": ("CS", "CS"), "3": ("OC", "OC"), "4": ("NC", "NC"), "5": ("VDD", "VDD"), "6": ("VSS", "VSS")}),
-    "Bienen:FS8205": ("Fortune FS8205 (LCSC C32254), Abschnitt 4", "[V*]", {
+    "Bienen:FS8205": ("Fortune FS8205 Rev. 1.7, Abschnitt 4 Pin Assignment (18.10.2026 gelesen): 1 S1, 2 D12, 3 S2, 4 G2, 5 D12, 6 G1", "[V]", {
         "1": ("S1", "S1"), "2": ("D12", "D12"), "3": ("S2", "S2"), "4": ("G2", "G2"), "5": ("D12", "D12"), "6": ("G1", "G1")}),
     "Bienen:RT9080-33GJ5": ("Richtek DS9080 (TSOT-23-5)", "[V*]", {
         "1": ("VIN", "VIN"), "2": ("GND", "GND"), "3": ("EN", "EN"), "4": ("NC", "NC"), "5": ("VOUT", "VOUT")}),
@@ -96,14 +96,15 @@ DATENBLATT = {
         "6": ("P1_6", "P1_6"), "7": ("UART_RX", "UART_RX"), "8": ("UART_TX", "UART_TX"), "9": ("P3_6", "P3_6"),
         "10": ("RST_N", "RST_N"), "11": ("P0_0", "P0_0"), "12": ("P0_2", "P0_2"), "13": ("GND", "GND"), "14": ("VBAT", "VBAT"),
         "15": ("P2_7", "P2_7"), "16": ("P2_0", "P2_0")}),
-    "Transistor_FET:AO3401A": ("AOS AO3401A SOT-23: 1 G, 2 S, 3 D (wie AO3400A)", "[A] [P]", {
+    "Transistor_FET:AO3401A": ("AOS AO3401A Rev. 3.1 (12/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D", "[V]", {
         "1": ("G", "G"), "2": ("S", "S"), "3": ("D", "D")}),
     "Memory_Flash:W25Q32JVSS": ("Standard-Pinbelegung 25er-SPI-Flash SOIC-8 (XT25F64B / ZD25Q64D) – je Teil prüfen", "[A] [P]", {
         "1": ("CS#", "~{CS}"), "2": ("SO", "DO/IO_{1}"), "3": ("WP#", "~{WP}/IO_{2}"), "4": ("VSS", "GND"),
         "5": ("SI", "DI/IO_{0}"), "6": ("SCLK", "CLK"), "7": ("HOLD#", "~{HOLD}/~{RESET}/IO_{3}"), "8": ("VCC", "VCC")}),
-    "Transistor_FET:AO3400A": ("AOS AO3400A SOT-23: 1 G, 2 S, 3 D", "[A] [P]", {
+    "Transistor_FET:AO3400A": ("AOS AO3400A Rev. 3.1 (07/2023), Pinbild SOT-23 Top View (18.10.2026): 1 G, 2 S, 3 D", "[V]", {
         "1": ("G", "G"), "2": ("S", "S"), "3": ("D", "D")}),
-    "Transistor_BJT:SS8550": ("S8550 SOT-23 (C397181): 1 B, 2 E, 3 C – je Hersteller verschieden", "[A] [P]", {
+    "Transistor_BJT:SS8550": ("S8550 SOT-23: KiCad-Symbol = Fairchild SS8550 (1 B, 2 E, 3 C); AnBon-Datenblatt zu C397181 zeigt kein Pinbild "
+                              "(18.10.2026) – Teil mit 1 B, 2 E, 3 C wählen oder Symbol anpassen", "[A] [P]", {
         "1": ("B", "B"), "2": ("E", "E"), "3": ("C", "C")}),
     "Diode:SS34": ("KiCad-Konvention D_SMA: Pad 1 = Kathode (Ring)", "[A]", {"1": ("K", "K"), "2": ("A", "A")}),
     "Diode:SMAJ12A": ("unidirektional: Pad 1 = Kathode (Ring) an VIN_LADER", "[A]", {"1": ("K", "A1"), "2": ("A", "A2")}),
@@ -114,7 +115,9 @@ DATENBLATT = {
     "Device:Crystal": ("Seiko SC-32S, 2 Pads, ungepolt", "[A]", {"1": ("XTAL", "1"), "2": ("XTAL", "2")}),
     "Device:Battery_Cell": ("Keystone 1042 (HW-02): Pad 1 = Plus laut KiCad-Footprint (Silkscreen „+“)", "[A] [P]", {"1": ("+", "+"), "2": ("−", "-")}),
     "Switch:SW_Reed": ("MiRelay MRS03-B-3, ungepolt (Datenblatt Abschnitt 5)", "[V]", {"1": ("1", "1"), "2": ("2", "2")}),
-    "MCU_ST_STM32F4:STM32F411CEUx": ("ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinbelegung mcu-funk.md 4", "[A]", None),
+    "MCU_ST_STM32F4:STM32F411CEUx": ("ST-Symbol aus der KiCad-Bibliothek (UFQFPN-48); Pinfunktionen gegen ST open pin data "
+                                     "STM32F411C(C-E)Ux.xml geprüft (18.10.2026): USART6 PA11/PA12, I2S3 PB12/PA15/PB5, SPI1 PA4–PA7, "
+                                     "I2C1 PB6/PB7, USART1 PA9/PA10, ADC1_IN8/9 PB0/PB1, WKUP PA0, SWD PA13/PA14, OSC32 PC14/PC15", "[V]", None),
 }
 PASSIV = ("Device:R", "Device:C", "Device:L", "Device:FerriteBead_Small", "Device:Thermistor_NTC", "Connector:TestPoint",
           "Switch:SW_Push", "Jumper:SolderJumper_2_Open", "Jumper:SolderJumper_2_Bridged")

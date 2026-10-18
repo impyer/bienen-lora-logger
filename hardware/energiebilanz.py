@@ -79,6 +79,10 @@ BLE_VERBUNDEN_100MS_MA = 2.10        # V: verbunden, 100 ms Verbindungsintervall
 BLE_SITZUNG_MIN = 30                 # A: eine Servicesitzung am Stand
 BLE_WARTEN_MIN = 10                  # A: Advertising nach dem Magnetimpuls, falls sich niemand verbindet
 
+# 2b. Drittes Mikrofon (HW-10): zweiter Durchgang mit Elektret 2 statt MEMS am rechten Kanal, nur wenn bestückt
+MIK2_MA = 4.2 + 2 * 0.3              # A: ADC 4,2 mA + zwei Elektretkapseln je 0,3 mA (kein MEMS im zweiten Durchgang)
+MIK2_S = 1.5                         # A: wie der erste Durchgang
+
 # ---------------------------------------------------------------------------
 # 3. Selbstentladung und nutzbare Kapazität
 # ---------------------------------------------------------------------------
@@ -135,6 +139,9 @@ def main():
 
     sitzung = BLE_VERBUNDEN_100MS_MA * BLE_SITZUNG_MIN / 60 + BLE_ADVERTISING_1S_MA * BLE_WARTEN_MIN / 60
     dauernd = BLE_ADVERTISING_1S_MA * 24
+    mik2 = mas_zu_mah(MIK2_MA * MIK2_S) * ZYKLEN_PRO_TAG
+    print(f"\n2b. Drittes Mikrofon (HW-10, nur wenn bestückt): zweiter Durchgang {MIK2_MA:.1f} mA × {MIK2_S} s = "
+          f"{MIK2_MA * MIK2_S:.1f} mAs je Zyklus → +{mik2:.2f} mAh/Tag (ca. {100 * mik2 / 3.02:.0f} % der Last in Szenario B).")
     print(f"\n2a. BLE-Sitzung (HW-09, nur auf Anforderung): {BLE_SITZUNG_MIN} min verbunden (100 ms) + {BLE_WARTEN_MIN} min Advertising (1 s)"
           f" = {sitzung:.2f} mAh je Sitzung; dauerndes Advertising (1 s) kostete {dauernd:.2f} mAh/Tag – deshalb nicht dauernd an.")
 

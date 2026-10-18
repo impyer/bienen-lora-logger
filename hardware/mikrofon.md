@@ -1,4 +1,4 @@
-# Block Mikrofon (Lastenheft 0.4, F6 und 2.2 – Entwurf; neu seit HW-07 am 14.10.2026)
+# Block Mikrofon (Lastenheft 0.4, F6 und 2.2 – Entwurf; neu seit HW-07 am 14.10.2026; dritter Eingang seit HW-10 am 18.10.2026)
 
 Kennzeichnung:
 - **[V]** im Datenblatt gelesen
@@ -13,12 +13,15 @@ Bezug:
 
 ## 1. Aufgabe und Prinzip
 
-Zwei Mikrofone sitzen **dicht nebeneinander im Mikrofonkopf auf dem Gitterboden** und messen dasselbe Schallfeld:
+Zwei Mikrofone sitzen **dicht nebeneinander im Mikrofonkopf auf dem Gitterboden** und messen dasselbe Schallfeld; seit **HW-10 (Philipp, 18.10.2026)** nutzt die Platine **alle drei Anschlussmöglichkeiten des ADC**, so dass **bis zu drei Mikrofone** angeschlossen werden können:
 
-| Kanal | Mikrofon | Signal | Eingang am ADC |
-|---|---|---|---|
-| links | Elektretkapsel (Typ offen [P]) | analog, pseudo-differenziell über ein Kabelpaar | IN2L(P) / IN3L(M) |
-| rechts | **Infineon IM69D127** auf fertiger Platine (IP57 auf Bauteilebene [V]) | PDM (1 Bit) | DMDIN / DMCLK |
+| Kanal | Mikrofon | Signal | Eingang am ADC | Anschluss |
+|---|---|---|---|---|
+| links | Elektretkapsel 1 (Typ offen [P]) | analog, pseudo-differenziell über ein Kabelpaar | IN2L(P) / IN3L(M), MICBIAS1 | J5/J601 Paar 7/8 |
+| rechts, digital | **Infineon IM69D127** auf fertiger Platine (IP57 auf Bauteilebene [V]) | PDM (1 Bit) | DMDIN / DMCLK | J5/J601 Paare 1/2, 3/6, 4/5 |
+| rechts, analog | Elektretkapsel 2 (HW-10; z. B. zweite Position im Stock oder Referenz außen [A]) | analog, pseudo-differenziell | IN2R(P) / IN3R(M), MICBIAS2 | **J12/J602** (4-polig) |
+
+Der ADC hat zwei Wandler (links/rechts). Der rechte Kanal ist **je Messung** entweder das Digitalmikrofon oder der Analogeingang (Datenblatt 10.3.12.6: Digitalmikrofon „only-left, only-right, or stereo“ [V]; Umschaltung über die Registerseite 0, ADC-Digital-Mic-Konfiguration und Eingangsrouting). Mit drei Mikrofonen misst die Firmware deshalb **zwei Durchgänge**: Elektret 1 + MEMS, dann Elektret 1 + Elektret 2 (Abschnitt 4). Unbestückte Eingänge bleiben offen; ein offener Analogeingang misst nur Rauschen und wird in der Firmware als „nicht vorhanden“ erkannt (Pegel unter Schwelle) [A].
 
 Beide sind kapazitive Druckempfänger; verschieden sind Bauform, Alterung und typische Ausfälle (Elektret: Drift bei Feuchte, hochohmiges Signal; MEMS: kleine Schallöffnung, kann verkleben) [A]. **Zweck ist die Plausibilisierung:** Weicht ein Kanal im Spektrum oder Pegel vom anderen ab, wird der Messwert markiert statt als Veränderung des Volkes gedeutet. Mitteln bringt nur etwa 3 dB [A]. Gemeinsame Störungen (Regen, Wind, Verkehr durch das offene Gitter) zeigen sich in beiden Kanälen.
 
@@ -30,7 +33,10 @@ Der **Audio-ADC TI TLV320ADC3101** erledigt Verstärkung, Anti-Aliasing (Delta-S
 Mikrofonkopf (Gitterboden)        Cat7 S/FTP 0,5–1 m, RJ45 (T568B)   Hauptplatine (RJ45 J601, geschirmt)
 Elektret ─ MIC+ ───────────── Paar 7/8 ───── J601.7 ─┬ 100 pF ┬ ESD ─ 1 µF ─ IN2L(P) ┐
          └ MIC− ───────────── Paar 7/8 ───── J601.8 ─┴ 100 pF ┴ ESD ─ 1 µF ─ IN3L(M) │  U601
-           MICBIAS 2,5 V ─ 1 kΩ ─ MIC+ ;  MIC− ─ 1 kΩ ─ GND (symmetrisch)            │  TLV320ADC3101
+           MICBIAS1 2,5 V ─ 1 kΩ ─ MIC+ ;  MIC− ─ 1 kΩ ─ GND (symmetrisch)           │  TLV320ADC3101
+Elektret 2 ─ MIC2+ ── 2-adrig geschirmt ──── J602.4 ─┬ 100 pF ┬ ESD ─ 1 µF ─ IN2R(P) │  (HW-10, rechter Kanal
+           └ MIC2− ──────────────────────── J602.3 ─┴ 100 pF ┴ ESD ─ 1 µF ─ IN3R(M) │   alternativ zum PDM)
+           MICBIAS2 2,5 V ─ 1 kΩ ─ MIC2+ ;  MIC2− ─ 1 kΩ ─ GND; Schirm → J602.1     │
 IM69D127 ─ DATA ─ ca.100 Ω ── Paar 3/6 ───── J601.3 ─ ESD ─ 22 Ω ─ DMDIN          │  I²S → PB12/PA15/PB5
          ─ CLK ─────────────── Paar 1/2 ───── J601.2 ─ ESD ─ 33 Ω ─ 74LVC1G17 ─ DMCLK┘  I²C 0x18
          ─ VDD/GND ─────────── Paar 4/5 ───── J601.4/5 ─ 3V3_MEMS (Ferrit, 1 µF);  Schirm → SH
@@ -52,6 +58,9 @@ IM69D127 ─ DATA ─ ca.100 Ω ── Paar 3/6 ───── J601.3 ─ ESD �
 | R612, R613 | 33 Ω, 22 Ω | Takt-Serienwiderstand; Schutz vor DMDIN |
 | FB602, C611 | 600 Ω, 1 µF | 3V3_MEMS über das Kabel zum IM69D127 (1,65–3,6 V [V]) |
 | J601, D601 | RJ45 geschirmt ohne Übertrager (Footprint-Vorschlag RCH RC01937; Teil wählt der Layouter), ESDS304 | Buchse (= J5): 1 GND, 2 CLK, 3 DATA, 4 VDD, 5 GND, 6 GND, 7 MIC+, 8 MIC−, SH Schirm; ESD an CLK, DATA, MIC+, MIC− |
+| R614, R615, C629 | 2 × 1 kΩ, 1 µF | **HW-10:** Vorspannung Elektret 2 aus MICBIAS2 (2,5 V, max. 4 mA [V]), symmetrisch wie R610/R611 |
+| C625, C626, C627, C628 | 2 × 1 µF X7R, 2 × 100 pF C0G | Koppel- und HF-Kondensatoren Elektret 2 wie C619/C620/C622/C623 (gleicher Hochpass 4,5 Hz) |
+| J602, D602 | DEGSON 15EDGRC-3.5-04P (LCSC C7603438), ESDS304 | Klemme (= J12): 1 Schirm, 2 frei (Verwechslungsschutz), 3 MIC2−, 4 MIC2+; ESD an MIC2−/MIC2+ (zwei Kanäle frei) |
 
 ### 2.2 Taktplan (Rechnung `mikrofon_filter.py`)
 
@@ -83,7 +92,8 @@ Pins laut STM32-Pin-Daten (ST open pin data, UFQFPN48) [V]. Folge: Am Erweiterun
 
 1. **Während der Mikrofonmessung kein Funk und kein 5-V-Wandler** (Lastenheft A5). Reihenfolge: Waage → Wandler aus → Mikrofone → Senden.
 2. Einschalten: 3V3_SW an → ≥ 2 ms warten (Reset-RC 1 ms) → Software-Reset über I²C → PLL, Teiler, AOSR, Kanäle einstellen (Ablauf TI 11.2.2.2) → PLL ≥ 10 ms einschwingen lassen [V] → Koppelkondensatoren einschwingen (Zeitkonstante 35 ms, also ≥ 200 ms verwerfen) [A].
-3. **AGC aus**, feste Verstärkung für beide Kanäle, damit Pegel zwischen Kanälen und Loggern vergleichbar sind (HW26-05). Pegel bleiben dBFS, kein Schalldruck.
+3. **AGC aus**, feste Verstärkung für alle Kanäle, damit Pegel zwischen Kanälen und Loggern vergleichbar sind (HW26-05). Pegel bleiben dBFS, kein Schalldruck.
+3a. **Drei Mikrofone (HW-10):** Durchgang 1 rechts = Digitalmikrofon (DMDIN), Durchgang 2 rechts = Analogeingang IN2R/IN3R (Elektret 2); links bleibt Elektret 1. Zwischen den Durchgängen Eingangsrouting umschalten und die Koppelkondensatoren einschwingen lassen (≥ 200 ms verwerfen) [A]. Ob ein Mikrofon bestückt ist, steht in der Konfiguration; ein offener Eingang liefert nur Rauschen. Energie: je Durchgang ca. 8 mAs (`energiebilanz.py`, Abschnitt 2b).
 4. Je Messung zusätzlich eine **Kanalvergleichs-Kennzahl** (Pegelverhältnis und Kohärenz im Nutzband); per Funk nur 1 Byte [A].
 5. **Keine Rückspeisung:** Ist 3V3_SW aus, sind die I²S- und I²C-Pins hochohmig bzw. analog. Sonst speist der STM32 über die Schutzdioden in U601.
 
@@ -93,11 +103,12 @@ Pins laut STM32-Pin-Daten (ST open pin data, UFQFPN48) [V]. Folge: Am Erweiterun
 - **Cat7 S/FTP** mit geschirmtem, feldkonfektionierbarem RJ45-Stecker, fest verlegt, **0,5–1 m**. Paare nach T568B: 1/2 GND + CLK, 3/6 DATA + GND, 4/5 VDD + GND, 7/8 MIC+ / MIC− (Elektret am Rand des Steckers, weit weg vom Takt). Schirm über das Steckergehäuse an SH, nur am Logger an Masse. Am Mikrofonkopf Adern direkt anlöten. **Kein Netzwerk- oder PoE-Gerät anstecken** (Beschriftung).
 - **Kabellast:** DATA höchstens 200 pF, Taktflanke am Mikrofon höchstens 13 ns [V Infineon]. Gerechnet bei 1 m: ca. 117 pF und ca. 12 ns [A] – knapp. **Länger als 1 m nur mit Treiber im Mikrofonkopf.** Flanke am Muster messen (T4).
 - Dichtung: Lötstellen und Kabelübergang mit neutral vernetzendem Silikon (K-705 nur, wenn nicht essigsauer [P]); außen Schrumpfschlauch mit Innenkleber auf angerautem Mantel; Schutzlack nicht in die Schallöffnung. Gegen Mäuse im Bodenbereich Geflechtschlauch [A].
-- Auf der Platine: ADC nahe der Klemme, weit weg von Funkmodul, SPI und 5-V-Wandler (A3).
+- **Elektret 2 (HW-10):** zweiadriges geschirmtes Kabel (z. B. Mikrofonkabel 2 × 0,14 mm² oder ein Paar eines Netzwerkkabels mit Schirm) an J12/J602, **0,5–1 m** [A]; Kapsel schwebend über dem Paar (keine Masseader nötig, MIC2− liegt auf der Platine über 1 kΩ an Masse), Schirm nur am Logger (Pin 1). Zweite Position im Stock oder Referenzmikrofon außerhalb der Beute (Verkehr, Regen) [A, Zweck offen – Philipp].
+- Auf der Platine: ADC nahe den Klemmen J601/J602, weit weg von Funkmodul, SPI und 5-V-Wandler (A3).
 
 ## 6. Energie
 
-ADC stereo ca. 14 mW bei 24,6 kHz (TI: 11 mW bei 8 kHz, 17 mW bei 48 kHz [V], dazwischen [A]) ≈ 4,2 mA, IM69D127 ca. 1 mA, Elektret ca. 0,3 mA: zusammen ca. **5,5 mA für 1,5 s ≈ 8 mAs je Messung** (`energiebilanz.py`; vorher 0,4 mAs). Reichweite ohne Laden sinkt um wenige Prozent (versorgung.md, Tabelle „Reichweite“).
+ADC stereo ca. 14 mW bei 24,6 kHz (TI: 11 mW bei 8 kHz, 17 mW bei 48 kHz [V], dazwischen [A]) ≈ 4,2 mA, IM69D127 ca. 1 mA, Elektret ca. 0,3 mA: zusammen ca. **5,5 mA für 1,5 s ≈ 8 mAs je Messung** (`energiebilanz.py`; vorher 0,4 mAs). Reichweite ohne Laden sinkt um wenige Prozent (versorgung.md, Tabelle „Reichweite“). **Mit drittem Mikrofon (HW-10)** ein zweiter Durchgang von ca. 7,5 mAs (ohne MEMS, mit Elektret 2) ≈ +0,2 mAh/Tag (`energiebilanz.py` 2b).
 
 ## 7. Offene Prüfpunkte
 
@@ -108,6 +119,7 @@ ADC stereo ca. 14 mW bei 24,6 kHz (TI: 11 mW bei 8 kHz, 17 mW bei 48 kHz [V], da
 5. Registerwerte (PLL, NADC/MADC, AOSR, Ressourcenklasse des Verarbeitungsblocks, Digitalmikrofon nur rechts) am Muster bestätigen
 6. RM0383: I2S3 als Master-Empfang mit DMA, PLLI2S-Werte
 7. Zwei Logger mit demselben Prüfton vergleichen; Kanalvergleich bei verklebtem Mikrofon (Wachs auf der Öffnung) erproben (HW26-05)
+8. HW-10: Umschaltung des rechten Kanals zwischen Digitalmikrofon und IN2R/IN3R am Muster (Registerfolge, Einschwingzeit); Übersprechen Elektret 2 ↔ PDM-Takt auf der Platine; Zweck und Ort des dritten Mikrofons festlegen (Philipp)
 
 ## 8. Prüfung im Entwurf (14.10.2026)
 

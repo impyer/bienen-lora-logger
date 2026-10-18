@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-18 – Dritter Mikrofoneingang (HW-10)
+
+- **HW-10 (Philipp):** alle drei Anschlussmöglichkeiten des TLV320ADC3101 belegt: zusätzlich **Elektret 2** pseudo-differenziell am rechten Analogeingang IN2R(P)/IN3R(M) mit MICBIAS2 (R614/R615 1 kΩ, C629 1 µF, Koppel-C C625/C626 1 µF X7R, C627/C628 100 pF), eigene Klemme **J602 = J12 (DEGSON 4-polig, C7603438: 1 Schirm, 2 frei, 3 MIC2−, 4 MIC2+)** mit ESDS304 D602. Bis zu drei Mikrofone; rechter Kanal je Messung PDM oder Elektret 2 (zwei Durchgänge, `energiebilanz.py` 2b: +0,2 mAh/Tag).
+- `netz_tests.py`: MICBIAS2/MIC2-Netze, gleiche Vorspannung und Koppel-C wie Elektret 1, IN1L/IN1R offen, D602, J602 (Pin 1 GND, Pin 2 frei) und J12 gegen `anschluesse.md` mit Gegenprobe vertauschter Adern; Polzahlen je Sensoranschluss um J602 = 4 ergänzt.
+- Dokumente: `mikrofon.md` (1, 2, 2.1, 4, 5, 6, 7), `anschluesse.md` (J12, Verwechslungsanalyse, zwei Kanten, Durchsteckstellen), Lastenheft F6/A8/M4, Pflichtenheft (J602, D602, MIC2-Paar, 186 Teile / 22 LCSC), Fiverr, Entscheidungsregister HW-10, KiCad-README. Layout-Stand neu erzeugt und geprüft (Nachtrag im Übergabebericht).
+
 ## 2026-10-18 – Schaltplan für den Layout-Auftrag freigegeben (Layout-Stand)
 
 - Titelblock aller Blätter: Rev „0.1 Layout-Stand“, Datum 2026-10-18 (Generator `hauptplatine.py`). Pflichtenheft **issue 3**: HW-09 (BLE-Modul, Ladepads), Prüfstand im Paketinhalt, Bauteile mit knappem Bestand (RN4871, Ra-01SH), DNP-Teile und Lötbrücken benannt.
