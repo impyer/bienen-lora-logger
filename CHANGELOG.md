@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2026-10-18 – BLE-Firmware-Eckpunkte gegen das RN4870/71 User's Guide geprüft (HW-09, HW26-20)
+
+- `hardware/mcu-funk.md` 1.6 (Firmware): gelesen **DS50002466C** (User's Guide, Rev. C 07/2018) und DS50002489D. Ergebnis: UART 115 200 8N1 und Flusskontrolle **ab Werk aus** (SR-Bit 0x8000 nie setzen, Fast Mode 0x2000 nie setzen); Befehlsfolge `$$$` → `SN`/`S-` → `SS,C0` → `R,1` (einmalig im NVM) und je Sitzung `A,03E8,03A9`, Statusmeldungen `%CONNECT%`, `%STREAM_OPEN%`, `%DISCONNECT%`, `%ADV_TIMEOUT%`; Kopplung `SA,4` + fester 6-stelliger PIN empfohlen (Entscheid Philipp offen); `SO,1` (60 µA) und `O,0` (1–2,9 µA, Aufwecken nur P1_6/Hardreset) bestätigen die Abschaltung über PB13; Modul-Update über P2_0 = low, UART, ISUpdate (Werkzeug nur aus Suchergebnis, **[A]**).
+- Kein Widerspruch zum Schaltplan, **keine KiCad-Änderung**. Befundregister: HW26-20 Beschreibung nachgeführt, Status unverändert. T0 (Dokumentenprüfung), keine Messung, keine BLE-Firmware.
+
 ## 2026-10-18 – BLE-Modul RN4871 statt USB-Daten (HW-09)
 
 - **HW-09 (Philipp, Vorschlagspaket „USB → BLE RN4871“ eingearbeitet):** Blatt MCU: Microchip **RN4871-I/RM130** (U303, LCSC C633942) an **USART6** PA11/PA12 (AF8) als Transparent-UART-Service-Konsole; Versorgung über P-FET **Q301 AO3401A** an PB13 (low = ein, Ruhestrom ≈ 0), Gate-Pull-up R309, 1 kΩ R310/R311 im UART, R312 10 kΩ (P2_0) an BLE_VCC, C314 10 µF + C315 100 nF, C316 an RST_N, Lötbrücke JP301 „BLE dauernd“; Modul-UART und Modus an **J704 Pin 9–11** (Modul-Firmware-Update, Brücke 11–12 = Testmodus). Abweichung vom Vorschlag: Modul geschaltet statt dauernd versorgt, RST_N ohne MCU-Pin, USB-C bleibt Ladebuchse.
