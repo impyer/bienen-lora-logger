@@ -308,12 +308,24 @@ def ble(h, h_pin, h_wert):
     """HW-09: BLE-Modul RN4871 an USART6, Versorgung über Q301 (PB13), Modul-UART und Modus an J704 Pin 9–11;
     USB-C-Buchse entfällt (Ladepads J301). Regeln: kein Pull-up des abgeschalteten Moduls an +3V3 (Rückspeisung), Reihenwiderstände
     im UART, Lastschalter aus bei hochohmigem PB13."""
-    genau(h, "BLE_EIN", {("U301", "26"), ("Q301", "1"), ("R309", "2")})                 # PB13 → Gate
+    genau(h, "BLE_EIN", {("U301", "26"), ("R314", "2")})                                # PB13 → R314 → Gate
+    genau(h, "BLE_GATE", {("R314", "1"), ("Q301", "1"), ("R309", "2"), ("C317", "1")})   # HW-11: Sanftanlauf
     pruefe("R309 (Gate-Pull-up) an +3V3, 100k: Modul aus bei hochohmigem PB13",
            h_pin.get(("R309", "1")) == "+3V3" and h_wert.get("R309") == "100k", (h_pin.get(("R309", "1")), h_wert.get("R309")))
+    pruefe("Sanftanlauf: R314 10k, C317 47n zwischen Gate und BLE_VCC (HW-11)",
+           h_wert.get("R314") == "10k" and h_wert.get("C317") == "47n" and h_pin.get(("C317", "2")) == "BLE_VCC",
+           (h_wert.get("R314"), h_wert.get("C317"), h_pin.get(("C317", "2"))))
+    # HW-11: direkte Verbindungen statt Widerständen/Filtern
+    pruefe("PB2/BOOT1 direkt an GND (R302 entfällt)", h_pin.get(("U301", "20")) == "GND", h_pin.get(("U301", "20")))
+    pruefe("VDDA direkt an +3V3 (FB301/C306 entfallen), C305 an +3V3", h_pin.get(("U301", "9")) == "+3V3" and h_pin.get(("C305", "1")) == "+3V3",
+           (h_pin.get(("U301", "9")), h_pin.get(("C305", "1"))))
+    pruefe("Flash WP/HOLD direkt an +3V3 (R407/R408 entfallen)", h_pin.get(("U402", "3")) == "+3V3" and h_pin.get(("U402", "7")) == "+3V3",
+           (h_pin.get(("U402", "3")), h_pin.get(("U402", "7"))))
+    pruefe("entfallene Teile nicht mehr in der Netzliste: R302, C308, FB301, C306, R407, R408",
+           not any(r in h_wert for r in ("R302", "C308", "FB301", "C306", "R407", "R408")))
     pruefe("Q301 ist AO3401A (P-Kanal), Source an +3V3", h_wert.get("Q301", "").startswith("AO3401") and h_pin.get(("Q301", "2")) == "+3V3",
            (h_wert.get("Q301"), h_pin.get(("Q301", "2"))))
-    genau(h, "BLE_VCC", {("Q301", "3"), ("U303", "14"), ("C314", "1"), ("C315", "1"), ("R312", "1"), ("R313", "1"), ("JP301", "1")})
+    genau(h, "BLE_VCC", {("Q301", "3"), ("U303", "14"), ("C314", "1"), ("C315", "1"), ("R312", "1"), ("R313", "1"), ("C317", "2"), ("JP301", "1")})
     pruefe("R313 (Entladung BLE_VCC) 100k nach GND", h_pin.get(("R313", "2")) == "GND" and h_wert.get("R313") == "100k", (h_pin.get(("R313", "2")), h_wert.get("R313")))
     pruefe("JP301 (BLE dauernd) ist offene Lötbrücke", "_Open_" in h_wert.get("JP301:footprint", ""), h_wert.get("JP301:footprint"))
     pruefe("U303 ist RN4871", h_wert.get("U303", "").startswith("RN4871"), h_wert.get("U303"))

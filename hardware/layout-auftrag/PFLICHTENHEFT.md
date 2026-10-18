@@ -1,7 +1,7 @@
 # PCB Layout Specification – Beehive Logger Main Board PCB-MAIN-0.1
 
 **Client:** Philipp Schnabel (GitHub `impyer`) · **Project:** open-hardware beehive logger, repository `impyer/bienen-lora-logger`
-**Document status:** issue 3, 18 Oct 2026 (issue 3: BLE module RN4871 added, USB-C replaced by two charge pads, decision HW-09; third microphone on J601 pair 4/5 (VDD moved to pin 6) with ESD D602, decision HW-10; issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: **V0.1 layout release of 18 Oct 2026** (title block "0.1 Layout-Stand", decisions HW-01 … HW-09; the git commit is in `STAND.txt` of the package)
+**Document status:** issue 3, 18 Oct 2026 (issue 3: BLE module RN4871 added, USB-C replaced by two charge pads, decision HW-09; third microphone on J601 pair 4/5 (VDD moved to pin 6) with ESD D602, decision HW-10; six parts removed and BLE soft start R314/C317, decision HW-11; issue 2: any EDA tool, 4 or 6 layers, acceptance by netlist comparison) · Schematic revision: **V0.1 layout release of 18 Oct 2026** (title block "0.1 Layout-Stand", decisions HW-01 … HW-09; the git commit is in `STAND.txt` of the package)
 **License of the result:** CERN-OHL-S-2.0 (see section 10)
 
 > **Kurzfassung (Deutsch):** Auftrag an einen externen Layouter: Platzierung, Routing und JLCPCB-Fertigungsdaten
@@ -20,7 +20,7 @@
 | 1 | Review the package, ask questions, confirm feasibility (section 9, milestone M0) | yes |
 | 2 | **Component placement** inside the given board frame, respecting sections 3–6 | yes |
 | 3 | **Routing** of all nets on **4 or 6 layers (your choice)**, copper zones, stitching vias | yes |
-| 4 | **LCSC part selection** for every BOM line without an LCSC number (166 of 186 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
+| 4 | **LCSC part selection** for every BOM line without an LCSC number (162 of 182 parts), preferring JLCPCB *Basic* parts and parts in stock (section 7) | yes |
 | 5 | **Manufacturing outputs** for JLCPCB: Gerber, drill files, BOM and CPL in JLCPCB format (section 8) | yes |
 | 6 | **Editable source files** of the routed board in the tool you used (section 2.2) | yes |
 | 7 | Support until the JLCPCB DFM/assembly check passes without errors | yes |
@@ -99,7 +99,7 @@ Within a terminal block or the RJ45 the pin order is fixed (cable plans in `doku
 6. Microphone/audio block (U601 audio ADC, J601) and load-cell block (U502 HX711, J501) **far from the 5 V boost converter U501/L501 and from the radio**; U601 close to J601.
 7. The 5 V boost converter U501 (TPS61240, 3.5 MHz) with C501, L501, C502 as a tight loop (TI layout example).
 8. Crystals Y301 (25 MHz) and Y302 (32.768 kHz) directly at the STM32 U301; load capacitors next to the crystal; no other signals between crystal and MCU pins; GND below.
-9. STM32 decoupling: each 100 nF next to its VDD/VSS pair, VCAP (C307, pin 22) and VDDA filter (FB301, C305, C306) close to their pins. Lesson from our own trial: put the capacitors **at the package corners** so the signal pins can escape.
+9. STM32 decoupling: each 100 nF next to its VDD/VSS pair, VCAP (C307, pin 22) and C305 at VDDA (pin 9) close to their pins; PB2 and VBAT are tied directly (HW-11). Lesson from our own trial: put the capacitors **at the package corners** so the signal pins can escape.
 10. Leave roughly one third of the area free/usable if possible (future extensions) – a wish, not a must.
 
 ## 5. Routing rules

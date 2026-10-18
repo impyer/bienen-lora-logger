@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2026-10-18 – HW-11: sechs Bauteile weniger, Sanftanlauf am BLE-Schalter
+
+- **HW-11 (Philipp):** R302 (PB2 direkt GND), C308 (VBAT), FB301 + C306 (VDDA direkt an +3V3, C305 bleibt), R407 + R408 (Flash-WP/HOLD direkt an +3V3) entfallen; neu **R314 10 kΩ** und **C317 47 nF** als Sanftanlauf des BLE-Lastschalters (Netz BLE_GATE). 5-V-Wandler der Waage bleibt (Entscheidung Philipp). 186 → 182 Bauteile, kein PWR_FLAG für VDDA mehr.
+- `netz_tests.py`: BLE_GATE, R314/C317, direkte Verbindungen und Fehlen der gestrichenen Teile geprüft; `schaltplan_spice.py` S3 bewertet jetzt den Stand mit Sanftanlauf (55 mA, 3,29 V). Dokumente: `mcu-funk.md` 1.1/1.6/3.2/4, Pflichtenheft 9 und Teilezahl, Fiverr, KiCad-README, Entscheidungsregister HW-11. Layout-Stand neu erzeugt, Paket neu gebaut (Nachtrag im Übergabebericht).
+
 ## 2026-10-18 – Schaltplan-Review mit SPICE-Modell: Einsparungen, Kniffe, Leckstrom-Befund
 
 - Neu `hardware/schaltplan_spice.py` (GPL-3.0-or-later): treibt die ngspice-Bibliothek aus KiCad 10 (`ngspice.dll` bzw. `libngspice0`) über ctypes und prüft 12 Größen mit Grenzen – Elektretpfad (Hochpass 5 Hz, Kapsel 1,9 V), HX711-AVDD 4,30 V (Eckwerte 4,24–4,36 V), BLE-Lastschalter (Einbruch auf 3,06 V heute, Sanftanlauf 10 kΩ + 47 nF → 55 mA), RN4871-Reset 4–9 ms, BLE_VCC-Entladung 2,4 s, ADC-Teiler-Leckstromfehler, Sensorschiene 25 mA, 1-Wire 3,1 µs. Ohne Bibliothek meldet das Skript ÜBERSPRUNGEN (nicht bestanden). CI-Job `hardware-rechnungen` installiert `libngspice0` und führt es aus.

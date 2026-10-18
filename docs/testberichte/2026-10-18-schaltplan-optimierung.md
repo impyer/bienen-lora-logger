@@ -69,6 +69,10 @@ bash hardware/kicad/pruefen.sh                 # unverändert grün: ERC 0, 231/
 - T2-Modelle mit Annahmen (Kapsel 2,2 kΩ/0,3 mA, ADC-Eingang 35 kΩ, LDO 0,2 Ω, STM32-Leckstrom); Grenzen teils selbst gesetzt [A]. Kein Ersatz für die Mustermessungen (SCH-T01, B-1 … B-6, Waage-Gleichtakt).
 - Die Vorschläge 2.1–2.3 sind **nicht umgesetzt** (Layout-Stand eingefroren); sie ändern Stückliste und Pflichtenheft und gehören in eine Entscheidung HW-11 vor dem Start des Layouters oder in Revision 0.2.
 
+## 4a. Umsetzung (HW-11, noch am 18.10.2026)
+
+Philipp hat entschieden: 2.1 (sechs Streichungen) und 2.3 Nr. 2 (Sanftanlauf) umsetzen, 2.2 (Waage ohne 5-V-Wandler) **nicht**. Umgesetzt im Generator: PB2 direkt an GND, VBAT ohne C308, VDDA direkt an +3V3 mit C305, Flash-WP/HOLD direkt an +3V3, R314 10 kΩ + C317 47 nF am Gate von Q301 (Netz BLE_GATE). Netzprüfung und SPICE-Skript prüfen den neuen Stand (S3: 55 mA, 3,29 V). Stückliste 182 Teile. Die Nachweise und das neue Paket stehen im Nachtrag des [Übergabeberichts](2026-10-18-layout-uebergabe.md).
+
 ## 5. Freigabeentscheidung
 
 - **Betroffenes Gate:** G1 – der geprüfte Stand bleibt freigegeben; die Vorschläge sind Optionen.

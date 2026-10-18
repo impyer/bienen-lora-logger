@@ -36,7 +36,7 @@ Die CI (Job `kicad-schaltplan`) führt das mit KiCad 10 aus der offiziellen PPA 
 
 | Projekt | Meldungen | Bemerkung |
 |---|---|---|
-| Hauptplatine | 0 | Projektfootprints in `Bienen.pretty` (BQ25185 DLH, Ra-01SH) über `fp-lib-table`; alle globalen Netze haben ihre Gegenstelle |
+| Hauptplatine | 3 begründete Warnungen (`pin_to_pin`: PB2, Flash WP und HOLD direkt an Versorgung, HW-11), 0 Fehler | Projektfootprints in `Bienen.pretty` über `fp-lib-table`; alle globalen Netze haben ihre Gegenstelle |
 
 ## Board-Kennung und Umgebung (REG26-10)
 
@@ -55,7 +55,6 @@ Ein `PWR_FLAG` sagt dem ERC: „Hier speist eine Quelle ein, die KiCad nicht als
 | Hauptplatine | VIN_LADER | Panels J201/J202 und VBUS über D201–D203 |
 | Hauptplatine | GND | Klemmen J201/J202 und Zelle über Q801 FS8205 (FET kein Treiber im ERC) |
 | Hauptplatine | VBAT | Zelle BT801 über die Lötbrücke JP801 (passiv) |
-| Hauptplatine | VDDA | +3V3 über Ferrit FB301 (Ferrit kein Treiber im ERC) |
 | Hauptplatine | VSUP_HX | 5-V-Wandler U501 über Ferrit FB501 |
 | Hauptplatine | HX_AVDD | Kollektor des PNP Q501 (HX711-AVDD-Regler) |
 | Hauptplatine | 3V3_ANA | 3V3_SW über Ferrit FB601 und 10 Ω R602 (passive Bauteile kein Treiber im ERC) |
@@ -69,7 +68,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 - Projektfootprints (`werkzeug/footprints.py` → `Bienen.pretty`, reproduzierbar, in `pruefen.sh`): BQ25185 DLH0010A nach TI 4226298/A und Ra-01SH nach Ai-Thinker-Datenblatt V1.1 S. 13 angelegt (13.10.2026). Reedkontakt MiRelay MRS03-B-3 und Side-View-LED Lite-On LTST-S220KGKT gewählt, Footprints nach Datenblatt (13.10.2026); Akkuhalter **Keystone 1042 (SMD)** festgelegt (HW-02, 13.10.2026), Footprint aus der KiCad-Bibliothek; Klemmen auf einreihige DEGSON 15EDGRC-3.5 umgestellt (SCH26-13), 5 Footprints in `Bienen.pretty`. Stand je Bauteil: [`pin_footprint.md`](pin_footprint.md).
 - Datenblatt-Pinbelegung noch nicht gelesen ([A]/[P] in `pin_footprint.md`): SPI-Flash (je gewähltem Typ), S8550 (Hersteller offen, Pinfolge 1 B, 2 E, 3 C gefordert), Quarz Y301, Side-View-LED, TVS D401.
 - Blatt MCU, BLE-Modul (HW-09): Footprint `Bienen:Microchip_RN4871` nach DS50002489D Fig. 4-7/4-8/4-9 [V] gegen LCSC/EasyEDA C633942 gegenprüfen; Bestand (50 Stück am 18.10.2026); Prüfplan B-1 … B-6 in `../mcu-funk.md` 1.6; Entscheidung USB-C-Buchse behalten oder entfernen. HY2111, FS8205, RT9080, Ra-01SH nur aus früherer Sitzung ([V*]) – beim Footprint-Anlegen erneut lesen.
-- Blatt MCU: Ferrit FB301 (LCSC-Nummer); LED-Helligkeit mit 1 kΩ und Lichtleiter am Muster prüfen; Schaltabstand Reedkontakt am Prototyp.
+- Blatt MCU: LED-Helligkeit mit 1 kΩ und Lichtleiter am Muster prüfen; Schaltabstand Reedkontakt am Prototyp.
 - Blatt Funk + Flash: Footprint Ra-01SH aus LCSC/EasyEDA C2764087 übernehmen und gegen das Datenblatt prüfen; TVS D401 (3,3 V, SOD-523) wählen; Flash-Typ nach Bestand (XT25F64B / ZD25Q64D); 100 µF C401 als MLCC 1210 oder Tantal entscheiden.
 - Blatt Waage: Footprint WSON-6 2 × 2 (KiCad) mit TI DRV0006A vergleichen (U501); Spule L501 1 µH mit Isat ≥ 0,7 A wählen; Ferrite FB501 (600 Ω) und FB502 (Gleichstromwiderstand ≤ 0,1 Ω) wählen; Pinfolge des gelieferten S8550 (Q501) mit 1 B, 2 E, 3 C vergleichen; R507 (Kanal B an INA−) am Muster bewerten.
 - Blatt Mikrofon (HW-07): Audio-ADC TLV320ADC3101IRGET (Footprint RGE0024B, EP 2,45 mm; Variante RGE0024F prüfen), TPS70918DBVR, 74LVC1G17 (Herstellerpinbelegung), DEGSON 15EDGRC-3.5-08P – LCSC-Nummern und Bestand; Elektretkapsel und fertige IM69D127-Platine festlegen (`../mikrofon.md` 7).
@@ -79,7 +78,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 - Muster: Versuchsplan SCH-T01 … T11 in [`../sicherheit-akku.md`](../sicherheit-akku.md) (Akku/Laden) und Review (übrige).
 - Kondensatoren: DC-Bias-Kurven je LCSC-Nummer eintragen (`../versorgung.md` 3.9).
 
-## Stückliste (bisher, 186 Teile; erzeugt aus dem Generator)
+## Stückliste (bisher, 182 Teile; erzeugt aus dem Generator)
 
 | Ref. | Wert | Symbol | Footprint | LCSC | Blatt |
 |---|---|---|---|---|---|
@@ -101,9 +100,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | C303 | 100n | Device:C | C_0603_1608Metric |  | MCU |
 | C304 | 10µ 10V X5R | Device:C | C_0805_2012Metric |  | MCU |
 | C305 | 100n | Device:C | C_0603_1608Metric |  | MCU |
-| C306 | 1µ | Device:C | C_0603_1608Metric |  | MCU |
 | C307 | 4,7µ X7R | Device:C | C_0805_2012Metric |  | MCU |
-| C308 | 100n | Device:C | C_0603_1608Metric |  | MCU |
 | C309 | 100n | Device:C | C_0603_1608Metric |  | MCU |
 | C310 | 18p C0G | Device:C | C_0603_1608Metric |  | MCU |
 | C311 | 18p C0G | Device:C | C_0603_1608Metric |  | MCU |
@@ -112,6 +109,7 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | C314 | 10µ 6,3V X5R | Device:C | C_0805_2012Metric |  | MCU |
 | C315 | 100n | Device:C | C_0603_1608Metric |  | MCU |
 | C316 | 100n | Device:C | C_0603_1608Metric |  | MCU |
+| C317 | 47n | Device:C | C_0603_1608Metric |  | MCU |
 | C401 | 100µ 6,3V X5R | Device:C | C_1210_3225Metric |  | Funk + Flash |
 | C402 | 10µ 10V X5R | Device:C | C_0805_2012Metric |  | Funk + Flash |
 | C403 | 100n | Device:C | C_0603_1608Metric |  | Funk + Flash |
@@ -164,7 +162,6 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | D602 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Mikrofon |
 | D701 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Anschlüsse |
 | D702 | ESDS304DBVR | Power_Protection:ESDS304 | SOT-23-5 |  | Anschlüsse |
-| FB301 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | MCU |
 | FB501 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
 | FB502 | Ferrit ≤ 0,1 Ω | Device:FerriteBead_Small | L_0603_1608Metric |  | Waage |
 | FB601 | 600R@100MHz | Device:FerriteBead_Small | L_0603_1608Metric |  | Mikrofon |
@@ -200,7 +197,6 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R208 | 100k | Device:R | R_0603_1608Metric |  | Versorgung |
 | R209 | 0 | Device:R | R_0603_1608Metric |  | Versorgung |
 | R301 | 10k | Device:R | R_0603_1608Metric |  | MCU |
-| R302 | 10k | Device:R | R_0603_1608Metric |  | MCU |
 | R305 | 100k | Device:R | R_0603_1608Metric |  | MCU |
 | R306 | 1k | Device:R | R_0603_1608Metric |  | MCU |
 | R309 | 100k | Device:R | R_0603_1608Metric |  | MCU |
@@ -208,14 +204,13 @@ Ein neues `PWR_FLAG` nur mit Eintrag in dieser Tabelle; ein Flag auf einem Netz,
 | R311 | 1k | Device:R | R_0603_1608Metric |  | MCU |
 | R312 | 10k | Device:R | R_0603_1608Metric |  | MCU |
 | R313 | 100k | Device:R | R_0603_1608Metric |  | MCU |
+| R314 | 10k | Device:R | R_0603_1608Metric |  | MCU |
 | R401 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R402 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R403 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R404 | 33 | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R405 | 100k | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R406 | 100k | Device:R | R_0603_1608Metric |  | Funk + Flash |
-| R407 | 10k | Device:R | R_0603_1608Metric |  | Funk + Flash |
-| R408 | 10k | Device:R | R_0603_1608Metric |  | Funk + Flash |
 | R501 | 100k | Device:R | R_0603_1608Metric |  | Waage |
 | R502 | 100k | Device:R | R_0603_1608Metric |  | Waage |
 | R503 | 20k 1% | Device:R | R_0603_1608Metric |  | Waage |

@@ -14,13 +14,13 @@ Bezug: `versorgung.md` (Schienen 3,3 V dauernd / 3,3 V geschaltet), Entscheidung
 | Pin | Beschaltung |
 |---|---|
 | VDD (24, 36, 48) | je 100 nF direkt am Pin, dazu 1 × 10 µF in der Nähe (ST: mind. 4,7 µF) |
-| VDDA/VREF+ (9) | 100 nF + 1 µF; über Ferrit (z. B. 600 Ω bei 100 MHz) an 3,3 V [A]. Ursprünglich für die Mikrofonmessung an PA1 (seit HW-07 Audio-ADC per I²S); für die Akku- und Solar-ADC-Messung weiter sinnvoll. ST schreibt den Ferrit nicht vor. |
+| VDDA/VREF+ (9) | **direkt an 3,3 V, 100 nF am Pin (C305)** – HW-11 (18.10.2026): Ferrit und 1 µF entfallen, weil der ADC nur noch Akku- und Solarspannung über MΩ-Teiler misst (Genauigkeit durch den Leckstrom begrenzt, HW26-21); die Mikrofone laufen seit HW-07 über den Audio-ADC. ST schreibt den Ferrit nicht vor. |
 | VSSA (8), VSS (23, 35, 47), Thermal-Pad | an die Massefläche; Thermal-Pad mit Durchkontaktierungen |
 | VCAP_1 (22) | **4,7 µF keramisch, ESR < 1 Ω**, sehr nah. Der UFQFPN-48 hat nur diesen einen VCAP-Pin. |
-| VBAT (1) | an 3,3 V (dauernd) + 100 nF; **keine Knopfzelle** (versorgung.md, V6). Nie an den Akku: nur 1,65–3,6 V zulässig. |
+| VBAT (1) | an 3,3 V (dauernd), ohne eigenen Kondensator (HW-11: die VDD-Abblockung deckt den Pin ab; ein eigener wäre nur mit Pufferzelle nötig [A: ST AN4488]); **keine Knopfzelle** (versorgung.md, V6). Nie an den Akku: nur 1,65–3,6 V zulässig. |
 | NRST (7) | 100 nF nach GND (interner Pull-up), Reset-Taster nach GND |
 | BOOT0 (44) | 10 kΩ nach GND [A, üblicher Wert], Taster nach 3,3 V für den ROM-Bootloader (seit HW-09 über USART1 an J10, 1.3) |
-| PB2/BOOT1 (20) | 10 kΩ nach GND, sonst frei. Wirkt nur bei BOOT0 = 1. |
+| PB2/BOOT1 (20) | direkt an GND (HW-11; vorher 10 kΩ). Wirkt nur bei BOOT0 = 1; PB2 damit nicht als GPIO nutzbar (war ohnehin frei). |
 
 ### 1.2 Takt
 
@@ -69,7 +69,7 @@ Layout: Quarze direkt am Gehäuse, Masse darunter, keine Signale zwischen Quarz 
 | 16 | P2_0 | Modus: high = Anwendung, low = Testmodus (Firmware-Update des Moduls); R312 10 kΩ nach **BLE_VCC**; auch J11 Pin 11 (Brücke 11–12 = Testmodus) |
 | 3, 4, 5, 6, 9, 11, 12, 15 | P1_2, P1_3, P1_7, P1_6, P3_6, P0_0, P0_2, P2_7 | offen (intern hochgezogen). P0_0 ist per Voreinstellung UART_CTS, P3_6 UART_RTS: **Flusskontrolle in der Moduleinstellung ausschalten** [P: RN4870/71 User's Guide DS50002466]. P1_6 (UART-RX-Indication) bleibt offen, weil der Low-Power-Modus des Moduls nicht genutzt wird (Abschaltung statt Schlafmodus). |
 
-**Versorgung und Ruhestrom:** Das Modul hängt **nicht** dauernd an 3,3 V. P-Kanal-FET **Q301 AO3401A** (LCSC C15127, Basic) schaltet BLE_VCC; Gate an **PB13** (low = ein) mit Pull-up **R309 100 kΩ** an +3V3. Im Standby ist PB13 hochohmig → Modul aus, Ruhestrom nur der Sperrstrom des FET (≤ 0,1 µA [A], `energiebilanz.py`). Gründe gegen den Schlafmodus des Moduls: „Shutdown Low-Power Mode“ 1–2,9 µA [V: Tab. 2-3] wären bis zu 18 % des Ruhestrombudgets (V7), und der Zustand hinge an der Modulfirmware; ein Power-Cycle ist zugleich der sichere Reset. **R313 100 kΩ** von BLE_VCC nach GND entlädt C314 nach dem Abschalten (τ ≈ 1 s), damit der Aus-Zustand definiert ist und ein kurzer Aus-Ein-Zyklus als Reset wirkt (33 µA nur während einer Sitzung) [A]. **Lötbrücke JP301** (offen) überbrückt Q301 für Entwicklung und Modul-Firmware-Update.
+**Versorgung und Ruhestrom:** Das Modul hängt **nicht** dauernd an 3,3 V. P-Kanal-FET **Q301 AO3401A** (LCSC C15127, Basic) schaltet BLE_VCC; Gate an **PB13** (low = ein) über **R314 10 kΩ**, Pull-up **R309 100 kΩ** an +3V3 und **C317 47 nF** zwischen Gate und Drain als Sanftanlauf (HW-11): Die Miller-Rampe begrenzt den Einschaltstrom in C314 auf ca. 55 mA statt 1,2 A und den Einbruch der 3,3-V-Schiene auf 0,01 V statt 0,24 V (`schaltplan_spice.py` S3 [A]). Im Standby ist PB13 hochohmig → Modul aus, Ruhestrom nur der Sperrstrom des FET (≤ 0,1 µA [A], `energiebilanz.py`). Gründe gegen den Schlafmodus des Moduls: „Shutdown Low-Power Mode“ 1–2,9 µA [V: Tab. 2-3] wären bis zu 18 % des Ruhestrombudgets (V7), und der Zustand hinge an der Modulfirmware; ein Power-Cycle ist zugleich der sichere Reset. **R313 100 kΩ** von BLE_VCC nach GND entlädt C314 nach dem Abschalten (τ ≈ 1 s), damit der Aus-Zustand definiert ist und ein kurzer Aus-Ein-Zyklus als Reset wirkt (33 µA nur während einer Sitzung) [A]. **Lötbrücke JP301** (offen) überbrückt Q301 für Entwicklung und Modul-Firmware-Update.
 
 **Rückspeisung (Regel):** Alle Pull-ups am Modul (R312) liegen an BLE_VCC, nie an +3V3. Die Firmware schaltet PA11 und PA12 bei abgeschaltetem Modul auf **analog/hochohmig** (PA12 nicht mit internem Pull-up): Ein high an PA11 würde über R310 und die Schutzdiode des Moduls BLE_VCC auf ca. 2,6 V ziehen (3 mA, undefinierter Zustand). R310/R311 begrenzen den Strom auch dann auf < 3,3 mA und schützen beim Anschluss eines USB-Seriell-Adapters an J11 Pin 9/10 (Querstrom gegen PA11, falls die MCU nicht in Reset ist). `netz_tests.py` prüft R312 an BLE_VCC mit Gegenprobe.
 
@@ -221,7 +221,7 @@ Backup-Register des STM32 (20 × 32 Bit) reichen für die Sitzung nicht. Backup-
 | Bus | **SPI1 gemeinsam mit dem Funkmodul**, eigener Chip-Select an **PB3** |
 | Versorgung | **3,3 V dauernd**, im Ruhezustand im Deep Power-down. Grund: Der Bus ist mit dem Funkmodul gemeinsam. Ein unversorgter Flash würde über SCK/MOSI mitgespeist (Rückspeisung). Ruhestrom: Winbond 1 µA laut LCSC, Zetta 3 µA typ. [V]; gerechnet mit 1 µA. |
 | CS-Pull-up | **100 kΩ nach 3,3 V an PB3**: Im Standby ist PB3 hochohmig, der Flash darf dann nicht ausgewählt sein [A]. Das gilt genauso für NSS des Funkmoduls (PA4). |
-| WP, HOLD | über 10 kΩ an 3,3 V (nicht genutzt) |
+| WP, HOLD | direkt an 3,3 V (nicht genutzt; HW-11, vorher je 10 kΩ) |
 | Haltbarkeit | ≥ 100.000 Lösch-/Schreibzyklen je Sektor, 20 Jahre Datenerhalt (Macronix-Datenblatt; übliche Werte der Reihe) [V/A] |
 
 Seit 09.10.2026 liegt auch die LoRaWAN-Sitzung im Flash (3.1); der EEPROM entfällt.
@@ -270,7 +270,7 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PA15 | I2S3_WS zum Audio-ADC U601 (HW-07) | nach „nur SWD“; AF laut ST-Pindaten [V] |
 | PB0 | Akkuspannung (ADC1_IN8) | Teiler 2 × 2,2 MΩ + 100 nF |
 | PB1 | Eingangsspannung Lader (ADC1_IN9) | Teiler 3,3 MΩ / 470 kΩ + 100 nF hinter den Schottky-Dioden (versorgung.md 3.1, HW26-08) |
-| PB2 | BOOT1 | 10 kΩ nach GND |
+| PB2 | BOOT1 | direkt an GND (HW-11) |
 | PB3 | Chip-Select SPI-Flash | Pull-up 100 kΩ; nach „nur SWD“ (3.2) |
 | PB4 | Ra-01SH RESET | |
 | PB5 | I2S3_SD vom Audio-ADC U601 (HW-07) | Empfang mit DMA; vorher Sensorschiene (jetzt PA1) |
@@ -278,7 +278,7 @@ Rückmeldung zusätzlich über Funk: Die Sofortmessung und der Wechsel der Durch
 | PB8 / PB9 | HX711 Nr. 1 DOUT / SCK | 1 kΩ in Reihe |
 | PB10 | 5-V-Wandler der Waage ein (high = ein) | Pull-down 100 kΩ; siehe waage.md |
 | PB12 | I2S3_CK zum Audio-ADC U601 (HW-07) | STM32 ist I²S-Master; AF laut ST-Pindaten [V] |
-| PB13 | Lastschalter BLE-Modul (HW-09): low = ein | Gate Q301 AO3401A, Pull-up 100 kΩ (Modul aus bei hochohmigem Pin); vorher VBUS-Erkennung (HW-05) |
+| PB13 | Lastschalter BLE-Modul (HW-09): low = ein | über R314 10 kΩ an das Gate von Q301 AO3401A, Pull-up 100 kΩ, C317 47 nF Gate–Drain (Sanftanlauf, HW-11); vorher VBUS-Erkennung (HW-05) |
 | PB14 / PB15 | Ra-01SH TXEN / RXEN | über offene Lötbrücken |
 | PC13 | LED (low = an), am Platinenrand unter dem Lichtleiter | Signale siehe 3.3; Vorwiderstand ≥ 1 kΩ |
 | PC14 / PC15 | LSE 32,768 kHz | |

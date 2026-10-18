@@ -207,8 +207,8 @@ C505 avdd 0 10u
 # ---------------------------------------------------------------------------
 # S3 BLE-Lastschalter (Blatt MCU): Q301 AO3401A schaltet 10 µF + 100 nF an +3V3; Einschaltstromstoß und Einbruch der
 #    3,3-V-Schiene (RT9080 als Quelle mit 0,2 Ω Innenwiderstand [A]; Schienenkapazität 2,2 µ + 100 µ + 10 µ + 7 × 100 n [V Generator]).
-#    Fall A: Gate direkt von PB13 (Flanke 20 ns [A]); Fall B (Vorschlag Sanftanlauf): 10 kΩ vor dem Gate und 47 nF
-#    zwischen Gate und Drain (Miller-Rampe: dU/dt ≈ I_gate / C_gd).
+#    Fall A: Gate direkt von PB13 (Stand bis HW-11, Flanke 20 ns [A]); Fall B (Stand seit HW-11): R314 10 kΩ vor dem Gate
+#    und C317 47 nF zwischen Gate und Drain (Miller-Rampe: dU/dt ≈ I_gate / C_gd).
 #    AO3401A: VGS(th) −0,9 V, Rds(on) 60 mΩ bei −4,5 V, Ciss ca. 1 nF [V/A: AOS AO3401A]
 # ---------------------------------------------------------------------------
 def s3_ble_einschalten(ng, rg, cgd):
@@ -242,11 +242,10 @@ Rmod blevcc 0 330
 def s3(ng):
     ua, ia, _, _ = s3_ble_einschalten(ng, 1, 1e-12)
     ub, ib_, _, _ = s3_ble_einschalten(ng, 10e3, 47e-9)
-    print("S3 BLE einschalten: +3V3-Minimum %.2f V und Spitzenstrom aus der Schiene %.0f mA (Gate direkt, Stand heute); "
-          "mit Sanftanlauf 10 kΩ + 47 nF Gate–Drain: %.2f V und %.0f mA" % (ua, ia * 1e3, ub, ib_ * 1e3))
-    pruefe("S3 +3V3 bleibt ≥ 3,0 V beim Einschalten des Moduls (Gate direkt, Stand heute) [A: STM32 läuft bis 1,7 V, BLE/LoRa ab 1,8/1,9 V]",
-           ua >= 3.0, "%.2f V" % ua)
-    pruefe("S3 Sanftanlauf-Vorschlag begrenzt den Spitzenstrom auf ≤ 300 mA [A]", ib_ <= 0.3, "%.0f mA" % (ib_ * 1e3))
+    print("S3 BLE einschalten: ohne Sanftanlauf (bis HW-11) +3V3-Minimum %.2f V, Spitzenstrom aus der Schiene %.0f mA; "
+          "mit R314 10 kΩ + C317 47 nF (Stand): %.2f V und %.0f mA" % (ua, ia * 1e3, ub, ib_ * 1e3))
+    pruefe("S3 Sanftanlauf R314/C317 begrenzt den Spitzenstrom auf ≤ 300 mA [A]", ib_ <= 0.3, "%.0f mA" % (ib_ * 1e3))
+    pruefe("S3 +3V3 bleibt ≥ 3,2 V beim Einschalten des Moduls (Stand mit Sanftanlauf) [A]", ub >= 3.2, "%.2f V" % ub)
 
 
 # ---------------------------------------------------------------------------
