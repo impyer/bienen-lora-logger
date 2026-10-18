@@ -9,7 +9,6 @@
   },
   "browser": {
     "application_commit": "95c006252428f567204e82c19d446d1172cef139",
-    "test_commit": "837b7f23e3cef3c05b7925f8e6fd50ea07a966f9",
     "result": "PASS",
     "checks": [
       "long-7d",
@@ -39,7 +38,10 @@
     "browser": "155.0.8059.79",
     "backup_restore": "PASS",
     "migration_preserves_existing_revisions": true,
-    "https_ca_verified": true
+    "https_ca_verified": true,
+    "test_basis_commit": "86a6ae21623e0573fd47ebd482994735f6f7779c",
+    "additional_header_assertions_commit": "837b7f23e3cef3c05b7925f8e6fd50ea07a966f9",
+    "header_assertions_note": "Verified by the separately recorded final committed run; this earlier capture proves the outage/recovery checks."
   },
   "year": {
     "commit": "6a8835144b557fa3479e2f5302b45be4d0d8c516",

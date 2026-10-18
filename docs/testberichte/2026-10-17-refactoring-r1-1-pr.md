@@ -15,7 +15,7 @@ nicht geändert. Kein Eingriff in Receiver/ThinkStation oder echte Quellen.
 Abschlusskorrekturen: Konflikt-QC über Batch-/Monatsgrenzen, begrenzte parallele
 Diagrammverarbeitung, dynamischer Temperaturüberblick, erhaltener Zoom und
 Legendenstatus beim normalen Poll, korrekter Berliner Saisonbeginn und klare
-Fehler-/Wiederaufnahmeanzeige. Ein tatsächlicher DB-Ausfall erhält eine opaque 503-Antwort im gemeinsamen Session-Principal statt eines ungefangenen 500. Separater Publisher testet ausschließlich
+Fehler-/Wiederaufnahmeanzeige. Ein tatsächlicher DB-Ausfall erhält eine 503-Antwort ohne interne Details im gemeinsamen Session-Principal statt eines ungefangenen 500. Separater Publisher testet ausschließlich
 synthetische Kopien mit atomarem Staging-Rename, Audit und Abbruch bei unsicherer
 oder verkürzter Quelle. Keine neuen produktiven Zugriffsrechte.
 

@@ -23,7 +23,7 @@ Historischer [R1.1-Bericht](2026-10-17-refactoring-r1-1.md) bleibt erhalten.
 | Parallele Zeitreihen | Zwei tatsächlich durch SQL-Lock wartende Abfragen hindern eine dritte auf 974c6c4 nicht am Aufbau eines weiteren Snapshots. | Zwei zugelassene Diagrammverarbeitungen pro App-Prozess einschließlich Paging/Response-Abschluss. Weitere Abfrage liefert 503 mit Wiederholhinweis; Slots im finally freigegeben. |
 | Standardauswahl | Echter Browser zeigt 17 ausgewählte Kanäle statt der vier vorhandenen Temperaturkanäle. | Tatsächliches Register nach Messgröße Temperatur filtern, höchstens 30, kein fester Geräte-/Stand-ID-Katalog und keine erfundenen Sonden. Weitere Kanäle bleiben manuell auswählbar. |
 | Poll-Zustand | Realer nächster 30-s-Poll ersetzt ECharts-Instanz/DOM und verliert Zoom/Legende. | Bestehende Gruppe/Instanz aktualisieren, Serien per stabiler Kanal-ID ersetzen, Zoom/Legende beim regulären Poll nicht überschreiben. Bewusster Auswahlwechsel/Fehler räumt alte Instanzen auf. |
-| Gemeinsame Sitzungs-DB | Reale Verbindungsunterbrechung wirft im Principal einen ungefangenen OperationalError/HTTP 500 statt hilfreicher Wiederaufnahmeantwort. | Gemeinsamer enger OperationalError-Handler: opaque 503, Retry-After 30, no-store; weder Sitzung noch Rechte/Daten werden verändert. |
+| Gemeinsame Sitzungs-DB | Reale Verbindungsunterbrechung wirft im Principal einen ungefangenen OperationalError/HTTP 500 statt hilfreicher Wiederaufnahmeantwort. | Gemeinsamer enger OperationalError-Handler: 503 ohne interne Details, Retry-After 30, no-store; weder Sitzung noch Rechte/Daten werden verändert. |
 | Saison | Tatsächlich gesendetes `von=2026-01-01T00:00:00Z` statt Berliner Mitternacht `2025-12-31T23:00:00Z`. | Berliner Kalenderjahr und IANA-Offset am Jahresbeginn bestimmen; API weiterhin UTC, freie Eingaben ausdrücklich UTC. |
 | Staging-Verkürzung | Eine formal gültige, unerwartet auf Header gekürzte Originaldatei könnte die letzte vollständige Kopie ersetzen. | Größenabnahme kontrolliert abweisen; letzte Kopie behalten, auch kürzere legitime Korrekturen erfordern Betreiberprüfung. |
 | CI-Auswahl | Allgemeiner Workflow reagiert auf PRs nur gegen main, nicht auf die vereinbarte R1-PR-Kette. | Branchfilter für R1 gezielt ergänzt; Umwelt-Workflow führt den erweiterten echten Stabilitätsbrowser aus. Ausführung bleibt bis API-Korrektur unbewiesen. |
@@ -85,8 +85,7 @@ Nur eigene synthetische `bienen_test` und neue Cloud-Compose-Projekte.
 | `6a8835144b557fa3479e2f5302b45be4d0d8c516` | 66/66 Tests PASS; kurzer Browser und Stabilitätsbrowser mit Heapmessung; aktuelle Jahresprobe. Ein alter Sync-Test hatte bei Korrektur zusätzlich einen angehängten Record entfernt; Testeingabe bewahrt diesen jetzt, Schutzprüfung bleibt erhalten. |
 | `86a6ae21623e0573fd47ebd482994735f6f7779c` | Zusätzliche echte DB-Unterbrechung reproduziert HTTP 500 im gemeinsamen Principal; neuer Browserlauf zunächst FAIL |
 | `95c006252428f567204e82c19d446d1172cef139` | Enger gemeinsamer 503-Handler für verlorene/abgewiesene DB-Verbindungen, ohne Schema-/Sitzungsdatenänderung |
-
-| `837b7f23e3cef3c05b7925f8e6fd50ea07a966f9` | Reale DB-Unterbrechung: 503/Retry-After/Body ohne interne Details sowie bestehende Browser-Sitzung nach Wiederherstellung PASS |
+| `837b7f23e3cef3c05b7925f8e6fd50ea07a966f9` | Zusätzliche Assertions für 503/Retry-After/Body ohne interne Details im finalen Browsernachlauf; Basis-Unterbrechung/Wiederaufnahme mit Handler 95c0062 bereits PASS |
 
 Anschließend ausschließlich Berichte/Anleitungen/PR-Text/Belegablage. Der finale
 Nachlauf wird auf dem anschließend gepushten Dokumentationscommit durchgeführt;
