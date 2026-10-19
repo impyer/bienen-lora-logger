@@ -1,0 +1,189 @@
+# Statische Analyse und Testabdeckung (ergänzt tests.yml und das CodeQL-Default-Setup des Repos).
+#
+# Zwei Stufen je Werkzeug:
+#   verpflichtend  – Schritt, der rot wird; rot = Gate G1 nicht erfüllt (Regelwerk 1.1, tests-freigaben.md).
+#   informativ     – Schritt endet mit ::warning:: statt rot; Baseline vom 19.10.2026, Annotationen im PR und
+#                    Zusammenfassung im Lauf. Erreicht eine Baseline 0 Hinweise, das „|| echo ::warning“ entfernen.
+# Abdeckung wird gemessen und als Artefakt abgelegt, noch ohne Mindestwert (Erst-Baseline).
+# Software-CI ersetzt keine T4-Messung, keinen HiL-Test und keinen TTN-Feldtest.
+name: statische-analyse
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    name: Syntax (Python, JavaScript, PHP, Shell, Workflows) – verpflichtend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Python (compileall, alle eingecheckten *.py)
+        run: git ls-files -z '*.py' | xargs -0 python3 -m compileall -q
+      - name: JavaScript (node --check, alle eingecheckten *.js)
+        run: for f in $(git ls-files '*.js'); do node --check "$f" || exit 1; done
+      - name: PHP (php -l, alle eingecheckten *.php, auch Original M.40)
+        run: for f in $(git ls-files '*.php'); do php -l "$f" > /dev/null || exit 1; done
+      - name: Shell (bash -n, alle eingecheckten *.sh)
+        run: for f in $(git ls-files '*.sh'); do bash -n "$f" || exit 1; done
+      - name: GitHub-Workflows (actionlint)
+        run: docker run --rm -v "$PWD":/repo --workdir /repo rhysd/actionlint:1.7.7 -color
+
+  ruff:
+    name: Ruff (Python) – Mindestregeln verpflichtend, Regelsatz informativ
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.17.1
+      - name: Verpflichtend – Syntax und undefinierte Namen (E9, F63, F7, F82; unabhängig von ruff.toml)
+        run: ruff check --isolated --select E9,F63,F7,F82 --output-format github .
+      - name: "Informativ – Regelsatz aus ruff.toml (E, W, F, B ohne E501; Baseline 19.10.2026: 22 Hinweise)"
+        run: |
+          { echo '## Ruff (ruff.toml)'; echo '```'; ruff check --statistics . || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          ruff check --output-format github . || echo "::warning::Ruff meldet Hinweise nach ruff.toml (informativ, Annotationen und Zusammenfassung des Laufs)"
+
+  bandit:
+    name: Bandit (Python-Sicherheit) – hoch verpflichtend, mittel informativ
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install bandit==1.9.4
+      - name: Verpflichtend – Schweregrad hoch (-lll)
+        run: bandit -q -r hardware server tests -lll
+      - name: Informativ – Schweregrad mittel und höher (-ll; Baseline 19.10.2026 ein Treffer B608 in tests/datenbank/test_schema.py)
+        run: |
+          { echo '## Bandit (-ll)'; echo '```'; bandit -q -r hardware server tests -ll || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          bandit -q -r hardware server tests -ll || echo "::warning::Bandit meldet Treffer mit Schweregrad mittel (informativ, siehe Zusammenfassung des Laufs)"
+
+  shellcheck:
+    name: ShellCheck – Fehler verpflichtend, Warnungen informativ
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version des Runners
+        run: shellcheck --version
+      - name: Verpflichtend – Schweregrad error
+        run: git ls-files -z '*.sh' | xargs -0 shellcheck -S error
+      - name: Informativ – alle Hinweise (Baseline 19.10.2026 34 Hinweise, SC2015/SC2086/SC2016/SC2012/SC2116)
+        run: |
+          { echo '## ShellCheck'; echo '```'; git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc || echo "::warning::ShellCheck meldet Hinweise (informativ, siehe Zusammenfassung des Laufs)"
+
+  abdeckung-cpp:
+    name: Abdeckung C++ (Firmware-Quellen über Host-Tests und Simulation, gcov/gcovr)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install gcovr==8.7
+      - name: Host-Tests instrumentiert übersetzen und ausführen (dieselben Tests wie in tests.yml, Simulation 3 Tage)
+        run: |
+          set -e
+          mkdir -p abdeckung/cpp
+          F=(--coverage -O0 -g -Wall -Wextra)
+          node tests/firmware/vektoren_v2.js > tests/firmware/ff2_vektoren.h
+          g++ "${F[@]}" -std=c++11 -o abdeckung/cpp/test_zeitsync tests/host/test_zeitsync.cpp
+          ./abdeckung/cpp/test_zeitsync
+          g++ "${F[@]}" -std=c++11 -o abdeckung/cpp/test_funkformat_v2 tests/firmware/test_funkformat_v2.cpp
+          ./abdeckung/cpp/test_funkformat_v2
+          g++ "${F[@]}" -std=c++11 -o abdeckung/cpp/test_bee_fft tests/firmware/test_bee_fft.cpp
+          ./abdeckung/cpp/test_bee_fft
+          g++ "${F[@]}" -std=c++17 -DZEITSYNC_AKTIV=1 -o abdeckung/cpp/sim_sync tests/sim/sim_zeitsync.cpp
+          ./abdeckung/cpp/sim_sync --tage 3 > /dev/null
+      - name: Bericht (nur Dateien unter firmware/)
+        run: |
+          gcovr --root . --filter 'firmware/' \
+            --txt abdeckung/cpp/zusammenfassung.txt \
+            --html-details abdeckung/cpp/bericht.html \
+            --xml abdeckung/cpp/cobertura.xml \
+            --print-summary
+          { echo '## Abdeckung C++ (firmware/, Host-Tests + Simulation 3 Tage)'; echo '```'; cat abdeckung/cpp/zusammenfassung.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: abdeckung-cpp
+          path: |
+            abdeckung/cpp/*.txt
+            abdeckung/cpp/*.html
+            abdeckung/cpp/*.css
+            abdeckung/cpp/*.xml
+
+  abdeckung-js:
+    name: Abdeckung JavaScript (TTN-Formatter, c8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save --no-audit --no-fund c8@10.1.3
+      - name: Formatter-Tests unter c8 (Quelltext-Fassung und S2120)
+        run: |
+          set -e
+          C="npx c8 --clean=false --reporter=none --include=formatter/** --exclude=formatter/ttn_formatter.min.js"
+          rm -rf coverage
+          $C node tests/formatter/test_formatter.js
+          $C node tests/formatter/test_s2120_formatter.js
+          npx c8 report --reporter=text --reporter=text-summary --reporter=lcov --include='formatter/**' --exclude=formatter/ttn_formatter.min.js | tee abdeckung-js.txt
+          { echo '## Abdeckung JavaScript (formatter/)'; echo '```'; cat abdeckung-js.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: abdeckung-js
+          path: |
+            abdeckung-js.txt
+            coverage/lcov.info
+
+  abdeckung-python:
+    name: Abdeckung Python (Rechenmodelle, Servergenerator, Inventur-Unittest)
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install coverage==7.16.2
+      - name: ngspice für schaltplan_spice.py (wie in tests.yml)
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libngspice0
+      - name: Skripte und Tests unter coverage ausführen
+        run: |
+          set -e
+          mkdir -p abdeckung/python
+          export COVERAGE_FILE=abdeckung/python/.coverage
+          Q=("--source=hardware,server" "--omit=hardware/kicad/*,hardware/layout-auftrag/*")
+          # Offline-Unittest der Kanalinventur (läuft sonst in keinem Job)
+          coverage run "${Q[@]}" -m unittest tests/server/test_beelogger1_inventur.py
+          for s in hardware/energiebilanz.py hardware/mikrofon_filter.py hardware/i2c_leitung.py hardware/funk_modell.py hardware/schaltplan_spice.py; do
+            echo "== $s"; coverage run -a "${Q[@]}" "$s" > /dev/null
+          done
+          T=$(mktemp -d) && unzip -q server/M40_261004_ServerSkripte.zip -d "$T/neu"
+          coverage run -a "${Q[@]}" server/eigen_anpassen.py "$T/neu" > /dev/null
+          coverage report --skip-empty | tee abdeckung/python/zusammenfassung.txt
+          coverage xml -o abdeckung/python/cobertura.xml
+          coverage html -d abdeckung/python/html
+          { echo '## Abdeckung Python (hardware/ ohne kicad und layout-auftrag, server/)'; echo '```'; cat abdeckung/python/zusammenfassung.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: abdeckung-python
+          path: |
+            abdeckung/python/zusammenfassung.txt
+            abdeckung/python/cobertura.xml
+            abdeckung/python/html

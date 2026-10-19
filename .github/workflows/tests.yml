@@ -188,9 +188,9 @@ jobs:
 
       - name: arduino-cli installieren
         run: |
-          mkdir -p $HOME/.local/bin
+          mkdir -p "$HOME/.local/bin"
           curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=$HOME/.local/bin sh -s 1.1.1
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: STM32-Core 2.6.0
         run: |

@@ -23,7 +23,7 @@ pruefe("Quelle nur ASCII-Zeichen", /^[\x00-\x7F]*$/.test(quelle));
 
 const ctx = {};
 vm.createContext(ctx);
-vm.runInContext(quelle, ctx);
+vm.runInContext(quelle, ctx, { filename: datei });
 const dek = (hex, fPort) => ctx.decodeUplink({ fPort: fPort || 3, bytes: Array.from(Buffer.from(hex, "hex")) });
 
 const faelle = [
