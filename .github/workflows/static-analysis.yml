@@ -2,9 +2,10 @@
 #
 # Zwei Stufen je Werkzeug:
 #   verpflichtend  – Schritt, der rot wird; rot = Gate G1 nicht erfüllt (Regelwerk 1.1, tests-freigaben.md).
-#   informativ     – Schritt endet mit ::warning:: statt rot; Baseline vom 19.10.2026, Annotationen im PR und
-#                    Zusammenfassung im Lauf. Erreicht eine Baseline 0 Hinweise, das „|| echo ::warning“ entfernen.
-# Abdeckung wird gemessen und als Artefakt abgelegt, noch ohne Mindestwert (Erst-Baseline).
+#                    Seit 19.10.2026 gilt das für Syntax, actionlint, Ruff (ruff.toml), Bandit -ll und ShellCheck
+#                    (alle Hinweise); die Erst-Baselines vom selben Tag (22 / 1 / 34 Hinweise) wurden auf 0 gebracht.
+#   informativ     – nur noch die Abdeckung: gemessen und als Artefakt abgelegt, noch ohne Mindestwert.
+# Begründete Ausnahmen stehen im Quelltext (# nosec B608, # shellcheck disable=SC2016), nicht im Workflow.
 # Software-CI ersetzt keine T4-Messung, keinen HiL-Test und keinen TTN-Feldtest.
 name: statische-analyse
 
@@ -37,7 +38,7 @@ jobs:
         run: docker run --rm -v "$PWD":/repo --workdir /repo rhysd/actionlint:1.7.7 -color
 
   ruff:
-    name: Ruff (Python) – Mindestregeln verpflichtend, Regelsatz informativ
+    name: Ruff (Python) – Mindestregeln und Regelsatz aus ruff.toml verpflichtend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,13 +48,13 @@ jobs:
       - run: pip install ruff==0.17.1
       - name: Verpflichtend – Syntax und undefinierte Namen (E9, F63, F7, F82; unabhängig von ruff.toml)
         run: ruff check --isolated --select E9,F63,F7,F82 --output-format github .
-      - name: "Informativ – Regelsatz aus ruff.toml (E, W, F, B ohne E501; Baseline 19.10.2026: 22 Hinweise)"
+      - name: "Verpflichtend – Regelsatz aus ruff.toml (E, W, F, B ohne E501; Baseline 19.10.2026 von 22 auf 0 Hinweise)"
         run: |
           { echo '## Ruff (ruff.toml)'; echo '```'; ruff check --statistics . || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          ruff check --output-format github . || echo "::warning::Ruff meldet Hinweise nach ruff.toml (informativ, Annotationen und Zusammenfassung des Laufs)"
+          ruff check --output-format github .
 
   bandit:
-    name: Bandit (Python-Sicherheit) – hoch verpflichtend, mittel informativ
+    name: Bandit (Python-Sicherheit) – Schweregrad mittel und hoch verpflichtend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,26 +62,22 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install bandit==1.9.4
-      - name: Verpflichtend – Schweregrad hoch (-lll)
-        run: bandit -q -r hardware server tests -lll
-      - name: Informativ – Schweregrad mittel und höher (-ll; Baseline 19.10.2026 ein Treffer B608 in tests/datenbank/test_schema.py)
+      - name: Verpflichtend – Schweregrad mittel und höher (-ll; Baseline 19.10.2026 ein Treffer B608, begründet per nosec ausgenommen)
         run: |
           { echo '## Bandit (-ll)'; echo '```'; bandit -q -r hardware server tests -ll || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          bandit -q -r hardware server tests -ll || echo "::warning::Bandit meldet Treffer mit Schweregrad mittel (informativ, siehe Zusammenfassung des Laufs)"
+          bandit -q -r hardware server tests -ll
 
   shellcheck:
-    name: ShellCheck – Fehler verpflichtend, Warnungen informativ
+    name: ShellCheck – alle Hinweise verpflichtend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Version des Runners
         run: shellcheck --version
-      - name: Verpflichtend – Schweregrad error
-        run: git ls-files -z '*.sh' | xargs -0 shellcheck -S error
-      - name: Informativ – alle Hinweise (Baseline 19.10.2026 34 Hinweise, SC2015/SC2086/SC2016/SC2012/SC2116)
+      - name: Verpflichtend – alle Hinweise (Baseline 19.10.2026 von 34 auf 0; SC2016 bei PHP-Code in einfachen Anführungszeichen begründet ausgenommen)
         run: |
           { echo '## ShellCheck'; echo '```'; git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc || echo "::warning::ShellCheck meldet Hinweise (informativ, siehe Zusammenfassung des Laufs)"
+          git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc
 
   abdeckung-cpp:
     name: Abdeckung C++ (Firmware-Quellen über Host-Tests und Simulation, gcov/gcovr)

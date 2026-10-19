@@ -16,7 +16,6 @@ Aufruf:
   python3 hardware/layout-auftrag/netz_vergleich.py --selbsttest           → Rundlauf und Gegenprobe mit logger.net
 """
 import os
-import re
 import sys
 
 HIER = os.path.dirname(os.path.abspath(__file__))

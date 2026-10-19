@@ -35,7 +35,7 @@ def abgelehnt(cur, sql, params=None):
     try:
         cur.execute(sql, params)
     except (errors.IntegrityError, errors.CheckViolation, errors.ExclusionViolation,
-            errors.UniqueViolation, errors.ForeignKeyViolation, errors.NotNullViolation) as e:
+            errors.UniqueViolation, errors.ForeignKeyViolation, errors.NotNullViolation):
         cur.execute("ROLLBACK TO SAVEPOINT sp")
         return True
     cur.execute("RELEASE SAVEPOINT sp")
@@ -239,7 +239,9 @@ def t_massnahme(cur):
     tage = eins(cur, "SELECT extract(day FROM upper(zeitraum)-lower(zeitraum)) FROM massnahme")
     assert tage == 10
     for falsch in ("'(2026-10-01,2026-10-02]'", "'empty'", "'(,2026-10-02)'"):
-        assert abgelehnt(cur, f"INSERT INTO massnahme(volk_id,art,zeitraum) VALUES (%s,'behandlung',{falsch})", (v8,)), falsch
+        # Bandit B608 ausgenommen: {falsch} kommt aus der festen Liste oben, keine Nutzereingabe; der Test prüft
+        # gerade, dass PostgreSQL diese ungültigen Zeiträume ablehnt. Die Volk-ID geht als Parameter (%s) hinein.
+        assert abgelehnt(cur, f"INSERT INTO massnahme(volk_id,art,zeitraum) VALUES (%s,'behandlung',{falsch})", (v8,)), falsch  # nosec B608
 
 
 @test("Durchsichtswert: genau ein Wert je Merkmal")

@@ -211,7 +211,7 @@ def main():
         print("Keine Uplinks gefunden.")
         return 1
 
-    I = a.intervall
+    intervall = a.intervall
     quellen = defaultdict(int)
     for u in uplinks:
         quellen[u["quelle"]] += 1
@@ -228,17 +228,17 @@ def main():
     for u in uplinks:
         je[u["dev"]].append(u)
 
-    print("Logger              Uplinks  verl.*  Lage im %d-s-Raster [s]   Streuung p5-p95 [s]  Gang zw. Abgleichen [s/Tag]" % I)
+    print("Logger              Uplinks  verl.*  Lage im %d-s-Raster [s]   Streuung p5-p95 [s]  Gang zw. Abgleichen [s/Tag]" % intervall)
     zeilen = []
     spruenge_alle = {}
     for dev in sorted(je):
         L = je[dev]
         # Lage im Raster: Sendebeginn - 1 s (Weckzeit = Raster + Slot*Abstand + 1 s) modulo Intervall
-        lagen = [((u["t_tx"] - 1.0) % I) for u in L]
-        # zirkulärer Mittelwert, dann Abweichungen in (-I/2, I/2]
-        w = [2 * math.pi * x / I for x in lagen]
-        m = math.atan2(sum(math.sin(v) for v in w), sum(math.cos(v) for v in w)) * I / (2 * math.pi) % I
-        abw = [((x - m + I / 2) % I) - I / 2 for x in lagen]
+        lagen = [((u["t_tx"] - 1.0) % intervall) for u in L]
+        # zirkulärer Mittelwert, dann Abweichungen in (-intervall/2, intervall/2]
+        w = [2 * math.pi * x / intervall for x in lagen]
+        m = math.atan2(sum(math.sin(v) for v in w), sum(math.cos(v) for v in w)) * intervall / (2 * math.pi) % intervall
+        abw = [((x - m + intervall / 2) % intervall) - intervall / 2 for x in lagen]
         abw_s = sorted(abw)
         p5 = abw_s[int(0.05 * (len(abw_s) - 1))]
         p95 = abw_s[int(0.95 * (len(abw_s) - 1))]
@@ -311,7 +311,7 @@ def main():
             w.writerow(["device_id", "utc", "sendebeginn_unix", "lage_im_raster_s", "fcnt", "zeitquelle"])
             for u in alle:
                 w.writerow([u["dev"], dt.datetime.fromtimestamp(u["t_tx"], dt.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
-                            "%.3f" % u["t_tx"], "%.3f" % ((u["t_tx"] - 1.0) % I), u["fcnt"], u["quelle"]])
+                            "%.3f" % u["t_tx"], "%.3f" % ((u["t_tx"] - 1.0) % intervall), u["fcnt"], u["quelle"]])
         print("\nCSV geschrieben: " + a.csv_aus)
     return 0
 

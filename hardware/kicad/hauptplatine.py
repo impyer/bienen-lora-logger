@@ -134,7 +134,7 @@ def zeichne_versorgung(b, T):
     D(T["U201"].p("BAT"), (302.26, 78.74))
     L("VBAT", 302.26, 78.74)
     S(T["C205"], 264.16, 82.55)
-    
+
     S(T["R206"], 279.4, 82.55, text="links")
     S(T["R207"], 279.4, 97.79, text="links")
     S(T["C207"], 289.56, 97.79)
@@ -1078,7 +1078,8 @@ def stub(b, t, pin, laenge=7.62, netz=None):
 def versorgung(p):
     b = p.blatt("Versorgung", "versorgung.kicad_sch", titel="Versorgung: Solar, Lader, 3,3 V, Sensorschiene")
 
-    eingang = [
+    # Die Listen gliedern das Blatt nur zum Lesen; b.teil() trägt jedes Teil selbst in b.teile ein.
+    _eingang = [
         b.teil("Connector_Generic:Conn_01x02", "J201", "Solar 1", **klemme(2),
                netze={"1": "GND", "2": "PV1"}, info="DEGSON 15EDGRC-3.5-02P (einreihig, SCH26-13)"),
         b.teil("Connector_Generic:Conn_01x02", "J202", "Solar 2", **klemme(2),
@@ -1097,7 +1098,7 @@ def versorgung(p):
         b.teil("power:PWR_FLAG", "#FLG202", "PWR_FLAG", netze={"1": "GND"}, info="Bezug über die Klemmen J201/J202 und die Zelle über Q801 (passive Pins)"),
     ]
 
-    lader = [
+    _lader = [
         b.teil("Bienen:BQ25185", "U201", "BQ25185DLHR", fp="Bienen:WSON-10-1EP_2.2x2mm_DLH0010A",
                netze={"IN": "VIN_LADER", "SYS": "SYS", "BAT": "VBAT", "~{CE}": "CE_LADEN", "TS/~{MR}": "NTC",
                       "ISET": "ISET", "ILIM/VSET": "ILIM", "STAT1": "LADE_STAT1", "STAT2": "LADE_STAT2",
@@ -1124,7 +1125,7 @@ def versorgung(p):
         b.teil("Device:C", "C207", "100n", fp=C0603, netze={"1": "ADC_AKKU", "2": "GND"}),
     ]
 
-    regler = [
+    _regler = [
         b.teil("Bienen:RT9080-33GJ5", "U202", "RT9080-33GJ5", fp="Package_TO_SOT_SMD:TSOT-23-5", lcsc="C841192",
                netze={"VIN": "SYS", "EN": "SYS", "VOUT": "+3V3", "GND": "GND"}, info="EN an VIN (nicht offen lassen)"),
         b.teil("Device:C", "C208", "2,2µ 16V X7R", fp=C0603, netze={"1": "SYS", "2": "GND"}, info="≥ 1 µF wirksam bei 4,5 V (REG26-11)"),
@@ -1151,7 +1152,8 @@ def akku(p):
     Bauteile 8xx. Quellen: versorgung.md 3.3/3.4, sicherheit-akku.md, LASTENHEFT V1–V3."""
     b = p.blatt("Akku", "akku.kicad_sch", titel="Akku: Zelle 18650, Zellschutz, Temperatur-Ladesperre")
     # --- Zelle, Messbrücke, Stecker ---
-    zelle = [
+    # Die Listen gliedern das Blatt nur zum Lesen; b.teil() trägt jedes Teil selbst in b.teile ein.
+    _zelle = [
         b.teil("Device:Battery_Cell", "BT801", "18650 3,6 V", fp="Battery:BatteryHolder_Keystone_1042_1x18650",
                netze={"+": "B+", "-": "B-"},
                info="Keystone 1042 (SMD), HW-02; seit HW-06 auf der Hauptplatine; Pad 1 = Plus; LCSC-Nummer [P]"),
@@ -1164,7 +1166,7 @@ def akku(p):
     ]
 
     # --- Zellschutz (HYCON-Anwendungsschaltung: R1 100 Ω, C1 100 nF, R2 2 kΩ) ---
-    schutz = [
+    _schutz = [
         b.teil("Bienen:HY2111-GB", "U801", "HY2111-GB", fp="Package_TO_SOT_SMD:SOT-23-6", lcsc="C82747",
                netze={"VDD": "HY_VDD", "VSS": "B-", "CS": "HY_CS", "OD": "GATE_ENTL", "OC": "GATE_LADE"}),
         b.teil("Device:R", "R801", "100", fp=R0603, netze={"1": "B+", "2": "HY_VDD"}, info="HYCON-Anwendungsschaltung R1"),
@@ -1177,7 +1179,7 @@ def akku(p):
     ]
 
     # --- Ladesperre Stufe 1: TMP390 U2 → Q2 → CE ---
-    stufe1 = [
+    _stufe1 = [
         b.teil("Bienen:TMP390", "U802", "TMP390A2DRL", fp="Package_TO_SOT_SMD:SOT-563",
                netze={"VDD": "TMP_VCC", "GND": "GND", "SETA": "SETA1", "SETB": "SETB1", "~{OUTA}": "GATE_CE", "~{OUTB}": "GATE_CE"},
                info="OUTA heiß 42 °C, OUTB kalt +5 °C, Hysterese 5 °C; Ausgänge verbunden (wired-OR)"),
@@ -1191,7 +1193,7 @@ def akku(p):
     ]
 
     # --- Ladesperre Stufe 2: TMP390 U3 trennt den NTC ---
-    stufe2 = [
+    _stufe2 = [
         b.teil("Bienen:TMP390", "U803", "TMP390A2DRL", fp="Package_TO_SOT_SMD:SOT-563",
                netze={"VDD": "TMP_VCC", "GND": "GND", "SETA": "SETA2", "SETB": "SETB2", "~{OUTA}": "GATE_NTC", "~{OUTB}": "NC"},
                info="nur Kanal A (heiß 42 °C, Hysterese 5 °C); OUTB offen (Datenblatt: erlaubt)"),

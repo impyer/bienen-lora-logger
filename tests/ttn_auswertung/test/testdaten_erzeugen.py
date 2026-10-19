@@ -2,7 +2,10 @@
 """Erzeugt aus einer Simulations-CSV (sim_zeitsync --csv) Testdateien im Format der
 TTN-Konsole (Live data -> Export as JSON) und der Storage Integration (NDJSON).
 NUR für den Test von ttn_zeitanalyse.py - das sind keine echten TTN-Daten."""
-import csv, json, sys, datetime as dt
+import csv
+import datetime as dt
+import json
+import sys
 
 def iso(t):
     return dt.datetime.fromtimestamp(t, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f") + "123Z"  # ns-Stellen wie TTN
@@ -15,7 +18,8 @@ for z in csv.DictReader(open(quelle)):
     fcnt[dev] = fcnt.get(dev, -1) + 1
     if z["verloren"] == "1":
         continue                      # verlorene Pakete kommen bei TTN nicht an
-    ende = float(z["tx_ende_utc_s"]); start = float(z["tx_start_utc_s"])
+    ende = float(z["tx_ende_utc_s"])
+    start = float(z["tx_start_utc_s"])
     up = {"end_device_ids": {"device_id": dev, "application_ids": {"application_id": "test-bienen"}},
           "received_at": iso(ende + 0.35),
           "uplink_message": {"f_port": 1, "f_cnt": fcnt[dev], "frm_payload": "AA==",

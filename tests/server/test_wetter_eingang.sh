@@ -91,26 +91,28 @@ pruefe "Batterie und Intervall in der Zeile" "$(sed -n 3p "$CSV" | cut -d';' -f1
 enthaelt "zweiter Stand" "$(senden "$(nachricht wetterstation-02 $HEX1 2026-10-31T23:59:59Z 1)")" "gespeichert: wiese/wetterstation-02_2026-10.csv"
 pruefe "Monat nach UTC (Ortszeit schon 01.11.)" "$( [ -f "$W/daten/wiese/wetterstation-02_2026-10.csv" ] && echo ja || echo nein)" "ja"
 
+# PHP-Code in einfachen Anführungszeichen ($s, $argv sind PHP, nicht Shell)
+# shellcheck disable=SC2016
 pruefe "staende.json: Stationen je Stand" "$(php -r '$s=json_decode(file_get_contents($argv[1]),true); echo implode(",",$s["hauptstand"]["stationen"])."|".implode(",",$s["wiese"]["stationen"])."|".$s["hauptstand"]["name"];' "$W/daten/staende.json")" "wetterstation-01|wetterstation-02|Hauptstand am Haus"
 pruefe "staende.json enthält kein Token" "$(grep -c "$TOKEN" "$W/daten/staende.json")" "0"
 pruefe "Datenverzeichnis geschützt (.htaccess)" "$(cat "$W/daten/.htaccess" 2>/dev/null)" "Require all denied"
-pruefe "Protokoll geschrieben" "$(ls "$W/log"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')" "1"
+pruefe "Protokoll geschrieben" "$(find "$W/log" -maxdepth 1 -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')" "1"
 
 # Gleichzeitige Zustellung derselben Nachricht: genau eine Zeile (Sperre je Station)
 M="$(nachricht wetterstation-01 $HEX1 2026-10-10T03:31:48Z 9)"
-PIDS=""; for i in 1 2 3 4 5; do senden "$M" > "$W/par_$i.txt" & PIDS="$PIDS $!"; done; wait $PIDS
+PIDS=(); for i in 1 2 3 4 5; do senden "$M" > "$W/par_$i.txt" & PIDS+=("$!"); done; wait "${PIDS[@]}"
 pruefe "parallel: genau einmal gespeichert" "$(cat "$W"/par_*.txt | grep -c gespeichert)" "1"
 pruefe "parallel: Zeilenzahl" "$(wc -l < "$CSV" | tr -d ' ')" "4"
 
 # PLT26-02: Rohprotokoll (R-1 Prüfsumme je Uplink, R-2 Fehler sichtbar, Messwert bleibt erhalten)
 U=$(cat "$W"/log/*.jsonl | grep -c '"art":"uplink"')
 pruefe "R-1: jede Rohzeile mit Prüfsumme des Eingangs" "$(cat "$W"/log/*.jsonl | grep '"art":"uplink"' | grep -c '"roh_sha256":"[0-9a-f]\{64\}"')" "$U"
-M=$(ls "$W/log"/*.jsonl | tail -n 1); mv "$M" "$W/log_sicher.jsonl"; mkdir "$M"
+M=$(printf '%s\n' "$W/log"/*.jsonl | tail -n 1); mv "$M" "$W/log_sicher.jsonl"; mkdir "$M"
 R=$(senden "$(nachricht wetterstation-01 $HEX1 2026-10-10T03:36:48Z 10)")
 enthaelt "R-2: Rohprotokoll gescheitert → Warnung in der Antwort" "$R" "WARNUNG: Rohprotokoll nicht geschrieben"
 enthaelt "R-2: Messwert trotzdem gespeichert" "$R" "gespeichert"
 pruefe "R-2: Zeile in der Wetter-CSV" "$(wc -l < "$CSV" | tr -d ' ')" "5"
-grep -q "Rohprotokoll nicht geschrieben" "$W/server.log" && ok "R-2: Eintrag im PHP-Fehlerprotokoll" || nok "R-2: Eintrag im PHP-Fehlerprotokoll"
+if grep -q "Rohprotokoll nicht geschrieben" "$W/server.log"; then ok "R-2: Eintrag im PHP-Fehlerprotokoll"; else nok "R-2: Eintrag im PHP-Fehlerprotokoll"; fi
 rmdir "$M"; mv "$W/log_sicher.jsonl" "$M"
 
 kill "$SPID" 2>/dev/null; wait "$SPID" 2>/dev/null; SPID=

@@ -76,7 +76,7 @@ for i in $(seq 1 50); do curl -s -o /dev/null "http://127.0.0.1:$PORT2/" && brea
 for i in $(seq 1 50); do curl -s -o /dev/null "http://127.0.0.1:$PORT/" && break; sleep 0.1; done
 # beelogger1 einrichten wie beim ersten Aufruf im Browser (legt beelogger_ini.php mit Log-Passwort "Log" an)
 curl -s -o /dev/null "http://127.0.0.1:$PORT/beelogger1/beelogger_show.php"
-[ -f "$W/www/beelogger1/beelogger_ini.php" ] && ok "beelogger1 eingerichtet" || nok "beelogger1 eingerichtet"
+if [ -f "$W/www/beelogger1/beelogger_ini.php" ]; then ok "beelogger1 eingerichtet"; else nok "beelogger1 eingerichtet"; fi
 
 senden() {  # $1 = JSON-Parameter für ttn_nachricht.js, $2 = Token (optional)
   node "$HIER/ttn_nachricht.js" "$1" > "$W/msg.json"
@@ -87,7 +87,7 @@ senden_datei() {  # $1 = fertige JSON-Datei, $2 = Token (optional)
     --data-binary @"$1" "http://127.0.0.1:$PORT/lora/lora_eingang.php"
 }
 zeilen() { wc -l < "$W/www/beelogger1/$1" | tr -d ' '; }
-nachholen_zahl() { ls "$W"/log/nachholen/*.json 2>/dev/null | wc -l | tr -d ' '; }
+nachholen_zahl() { find "$W/log/nachholen" -maxdepth 1 -name '*.json' 2>/dev/null | wc -l | tr -d ' '; }
 nachricht() {  # $1 = Datei, $2 = f_cnt, $3 = Unixzeit der Messung, $4 = weitere Werte (optional, JSON-Teil)
   node "$HIER/ttn_nachricht.js" "{\"geraet\":\"beelogger-01\",\"fport\":2,\"f_cnt\":$2,\"empfang\":\"$(date -u -d @$(($3+3)) +%Y-%m-%dT%H:%M:%SZ)\",\"werte\":{\"tOut\":6,${4:-}\"status\":1,\"zeit\":$3}}" > "$1"
 }
@@ -137,7 +137,7 @@ enthaelt "falsches Token → 401" "$(senden '{"geraet":"beelogger-01","fport":2,
 enthaelt "unbekanntes Gerät → ignoriert, 200" "$(senden '{"geraet":"sensecap-s2120-rad","fport":3,"empfang":"2026-10-08T13:30:00Z","hex":"00"}')" "ignoriert: Gerät nicht"
 enthaelt "ohne decoded_payload → ignoriert" "$(senden '{"geraet":"beelogger-01","fport":2,"empfang":"2026-10-08T13:30:00Z","ohne_decoded":true}')" "ignoriert: kein decoded_payload"
 enthaelt "GET → 405" "$(curl -s -w ' [%{http_code}]' "http://127.0.0.1:$PORT/lora/lora_eingang.php")" "[405]"
-[ "$(ls "$W"/log/*.jsonl 2>/dev/null | wc -l)" -ge 1 ] && ok "Protokoll geschrieben" || nok "Protokoll geschrieben"
+if [ "$(find "$W/log" -maxdepth 1 -name '*.jsonl' 2>/dev/null | wc -l)" -ge 1 ]; then ok "Protokoll geschrieben"; else nok "Protokoll geschrieben"; fi
 
 # --- 6b. SRV26-03/04: exakt dieselbe Nachricht noch einmal → doppelt, beelogger wird nicht aufgerufen ---
 nachricht "$W/m20.json" 20 1791532800   # 2026-10-09 08:00Z
@@ -153,14 +153,14 @@ pruefe "doppelt: genau 1 Zeile in lora_zusatz.csv dazu" "$(($(zeilen lora_zusatz
 # (a) dieselbe Nachricht 4× gleichzeitig: genau einmal gespeichert, 3× doppelt
 nachricht "$W/m21.json" 21 1791536400
 W0=$(zeilen week.csv); Z0=$(zeilen lora_zusatz.csv); rm -f "$W"/par_*.txt
-PIDS=""; for i in 1 2 3 4; do senden_datei "$W/m21.json" > "$W/par_$i.txt" & PIDS="$PIDS $!"; done; wait $PIDS   # nicht auf die Testserver warten
+PIDS=(); for i in 1 2 3 4; do senden_datei "$W/m21.json" > "$W/par_$i.txt" & PIDS+=("$!"); done; wait "${PIDS[@]}"   # nicht auf die Testserver warten
 G=$(grep -l "^gespeichert" "$W"/par_*.txt | wc -l | tr -d ' '); D=$(grep -l "^doppelt" "$W"/par_*.txt | wc -l | tr -d ' ')
 pruefe "parallel gleich: 1× gespeichert, 3× doppelt" "$G/$D" "1/3"
 pruefe "parallel gleich: je 1 Zeile in week.csv und lora_zusatz.csv" "$(($(zeilen week.csv)-W0))/$(($(zeilen lora_zusatz.csv)-Z0))" "1/1"
 # (b) 4 verschiedene Messungen gleichzeitig (10 min Abstand): jede Meldung stimmt mit der Datei überein
 W0=$(zeilen week.csv); rm -f "$W"/par_*.txt
 for k in 1 2 3 4; do nachricht "$W/p$k.json" $((30+k)) $((1791540000 + k*600)); done
-PIDS=""; for k in 1 2 3 4; do senden_datei "$W/p$k.json" > "$W/par_$k.txt" & PIDS="$PIDS $!"; done; wait $PIDS
+PIDS=(); for k in 1 2 3 4; do senden_datei "$W/p$k.json" > "$W/par_$k.txt" & PIDS+=("$!"); done; wait "${PIDS[@]}"
 G=$(grep -l "^gespeichert" "$W"/par_*.txt | wc -l | tr -d ' '); AB=$(grep -l "^abgelehnt" "$W"/par_*.txt | wc -l | tr -d ' ')
 pruefe "parallel verschieden: jede Antwort gespeichert oder abgelehnt" "$((G+AB))" "4"
 pruefe "parallel verschieden: Zahl 'gespeichert' = neue Zeilen in week.csv" "$G" "$(($(zeilen week.csv)-W0))"
@@ -188,6 +188,8 @@ cp "$LOGZIEL" "$W/log_vorher.php"
 cp "$REPO/server/beelogger_eigen/beelogger1/beelogger_log.php" "$W/log_eigen.php"
 unzip -p "$REPO/server/M40_261004_ServerSkripte.zip" beelogger1/beelogger_log.php > "$W/log_original.php"
 HAUPT_VORHER=$([ -f "$W/www/beelogger_zeitzone.php" ] && echo ja || echo nein)
+# PHP-Code in einfachen Anführungszeichen: $Zeitzone ist PHP, die Shell soll nichts ersetzen
+# shellcheck disable=SC2016
 matrix() {  # $1 Name, $2 log.php, $3 Merkmal im Hauptordner ja/nein, $4 utc_zeit (PHP), $5 f_cnt, $6 Unixzeit, $7 erwarteter Text
   cp "$2" "$LOGZIEL"
   if [ "$3" = ja ]; then echo '<?php $Zeitzone="Europe/Berlin";' > "$W/www/beelogger_zeitzone.php"; else rm -f "$W/www/beelogger_zeitzone.php"; fi
@@ -198,7 +200,7 @@ matrix() {  # $1 Name, $2 log.php, $3 Merkmal im Hauptordner ja/nein, $4 utc_zei
 # Messzeiten 2026-10-10 10:00Z, 11:00Z … (MESZ 12:00, 13:00 …). Gespeicherter Zeitstempel muss immer die Messzeit sein.
 matrix "Matrix: alte log.php + Merkmal, auto → Ortszeit-Modus (keine 2-h-Verschiebung)" "$W/log_original.php" ja "'auto'" 50 1791626400 "gespeichert 2026/10/10_12:00:00 (Ortszeit-Modus)"
 pruefe "Matrix: alte log.php + Merkmal: Zeitstempel = Messzeit" "$(zeitstempel)" "1791626400"
-grep -q "Mischinstallation" "$W"/log/*.jsonl && ok "Matrix: Mischinstallation im Protokoll gemeldet" || nok "Matrix: Mischinstallation im Protokoll gemeldet"
+if grep -q "Mischinstallation" "$W"/log/*.jsonl; then ok "Matrix: Mischinstallation im Protokoll gemeldet"; else nok "Matrix: Mischinstallation im Protokoll gemeldet"; fi
 matrix "Matrix: alte log.php ohne Merkmal, auto → Ortszeit-Modus" "$W/log_original.php" nein "'auto'" 51 1791630000 "gespeichert 2026/10/10_13:00:00 (Ortszeit-Modus)"
 pruefe "Matrix: alte log.php ohne Merkmal: Zeitstempel = Messzeit" "$(zeitstempel)" "1791630000"
 matrix "Matrix: alte log.php, utc_zeit=true → 202, nichts gespeichert" "$W/log_original.php" ja "true" 52 1791633600 "[202]"
@@ -212,17 +214,21 @@ matrix "Matrix: eigene log.php + Merkmal, utc_zeit=false → Ortszeit-Modus" "$W
 matrix "Matrix: eigene log.php + Merkmal, auto → UTC-Modus" "$W/log_eigen.php" ja "'auto'" 55 1791644400 "gespeichert 2026/10/10_17:00:00 (UTC-Modus)"
 pruefe "Matrix: eigene log.php + Merkmal: Zeitstempel = Messzeit" "$(zeitstempel)" "1791644400"
 cp "$W/log_vorher.php" "$LOGZIEL"
+# PHP-Code in einfachen Anführungszeichen ($Zeitzone ist PHP, siehe matrix())
+# shellcheck disable=SC2016
 if [ "$HAUPT_VORHER" = ja ]; then echo '<?php $Zeitzone="Europe/Berlin";' > "$W/www/beelogger_zeitzone.php"; else rm -f "$W/www/beelogger_zeitzone.php"; fi
 cfg_schreiben
 
 # --- 6f. SRV26-05: BEEP nur für gespeicherte Datensätze (Nachbildung über BeepApiHeader.php, ohne Netz) ---
+# PHP-Code und sed-Muster in einfachen Anführungszeichen ($ch, $burl, $Beep, $BeepId sind PHP, nicht Shell)
+# shellcheck disable=SC2016
 if [ "$VARIANTE" = "eigen" ]; then
   # beelogger_log.php bindet ../../BeepApiHeader.php nach curl_init() ein: dort auf die lokale Nachbildung umlenken
   printf '<?php curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:%s/beep_nachbildung.php?" . (string)parse_url($burl, PHP_URL_QUERY));\n' "$PORT" > "$W/BeepApiHeader.php"
   printf '<?php file_put_contents("%s/beep.log", $_SERVER["QUERY_STRING"] . " " . file_get_contents("php://input") . "\\n", FILE_APPEND | LOCK_EX); echo "{}";\n' "$W" > "$W/www/beep_nachbildung.php"
   INI="$W/www/beelogger1/beelogger_ini.php"; cp "$INI" "$W/ini_vorher.php"
   sed -i 's/^\$Beep="[^"]*";/$Beep="aktiviert";/; s/^\$BeepId="[^"]*";/$BeepId="testbeepid";/' "$INI"
-  grep -q '^\$Beep="aktiviert";' "$INI" && ok "BEEP: in beelogger_ini.php aktiviert" || nok "BEEP: in beelogger_ini.php aktiviert"
+  if grep -q '^\$Beep="aktiviert";' "$INI"; then ok "BEEP: in beelogger_ini.php aktiviert"; else nok "BEEP: in beelogger_ini.php aktiviert"; fi
   rm -f "$W/beep.log"; touch "$W/beep.log"
   T=1791648000   # 2026-10-10 18:00Z
   nachricht "$W/m60.json" 60 $T '"g1":40.5,'
@@ -248,7 +254,7 @@ nachricht "$W/m70.json" 70 1791655200   # 2026-10-10 20:00Z
 A=$(senden_datei "$W/m70.json")
 enthaelt "Zusatz nicht schreibbar: Hauptdatensatz trotzdem gespeichert" "$A" "gespeichert"
 enthaelt "Zusatz nicht schreibbar: Warnung in der Antwort" "$A" "WARNUNG: lora_zusatz.csv nicht geschrieben"
-grep -q '"klasse":"zusatz_fehler"' "$W"/log/*.jsonl && ok "Zusatz nicht schreibbar: zusatz_fehler mit Zeile im Protokoll" || nok "Zusatz nicht schreibbar: zusatz_fehler mit Zeile im Protokoll"
+if grep -q '"klasse":"zusatz_fehler"' "$W"/log/*.jsonl; then ok "Zusatz nicht schreibbar: zusatz_fehler mit Zeile im Protokoll"; else nok "Zusatz nicht schreibbar: zusatz_fehler mit Zeile im Protokoll"; fi
 rmdir "$ZD"; mv "$W/zusatz_sicher.csv" "$ZD"
 
 # --- 7. Winterzeit-Umstellung 25.10.2026 (bekannter beelogger-Fehler B2, wird in Schritt 4 behoben) ---
@@ -270,7 +276,7 @@ else
     if [ "$H" -lt 8 ]; then
       pruefe "Winterzeit vor 08:00: week.csv auf 7 Tage gekürzt (Kürzungspfad durchlaufen)" "$(zeilen week.csv)" "7"
     else
-      Z=$(zeilen week.csv); [ "$Z" -gt 7 ] && ok "Winterzeit ab 08:00: week.csv ungekürzt ($Z Zeilen)" || nok "Winterzeit ab 08:00: week.csv ungekürzt ($Z Zeilen)"
+      Z=$(zeilen week.csv); if [ "$Z" -gt 7 ]; then ok "Winterzeit ab 08:00: week.csv ungekürzt ($Z Zeilen)"; else nok "Winterzeit ab 08:00: week.csv ungekürzt ($Z Zeilen)"; fi
     fi
   fi
   # Zeitstempel der Umstellungsnacht lückenlos und aufsteigend (Abstand 1800 s)
@@ -304,15 +310,15 @@ for i in 1 2 3 4 5; do nachricht "$W/r$i.json" $((600+i)) $((T0R+i*900)); senden
 for i in 1 2 3 4 5; do senden "{\"geraet\":\"unbekannt-$i\",\"fport\":2,\"f_cnt\":$((700+i)),\"empfang\":\"2026-10-08T1$i:00:00Z\",\"hex\":\"00\"}" > /dev/null; done
 pruefe "R-1: 10 Uplinks (davon 5 unbekannte Geräte) → 10 Rohzeilen" "$(( $(rohzeilen) - L0 ))" "10"
 pruefe "R-1: jede Rohzeile mit Prüfsumme des Eingangs" "$(cat "$W"/log/*.jsonl | grep '"art":"uplink"' | grep -c '"roh_sha256":"[0-9a-f]\{64\}"')" "$(rohzeilen)"
-grep -q "\"roh_sha256\":\"$(sha256sum "$W/r1.json" | cut -d' ' -f1)\"" "$W"/log/*.jsonl && ok "R-1: Prüfsumme = SHA-256 des empfangenen Textes" || nok "R-1: Prüfsumme = SHA-256 des empfangenen Textes"
-grep '"art":"uplink"' "$W"/log/*.jsonl | grep -q '"geraet":"unbekannt-3".*"uplink_message"' && ok "R-1: unbekanntes Gerät vollständig protokolliert" || nok "R-1: unbekanntes Gerät vollständig protokolliert"
-M=$(ls "$W"/log/*.jsonl | tail -n 1); mv "$M" "$W/log_sicher.jsonl"; mkdir "$M"
+if grep -q "\"roh_sha256\":\"$(sha256sum "$W/r1.json" | cut -d' ' -f1)\"" "$W"/log/*.jsonl; then ok "R-1: Prüfsumme = SHA-256 des empfangenen Textes"; else nok "R-1: Prüfsumme = SHA-256 des empfangenen Textes"; fi
+if grep '"art":"uplink"' "$W"/log/*.jsonl | grep -q '"geraet":"unbekannt-3".*"uplink_message"'; then ok "R-1: unbekanntes Gerät vollständig protokolliert"; else nok "R-1: unbekanntes Gerät vollständig protokolliert"; fi
+M=$(printf '%s\n' "$W"/log/*.jsonl | tail -n 1); mv "$M" "$W/log_sicher.jsonl"; mkdir "$M"
 nachricht "$W/r6.json" 606 $((T0R+6*900))
 A=$(senden_datei "$W/r6.json")
 enthaelt "R-2: Rohprotokoll gescheitert → Warnung in der Antwort" "$A" "WARNUNG: Rohprotokoll nicht geschrieben"
 enthaelt "R-2: Messwert trotzdem gespeichert (HTTP 200)" "$A" "[200]"
 pruefe "R-2: Datensatz in week.csv" "$(zeitstempel)" "$((T0R+6*900))"
-grep -q "Rohprotokoll nicht geschrieben" "$W/server.log" && ok "R-2: Eintrag im PHP-Fehlerprotokoll" || nok "R-2: Eintrag im PHP-Fehlerprotokoll"
+if grep -q "Rohprotokoll nicht geschrieben" "$W/server.log"; then ok "R-2: Eintrag im PHP-Fehlerprotokoll"; else nok "R-2: Eintrag im PHP-Fehlerprotokoll"; fi
 rmdir "$M"; mv "$W/log_sicher.jsonl" "$M"
 
 echo "$((ANZ-FEHLER)) von $ANZ Prüfungen bestanden"

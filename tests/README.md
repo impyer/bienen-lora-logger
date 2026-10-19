@@ -20,14 +20,14 @@ Der CI-Lauf prüft, dass die Kopien gleich bleiben.
 
 Neben `tests.yml` (funktionale Tests) und dem CodeQL-Default-Setup des Repos (GitHub-seitig konfiguriert, Actions/C-C++/Go/JavaScript/Python, kein PHP; keine Workflow-Datei im Repo) läuft `.github/workflows/static-analysis.yml`:
 
-| Job | verpflichtend | informativ (continue-on-error, Baseline 19.10.2026) |
+| Job | verpflichtend | informativ (ohne Mindestwert) |
 |---|---|---|
 | `syntax` | `compileall`, `node --check`, `php -l` (alle PHP-Dateien), `bash -n`, actionlint | – |
-| `ruff` | E9, F63, F7, F82 (Syntax, undefinierte Namen; `--isolated`) | Regelsatz aus `ruff.toml` (E, W, F, B ohne E501): 22 Hinweise |
-| `bandit` | Schweregrad hoch (`-lll`) | mittel (`-ll`): 1 Treffer B608 in `tests/datenbank/test_schema.py` (SQL-String im Test) |
-| `shellcheck` | `-S error` | alle Hinweise |
+| `ruff` | E9, F63, F7, F82 (`--isolated`) und der Regelsatz aus `ruff.toml` (E, W, F, B ohne E501) | – |
+| `bandit` | Schweregrad mittel und hoch (`-ll`); B608 in `tests/datenbank/test_schema.py` (fester SQL-Testwert) per `# nosec B608` begründet ausgenommen | – |
+| `shellcheck` | alle Hinweise; SC2016 bei PHP-Code in einfachen Anführungszeichen per `# shellcheck disable=SC2016` begründet ausgenommen | – |
 | `abdeckung-cpp` | Host-Tests und Simulation (3 Tage) laufen instrumentiert | Abdeckung der Dateien unter `firmware/` (gcovr), Artefakt `abdeckung-cpp` |
 | `abdeckung-js` | beide Formatter-Tests laufen | Abdeckung `formatter/` (c8), Artefakt `abdeckung-js` |
 | `abdeckung-python` | `test_beelogger1_inventur.py`, Rechenmodelle, `eigen_anpassen.py` laufen | Abdeckung `hardware/` (ohne kicad, layout-auftrag) und `server/` (coverage), Artefakt `abdeckung-python` |
 
-Noch ohne Mindestwerte: zuerst Baseline erheben, dann Schwellen und verpflichtende Regelsätze festlegen. Nicht erfasst: PHP-Abdeckung (kein Xdebug-Lauf), `tests/datenbank/test_schema.py` (braucht PostgreSQL), KiCad-Generator (braucht KiCad 10, siehe `kicad-schaltplan` in `tests.yml`). Lokal: `ruff check .`, `bandit -r hardware server tests -ll`, `shellcheck $(git ls-files '*.sh')`.
+Die Erst-Baselines vom 19.10.2026 (Ruff 22, Bandit `-ll` 1, ShellCheck 34 Hinweise) wurden am selben Tag auf 0 gebracht; seither sind diese Schritte verpflichtend, neue Hinweise machen den Lauf rot. Nur die Abdeckung bleibt ohne Mindestwerte (zuerst Baseline beobachten, dann Schwellen festlegen). Nicht erfasst: PHP-Abdeckung (kein Xdebug-Lauf), `tests/datenbank/test_schema.py` (braucht PostgreSQL), KiCad-Generator (braucht KiCad 10, siehe `kicad-schaltplan` in `tests.yml`). Lokal (Windows: `pip install ruff==0.17.1 bandit==1.9.4 shellcheck-py actionlint-py`, `PYTHONUTF8=1`): `ruff check .`, `bandit -q -r hardware server tests -ll`, `git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc`, `actionlint`.

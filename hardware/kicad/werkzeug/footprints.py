@@ -249,8 +249,10 @@ def main():
             with open(pfad, encoding="utf-8") as d:
                 inhalt = d.read()
             zaehler = iter(range(100000))
+            # datei/zaehler als Vorgabewerte gebunden (Ruff B023); re.sub ruft das Lambda noch im selben
+            # Schleifendurchlauf auf, die erzeugten UUIDs bleiben gleich (Reproduzierbarkeitsprüfung in pruefen.sh).
             inhalt = re.sub(r'\(uuid "[0-9a-f-]+"\)',
-                            lambda m: '(uuid "%s")' % uuid.uuid5(uuid.NAMESPACE_URL, "bienen/%s/%d" % (datei, next(zaehler))),
+                            lambda m, datei=datei, zaehler=zaehler: '(uuid "%s")' % uuid.uuid5(uuid.NAMESPACE_URL, "bienen/%s/%d" % (datei, next(zaehler))),
                             inhalt)
             with open(pfad, "w", encoding="utf-8") as d:
                 d.write(inhalt)

@@ -1,10 +1,9 @@
 # Ruff-Regelsatz für die statische Analyse (.github/workflows/static-analysis.yml).
 #
-# Verpflichtend in der CI sind nur Syntaxfehler und undefinierte Namen (E9, F63, F7, F82);
-# dieser Schritt läuft mit --isolated und ist von dieser Datei unabhängig.
-# Der Regelsatz hier ist die informative Baseline (Stand 19.10.2026: 22 Hinweise, davon
-# 8 F841, 6 B007, 2 B023, 2 E401, je 1 E702, E741, F401, W293). Ziel: auf 0 bringen,
-# dann den Schritt verpflichtend machen (continue-on-error entfernen).
+# Verpflichtend in der CI sind zwei Schritte: Syntaxfehler und undefinierte Namen (E9, F63, F7, F82) mit
+# --isolated, unabhängig von dieser Datei, und der Regelsatz hier. Die Erst-Baseline vom 19.10.2026
+# (22 Hinweise: 8 F841, 6 B007, 2 B023, 2 E401, je 1 E702, E741, F401, W293) wurde am selben Tag auf 0
+# gebracht; seither muss `ruff check .` ohne Hinweis durchlaufen.
 target-version = "py39"
 line-length = 120
 

@@ -4,7 +4,8 @@
 # Jede Änderung prüft, dass die Originalstelle genau einmal vorkommt; sonst Abbruch.
 # So lässt sich die Anpassung auf eine neue beelogger-Fassung übertragen und Abweichungen fallen sofort auf.
 # Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
-import sys, os
+import os
+import sys
 
 ORDNER = sys.argv[1]
 KENNUNG = "eigen-utc-2"

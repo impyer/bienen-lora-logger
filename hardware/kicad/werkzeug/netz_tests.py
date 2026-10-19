@@ -435,6 +435,7 @@ def main():
     for jp, mod, mcu_netz, pin in (("JP401", "TXEN_MOD", "LORA_TXEN", "5"), ("JP402", "RXEN_MOD", "LORA_RXEN", "11")):
         pruefe("%s ist offene Lötbrücke" % jp, "_Open_" in h_wert.get(jp + ":footprint", ""), h_wert.get(jp + ":footprint"))
         genau(h, mod, {("U401", pin), (jp, "1")})
+        pruefe("%s Pin 2 = %s (MCU-Seite der Brücke)" % (jp, mcu_netz), h_pin.get((jp, "2")) == mcu_netz, h_pin.get((jp, "2")))
     pruefe("Ra-01SH DIO2 ohne Verbindung", h_pin.get(("U401", "7"), "unconnected").startswith("unconnected"), h_pin.get(("U401", "7")))
     # --- Waage (SCH26-07) ---
     waage(h, h_pin, h_wert)

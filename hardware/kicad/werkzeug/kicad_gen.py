@@ -247,7 +247,7 @@ class Teil:
         for (_, _, _, px, py, _, _) in self.pins:
             x0, x1, y0, y1 = min(x0, px), max(x1, px), min(y0, py), max(y1, py)
         links = rechts = oben = unten = 0.0
-        for (nr, _, _, px, py, w, _) in self.pins:
+        for (nr, _, _, _px, _py, w, _) in self.pins:
             lab = len(str(self.pin_netz.get(nr, ""))) * 1.3 + 4
             if w == 0:
                 links = max(links, lab)
@@ -488,7 +488,7 @@ class Blatt:
             objekte.append(sym)
 
             gesehen = set()
-            for (nr, name, typ, px, py, w, einheit) in t.pins:
+            for (nr, _name, _typ, px, py, w, _einheit) in t.pins:
                 netz = t.pin_netz.get(nr)
                 ex, ey = t.p(nr) if self.verdrahtet else (x + px, y - py)
                 key = (round(ex, 3), round(ey, 3))

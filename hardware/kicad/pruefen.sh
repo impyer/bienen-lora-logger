@@ -17,19 +17,22 @@ erzeugen() { python3 werkzeug/symbole.py >/dev/null; python3 werkzeug/footprints
 
 # SCH26-12: Alle erzeugten Schaltplanblätter gehen in die Doppelerzeugung, nicht eine feste Liste.
 # Die Liste wird nach dem ersten Erzeugen gebildet, damit neue Blätter automatisch dabei sind.
-dateiliste() { echo bienen.kicad_sym; ls Bienen.pretty/*.kicad_mod; ls hauptplatine/*.kicad_sch | LC_ALL=C sort; }
+dateiliste() { echo bienen.kicad_sym; printf '%s\n' Bienen.pretty/*.kicad_mod; printf '%s\n' hauptplatine/*.kicad_sch | LC_ALL=C sort; }
+dateien_lesen() { DATEIEN=(); while IFS= read -r z; do DATEIEN+=("$z"); done < <(dateiliste); }   # Feld DATEIEN füllen
 # Abdeckung: Jede Blattdatei, auf die ein Wurzelblatt verweist, muss in der Liste stehen,
 # und jede .kicad_sch im Ordner muss Wurzel oder verwiesenes Blatt sein (keine verwaisten Dateien).
-abdeckung() {
-  local liste="$1" fehl=0 verweise f
+abdeckung() {   # Argumente: alle Dateien der Reproduzierbarkeitsprüfung
+  local fehl=0 verweise f w
+  local -a liste=("$@")
   for w in $WURZELN; do
     verweise=$(grep -o '"Sheetfile" "[^"]*"' "$w" | sed 's/.*" "\(.*\)"/\1/' || true)
     for f in $verweise; do
       f="$(dirname "$w")/$f"
-      echo "$liste" | grep -qx "$f" || { echo "FEHL: Blatt $f fehlt in der Reproduzierbarkeitsprüfung"; fehl=1; }
+      printf '%s\n' "${liste[@]}" | grep -qx "$f" || { echo "FEHL: Blatt $f fehlt in der Reproduzierbarkeitsprüfung"; fehl=1; }
     done
   done
-  for f in $(echo "$liste" | grep '\.kicad_sch$'); do
+  for f in "${liste[@]}"; do
+    case "$f" in *.kicad_sch) ;; *) continue ;; esac
     case " $WURZELN " in *" $f "*) continue ;; esac
     grep -q "\"Sheetfile\" \"$(basename "$f")\"" "$(dirname "$f")"/*.kicad_sch 2>/dev/null \
       || { echo "FEHL: $f ist weder Wurzel noch von einem Wurzelblatt verwiesen"; fehl=1; }
@@ -40,22 +43,28 @@ abdeckung() {
 if [ "${1:-}" = "--gegenprobe" ]; then
   # Erzeuger absichtlich nicht reproduzierbar machen (Zufalls-UUIDs) → die Prüfung muss scheitern,
   # und zwar für jede Blattdatei. Danach wird der echte Stand wieder erzeugt.
-  BIENEN_GEGENPROBE_ZUFALL=1 erzeugen; DATEIEN=$(dateiliste); H1=$(sha256sum $DATEIEN)
-  BIENEN_GEGENPROBE_ZUFALL=1 erzeugen; H2=$(sha256sum $DATEIEN)
+  BIENEN_GEGENPROBE_ZUFALL=1 erzeugen; dateien_lesen; H1=$(sha256sum "${DATEIEN[@]}")
+  BIENEN_GEGENPROBE_ZUFALL=1 erzeugen; H2=$(sha256sum "${DATEIEN[@]}")
   erzeugen
   fehl=0
-  for f in $(echo "$DATEIEN" | grep '\.kicad_sch$'); do
-    a=$(echo "$H1" | grep "  $f\$"); b=$(echo "$H2" | grep "  $f\$")
+  for f in "${DATEIEN[@]}"; do
+    case "$f" in *.kicad_sch) ;; *) continue ;; esac
+    # sha256sum trennt mit zwei Leerzeichen, unter Windows (Binärmodus) mit " *"; ohne Treffer leer statt Abbruch (set -e)
+    a=$(echo "$H1" | grep " [ *]$f\$" || true); b=$(echo "$H2" | grep " [ *]$f\$" || true)
     if [ "$a" != "$b" ]; then echo "Gegenprobe ok: Abweichung in $f erkannt"; else echo "Gegenprobe FEHL: $f nicht als abweichend erkannt"; fehl=1; fi
   done
   exit $fehl
 fi
 
-erzeugen; DATEIEN=$(dateiliste); H1=$(sha256sum $DATEIEN)
-abdeckung "$DATEIEN"
-echo "Reproduzierbarkeit geprüft für: $(echo $DATEIEN)"
-erzeugen; H2=$(sha256sum $DATEIEN)
-[ "$H1" = "$H2" ] && echo "Reproduzierbar: zweimal erzeugt, identisch" || { echo "FEHL: Erzeugung nicht reproduzierbar"; diff <(echo "$H1") <(echo "$H2"); exit 1; }
+erzeugen; dateien_lesen; H1=$(sha256sum "${DATEIEN[@]}")
+abdeckung "${DATEIEN[@]}"
+echo "Reproduzierbarkeit geprüft für: ${DATEIEN[*]}"
+erzeugen; H2=$(sha256sum "${DATEIEN[@]}")
+if [ "$H1" = "$H2" ]; then
+  echo "Reproduzierbar: zweimal erzeugt, identisch"
+else
+  echo "FEHL: Erzeugung nicht reproduzierbar"; diff <(echo "$H1") <(echo "$H2"); exit 1
+fi
 python3 werkzeug/erc_pruefen.py
 mkdir -p pdf netzliste
 for f in $WURZELN; do
