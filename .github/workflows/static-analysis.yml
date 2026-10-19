@@ -1,9 +1,9 @@
 # Statische Analyse und Testabdeckung (ergänzt tests.yml und codeql.yml).
 #
 # Zwei Stufen je Werkzeug:
-#   verpflichtend  – Schritt ohne continue-on-error; rot = Gate G1 nicht erfüllt (Regelwerk 1.1, tests-freigaben.md).
-#   informativ     – Schritt mit continue-on-error; Baseline vom 19.10.2026, Annotationen im PR und Zusammenfassung
-#                    im Lauf. Wenn eine Baseline 0 Hinweise erreicht, continue-on-error entfernen.
+#   verpflichtend  – Schritt, der rot wird; rot = Gate G1 nicht erfüllt (Regelwerk 1.1, tests-freigaben.md).
+#   informativ     – Schritt endet mit ::warning:: statt rot; Baseline vom 19.10.2026, Annotationen im PR und
+#                    Zusammenfassung im Lauf. Erreicht eine Baseline 0 Hinweise, das „|| echo ::warning“ entfernen.
 # Abdeckung wird gemessen und als Artefakt abgelegt, noch ohne Mindestwert (Erst-Baseline).
 # Software-CI ersetzt keine T4-Messung, keinen HiL-Test und keinen TTN-Feldtest.
 name: statische-analyse
@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 20
       - name: Python (compileall, alle eingecheckten *.py)
-        run: python3 -m compileall -q $(git ls-files '*.py')
+        run: git ls-files -z '*.py' | xargs -0 python3 -m compileall -q
       - name: JavaScript (node --check, alle eingecheckten *.js)
         run: for f in $(git ls-files '*.js'); do node --check "$f" || exit 1; done
       - name: PHP (php -l, alle eingecheckten *.php, auch Original M.40)
@@ -48,10 +48,9 @@ jobs:
       - name: Verpflichtend – Syntax und undefinierte Namen (E9, F63, F7, F82; unabhängig von ruff.toml)
         run: ruff check --isolated --select E9,F63,F7,F82 --output-format github .
       - name: "Informativ – Regelsatz aus ruff.toml (E, W, F, B ohne E501; Baseline 19.10.2026: 22 Hinweise)"
-        continue-on-error: true
         run: |
           { echo '## Ruff (ruff.toml)'; echo '```'; ruff check --statistics . || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          ruff check --output-format github .
+          ruff check --output-format github . || echo "::warning::Ruff meldet Hinweise nach ruff.toml (informativ, Annotationen und Zusammenfassung des Laufs)"
 
   bandit:
     name: Bandit (Python-Sicherheit) – hoch verpflichtend, mittel informativ
@@ -65,10 +64,9 @@ jobs:
       - name: Verpflichtend – Schweregrad hoch (-lll)
         run: bandit -q -r hardware server tests -lll
       - name: Informativ – Schweregrad mittel und höher (-ll; Baseline 19.10.2026 ein Treffer B608 in tests/datenbank/test_schema.py)
-        continue-on-error: true
         run: |
           { echo '## Bandit (-ll)'; echo '```'; bandit -q -r hardware server tests -ll || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          bandit -q -r hardware server tests -ll
+          bandit -q -r hardware server tests -ll || echo "::warning::Bandit meldet Treffer mit Schweregrad mittel (informativ, siehe Zusammenfassung des Laufs)"
 
   shellcheck:
     name: ShellCheck – Fehler verpflichtend, Warnungen informativ
@@ -78,12 +76,11 @@ jobs:
       - name: Version des Runners
         run: shellcheck --version
       - name: Verpflichtend – Schweregrad error
-        run: shellcheck -S error $(git ls-files '*.sh')
-      - name: Informativ – alle Hinweise (Erst-Baseline 19.10.2026)
-        continue-on-error: true
+        run: git ls-files -z '*.sh' | xargs -0 shellcheck -S error
+      - name: Informativ – alle Hinweise (Baseline 19.10.2026 34 Hinweise, SC2015/SC2086/SC2016/SC2012/SC2116)
         run: |
-          { echo '## ShellCheck'; echo '```'; shellcheck -f gcc $(git ls-files '*.sh') || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          shellcheck -f gcc $(git ls-files '*.sh')
+          { echo '## ShellCheck'; echo '```'; git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          git ls-files -z '*.sh' | xargs -0 shellcheck -f gcc || echo "::warning::ShellCheck meldet Hinweise (informativ, siehe Zusammenfassung des Laufs)"
 
   abdeckung-cpp:
     name: Abdeckung C++ (Firmware-Quellen über Host-Tests und Simulation, gcov/gcovr)
@@ -101,15 +98,15 @@ jobs:
         run: |
           set -e
           mkdir -p abdeckung/cpp
-          F="--coverage -O0 -g -Wall -Wextra"
+          F=(--coverage -O0 -g -Wall -Wextra)
           node tests/firmware/vektoren_v2.js > tests/firmware/ff2_vektoren.h
-          g++ $F -std=c++11 -o abdeckung/cpp/test_zeitsync tests/host/test_zeitsync.cpp
+          g++ "${F[@]}" -std=c++11 -o abdeckung/cpp/test_zeitsync tests/host/test_zeitsync.cpp
           ./abdeckung/cpp/test_zeitsync
-          g++ $F -std=c++11 -o abdeckung/cpp/test_funkformat_v2 tests/firmware/test_funkformat_v2.cpp
+          g++ "${F[@]}" -std=c++11 -o abdeckung/cpp/test_funkformat_v2 tests/firmware/test_funkformat_v2.cpp
           ./abdeckung/cpp/test_funkformat_v2
-          g++ $F -std=c++11 -o abdeckung/cpp/test_bee_fft tests/firmware/test_bee_fft.cpp
+          g++ "${F[@]}" -std=c++11 -o abdeckung/cpp/test_bee_fft tests/firmware/test_bee_fft.cpp
           ./abdeckung/cpp/test_bee_fft
-          g++ $F -std=c++17 -DZEITSYNC_AKTIV=1 -o abdeckung/cpp/sim_sync tests/sim/sim_zeitsync.cpp
+          g++ "${F[@]}" -std=c++17 -DZEITSYNC_AKTIV=1 -o abdeckung/cpp/sim_sync tests/sim/sim_zeitsync.cpp
           ./abdeckung/cpp/sim_sync --tage 3 > /dev/null
       - name: Bericht (nur Dateien unter firmware/)
         run: |
@@ -171,14 +168,14 @@ jobs:
           set -e
           mkdir -p abdeckung/python
           export COVERAGE_FILE=abdeckung/python/.coverage
-          Q="--source=hardware,server --omit=hardware/kicad/*,hardware/layout-auftrag/*"
+          Q=("--source=hardware,server" "--omit=hardware/kicad/*,hardware/layout-auftrag/*")
           # Offline-Unittest der Kanalinventur (läuft sonst in keinem Job)
-          coverage run $Q -m unittest tests/server/test_beelogger1_inventur.py
+          coverage run "${Q[@]}" -m unittest tests/server/test_beelogger1_inventur.py
           for s in hardware/energiebilanz.py hardware/mikrofon_filter.py hardware/i2c_leitung.py hardware/funk_modell.py hardware/schaltplan_spice.py; do
-            echo "== $s"; coverage run -a $Q "$s" > /dev/null
+            echo "== $s"; coverage run -a "${Q[@]}" "$s" > /dev/null
           done
           T=$(mktemp -d) && unzip -q server/M40_261004_ServerSkripte.zip -d "$T/neu"
-          coverage run -a $Q server/eigen_anpassen.py "$T/neu" > /dev/null
+          coverage run -a "${Q[@]}" server/eigen_anpassen.py "$T/neu" > /dev/null
           coverage report --skip-empty | tee abdeckung/python/zusammenfassung.txt
           coverage xml -o abdeckung/python/cobertura.xml
           coverage html -d abdeckung/python/html
