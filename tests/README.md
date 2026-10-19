@@ -18,7 +18,7 @@ Der CI-Lauf prüft, dass die Kopien gleich bleiben.
 
 ## Statische Analyse und Testabdeckung in der CI
 
-Neben `tests.yml` (funktionale Tests) und `codeql.yml` (CodeQL für Actions, C/C++, Go, JavaScript, Python) läuft `.github/workflows/static-analysis.yml`:
+Neben `tests.yml` (funktionale Tests) und dem CodeQL-Default-Setup des Repos (GitHub-seitig konfiguriert, Actions/C-C++/Go/JavaScript/Python, kein PHP; keine Workflow-Datei im Repo) läuft `.github/workflows/static-analysis.yml`:
 
 | Job | verpflichtend | informativ (continue-on-error, Baseline 19.10.2026) |
 |---|---|---|

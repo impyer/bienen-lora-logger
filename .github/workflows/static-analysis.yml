@@ -1,4 +1,4 @@
-# Statische Analyse und Testabdeckung (ergänzt tests.yml und codeql.yml).
+# Statische Analyse und Testabdeckung (ergänzt tests.yml und das CodeQL-Default-Setup des Repos).
 #
 # Zwei Stufen je Werkzeug:
 #   verpflichtend  – Schritt, der rot wird; rot = Gate G1 nicht erfüllt (Regelwerk 1.1, tests-freigaben.md).
