@@ -15,3 +15,19 @@ Alles auf einmal unter Linux, WSL oder macOS: `./alle_tests_linux.sh`.
 `zs_testfaelle.h` und `zs_testvektoren.h` werden von den PC-Tests und vom Selbsttest gemeinsam genutzt.
 Im Selbsttest-Ordner liegen Kopien, weil die Arduino-IDE keine Dateien außerhalb des Sketch-Ordners einbindet.
 Der CI-Lauf prüft, dass die Kopien gleich bleiben.
+
+## Statische Analyse und Testabdeckung in der CI
+
+Neben `tests.yml` (funktionale Tests) und `codeql.yml` (CodeQL für Actions, C/C++, Go, JavaScript, Python) läuft `.github/workflows/static-analysis.yml`:
+
+| Job | verpflichtend | informativ (continue-on-error, Baseline 19.10.2026) |
+|---|---|---|
+| `syntax` | `compileall`, `node --check`, `php -l` (alle PHP-Dateien), `bash -n`, actionlint | – |
+| `ruff` | E9, F63, F7, F82 (Syntax, undefinierte Namen; `--isolated`) | Regelsatz aus `ruff.toml` (E, W, F, B ohne E501): 22 Hinweise |
+| `bandit` | Schweregrad hoch (`-lll`) | mittel (`-ll`): 1 Treffer B608 in `tests/datenbank/test_schema.py` (SQL-String im Test) |
+| `shellcheck` | `-S error` | alle Hinweise |
+| `abdeckung-cpp` | Host-Tests und Simulation (3 Tage) laufen instrumentiert | Abdeckung der Dateien unter `firmware/` (gcovr), Artefakt `abdeckung-cpp` |
+| `abdeckung-js` | beide Formatter-Tests laufen | Abdeckung `formatter/` (c8), Artefakt `abdeckung-js` |
+| `abdeckung-python` | `test_beelogger1_inventur.py`, Rechenmodelle, `eigen_anpassen.py` laufen | Abdeckung `hardware/` (ohne kicad, layout-auftrag) und `server/` (coverage), Artefakt `abdeckung-python` |
+
+Noch ohne Mindestwerte: zuerst Baseline erheben, dann Schwellen und verpflichtende Regelsätze festlegen. Nicht erfasst: PHP-Abdeckung (kein Xdebug-Lauf), `tests/datenbank/test_schema.py` (braucht PostgreSQL), KiCad-Generator (braucht KiCad 10, siehe `kicad-schaltplan` in `tests.yml`). Lokal: `ruff check .`, `bandit -r hardware server tests -ll`, `shellcheck $(git ls-files '*.sh')`.

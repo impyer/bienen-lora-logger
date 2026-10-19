@@ -53,3 +53,11 @@ server/wetter/wetter_log/
 tests/firmware/ff2_vektoren.h
 tests/firmware/test_funkformat_v2
 tests/firmware/test_bee_fft
+
+# Testabdeckung (static-analysis.yml)
+abdeckung/
+coverage/
+.coverage
+*.gcno
+*.gcda
+*.gcov
