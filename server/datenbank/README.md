@@ -2,7 +2,7 @@
 
 Schema 0.3 der Bienen-Plattform nach [`docs/architektur/konzept-plattform-v02.md`](../../docs/architektur/konzept-plattform-v02.md), Abschnitt 5.
 
-**Status:** Entwurf. Getestet nur auf einer Testinstanz (PostgreSQL 16.15, T1). Noch nicht auf der ThinkStation eingespielt, keine Produktivdaten.
+**Status:** Entwurf. Getestet auf einer Testinstanz (PostgreSQL 16.15, T1) und seit 20.10.2026 bei jedem CI-Lauf (Job `datenbank` in `.github/workflows/tests.yml`: Dienst `postgres:16`, Sitzungszeitzonen Europe/Berlin, UTC und America/New_York). Noch nicht auf der ThinkStation eingespielt, keine Produktivdaten.
 
 | Datei | Zweck |
 |---|---|

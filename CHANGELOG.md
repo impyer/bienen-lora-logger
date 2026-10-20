@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2026-10-20 – CI: Datenbankschema 0.3 gegen PostgreSQL 16
+
+- Neuer Job `datenbank` in `.github/workflows/tests.yml`: Dienst `postgres:16` (mit `btree_gist` aus contrib), `psycopg[binary]==3.2.3`, `tests/datenbank/test_schema.py` dreimal mit den Sitzungszeitzonen Europe/Berlin, UTC und America/New_York (`PGTZ`). Bisher lief das Schema, Kern der Zielarchitektur (Stockkarte, Messdaten, Sichten), nur von Hand auf einer Testinstanz. Das Kennwort im Workflow gilt nur für den Wegwerf-Container des CI-Laufs.
+- Schema und Tests unverändert. Grundlage für die Tests des Importers (Konzept 0.2, §10 Schritt 4). Änderungsklasse D1, Nachweis T1 in der CI; keine Produktivdatenbank.
+
 ## 2026-10-20 – Refactoring: gemeinsame Eingangsschicht `server/eingang/` für alle TTN-Webhooks
 
 - **Ziel:** Vorbereitung der Zielarchitektur (Konzept 0.2, §4/§4a: Eingänge → Rohprotokoll → Importer → PostgreSQL → Lese-API → Weboberfläche). Verhalten nach außen unverändert: gleiche Antworten an TTN (Codes und Texte), gleiche Dateien (`week.csv`-Aufruf, `lora_zusatz.csv`, Wetter-CSV, `staende.json`), gleiche Protokollzeilen (Feldnamen und Reihenfolge), gleiche Kennungen.
