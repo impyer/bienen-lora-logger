@@ -1,0 +1,7 @@
+# Lese-API der Bienen-Plattform (server/plattform/README.md); Versionen fest, Stand 20.10.2026
+fastapi==0.142.2
+pydantic==2.13.5
+uvicorn==0.54.0
+psycopg[binary]==3.3.6
+# nur Tests (FastAPI-TestClient)
+httpx==0.28.1

@@ -1,0 +1,1 @@
+{ "type": "module", "private": true, "description": "Oberfläche der Bienen-Plattform: ES-Module ohne Build-Schritt (nur für node --check und die Tests)" }

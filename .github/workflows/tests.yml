@@ -120,7 +120,7 @@ jobs:
         run: SERVER_UHR="2026-10-09 14:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
 
   datenbank:
-    name: Datenbank (Schema und Importer, PostgreSQL 16)
+    name: Datenbank und Plattform (Schema, Importer, Lese-API, Oberfläche; PostgreSQL 16)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -159,6 +159,31 @@ jobs:
       - name: Importer, Sitzungszeitzone UTC
         if: ${{ !cancelled() }}
         run: PGTZ=UTC python3 tests/datenbank/test_importer.py
+      # Lese-API und Oberfläche (server/plattform/): synthetische Daten mit Fehlern und Grenzfällen
+      - name: Plattform – Pakete der Lese-API
+        if: ${{ !cancelled() }}
+        run: pip install -r server/plattform/requirements.txt
+      - name: Plattform – Lese-API mit synthetischem Oktober, Sitzungszeitzone Europe/Berlin
+        if: ${{ !cancelled() }}
+        run: PGTZ=Europe/Berlin python3 tests/plattform/test_plattform.py
+      - name: Plattform – Lese-API, Sitzungszeitzone UTC
+        if: ${{ !cancelled() }}
+        run: PGTZ=UTC python3 tests/plattform/test_plattform.py
+      - uses: actions/setup-node@v4
+        if: ${{ !cancelled() }}
+        with:
+          node-version: 20
+      - name: Plattform – Diagrammlogik der Oberfläche
+        if: ${{ !cancelled() }}
+        run: node tests/plattform/test_diagramm.mjs
+      - name: Plattform – Playwright mit Chromium
+        if: ${{ !cancelled() }}
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Plattform – Oberfläche im Browser (leer und synthetisch)
+        if: ${{ !cancelled() }}
+        run: bash tests/plattform/oberflaeche_testen.sh
 
   hardware-rechnungen:
     name: Hardware-Rechenmodelle (Energie, Mikrofonfilter, I²C, Funkmodul)

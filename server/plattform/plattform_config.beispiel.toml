@@ -1,0 +1,15 @@
+# Vorlage: kopieren nach plattform_config.toml (bleibt lokal, siehe .gitignore) oder nach /etc/bienen/
+# und BIENEN_PLATTFORM_CONFIG darauf zeigen lassen.
+
+# Datenbank (libpq-DSN). Für die Lese-API genügt eine Rolle mit SELECT-Rechten auf das Schema bienen.
+dsn = "dbname=bienen user=bienen_lesen"
+
+# Hash des Passworts und Sitzungsschlüssel erzeugen:  cd server/plattform && python3 -m api.anmeldung
+passwort_hash = "scrypt$16384$8$1$HIER-ERZEUGEN$HIER-ERZEUGEN"
+sitzungsschluessel = "HIER-MINDESTENS-32-ZUFALLSZEICHEN-EINTRAGEN"
+
+# Cookie nur über HTTPS senden. Nur für einen Test ohne TLS auf localhost auf false setzen.
+cookie_sicher = true
+
+# Dauer der Sitzung auf dem eigenen Handy
+sitzung_tage = 90
