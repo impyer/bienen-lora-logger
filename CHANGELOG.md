@@ -1,5 +1,12 @@
 # Änderungen
 
+## 2026-10-20 – Importer: Rohprotokolle der Eingänge → PostgreSQL (Konzept §10 Schritt 4)
+
+- **Neu `server/datenbank/importer.py`** (GPL-3.0-or-later): liest `lora_log/JJJJ-MM.jsonl` (Herkunft `geraet`) und `wetter_log/JJJJ-MM.jsonl` (Herkunft `station`). Jede Zeile `"art": "uplink"` wird `rohnachricht` (Kennung `id`, Datei, Zeile, SHA-256 der Protokollzeile, Empfangs- und Gerätezeit; nicht der Inhalt). Zahlenfelder aus `decoded_payload` werden `messwert`, wenn zum Messzeitpunkt ein `kanal` gilt; sonst nur `quellfeld_ohne_kanal` (K-06). Messzeit wie `le_messzeit()` (Gerätezeit bei `Status.zeit_ok` und ≤ 900 s, sonst Empfang). Unbekannte Geräte werden angelegt und gemeldet.
+- **Wiederholbar (PLT26-02 R-5, K-09):** Leseposition je Datei mit SHA-256 der gelesenen Bytes in der neuen Tabelle `import_position` (Schema 0.4); Daten und Position je Datei in einer Transaktion; Dubletten über die Kennung verworfen; unvollständige letzte Zeile bleibt liegen; geänderter Dateianfang wird gemeldet und nicht weiter gelesen (Teil von R-4). Ein Lauf zur Zeit (Advisory Lock).
+- **Tests `tests/datenbank/test_importer.py`:** 4 Hosttests ohne Datenbank (Zeit, Felder, Messzeit, Lesen ab Position) und 8 Datenbankfälle (Grundfall, K-06, R-5 Doppelimport samt Neulesen ohne Position und anderer Sitzungszeitzone, K-09 über Monatswechsel, halbe Zeile, R-4, Zeitqualität/Herkunft, Kanalzeitraum mit Faktor). Neuer CI-Job `datenbank` in `tests.yml` (PostgreSQL 16) führt `test_schema.py` und `test_importer.py` aus.
+- Änderungsklasse **D1** (neue Datenbank-Persistenz, keine Änderung an Eingängen, Firmware, Formatter oder Server-Antworten). Nachweis: Hosttests 4/4 lokal (Windows, Python 3.14); **Datenbankfälle lokal NICHT GELAUFEN** (kein PostgreSQL auf dem Entwicklungsrechner), T1 erst über den CI-Job. Kein Lauf gegen echte Protokolle, nicht auf der ThinkStation. Offen: Monatsprüfsumme (R-4), Sicherung (R-6).
+
 ## 2026-10-20 – Refactoring: gemeinsame Eingangsschicht `server/eingang/` für alle TTN-Webhooks
 
 - **Ziel:** Vorbereitung der Zielarchitektur (Konzept 0.2, §4/§4a: Eingänge → Rohprotokoll → Importer → PostgreSQL → Lese-API → Weboberfläche). Verhalten nach außen unverändert: gleiche Antworten an TTN (Codes und Texte), gleiche Dateien (`week.csv`-Aufruf, `lora_zusatz.csv`, Wetter-CSV, `staende.json`), gleiche Protokollzeilen (Feldnamen und Reihenfolge), gleiche Kennungen.

@@ -36,6 +36,7 @@ bash tests/alle_tests_linux.sh
 # oder gezielt:
 node tests/formatter/test_formatter.js
 php tests/server/test_eingang_funktionen.php; php tests/server/test_lora_funktionen.php
+BIENEN_TEST_DSN="..." python3 tests/datenbank/test_importer.py   # PostgreSQL 16; ohne DB nur Hosttests (NICHT GELAUFEN = Rückgabe 2)
 python3 hardware/energiebilanz.py; python3 hardware/i2c_leitung.py
 python3 hardware/schaltplan_spice.py   # ngspice aus KiCad 10 (Windows) bzw. libngspice0: 12 Analogpfad-Prüfungen (T2)
 bash hardware/kicad/pruefen.sh   # KiCad 10: Reproduzierbarkeit, ERC gegen erc_erwartet.json, netz_tests.py

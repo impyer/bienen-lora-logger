@@ -119,6 +119,34 @@ jobs:
         if: ${{ !cancelled() }}
         run: SERVER_UHR="2026-10-09 14:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
 
+  datenbank:
+    name: Datenbank (Schema und Importer, PostgreSQL 16)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bienen
+          POSTGRES_DB: bienen_test
+          POSTGRES_HOST_AUTH_METHOD: trust   # Wegwerf-Instanz nur für diesen Job, kein Passwort
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U bienen" --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      BIENEN_TEST_DSN: host=localhost port=5432 user=bienen dbname=bienen_test
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "psycopg[binary]==3.2.3"
+      - name: Schema (Akzeptanzfälle ER/K/HB)
+        run: python3 tests/datenbank/test_schema.py
+      - name: Importer (R-4, R-5, K-06, K-09)
+        if: ${{ !cancelled() }}
+        run: python3 tests/datenbank/test_importer.py
+
   hardware-rechnungen:
     name: Hardware-Rechenmodelle (Energie, Mikrofonfilter, I²C, Funkmodul)
     runs-on: ubuntu-latest
