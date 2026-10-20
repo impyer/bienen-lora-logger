@@ -120,7 +120,7 @@ jobs:
         run: SERVER_UHR="2026-10-09 14:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
 
   datenbank:
-    name: Datenbankschema (PostgreSQL 16, Akzeptanzfälle)
+    name: Datenbank und Plattform (Schema, Importer, Lese-API, Oberfläche; PostgreSQL 16)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -136,6 +136,7 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 20
     env:
       BIENEN_TEST_DSN: "host=127.0.0.1 port=5432 user=bienen password=nur-ci-test dbname=bienen_test"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -144,12 +145,45 @@ jobs:
       - name: psycopg
         run: pip install "psycopg[binary]==3.2.3"
       # Ergebnis darf nicht von der Sitzungszeitzone abhängen (server/datenbank/README.md); PGTZ setzt sie für libpq
-      - name: Schema 0.3, Sitzungszeitzone Europe/Berlin
+      - name: Schema, Sitzungszeitzone Europe/Berlin
         run: PGTZ=Europe/Berlin python3 tests/datenbank/test_schema.py
-      - name: Schema 0.3, Sitzungszeitzone UTC
+      - name: Schema, Sitzungszeitzone UTC
+        if: ${{ !cancelled() }}
         run: PGTZ=UTC python3 tests/datenbank/test_schema.py
-      - name: Schema 0.3, Sitzungszeitzone America/New_York
+      - name: Schema, Sitzungszeitzone America/New_York
+        if: ${{ !cancelled() }}
         run: PGTZ=America/New_York python3 tests/datenbank/test_schema.py
+      - name: Importer (R-4, R-5, K-06, K-09), Sitzungszeitzone Europe/Berlin
+        if: ${{ !cancelled() }}
+        run: PGTZ=Europe/Berlin python3 tests/datenbank/test_importer.py
+      - name: Importer, Sitzungszeitzone UTC
+        if: ${{ !cancelled() }}
+        run: PGTZ=UTC python3 tests/datenbank/test_importer.py
+      # Lese-API und Oberfläche (server/plattform/): synthetische Daten mit Fehlern und Grenzfällen
+      - name: Plattform – Pakete der Lese-API
+        if: ${{ !cancelled() }}
+        run: pip install -r server/plattform/requirements.txt
+      - name: Plattform – Lese-API mit synthetischem Oktober, Sitzungszeitzone Europe/Berlin
+        if: ${{ !cancelled() }}
+        run: PGTZ=Europe/Berlin python3 tests/plattform/test_plattform.py
+      - name: Plattform – Lese-API, Sitzungszeitzone UTC
+        if: ${{ !cancelled() }}
+        run: PGTZ=UTC python3 tests/plattform/test_plattform.py
+      - uses: actions/setup-node@v4
+        if: ${{ !cancelled() }}
+        with:
+          node-version: 20
+      - name: Plattform – Diagrammlogik der Oberfläche
+        if: ${{ !cancelled() }}
+        run: node tests/plattform/test_diagramm.mjs
+      - name: Plattform – Playwright mit Chromium
+        if: ${{ !cancelled() }}
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Plattform – Oberfläche im Browser (leer und synthetisch)
+        if: ${{ !cancelled() }}
+        run: bash tests/plattform/oberflaeche_testen.sh
 
   hardware-rechnungen:
     name: Hardware-Rechenmodelle (Energie, Mikrofonfilter, I²C, Funkmodul)

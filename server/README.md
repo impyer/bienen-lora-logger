@@ -41,6 +41,10 @@ Eigener LoRa-Eingang (Webhook-Ziel für TTN) mit richtiger Messzeit und Zusatzda
 
 Eigener Wetter-Eingang (Webhook-Ziel für TTN) für die Wetterstation SenseCAP S2120: speichert alle Werte je Bienenstand als CSV, auch Wind, Regen und UV. Siehe [`wetter/README.md`](wetter/README.md).
 
+## `plattform/`
+
+Lese-API (FastAPI) und Oberfläche (Vue 3, Apache ECharts, ohne Build-Schritt) der eigenen Plattform, Phase B nur lesend: Übersicht, Volk-Cockpit, Umwelt, Datenquellen; Anmeldung mit einem Konto. Getestet mit synthetischen Daten (`plattform/synthetisch.py`). Siehe [`plattform/README.md`](plattform/README.md).
+
 ## Geplant
 
 - Übertragung an BEEP mit Messzeitpunkt

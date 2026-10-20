@@ -48,6 +48,8 @@ server/lora/lora_log/
 server/wetter/wetter_config.php
 server/wetter/wetter_daten/
 server/wetter/wetter_log/
+# Plattform (Lese-API): Zugangsdaten
+server/plattform/plattform_config.toml
 
 # erzeugte Testvektoren
 tests/firmware/ff2_vektoren.h

@@ -1,5 +1,6 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
--- Bienen-Plattform – Datenbankschema 0.3 (PostgreSQL 16)
+-- Bienen-Plattform – Datenbankschema 0.4 (PostgreSQL 16)
+-- 0.4 (20.10.2026): Tabelle import_position für den Importer (PLT26-02, R-5)
 -- 0.3 (15.10.2026): Review Issue #11 – Zeitgenauigkeit, Kalibrierreferenz, Berechnungsversionen, Zuordnungsprüfung
 -- Grundlage: docs/architektur/konzept-plattform-v02.md (Fassung 0.2.5), Abschnitt 5
 -- Status: ENTWURF, D0/T1 (Tests gegen PostgreSQL 16 in tests/datenbank/). Keine Produktivfreigabe.
@@ -333,6 +334,16 @@ CREATE TABLE quellfeld_ohne_kanal (
   zuletzt   timestamptz NOT NULL,
   anzahl    int NOT NULL DEFAULT 1,
   PRIMARY KEY (geraet_id, quellfeld)
+);
+
+-- Leseposition des Importers je Protokolldatei (Konzept §4a R-5). Bis 'bytes' ist alles eingelesen;
+-- 'sha256' ist die Prüfsumme dieser ersten Bytes. Weicht sie ab, wurde die Datei umgeschrieben (R-4).
+CREATE TABLE import_position (
+  datei        text PRIMARY KEY,                -- z. B. 'lora_log/2026-10.jsonl'
+  bytes        bigint NOT NULL CHECK (bytes >= 0),
+  zeilen       int    NOT NULL CHECK (zeilen >= 0),
+  sha256       text   NOT NULL,
+  aktualisiert timestamptz NOT NULL DEFAULT now()
 );
 
 -- Versionen der Berechnungen (Provenienz abgeleiteter Werte)
