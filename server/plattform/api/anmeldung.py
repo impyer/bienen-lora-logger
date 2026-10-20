@@ -12,6 +12,7 @@ import base64
 import hashlib
 import hmac
 import secrets
+import threading
 import time
 
 COOKIE = "bienen_sitzung"
@@ -67,27 +68,33 @@ def sitzung_gueltig(schluessel, wert, jetzt=None):
 
 
 class Bremse:
-    """Fehlversuche je Adresse; nach max_fehler Versuchen sperrt sie für sperre_s Sekunden."""
+    """Versuche je Adresse; nach max_fehler erfolglosen Versuchen sperrt sie für sperre_s Sekunden.
+
+    versuch() prüft und zählt in einem Schritt unter einer Sperre, bevor das Passwort geprüft wird. So helfen auch
+    viele gleichzeitige Anfragen (FastAPI bedient sie parallel im Threadpool) nicht über die Grenze hinweg.
+    Erst ein Erfolg setzt den Zähler zurück.
+    """
 
     def __init__(self, max_fehler=5, sperre_s=60):
         self.max_fehler, self.sperre_s = max_fehler, sperre_s
-        self.fehler = {}            # Adresse → (Anzahl, Zeit des letzten Fehlers)
+        self.zaehler = {}           # Adresse → (Anzahl Versuche ohne Erfolg, Zeit des letzten Versuchs)
+        self.sperre = threading.Lock()
 
-    def gesperrt(self, adresse, jetzt=None):
+    def versuch(self, adresse, jetzt=None):
+        """True: Versuch erlaubt und schon gezählt. False: gesperrt."""
         jetzt = jetzt if jetzt is not None else time.time()
-        n, t = self.fehler.get(adresse, (0, 0))
-        if n >= self.max_fehler and jetzt - t < self.sperre_s:
+        with self.sperre:
+            n, t = self.zaehler.get(adresse, (0, 0))
+            if n >= self.max_fehler:
+                if jetzt - t < self.sperre_s:
+                    return False
+                n = 0
+            self.zaehler[adresse] = (n + 1, jetzt)
             return True
-        if n >= self.max_fehler:
-            del self.fehler[adresse]
-        return False
-
-    def fehlversuch(self, adresse, jetzt=None):
-        n, _ = self.fehler.get(adresse, (0, 0))
-        self.fehler[adresse] = (n + 1, jetzt if jetzt is not None else time.time())
 
     def erfolg(self, adresse):
-        self.fehler.pop(adresse, None)
+        with self.sperre:
+            self.zaehler.pop(adresse, None)
 
 
 if __name__ == "__main__":

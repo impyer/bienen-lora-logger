@@ -97,14 +97,25 @@ def _():
     assert not sitzung_gueltig(SCHLUESSEL, None) and not sitzung_gueltig(SCHLUESSEL, "a.b")
 
 
-@test("Anmeldung: Bremse nach 5 Fehlversuchen für 60 s")
+@test("Anmeldung: Bremse nach 5 Fehlversuchen für 60 s, auch bei gleichzeitigen Anfragen")
 def _():
     b = Bremse()
-    for i in range(5):
-        assert not b.gesperrt("1.2.3.4", jetzt=100 + i)
-        b.fehlversuch("1.2.3.4", jetzt=100 + i)
-    assert b.gesperrt("1.2.3.4", jetzt=110) and not b.gesperrt("5.6.7.8", jetzt=110)
-    assert not b.gesperrt("1.2.3.4", jetzt=200)
+    assert all(b.versuch("1.2.3.4", jetzt=100 + i) for i in range(5))
+    assert not b.versuch("1.2.3.4", jetzt=110) and b.versuch("5.6.7.8", jetzt=110)
+    assert b.versuch("1.2.3.4", jetzt=200)
+    b.erfolg("1.2.3.4")
+    assert all(b.versuch("1.2.3.4", jetzt=300) for _ in range(5)) and not b.versuch("1.2.3.4", jetzt=301)
+    import threading
+    p = Bremse()
+    erlaubt = []
+    def los():
+        erlaubt.append(p.versuch("9.9.9.9"))
+    threads = [threading.Thread(target=los) for _ in range(50)]
+    for th in threads:
+        th.start()
+    for th in threads:
+        th.join()
+    assert erlaubt.count(True) == 5, erlaubt.count(True)
 
 
 @test("Generator: gleiche Ausgabe bei gleichem Seed, Format wie ein_rohprotokoll()")

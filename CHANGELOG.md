@@ -1,5 +1,30 @@
 # Änderungen
 
+## 2026-10-20 – Plattform Phase B: Lese-API und Oberfläche (Konzept §10 Schritt 5)
+
+- **Neu `server/plattform/`** (GPL-3.0-or-later), nur lesend:
+  - FastAPI-Lese-API: Stände mit Völkern, Volk mit Beute, Königin und Geräten, verdichtete Messreihen je Messgröße und Messstelle, Tagesbilanz, Stockkarten-Ereignisse, Umwelt je Stand, Prüfungen.
+  - Oberfläche mit Vue 3.5.42 und ECharts 6.1.0 als feste Dateien ohne Build-Schritt (`web/vendor/README.md` mit Quelle, Lizenz, SHA-256). Seiten: Übersicht, Volk-Cockpit, Umwelt, Datenquellen.
+  - Anmeldung mit einem Konto (ADR-0003 Nr. 10): scrypt-Hash, signiertes Sitzungscookie (HttpOnly, SameSite=Strict), Herkunftsprüfung, Bremse nach 5 Fehlversuchen.
+- **Fachregeln:**
+  - Achsen, Farben und Verdichtung stammen aus dem Messgrößen-Katalog; es gibt keine festen Sensorfelder.
+  - Lücken bleiben `null`, nie 0.
+  - Windrichtung als Kreismittel; den Regenzähler mit unbekanntem Rücksetzpunkt zeigt die API mit seinem letzten Stand je Raster und summiert ihn nie.
+  - Tagesbilanz aus der Sicht `gewicht_tagesbilanz`; Tage mit Eingriff sind markiert (L8).
+  - Behandlung als Band (K-04), Durchsicht ohne Uhrzeit als Tagesband (K-03), Anzeige in Europe/Berlin.
+- **Synthetische Testdaten `server/plattform/synthetisch.py`:** Oktober 2026 im echten Eingangsformat, den `importer.py` einliest. Eingebaute Fehler und Grenzfälle:
+  - Lücke, Winterzeit-Nacht, Uhr nicht abgeglichen
+  - doppelte Zustellung, FCnt-Rücksprung, leerer Uplink nach Join, defekte und halbe Zeile
+  - DS18B20 −127/85 °C, Gewichtsspitze
+  - Füttern, Tarieren, Umsetzen, Vereinigung, Sensortausch
+  - unbekanntes Feld und Gerät, Regenzähler-Rücksetzung, Wind um 0/360°
+- **Tests:**
+  - `tests/plattform/test_plattform.py`: 10 Hosttests und 14 Datenbankfälle mit festen Sollwerten.
+  - `test_diagramm.mjs`: 10 Prüfungen der Diagrammlogik.
+  - `test_oberflaeche.mjs` mit `oberflaeche_testen.sh`: Chromium über Playwright, leer und synthetisch, Browser in America/New_York.
+  - CI-Job `datenbank` erweitert. `.gitignore`: `server/plattform/plattform_config.toml`.
+- Änderungsklasse **D2** (Zeitstempel und Anzeige von Messdaten). Nachweis T1/T2 nur mit synthetischen Daten. Lokal liefen die Hosttests und die Diagrammlogik (Windows, ohne PostgreSQL), dazu eine Sichtprüfung im Browser mit nachgebildeten Abfragen. Datenbank- und Browsertests laufen nur in der CI. Kein Betrieb auf der ThinkStation, keine echten Daten, keine Schreibfunktionen (Stockkarte und Stammdaten folgen in Phase C).
+
 ## 2026-10-20 – Importer: Rohprotokolle der Eingänge → PostgreSQL (Konzept §10 Schritt 4)
 
 - **Neu `server/datenbank/importer.py`** (GPL-3.0-or-later): liest `lora_log/JJJJ-MM.jsonl` (Herkunft `geraet`) und `wetter_log/JJJJ-MM.jsonl` (Herkunft `station`). Jede Zeile `"art": "uplink"` wird `rohnachricht` (Kennung `id`, Datei, Zeile, SHA-256 der Protokollzeile, Empfangs- und Gerätezeit; nicht der Inhalt). Zahlenfelder aus `decoded_payload` werden `messwert`, wenn zum Messzeitpunkt ein `kanal` gilt; sonst nur `quellfeld_ohne_kanal` (K-06). Messzeit wie `le_messzeit()` (Gerätezeit bei `Status.zeit_ok` und ≤ 900 s, sonst Empfang). Unbekannte Geräte werden angelegt und gemeldet.

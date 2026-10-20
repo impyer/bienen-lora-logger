@@ -134,10 +134,9 @@ def erstellen(konfig=None, verbinden=None):
         if herkunft and urlparse(herkunft).netloc != request.headers.get("host"):
             raise HTTPException(403, "fremde Herkunft")
         adresse = request.client.host if request.client else "?"
-        if bremse.gesperrt(adresse):
+        if not bremse.versuch(adresse):          # prüft und zählt in einem Schritt, vor dem teuren scrypt
             raise HTTPException(429, "zu viele Fehlversuche, bitte eine Minute warten")
         if not passwort_pruefen(daten.passwort, k["passwort_hash"]):
-            bremse.fehlversuch(adresse)
             raise HTTPException(401, "Passwort falsch")
         bremse.erfolg(adresse)
         dauer = int(k["sitzung_tage"]) * 86400
