@@ -1,6 +1,6 @@
 # Plattform: Lese-API, Oberfläche und Stammdaten-Pflege
 
-Konzept 0.2, §4 Nr. 4–5, §6 und §10 Schritt 5: Die eigene Plattform verbindet die **Stockkarte** (Vorbild BEEP) mit der **Datenauswertung** (Vorbild beelogger). Phase B zeigt die Daten an. Phase C, Teil 1 pflegt die **Stammdaten** in der Seite „Verwaltung“. Die Stockkarte zu erfassen (Durchsicht, Maßnahme, Varroa) folgt als Teil 2.
+Konzept 0.2, §4 Nr. 4–5, §6 und §10 Schritt 5: Die eigene Plattform verbindet die **Stockkarte** (Vorbild BEEP) mit der **Datenauswertung** (Vorbild beelogger). Phase B zeigt die Daten an. Phase C pflegt die **Stammdaten** (Seite „Verwaltung“, Teil 1) und erfasst die **Stockkarte** am Handy (Seite „Stockkarte“, Teil 2: Durchsicht mit Checkliste, Maßnahme, Varroa, Aufgabe).
 
 ```
 Eingänge (server/eingang, lora, wetter) → JSONL-Rohprotokolle → importer.py → PostgreSQL (server/datenbank)
@@ -17,7 +17,8 @@ Eingänge (server/eingang, lora, wetter) → JSONL-Rohprotokolle → importer.py
 | `api/verdichtung.py` | Rasterweite (höchstens 2000 Punkte je Reihe), Verdichtung nach `messgroesse.verdichtung`, Lücken als `null` |
 | `api/anmeldung.py` | ein Konto, scrypt-Hash, signiertes Sitzungscookie, CSRF-Token, Bremse gegen Durchprobieren |
 | `api/verwaltung.py`, `api/stammdaten.py` | Stammdaten-Pflege: Endpunkte mit Eingabeprüfung; fachliche Aktionen mit Historie |
-| `api/katalog.py` | Standardkatalog der Messgrößen und Kanalvorlagen (beelogger, SenseCAP S2120) |
+| `api/katalog.py` | Standardkatalog der Messgrößen, Kanalvorlagen (beelogger, SenseCAP S2120), Standard-Checkliste der Durchsicht |
+| `api/stockkarte.py`, `api/stockkarte_api.py` | Stockkarte: Durchsicht mit Werten je Eingabetyp, Maßnahme, Varroa, Aufgabe; Ändern und Löschen |
 | `web/` | Oberfläche: Vue 3 und Apache ECharts ohne Build-Schritt (`vendor/README.md`) |
 | `synthetisch.py` | synthetischer Oktober 2026 mit Fehlern und Grenzfällen, nur für Testdatenbanken |
 | `plattform_config.beispiel.toml` | Vorlage der lokalen Konfiguration (`plattform_config.toml` bleibt lokal) |
@@ -72,6 +73,20 @@ Nur mit Sitzung, **CSRF-Token** und passender Herkunft:
 
 **Grenze:** Endet die Deutung eines Kanals rückwirkend, behalten schon importierte Werte nach dem Ende ihren alten Kanal. Neu nachgetragen werden nur fehlende Werte.
 
+### Stockkarte (schreibend, Schutz wie die Verwaltung)
+
+| Endpunkt | Wirkung |
+|---|---|
+| `GET /api/stockkarte/checklisten`, `POST …/checkliste/standard` | aktuelle Version mit Merkmalen; Standard-Checkliste übernehmen. Bei geänderter Merkmalsfolge entsteht eine neue Version, alte Durchsichten behalten ihre (K-10) |
+| `POST /api/stockkarte/durchsichten` | Durchsicht für **mehrere Völker** (`volk_ids`), mit `zeit`, `zeitgenauigkeit`, Notiz und `werte` `{merkmal_code: wert}`. Werte geprüft je Eingabetyp: ja/nein, Zahl, ganze Zahl, Bewertung 1–5, Liste, Datum, Text |
+| `PUT`/`DELETE …/durchsichten/{id}` | ändern (Werte werden ersetzt) bzw. löschen. Eine neue Uhrzeit gilt als `exakt`, wenn keine Genauigkeit angegeben ist (K-03); verknüpfte Maßnahmen und Aufgaben bleiben |
+| `POST`, `PUT`, `DELETE …/massnahmen` | Zeitpunkt (ohne `bis`, gespeichert als [t, t + 1 min)) oder Zeitraum (K-04) |
+| `POST`, `PUT`, `DELETE …/varroa` | Windel, Puderzucker, Auswaschung; Milben pro Tag nur für die Windel (Sicht `varroa_pro_tag`) |
+| `GET`/`POST …/aufgaben`, `POST …/aufgaben/{id}/erledigt`, `DELETE …/aufgaben/{id}` | Aufgaben für Völker oder einen Stand; fällige erscheinen in der Übersicht |
+| `GET …/eintrag/{durchsicht\|massnahme\|varroa}/{id}` | ein Eintrag zum Bearbeiten |
+
+Völker müssen zum Zeitpunkt bestehen. Vor der Entstehung oder nach der Auflösung kommt 409, und bei mehreren Völkern wird dann keines gespeichert.
+
 Fehler: 400 bei ungültiger Zeit, Zeitraum über 400 Tage oder unbekannter Messgröße; 404 bei unbekanntem Volk oder Stand. Ausgeschlossen sind Werte mit `qualitaet = 'ungueltig'`. Den Regenzähler (`unbekannte_summe`) zeigt die API mit seinem letzten Stand je Raster und summiert ihn nie. Die Windrichtung wird als Kreismittel verdichtet.
 
 ## Oberfläche
@@ -83,6 +98,7 @@ Fehler: 400 bei ungültiger Zeit, Zeitraum über 400 Tage oder unbekannter Messg
   - Tagesbilanz als Balken, Tage mit Eingriff grau.
 - **Umwelt**: Klima, Wind (Richtung als Pfeile) und Regen eines Stands.
 - **Datenquellen**: was der Importer nicht zuordnen konnte, Geräte, Importstand.
+- **Stockkarte** (Handy zuerst): Reiter Durchsicht, Maßnahme, Varroa, Aufgabe; Völker je Stand ankreuzen (auch „alle“); Checkliste nach Gruppen mit Knöpfen für ja/nein und 1–5; offene Aufgaben zum Abhaken. Im Cockpit stehen die Merkmalswerte und ein Link „bearbeiten“ je Eintrag.
 - **Verwaltung**: Standardkatalog; Stände; Völker anlegen, Zargen, versetzen, umsetzen, auflösen und vereinigen; Geräte anlegen, zuordnen, Vorlage, Kanal, Werte nachtragen. Alle Änderungen gelten ab dem oben gewählten Zeitpunkt.
 
 ## Betrieb (beschrieben, nicht eingerichtet)
@@ -104,7 +120,7 @@ Grenzen:
 - Die Sitzung ist ein signiertes Cookie. Abmelden löscht es nur in diesem Browser; alle Sitzungen beendet ein neuer `sitzungsschluessel`.
 - Die CSP erlaubt `unsafe-eval`, weil Vue ohne Build die Vorlagen im Browser übersetzt. Es gibt keine Inline-Skripte.
 - Die Bremse gilt je Adresse; hinter dem Proxy ist das eine gemeinsame Bremse.
-- Die Stockkarte lässt sich noch nicht erfassen (Phase C, Teil 2).
+- Kein Offline-Zwischenspeicher: Die Stockkarte braucht am Stand eine Verbindung (WLAN laut Konzept §6a, Abdeckung **[PRÜFEN]**). Fotos (`anhang`) und der Export an BEEP fehlen noch.
 
 ## Tests
 
@@ -114,6 +130,7 @@ python3 tests/plattform/test_plattform.py                       # ohne Datenbank
 BIENEN_TEST_DSN="host=… dbname=bienen_test user=…" python3 tests/plattform/test_plattform.py
 node tests/plattform/test_diagramm.mjs                          # Diagrammlogik, ohne Browser
 BIENEN_TEST_DSN=… python3 tests/plattform/test_verwaltung.py     # Stammdaten-Pflege und Nachtragen
+BIENEN_TEST_DSN=… python3 tests/plattform/test_stockkarte.py     # Stockkarte erfassen, ändern, löschen
 BIENEN_TEST_DSN=… bash tests/plattform/oberflaeche_testen.sh    # Chromium über Playwright: leer, Verwaltung, synthetisch
 ```
 

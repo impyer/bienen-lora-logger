@@ -1,5 +1,30 @@
 # Änderungen
 
+## 2026-10-20 – Plattform Phase C, Teil 2: Stockkarte erfassen
+
+- **Neue Seite „Stockkarte“** (`#/stockkarte`, Handy zuerst), Endpunkte `/api/stockkarte/…` (`api/stockkarte.py`, `api/stockkarte_api.py`):
+  - **Durchsicht** mit Checkliste für mehrere Völker zugleich
+  - **Maßnahme** als Zeitpunkt (gespeichert als [t, t + 1 min)) oder Zeitraum (K-04)
+  - **Varroa** mit Windel, Puderzucker oder Auswaschung; Milben pro Tag nur für die Windel
+  - **Aufgabe** für Völker oder einen Stand, mit Fälligkeit und Abhaken
+- **Checkliste und Zeit:**
+  - Standard-Checkliste „Durchsicht“ mit 15 Merkmalen in 4 Gruppen auf Knopfdruck (`api/katalog.py`). Eine geänderte Merkmalsfolge ergibt eine neue Version; alte Durchsichten behalten ihre (K-10).
+  - Werte werden je Eingabetyp geprüft (ja/nein, Zahl, ganze Zahl, Bewertung 1–5, Liste, Datum, Text).
+  - Uhrzeit in Ortszeit, vorbelegt mit jetzt; Genauigkeit wählbar.
+- **Ändern und Löschen:**
+  - Eine korrigierte Uhrzeit gilt als exakt (K-03).
+  - Beim Löschen einer Durchsicht bleiben verknüpfte Maßnahmen und Aufgaben erhalten.
+  - Völker müssen zum Zeitpunkt bestehen; bei einem Konflikt wird für keines der gewählten Völker gespeichert (409).
+- **Lese-API und Oberfläche:**
+  - Das Cockpit zeigt die Merkmalswerte der Durchsichten, Varroa aller Methoden, offene Aufgaben und einen Link „bearbeiten“ je Eintrag.
+  - Die Übersicht zeigt die letzte Durchsicht und die fälligen Aufgaben je Volk.
+  - Die Navigation bricht am Handy um.
+- **Tests:**
+  - neu `tests/plattform/test_stockkarte.py`: 2 Hosttests (Werteprüfung, Schutz auch bei PUT/DELETE, 422) und 9 Datenbankfälle
+  - Browsertest: Stockkarte bei 390 px Breite ohne waagrechtes Scrollen, danach Cockpit und Bearbeiten
+  - CI in zwei Sitzungszeitzonen
+- **Änderungsklasse D2, Nachweis T1/T2 in der CI** (`c3aec01`): Plattform- und Datenbankjob grün. Rot war nur ein LoRa-E2E-Schritt ohne Änderung an `server/lora` (siehe Prüfbericht). Ohne Offline-Zwischenspeicher, Fotos und BEEP-Export; nur synthetische und erfundene Daten.
+
 ## 2026-10-20 – Plattform Phase C, Teil 1: Stammdaten pflegen (Verwaltung)
 
 - **Neue Seite „Verwaltung“** mit Endpunkten `/api/verwaltung/…` (`api/verwaltung.py`, `api/stammdaten.py`). Fachliche Aktionen statt Rohtabellen:
