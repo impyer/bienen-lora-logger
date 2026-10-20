@@ -21,7 +21,7 @@ foreach ($dateien as $datei) {
     if (!is_array($msg)) { echo basename($datei) . ": unlesbar, verschoben nach .defekt\n"; rename($datei, $datei . '.defekt'); continue; }
     $e = le_verarbeiten($cfg, $msg);
     echo basename($datei) . ': ' . $e['klasse'] . ' – ' . $e['text'] . "\n";
-    if (in_array($e['klasse'], array('fehler_endpunkt', 'fehler_einrichtung'), true)) { $fehler++; continue; }
+    if (le_nachholen_noetig($e)) { $fehler++; continue; }
     le_log($cfg, array('art' => 'nachgeholt', 'datei' => basename($datei), 'klasse' => $e['klasse']));
     unlink($datei);
 }

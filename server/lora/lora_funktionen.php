@@ -1,15 +1,9 @@
 <?php
 // LoRa-Eingang für den beelogger-Webserver: Hilfsfunktionen (ohne Seiteneffekte, testbar)
 // Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
-// Läuft ab PHP 7.4.
+// Läuft ab PHP 7.4. Allgemeine TTN-Hilfen (Zeit, Zahlen, Funk, Kennung) liegen in server/eingang/eingang_funktionen.php.
 
-// TTN-Zeit "2026-10-08T12:00:03.123456789Z" → Unix-Sekunden, oder null
-function le_ttn_zeit($s)
-{
-    if (!is_string($s) || !preg_match('/^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(\.\d+)?Z$/', $s, $m)) return null;
-    $d = DateTime::createFromFormat('Y-m-d\TH:i:s', $m[1], new DateTimeZone('UTC'));
-    return $d ? $d->getTimestamp() : null;
-}
+require_once __DIR__ . '/../eingang/eingang_funktionen.php';
 
 // Messzeitpunkt wählen: Gerätezeit, wenn abgeglichen und plausibel; sonst Empfangszeit von TTN
 // Rückgabe: [unix, 'geraet'|'ttn'] oder null
@@ -25,29 +19,21 @@ function le_messzeit(array $daten, $empfang_unix, $max_abweichung_s)
     return array($empfang_unix, 'ttn');
 }
 
-// Unix-Zeit → beelogger-Zeittext in Ortszeit "Y/m/d_H:i:s" (wie EE-Datensatz)
-function le_ortszeit_text($unix, $zone = 'Europe/Berlin')
-{
-    $d = new DateTime('@' . (int)$unix);
-    $d->setTimezone(new DateTimeZone($zone));
-    return $d->format('Y/m/d_H:i:s');
-}
-
-// Zahl für den beelogger-Datensatz: nur Ziffern, '-' und '.'; leer, wenn kein endlicher Zahlenwert
-function le_zahl($v)
-{
-    if (is_bool($v) || !is_numeric($v)) return '';
-    $f = (float)$v;
-    if (!is_finite($f)) return '';
-    $s = rtrim(rtrim(sprintf('%.3F', $f), '0'), '.');
-    return ($s === '-0') ? '0' : $s;
-}
-
 // Wert aus den Formatter-Daten holen; $name leer/null → ''
 function le_wert(array $d, $name)
 {
     if ($name === null || $name === '' || !array_key_exists($name, $d)) return '';
-    return le_zahl($d[$name]);
+    return ein_zahl($d[$name]);
+}
+
+// Typ (Single=1, Duo=2 …) wie beelogger_log.php aus dem Verzeichnisnamen
+function le_logger_typ($verz)
+{
+    $typ = 1;
+    foreach (array('Duo' => 2, 'Triple' => 3, 'Quad' => 4, 'Penta' => 5, 'Hexa' => 6) as $name => $n) {
+        if (strpos($verz, 'beelogger') === false && strpos($verz, $name) !== false) $typ = $n;
+    }
+    return $typ;
 }
 
 // EE-Datensatz für beelogger_log.php (Schlüssel "M<typ>") bauen.
@@ -73,24 +59,6 @@ function le_ee_datensatz(array $d, $typ, $zeit_text, array $aux, $waegetemp_feld
     return implode(',', $f);
 }
 
-// Funkdaten aus der TTN-Nachricht: bestes Gateway, Anzahl, Spreizfaktor
-function le_funk(array $up)
-{
-    $r = array('rssi' => '', 'snr' => '', 'gateways' => 0, 'sf' => '');
-    if (isset($up['rx_metadata']) && is_array($up['rx_metadata'])) {
-        $r['gateways'] = count($up['rx_metadata']);
-        foreach ($up['rx_metadata'] as $g) {
-            if (!isset($g['rssi']) || !is_numeric($g['rssi'])) continue;
-            if ($r['rssi'] === '' || $g['rssi'] > $r['rssi']) {
-                $r['rssi'] = $g['rssi'];
-                $r['snr'] = isset($g['snr']) ? $g['snr'] : '';
-            }
-        }
-    }
-    if (isset($up['settings']['data_rate']['lora']['spreading_factor'])) $r['sf'] = $up['settings']['data_rate']['lora']['spreading_factor'];
-    return $r;
-}
-
 // Zeile für die Zusatzdatei lora_zusatz.csv
 function le_zusatz_kopf()
 {
@@ -99,24 +67,27 @@ function le_zusatz_kopf()
         'warnungen', 'antwort_beelogger');
 }
 
+// Zustandsbits des Funkformats v2 als Zahl (Bit 0 zeit_ok … Bit 6 akku_niedrig), '' ohne Status
+function le_statusbits(array $d)
+{
+    if (!isset($d['Status']) || !is_array($d['Status'])) return '';
+    $bits = array('zeit_ok', 'fehler_aussen', 'fehler_ds1', 'fehler_ds2', 'fehler_waage1', 'fehler_waage2', 'akku_niedrig');
+    $status = 0;
+    foreach ($bits as $k => $name) if (!empty($d['Status'][$name])) $status |= 1 << $k;
+    return $status;
+}
+
 function le_zusatz_zeile($unix, $quelle, $geraet, array $up, array $d, array $funk, $antwort)
 {
-    $status = '';
-    if (isset($d['Status']) && is_array($d['Status'])) {
-        $bits = array('zeit_ok', 'fehler_aussen', 'fehler_ds1', 'fehler_ds2', 'fehler_waage1', 'fehler_waage2', 'akku_niedrig');
-        $status = 0;
-        foreach ($bits as $k => $name) if (!empty($d['Status'][$name])) $status |= 1 << $k;
-    }
     $firmware = isset($d['FirmwareID']) ? $d['FirmwareID'] : (isset($d['Aux3']) && isset($d['Format']) && $d['Format'] == 1 ? $d['Aux3'] : '');
     $baender = '';
-    if (isset($d['FFT_Baender_dB']) && is_array($d['FFT_Baender_dB'])) $baender = implode(';', array_map('le_zahl', $d['FFT_Baender_dB']));
-    $warn = isset($up['decoded_payload_warnings']) && is_array($up['decoded_payload_warnings']) ? implode('; ', $up['decoded_payload_warnings']) : '';
-    return array(gmdate('Y-m-d\TH:i:s\Z', $unix), $unix, $quelle, $geraet,
+    if (isset($d['FFT_Baender_dB']) && is_array($d['FFT_Baender_dB'])) $baender = implode(';', array_map('ein_zahl', $d['FFT_Baender_dB']));
+    return array(ein_utc_text($unix), $unix, $quelle, $geraet,
         isset($up['f_cnt']) ? $up['f_cnt'] : '', isset($up['f_port']) ? $up['f_port'] : '',
         $funk['rssi'], $funk['snr'], $funk['gateways'], $funk['sf'],
         isset($d['Format']) ? $d['Format'] : '', $firmware, le_wert($d, 'TempCPU'), le_wert($d, 'TempIn2'),
-        le_wert($d, 'FFT_Hz'), le_wert($d, 'FFT_dB'), le_wert($d, 'FFT_Gesamt_dB'), $baender, $status,
-        isset($d['Neustart']) ? $d['Neustart'] : '', $warn, $antwort);
+        le_wert($d, 'FFT_Hz'), le_wert($d, 'FFT_dB'), le_wert($d, 'FFT_Gesamt_dB'), $baender, le_statusbits($d),
+        isset($d['Neustart']) ? $d['Neustart'] : '', ein_formatter_warnungen($up), $antwort);
 }
 
 // Log-Passwort aus beelogger_ini.php lesen, ohne die Datei auszuführen
@@ -146,6 +117,14 @@ function le_letzter_zeitstempel($csv)
     return (int)$m[1];
 }
 
+// Zeitstempel, den beelogger für diesen Datensatz in week.csv schreiben muss. beelogger setzt die Sekunden auf :00;
+// im Ortszeit-Modus rechnet es den Zeittext mit strtotime() in der Zeitzone des Servers zurück.
+function le_erwarteter_zeitstempel($unix, $zeit_text, $utc)
+{
+    if ($utc) return $unix - $unix % 60;
+    return strtotime(str_replace('_', ' ', substr($zeit_text, 0, 17) . '00'));
+}
+
 // Wurde der Datensatz gespeichert? (CI26-01)
 // Nicht über die Dateigröße entscheiden: beelogger_log.php kürzt week.csv in CSVbuilder_log() auf 7 Tage,
 // und zwar nur vor 08:00 Uhr Serverzeit (date("G") < 8). Die Datei kann also beim Speichern schrumpfen.
@@ -154,22 +133,6 @@ function le_letzter_zeitstempel($csv)
 function le_speicherung_erkannt($ts_vorher, $ts_nachher, $erwartet)
 {
     return $ts_nachher !== null && $ts_nachher === $erwartet && $ts_vorher !== $erwartet;
-}
-
-// Eindeutige Kennung eines Uplinks für die Duplikat-Erkennung (SRV26-03/04/05).
-// FCnt allein reicht nicht: der Musterlogger setzt den Zähler bei 16384 bewusst auf 0 zurück (ABP).
-// Mit Nutzdaten und received_at ist eine Wiederholung derselben Nachricht eindeutig erkennbar.
-function le_nachricht_id(array $msg)
-{
-    $up = isset($msg['uplink_message']) && is_array($msg['uplink_message']) ? $msg['uplink_message'] : array();
-    $teile = array(
-        isset($msg['end_device_ids']['device_id']) ? (string)$msg['end_device_ids']['device_id'] : '',
-        isset($up['f_port']) ? (string)$up['f_port'] : '',
-        isset($up['f_cnt']) ? (string)$up['f_cnt'] : '',
-        isset($up['frm_payload']) ? (string)$up['frm_payload'] : '',
-        isset($up['received_at']) ? (string)$up['received_at'] : (isset($msg['received_at']) ? (string)$msg['received_at'] : ''),
-    );
-    return sha1(implode('|', $teile));
 }
 
 // Nimmt dieser beelogger_log.php UTC=1 an? (eigene Fassung ab eigen-utc-2, Merkmal $BL_UTC_FAEHIG) – SRV26-07
@@ -181,21 +144,10 @@ function le_utc_faehig($log_php)
     return is_string($kopf) && strpos($kopf, '$BL_UTC_FAEHIG=1;') !== false;
 }
 
-// Liste verarbeiteter Kennungen: Zeilen "unixzeit kennung"; behält höchstens $max Einträge
-function le_id_bekannt($datei, $id)
+// Zeitbasis für den Ziel-Logger (SRV26-07) aus der Einstellung utc_zeit ('auto', true, false) und der Fähigkeit
+// seines beelogger_log.php. Rückgabe: true = UTC, false = Ortszeit, null = UTC verlangt, aber Logger nicht fähig.
+function le_zeitbasis($utc_zeit, $faehig)
 {
-    if (!is_file($datei)) return false;
-    $s = file_get_contents($datei);
-    return is_string($s) && strpos($s, ' ' . $id . "\n") !== false;
-}
-
-function le_id_merken($datei, $id, $jetzt, $max = 5000)
-{
-    $zeilen = is_file($datei) ? file($datei, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : array();
-    if (!is_array($zeilen)) $zeilen = array();
-    $zeilen[] = $jetzt . ' ' . $id;
-    if (count($zeilen) > $max) $zeilen = array_slice($zeilen, -$max);
-    $tmp = $datei . '.tmp';
-    if (@file_put_contents($tmp, implode("\n", $zeilen) . "\n") === false) return false;
-    return @rename($tmp, $datei);
+    if ($utc_zeit === true && !$faehig) return null;
+    return ($utc_zeit === 'auto') ? $faehig : ($utc_zeit === true);
 }

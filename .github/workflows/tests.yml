@@ -87,7 +87,7 @@ jobs:
         with:
           node-version: 20
       - name: Syntax
-        run: for f in server/lora/*.php server/wetter/*.php $(find server/beelogger_eigen -name '*.php'); do php -l "$f" > /dev/null || exit 1; done
+        run: for f in server/eingang/*.php server/lora/*.php server/wetter/*.php $(find server/beelogger_eigen -name '*.php'); do php -l "$f" > /dev/null || exit 1; done
       - name: Eigene Server-Fassung aus dem Original-ZIP neu erzeugen und mit dem Repo vergleichen
         run: |
           T=$(mktemp -d) && unzip -q server/M40_261004_ServerSkripte.zip -d "$T/neu"
@@ -95,6 +95,7 @@ jobs:
           diff -r -x beelogger_icons server/beelogger_eigen "$T/neu"
       - name: Unit-Tests
         run: |
+          php tests/server/test_eingang_funktionen.php
           php tests/server/test_lora_funktionen.php
           php tests/server/test_wetter_funktionen.php
       - name: Wetter-Eingang Ende-zu-Ende

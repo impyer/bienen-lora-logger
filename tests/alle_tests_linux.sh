@@ -22,6 +22,7 @@ else
   echo "Node.js fehlt: Formatter-Tests übersprungen"
 fi
 if command -v php >/dev/null 2>&1; then
+  php server/test_eingang_funktionen.php
   php server/test_lora_funktionen.php
   php server/test_wetter_funktionen.php
   if command -v node >/dev/null 2>&1; then bash server/test_lora_eingang.sh; bash server/test_wetter_eingang.sh; fi

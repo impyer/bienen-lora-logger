@@ -29,6 +29,10 @@ Aus dem Original-ZIP erzeugt mit `python3 server/eigen_anpassen.py <ordner>`. Un
 Details, Grenzen und Einspielen: [`../docs/server-utc.md`](../docs/server-utc.md).
 Die CI erzeugt die Fassung bei jedem Lauf neu und vergleicht sie mit dem Ordner. Änderungen deshalb nur in `eigen_anpassen.py` machen, nicht direkt im Ordner.
 
+## `eingang/`
+
+Gemeinsame Eingangsschicht aller TTN-Webhooks (LoRa, Wetter, künftig Boden und BEEP Base): Annahme mit Token, Rohprotokoll nach R-1 bis R-3, Kennung gegen Doppelzustellung, Sperren, CSV-Anhängen. Wird von `lora/` und `wetter/` eingebunden und muss auf dem Server daneben liegen. Siehe [`eingang/README.md`](eingang/README.md).
+
 ## `lora/`
 
 Eigener LoRa-Eingang (Webhook-Ziel für TTN) mit richtiger Messzeit und Zusatzdatei; die beelogger-Skripte bleiben unverändert. Siehe [`lora/README.md`](lora/README.md).

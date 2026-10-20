@@ -1,8 +1,8 @@
 <?php
-// Unit-Tests für server/lora/lora_funktionen.php. Aufruf: php tests/server/test_lora_funktionen.php
+// Unit-Tests für server/lora/lora_funktionen.php und die Hilfen in lora_verarbeitung.php. Aufruf: php tests/server/test_lora_funktionen.php
 // Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 date_default_timezone_set('Europe/Berlin');
-require __DIR__ . '/../../server/lora/lora_funktionen.php';
+require __DIR__ . '/../../server/lora/lora_verarbeitung.php';
 
 $anz = 0; $fehler = 0;
 function gleich($name, $ist, $soll)
@@ -11,12 +11,6 @@ function gleich($name, $ist, $soll)
     $anz++;
     if ($ist !== $soll) { $fehler++; echo "FEHL - $name\n       soll: " . var_export($soll, true) . "\n       ist:  " . var_export($ist, true) . "\n"; }
 }
-
-// Zeit von TTN
-gleich('TTN-Zeit mit Nanosekunden', le_ttn_zeit('2026-10-08T12:00:03.123456789Z'), 1791460803);
-gleich('TTN-Zeit ohne Bruchteil', le_ttn_zeit('2026-10-08T12:00:03Z'), 1791460803);
-gleich('TTN-Zeit ungültig', le_ttn_zeit('2026-10-08 12:00:03'), null);
-gleich('TTN-Zeit fehlt', le_ttn_zeit(null), null);
 
 // Messzeit
 $ok = array('zeit_ok' => true);
@@ -28,24 +22,6 @@ gleich('Gerätezeit 31 s voraus', le_messzeit(array('Messzeit_unix' => 1131, 'St
 gleich('Uhr nicht abgeglichen', le_messzeit(array('Messzeit_unix' => 1000, 'Status' => array('zeit_ok' => false)), 1100, 900), array(1100, 'ttn'));
 gleich('ohne Status', le_messzeit(array('Messzeit_unix' => 1000), 1100, 900), array(1100, 'ttn'));
 gleich('ohne Empfangszeit', le_messzeit(array(), null, 900), null);
-
-// Ortszeit
-gleich('Ortszeit Sommer', le_ortszeit_text(1791460800), '2026/10/08_14:00:00');
-gleich('Ortszeit Winter', le_ortszeit_text(1792891800), '2026/10/25_02:30:00');
-
-// Zahlen
-gleich('Zahl ganz', le_zahl(5), '5');
-gleich('Zahl Nachkomma', le_zahl(45.678), '45.678');
-gleich('Zahl gerundet', le_zahl(1.23456), '1.235');
-gleich('Zahl negativ', le_zahl(-23.5), '-23.5');
-gleich('Zahl −0', le_zahl(-0.0001), '0');
-gleich('Zahl sehr klein (kein Exponent)', le_zahl(1e-7), '0');
-gleich('Zahl groß (kein Exponent)', le_zahl(1e7), '10000000');
-gleich('Zahl Text', le_zahl('12.5'), '12.5');
-gleich('kein Zahlenwert', le_zahl('abc'), '');
-gleich('Wahrheitswert', le_zahl(true), '');
-gleich('Liste', le_zahl(array(1)), '');
-gleich('NaN', le_zahl(NAN), '');
 
 // EE-Datensatz: Feldzahl wie beelogger_log.php M.40 erwartet (13 + (n−1)·3, ab Duo +1)
 for ($n = 1; $n <= 6; $n++) {
@@ -62,12 +38,6 @@ gleich('EE Aux-Zuordnung frei (Deckeltemperatur in Aux3)', le_ee_datensatz($d, 1
     'Z,34.56,12.34,55.5,67,100,45.678,3.912,5.1,0,1013.2,,18.07');
 gleich('EE ungültiger Typ', le_ee_datensatz($d, 7, 'Z', $aux, 'TempOut'), null);
 gleich('EE nur erlaubte Zeichen (beelogger-Prüfung)', preg_match('#^[0-9\/\_\-\:\,\.]*$#', le_ee_datensatz($d, 2, '2026/10/08_14:00:00', $aux, 'TempOut')), 1);
-
-// Funk
-$up = array('rx_metadata' => array(array('rssi' => -95, 'snr' => 3), array('rssi' => -71, 'snr' => 8.5), array('snr' => 1)),
-    'settings' => array('data_rate' => array('lora' => array('spreading_factor' => 9))));
-gleich('Funk bestes Gateway', le_funk($up), array('rssi' => -71, 'snr' => 8.5, 'gateways' => 3, 'sf' => 9));
-gleich('Funk ohne Metadaten', le_funk(array()), array('rssi' => '', 'snr' => '', 'gateways' => 0, 'sf' => ''));
 
 // Passwort und CSV
 $t = sys_get_temp_dir() . '/le_test_' . getmypid();
@@ -106,32 +76,43 @@ gleich('Kürzung: Datei kleiner als vorher', filesize($k) < $g_vor, true);
 gleich('Kürzung: trotzdem als gespeichert erkannt', le_speicherung_erkannt($vor, le_letzter_zeitstempel($k), 1792886400), true);
 @unlink($k);
 
-// Kennung der Nachricht (Duplikat-Erkennung)
-$m = array('end_device_ids' => array('device_id' => 'b1'), 'uplink_message' => array('f_port' => 2, 'f_cnt' => 5, 'frm_payload' => 'AAE=', 'received_at' => '2026-10-08T12:00:03Z'));
-$m2 = $m; $m2['uplink_message']['received_at'] = '2026-10-09T12:00:03Z';   // gleicher FCnt nach Zähler-Rücksprung
-$m3 = $m; $m3['uplink_message']['rx_metadata'] = array(array('rssi' => -80));  // andere Metadaten, gleiche Nachricht
-gleich('Kennung: 40 Hex-Zeichen', (bool)preg_match('/^[0-9a-f]{40}$/', le_nachricht_id($m)), true);
-gleich('Kennung: gleicher FCnt, anderer Empfang → verschieden', le_nachricht_id($m) === le_nachricht_id($m2), false);
-gleich('Kennung: Metadaten egal', le_nachricht_id($m) === le_nachricht_id($m3), true);
-
-// Liste verarbeiteter Kennungen
-$tmp = sys_get_temp_dir() . '/le_ids_' . getmypid() . '.txt';
-@unlink($tmp);
-gleich('Kennung unbekannt (keine Datei)', le_id_bekannt($tmp, 'abc'), false);
-gleich('Kennung merken', le_id_merken($tmp, 'abc', 1000), true);
-gleich('Kennung bekannt', le_id_bekannt($tmp, 'abc'), true);
-gleich('Teilstring zählt nicht', le_id_bekannt($tmp, 'ab'), false);
-for ($k = 0; $k < 12; $k++) le_id_merken($tmp, 'id' . $k, 1000 + $k, 10);
-gleich('Liste begrenzt auf 10 Einträge', count(file($tmp)), 10);
-gleich('älteste Kennung verdrängt', le_id_bekannt($tmp, 'abc'), false);
-gleich('neueste Kennung vorhanden', le_id_bekannt($tmp, 'id11'), true);
-@unlink($tmp);
-
 // UTC-Fähigkeit je beelogger_log.php (SRV26-07)
 $repo = __DIR__ . '/../../server';
 gleich('UTC-fähig: eigene Fassung', le_utc_faehig($repo . '/beelogger_eigen/beelogger1/beelogger_log.php'), true);
 gleich('UTC-fähig: Original M.40 nicht', le_utc_faehig($repo . '/beelogger_M40_original/beelogger1/beelogger_log.php'), false);
 gleich('UTC-fähig: Datei fehlt', le_utc_faehig($repo . '/gibt_es_nicht.php'), false);
+
+// Zeitbasis je Ziel-Logger (SRV26-07): Einstellung utc_zeit × Fähigkeit von beelogger_log.php
+gleich('Zeitbasis auto, fähig → UTC', le_zeitbasis('auto', true), true);
+gleich('Zeitbasis auto, alt → Ortszeit', le_zeitbasis('auto', false), false);
+gleich('Zeitbasis true, fähig → UTC', le_zeitbasis(true, true), true);
+gleich('Zeitbasis true, alt → nicht möglich', le_zeitbasis(true, false), null);
+gleich('Zeitbasis false, fähig → Ortszeit', le_zeitbasis(false, true), false);
+
+// Erwarteter Zeitstempel in week.csv (Sekunden auf :00)
+gleich('Erwartet UTC-Modus', le_erwarteter_zeitstempel(1791460809, '2026/10/08_12:00:09', true), 1791460800);
+gleich('Erwartet Ortszeit-Modus', le_erwarteter_zeitstempel(1791460809, '2026/10/08_14:00:09', false), 1791460800);
+
+// Logger-Typ aus dem Verzeichnisnamen (wie beelogger_log.php)
+gleich('Typ beelogger1', le_logger_typ('beelogger1'), 1);
+gleich('Typ Duo1', le_logger_typ('Duo1'), 2);
+gleich('Typ Hexa2', le_logger_typ('Hexa2'), 6);
+gleich('Typ beeloggerDuo zählt als Einzel', le_logger_typ('beeloggerDuo'), 1);
+
+// Zustandsbits
+gleich('Statusbits ohne Status', le_statusbits(array()), '');
+gleich('Statusbits zeit_ok + fehler_waage1', le_statusbits(array('Status' => array('zeit_ok' => true, 'fehler_waage1' => true))), 17);
+
+// Aufruf-Adresse von beelogger_log.php und Nachholklassen (lora_verarbeitung.php)
+$cfg_t = array('basis_url' => 'https://example.org/beelogger/', 'aux' => array(), 'waegezellen_temp' => 'TempOut');
+$a_t = array('daten' => array('TempIn' => 34.5), 'typ' => 1, 'zeit_text' => '2026/10/08_12:00:00', 'pw' => 'P W', 'verz' => 'beelogger1', 'utc' => true);
+gleich('URL UTC-Modus', le_beelogger_url($cfg_t, $a_t),
+    'https://example.org/beelogger/beelogger1/beelogger_log.php?PW=P%20W&Z=0&M1=2026%2F10%2F08_12%3A00%3A00%2C34.5%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C&UTC=1');
+$a_t['utc'] = false;
+gleich('URL Ortszeit-Modus ohne UTC', strpos(le_beelogger_url($cfg_t, $a_t), 'UTC='), false);
+gleich('Nachholen bei fehler_endpunkt', le_nachholen_noetig(le_ergebnis(502, 'fehler_endpunkt', '')), true);
+gleich('Nachholen bei fehler_einrichtung', le_nachholen_noetig(le_ergebnis(500, 'fehler_einrichtung', '')), true);
+gleich('kein Nachholen bei abgelehnt', le_nachholen_noetig(le_ergebnis(200, 'abgelehnt', '')), false);
 
 echo ($anz - $fehler) . " von $anz Tests bestanden\n";
 exit($fehler ? 1 : 0);

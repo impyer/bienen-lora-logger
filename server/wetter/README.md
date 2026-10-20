@@ -1,6 +1,6 @@
 # Wetter-Eingang (Wetterstation SenseCAP S2120)
 
-Webhook-Ziel für The Things Stack. Speichert **alle** Werte der Wetterstation je Bienenstand in CSV-Dateien, auch Wind, Regen und UV, die BEEP nicht annimmt. Der beelogger-Code bleibt unverändert; der Eingang nutzt nur Hilfsfunktionen aus `../lora/lora_funktionen.php`.
+Webhook-Ziel für The Things Stack. Speichert **alle** Werte der Wetterstation je Bienenstand in CSV-Dateien, auch Wind, Regen und UV, die BEEP nicht annimmt. Der beelogger-Code bleibt unverändert. Annahme, Token, Rohprotokoll, Kennung und Sperre kommen aus der gemeinsamen Eingangsschicht [`../eingang/`](../eingang/README.md); der Wetter-Eingang hängt nicht mehr vom LoRa-Eingang ab.
 
 | Datei | Zweck |
 |---|---|
@@ -49,7 +49,7 @@ Leere Zellen = Wert nicht im Uplink. Es wird nichts geglättet oder verworfen; d
 
 ## Einrichtung
 
-1. Ordner `wetter/` **neben** `lora/` auf den Server kopieren (gleiche Ebene wie `beelogger1` …). `lora/` muss vorhanden sein.
+1. Ordner `eingang/` und `wetter/` nebeneinander auf den Server kopieren (gleiche Ebene wie `beelogger1` …, neben `lora/`). `eingang/` muss vorhanden sein; `lora/` braucht der Wetter-Eingang nicht mehr.
 2. `wetter_config.beispiel.php` nach `wetter_config.php` kopieren: Token, Stände und Stationen eintragen. Daten- und Protokollverzeichnis möglichst außerhalb des Webverzeichnisses; sonst legt der Eingang dort eine `.htaccess` mit `Require all denied` an (nur Apache).
 3. TTN-Konsole → Applikation `beelog-de-sn` → **Webhooks** → **Add webhook** → Custom webhook:
    - Webhook ID z. B. `bienen-server`, Format **JSON**
@@ -64,6 +64,7 @@ Leere Zellen = Wert nicht im Uplink. Es wird nichts geglättet oder verworfen; d
 ## Tests
 
 ```
+php tests/server/test_eingang_funktionen.php
 php tests/server/test_wetter_funktionen.php
 bash tests/server/test_wetter_eingang.sh
 node tests/formatter/test_s2120_formatter.js
