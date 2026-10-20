@@ -133,6 +133,7 @@ export default defineComponent({
     </section>`,
   methods: {
     zeitText,
+    leer,            // leere Formulare, auch in der Vorlage (Zurücksetzen nach dem Speichern)
     zeit() { return ortszeitNachUtc(this.ab); },
     standName(id) { return this.d.staende.find((s) => s.id === id)?.name || '–'; },
     zielText(g) {
