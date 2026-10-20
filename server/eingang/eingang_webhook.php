@@ -11,15 +11,6 @@
 
 require_once __DIR__ . '/eingang_funktionen.php';
 
-// Konfigurationsdatei laden und Vorgaben ergänzen; null, wenn sie fehlt oder kein Feld liefert
-function ein_cfg_laden($datei, array $vorgaben)
-{
-    if (!is_file($datei)) return null;
-    $cfg = require $datei;
-    if (!is_array($cfg)) return null;
-    return $cfg + $vorgaben;
-}
-
 // Warnung für die Antwort an TTN merken; ohne Argument: alle bisherigen Warnungen als Antwortanhang
 function ein_warnung($text = null)
 {

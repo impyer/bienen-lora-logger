@@ -4,8 +4,8 @@ Alle TTN-Webhooks der Plattform laufen durch dieselbe Annahme und dasselbe Rohpr
 
 | Datei | Aufgabe |
 |---|---|
-| `eingang_funktionen.php` | Hilfsfunktionen ohne HTTP-Seiteneffekte: TTN-Zeit, Zahlen, Felder der Nachricht, Funkdaten, Kennung gegen Doppelzustellung, Liste verarbeiteter Kennungen, Monatsprotokoll, CSV anhängen, Sperre |
-| `eingang_webhook.php` | Annahme eines Webhooks: Konfiguration laden, Token und Methode prüfen, JSON lesen, Rohprotokoll vor jeder Verarbeitung, Antwort an TTN mit angehängten Warnungen |
+| `eingang_funktionen.php` | Hilfsfunktionen ohne HTTP-Seiteneffekte (auch für Kommandozeilenskripte wie `lora_nachholen.php`): Konfiguration laden, TTN-Zeit, Zahlen, Felder der Nachricht, Funkdaten, Kennung gegen Doppelzustellung, Liste verarbeiteter Kennungen, Monatsprotokoll, CSV anhängen, Sperre |
+| `eingang_webhook.php` | Annahme eines Webhooks: Konfiguration prüfen, Token und Methode prüfen, JSON lesen, Rohprotokoll vor jeder Verarbeitung, Antwort an TTN mit angehängten Warnungen |
 | `.htaccess` | Apache: kein Zugriff von außen; die Dateien werden nur eingebunden |
 
 ## Ablauf in einem Eingang

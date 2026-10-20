@@ -36,6 +36,17 @@ function ein_zahl($v)
     return ($s === '-0') ? '0' : $s;
 }
 
+// ---------- Konfiguration ----------
+
+// Konfigurationsdatei laden und Vorgaben ergänzen; null, wenn sie fehlt oder kein Feld liefert
+function ein_cfg_laden($datei, array $vorgaben)
+{
+    if (!is_file($datei)) return null;
+    $cfg = require $datei;
+    if (!is_array($cfg)) return null;
+    return $cfg + $vorgaben;
+}
+
 // ---------- Felder der TTN-Nachricht ----------
 
 // TTN-Gerätename (end_device_ids.device_id), '' wenn er fehlt
