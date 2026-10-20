@@ -8,6 +8,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Plattform Phase C, Teil 2: Stockkarte erfassen](2026-10-20-plattform-stockkarte.md)** | **20.10.2026, Stand `2008d2b`** | **CI grün: Hosttests 2/2, Datenbankfälle 9/9 in zwei Sitzungszeitzonen, Browser am Handy (390 px); Ausreißer im LoRa-E2E als CI26-02** |
 | **[Plattform Phase C, Teil 1: Stammdaten-Pflege mit CSRF, Nachtragen](2026-10-20-plattform-stammdaten.md)** | **20.10.2026, Stand `be40d0e`** | **CI: Hosttests 2/2, Datenbankfälle 11/11 in zwei Sitzungszeitzonen, Browser vom leeren Start bis zur Kachel; PLT26-04 im Entwurf behoben** |
 | **[Plattform Phase B: Lese-API und Oberfläche, synthetische Daten](2026-10-20-plattform-lese-api.md)** | **20.10.2026, Stand `0690bf4`** | **CI: Hosttests 10/10, Datenbankfälle 14/14 in zwei Sitzungszeitzonen, Diagrammlogik 10/10, Browser (Chromium) leer und synthetisch; neuer Befund PLT26-11 (keine Plausibilitätsprüfung beim Import); PLT26-04 Lesen umgesetzt** |
 | **[Schaltplan-Review: Einsparungen, Pin-Kniffe, SPICE-Prüfung](2026-10-18-schaltplan-optimierung.md)** | **18.10.2026, Stand `7aa1fe5`** | **ngspice (KiCad 10) 12/12: Elektretpfad, HX711-AVDD, BLE-Lastschalter, RN4871-Reset, ADC-Teiler, Sensorschiene, 1-Wire; Vorschläge: −6 Teile ohne Funktionsverlust, 5-V-Wandler der Waage zur Entscheidung (−6, −0,5 mAh/Tag, PB10 frei), Sanftanlauf BLE, Pin-Tauschgruppen; neuer Befund HW26-21 (ADC-Teiler-Leckstrom); keine Fehler** |

@@ -23,7 +23,7 @@
   - neu `tests/plattform/test_stockkarte.py`: 2 Hosttests (Werteprüfung, Schutz auch bei PUT/DELETE, 422) und 9 Datenbankfälle
   - Browsertest: Stockkarte bei 390 px Breite ohne waagrechtes Scrollen, danach Cockpit und Bearbeiten
   - CI in zwei Sitzungszeitzonen
-- **Änderungsklasse D2, Nachweis T1/T2 in der CI** (`c3aec01`): Plattform- und Datenbankjob grün. Rot war nur ein LoRa-E2E-Schritt ohne Änderung an `server/lora` (siehe Prüfbericht). Ohne Offline-Zwischenspeicher, Fotos und BEEP-Export; nur synthetische und erfundene Daten.
+- **Änderungsklasse D2, Nachweis T1/T2 in der CI** (`2008d2b`, alle Jobs grün). Im Lauf für `c3aec01` war einmal ein LoRa-E2E-Schritt rot, ohne Änderung an `server/lora`; das ist als CI26-02 geführt ([Prüfbericht](docs/testberichte/2026-10-20-plattform-stockkarte.md)). Ohne Offline-Zwischenspeicher, Fotos und BEEP-Export; nur synthetische und erfundene Daten.
 
 ## 2026-10-20 – Plattform Phase C, Teil 1: Stammdaten pflegen (Verwaltung)
 
