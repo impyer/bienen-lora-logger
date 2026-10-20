@@ -19,7 +19,7 @@ pruefe() { if [ "$2" = "$3" ]; then ok "$1"; else nok "$1" "erwartet: [$3]  ist:
 enthaelt() { case "$2" in *"$3"*) ok "$1";; *) nok "$1" "erwartet enthalten: [$3]  ist: [$2]";; esac; }
 
 mkdir -p "$W/www"
-cp -r "$REPO/server/lora" "$W/www/lora"
+cp -r "$REPO/server/eingang" "$W/www/eingang"
 cp -r "$REPO/server/wetter" "$W/www/wetter"
 cat > "$W/www/wetter/wetter_config.php" <<EOF
 <?php

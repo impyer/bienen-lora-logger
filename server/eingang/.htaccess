@@ -1,0 +1,2 @@
+# Apache 2.4: gemeinsame Eingangsschicht, nur eingebunden, nie direkt aufrufbar
+Require all denied

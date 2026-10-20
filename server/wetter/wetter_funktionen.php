@@ -1,9 +1,9 @@
 <?php
 // Wetter-Eingang: Hilfsfunktionen (ohne Seiteneffekte, testbar)
 // Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
-// Läuft ab PHP 7.4. Nutzt le_ttn_zeit, le_zahl, le_funk, le_nachricht_id aus server/lora/lora_funktionen.php.
+// Läuft ab PHP 7.4. Allgemeine TTN-Hilfen (Zeit, Zahlen, Funk, Kennung) liegen in server/eingang/eingang_funktionen.php.
 
-require_once __DIR__ . '/../lora/lora_funktionen.php';
+require_once __DIR__ . '/../eingang/eingang_funktionen.php';
 
 // Messwerte aus dem Formatter (formatter/s2120_beep_formatter.js) in fester Spaltenreihenfolge
 function we_messfelder()
@@ -45,7 +45,7 @@ function we_hat_messwerte($up)
     if (!is_array($up) || !isset($up['frm_payload']) || $up['frm_payload'] === '') return false;
     if (!isset($up['decoded_payload']) || !is_array($up['decoded_payload'])) return false;
     foreach (array_merge(we_messfelder(), we_geraetefelder()) as $f) {
-        if (array_key_exists($f, $up['decoded_payload']) && le_zahl($up['decoded_payload'][$f]) !== '') return true;
+        if (array_key_exists($f, $up['decoded_payload']) && ein_zahl($up['decoded_payload'][$f]) !== '') return true;
     }
     return false;
 }
@@ -59,15 +59,13 @@ function we_dateiname($stand, $station, $unix)
 function we_zeile($unix, $stand, $station, array $up)
 {
     $d = isset($up['decoded_payload']) && is_array($up['decoded_payload']) ? $up['decoded_payload'] : array();
-    $z = array(gmdate('Y-m-d\TH:i:s\Z', $unix), $unix, le_ortszeit_text($unix), $stand, $station);
-    foreach (array_merge(we_messfelder(), we_geraetefelder()) as $f) $z[] = array_key_exists($f, $d) ? le_zahl($d[$f]) : '';
-    $funk = le_funk($up);
+    $z = array(ein_utc_text($unix), $unix, ein_ortszeit_text($unix), $stand, $station);
+    foreach (array_merge(we_messfelder(), we_geraetefelder()) as $f) $z[] = array_key_exists($f, $d) ? ein_zahl($d[$f]) : '';
+    $funk = ein_funk($up);
     $hex = isset($up['frm_payload']) ? bin2hex((string)base64_decode((string)$up['frm_payload'], true)) : '';
-    $warn = '';
-    if (isset($up['decoded_payload_warnings']) && is_array($up['decoded_payload_warnings'])) $warn = implode('; ', $up['decoded_payload_warnings']);
     return array_merge($z, array(
         isset($up['f_cnt']) ? $up['f_cnt'] : '', isset($up['f_port']) ? $up['f_port'] : '',
-        $funk['rssi'], $funk['snr'], $funk['gateways'], $funk['sf'], strtoupper($hex), $warn));
+        $funk['rssi'], $funk['snr'], $funk['gateways'], $funk['sf'], strtoupper($hex), ein_formatter_warnungen($up)));
 }
 
 // Übersicht der Stände für die Auswertung (ohne Token): Name, zugehörige Logger und Stationen

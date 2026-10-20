@@ -1,6 +1,6 @@
 #!/bin/bash
 # Ende-zu-Ende-Test des LoRa-Eingangs:
-# echte beelogger-Skripte M.40 (Original-ZIP) + server/lora + echter TTN-Formatter + PHP-Testserver.
+# echte beelogger-Skripte M.40 (Original-ZIP) + server/eingang + server/lora + echter TTN-Formatter + PHP-Testserver.
 # Braucht: php (mit curl), node, unzip, curl. Zwei Testserver (Webhook-Eingang und beelogger_log.php getrennt), weil der Eingang
 # beelogger_log.php über HTTP beim selben Server aufruft.
 # Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
@@ -31,6 +31,7 @@ else
   cp -r "$REPO/server/beelogger_eigen/." "$W/www/"
 fi
 echo "Variante: $VARIANTE"
+cp -r "$REPO/server/eingang" "$W/www/eingang"
 cp -r "$REPO/server/lora" "$W/www/lora"
 cat > "$W/router.php" <<'EOF'
 <?php

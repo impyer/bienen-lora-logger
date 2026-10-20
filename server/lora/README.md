@@ -8,6 +8,7 @@
 | `lora_verarbeitung.php` | Verarbeitung eines Uplinks, gemeinsam für Eingang und Nachholen |
 | `lora_nachholen.php` | zwischengespeicherte Nachrichten erneut verarbeiten (nur Kommandozeile, z. B. cron) |
 | `lora_funktionen.php` | Hilfsfunktionen ohne Seiteneffekte (Unit-Tests) |
+| `../eingang/` | gemeinsame Eingangsschicht aller Webhooks: Annahme, Token, Rohprotokoll, Kennung, Duplikatliste, Sperre ([README](../eingang/README.md)) |
 
 ## Was er macht
 
@@ -45,7 +46,7 @@
 
 ## Einrichtung
 
-1. Ordner `server/lora` auf den Server kopieren, und zwar **neben** die Verzeichnisse `beelogger1`, `beelogger2` …: `…/beelogger/lora/`.
+1. Ordner `server/eingang` und `server/lora` auf den Server kopieren, und zwar **neben** die Verzeichnisse `beelogger1`, `beelogger2` …: `…/beelogger/eingang/` und `…/beelogger/lora/`. Ohne `eingang/` bricht der Eingang mit einem PHP-Fehler ab (HTTP 500).
 2. `lora_config.beispiel.php` nach `lora_config.php` kopieren und eintragen:
    - `token`: ein langes Zufallswort, mindestens 16 Zeichen. Zum Beispiel unter Linux mit `openssl rand -hex 24` erzeugen.
    - `basis_url`: Adresse des beelogger-Ordners, z. B. `https://example.org/beelogger`.
@@ -102,7 +103,8 @@ Warum 202 statt 5xx bei vorübergehenden Fehlern (SRV26-02): The Things Stack wi
 
 ## Tests
 
-- `php tests/server/test_lora_funktionen.php`: Hilfsfunktionen (59 Tests)
+- `php tests/server/test_eingang_funktionen.php`: gemeinsame Eingangsschicht (Zeit, Zahlen, Funk, Kennung, Duplikatliste, Protokoll, CSV, Sperre, Konfiguration)
+- `php tests/server/test_lora_funktionen.php`: Hilfsfunktionen des LoRa-Eingangs (Messzeit, EE-Datensatz, Zusatzzeile, Speicherprüfung, Zeitbasis, Aufruf-Adresse)
 - `bash tests/server/test_lora_eingang.sh`: Ende-zu-Ende mit dem echten Formatter und zwei PHP-Testservern. `VARIANTE=eigen` (Vorgabe, 73 Prüfungen) oder `VARIANTE=original` (56 Prüfungen, weist den Winterzeit-Fehler des Originals nach). Enthalten:
   - Funkformat v1/v2, Zeitquelle, Fehlerfälle, Winterzeit-Nacht
   - doppelte und gleichzeitige Nachrichten (4 parallele Webhooks), Nachholen nach Ausfall
