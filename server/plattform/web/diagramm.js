@@ -61,6 +61,22 @@ function mitternacht(tag) {
   return new Date(basis);
 }
 
+// Eingabe aus <input type="datetime-local"> ("2026-10-20T14:30") als Ortszeit Europe/Berlin → ISO in UTC.
+// In der doppelten Stunde der Winterzeit-Umstellung gilt die erste (Sommerzeit); eine Zeit in der übersprungenen
+// Stunde (Frühjahr) gibt es nicht und ergibt null.
+export function ortszeitNachUtc(text) {
+  if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(text || '')) return null;
+  const basis = Date.parse(text + ':00Z');
+  for (let h = 14; h >= -14; h--) {
+    const ms = basis - h * 3600000;
+    if (ortText(ms) === text) return new Date(ms).toISOString();
+  }
+  return null;
+}
+
+// Jetzt als Wert für <input type="datetime-local"> in Ortszeit
+export function jetztOrtszeit(ms = Date.now()) { return ortText(ms); }
+
 export function ortstag(t) {
   const tag = ortText(Date.parse(t)).slice(0, 10);
   const morgen = new Date(Date.parse(tag + 'T00:00:00Z') + 86400000).toISOString().slice(0, 10);

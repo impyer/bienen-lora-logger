@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Oberfläche der Plattform im echten Browser (Chromium über Playwright) gegen die laufende Lese-API.
-// Aufruf: node tests/plattform/test_oberflaeche.mjs <basis-url> <passwort> leer|voll [volk-id] [stand-id]
+// Aufruf: node tests/plattform/test_oberflaeche.mjs <basis-url> <passwort> leer|verwaltung|voll [volk-id] [stand-id]
 //   leer: Datenbank ohne Stammdaten → Leerzustände, keine Fehler
+//   verwaltung: leerer Start, alles über die Oberfläche anlegen (Katalog, Stand, Volk, Gerät, Zuordnung, Vorlage)
 //   voll: synthetischer Oktober 2026 (server/plattform/synthetisch.py) → Kacheln, Diagramme, Bänder, Lücken
 // Braucht: npm install --no-save playwright@1.56.1 && npx playwright install chromium
 import { createRequire } from 'node:module';
@@ -51,6 +52,39 @@ try {
     pruefe('Leerzustand Datenquellen', (await seite.innerText('main')).includes('Der Importer ist noch nicht gelaufen'));
     await oeffnen('#/volk/1');
     pruefe('unbekanntes Volk zeigt Fehlermeldung statt leerer Seite', (await seite.innerText('main')).includes('Volk unbekannt'));
+  } else if (art === 'verwaltung') {
+    const meldung = async () => { await seite.waitForSelector('.ok[role=status], .fehler', { timeout: 10000 }); return seite.innerText('main'); };
+    await oeffnen('#/verwaltung');
+    await seite.click('button:has-text("Standardkatalog übernehmen")');
+    pruefe('Verwaltung: Standardkatalog', (await meldung()).includes('12 Messgrößen neu'), (await seite.innerText('main')).slice(0, 300));
+    await seite.fill('input[aria-label="Name des Stands"]', 'Teststand');
+    await seite.click('button:has-text("Stand anlegen")');
+    await seite.waitForSelector('td:has-text("Teststand")', { timeout: 10000 });
+    pruefe('Verwaltung: Stand angelegt', true);
+    const volk = seite.locator('form.block');
+    await volk.locator('input[aria-label="Name des Volks"]').fill('Testvolk');
+    await volk.locator('select[aria-label="Stand"]').selectOption({ label: 'Teststand' });
+    await volk.locator('input[aria-label="Bezeichnung der Beute"]').fill('Testbeute');
+    await volk.locator('button[type=submit]').click();
+    await seite.waitForSelector('a:has-text("Testvolk")', { timeout: 10000 });
+    pruefe('Verwaltung: Volk mit Beute angelegt', (await seite.innerText('main')).includes('Testbeute'));
+    await seite.fill('input[aria-label="TTN-Gerätename"]', 'beelogger-07');
+    await seite.click('button:has-text("Gerät anlegen")');
+    const geraet = seite.locator('article.geraet', { hasText: 'beelogger-07' });
+    await geraet.waitFor({ timeout: 10000 });
+    await geraet.locator('details').evaluate((d) => { d.open = true; });
+    await geraet.locator('select[aria-label="Ziel"]').selectOption({ label: 'Testvolk' });
+    await geraet.locator('button:has-text("Zuordnung speichern")').click();
+    await seite.waitForSelector('article.geraet:has-text("an Testvolk")', { timeout: 10000 });
+    const g2 = seite.locator('article.geraet', { hasText: 'beelogger-07' });
+    await g2.locator('details').evaluate((d) => { d.open = true; });
+    await g2.locator('button:has-text("Kanäle anlegen")').click();
+    await seite.waitForSelector('.ok:has-text("5 Kanäle angelegt")', { timeout: 10000 }).catch(() => null);
+    pruefe('Verwaltung: Zuordnung und Vorlage (5 Kanäle)', (await seite.innerText('main')).includes('5 Kanäle angelegt'),
+           (await seite.innerText('main')).slice(0, 300));
+    await oeffnen('#/');
+    const k = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
+    pruefe('Verwaltung: Volk erscheint in der Übersicht', JSON.stringify(k) === '["Testvolk"]', JSON.stringify(k));
   } else {
     await oeffnen('#/?zeit=2026-10-31T23:00:00Z');
     const kacheln = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));

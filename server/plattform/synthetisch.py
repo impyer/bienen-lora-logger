@@ -31,6 +31,8 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from api import katalog
+
 HIER = Path(__file__).resolve().parent
 SCHEMA = HIER.parent / "datenbank" / "schema.sql"
 
@@ -68,35 +70,11 @@ FAELLE = {
 FCNT_START = 16000      # Logger 1 läuft am 08.10. über 16383 und beginnt wieder bei 0 (ABP-Reset, bewusst akzeptiert)
 DOPPELT_JEDE = 97       # jede 97. Nachricht stellt TTN ein zweites Mal zu
 
-# Messgrößen-Katalog (Register der Oberfläche); der Betrieb startet leer, das ist nur der Testbestand
-MESSGROESSEN = [
-    # code, name, einheit, semantik, verdichtung, achse, darstellung, farbe, öffentlich
-    ("gewicht", "Gewicht", "kg", "momentan", "mittel", "gewicht", "linie", "#8a5a00", True),
-    ("temperatur", "Temperatur", "°C", "momentan", "mittel", "temperatur", "linie", "#c0392b", True),
-    ("feuchte", "Relative Feuchte", "%", "momentan", "mittel", "feuchte", "linie", "#2471a3", False),
-    ("spannung", "Spannung", "V", "momentan", "letzter", "spannung", "stufe", "#7f8c8d", False),
-    ("licht", "Helligkeit", "lx", "momentan", "max", "licht", "linie", "#d4ac0d", False),
-    ("luftdruck", "Luftdruck", "hPa", "momentan", "mittel", "druck", "linie", "#5d6d7e", True),
-    ("wind", "Windgeschwindigkeit", "m/s", "momentan", "mittel", "wind", "linie", "#17a589", True),
-    ("windboe", "Windböe", "m/s", "spitze", "max", "wind", "punkte", "#0e6655", False),
-    ("windrichtung", "Windrichtung", "°", "zirkulaer", "vektor", "richtung", "pfeile", "#117864", False),
-    ("regen_summe", "Niederschlag (Zähler)", "mm", "unbekannte_summe", "keine", "regen", "balken", "#1f618d", False),
-    ("regen_rate", "Regenrate", "mm/h", "momentan", "max", "regenrate", "balken", "#2e86c1", True),
-    ("uv", "UV-Index", "", "momentan", "max", "uv", "linie", "#8e44ad", False),
-]
-
-# Logger-Felder → Messgröße und Messstelle (zone); FeuchteIn absichtlich ohne Kanal (K-06 „unbenannt“)
-LOGGER_KANAELE = [
-    ("Gewicht", "gewicht", "waage"),
-    ("TempIn", "temperatur", "brutnest"),
-    ("TempOut", "temperatur", "aussen"),
-    ("FeuchteOut", "feuchte", "aussen"),
-    ("VBatt", "spannung", "elektronik"),
-]
-WETTER_KANAELE = [
-    ("t", "temperatur"), ("h", "feuchte"), ("p_hpa", "luftdruck"), ("wind_ms", "wind"), ("gust_ms", "windboe"),
-    ("wind_dir_deg", "windrichtung"), ("rain_mm", "regen_summe"), ("rain_mmh", "regen_rate"), ("uv", "uv"),
-]
+# Standardkatalog und Vorlagen der Verwaltung (api/katalog.py); im Testbestand fehlt bei der Wetterstation
+# absichtlich der Kanal für "l" (Helligkeit), und FeuchteIn der Logger hat keinen (K-06 „unbenannt“)
+MESSGROESSEN = katalog.MESSGROESSEN
+LOGGER_KANAELE = katalog.VORLAGEN["beelogger"]["kanaele"]
+WETTER_KANAELE = [(feld, groesse) for feld, groesse, _ in katalog.VORLAGEN["s2120"]["kanaele"] if feld != "l"]
 
 
 # ---------------------------------------------------------------- Modell der Messwerte (ohne Datenbank)

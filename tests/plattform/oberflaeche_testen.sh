@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Philipp Schnabel
 # Oberfläche der Plattform im Browser: Lese-API (uvicorn) gegen die Testdatenbank, erst leer, dann mit dem
-# synthetischen Oktober 2026. Löscht das Schema "bienen" der Testdatenbank.
+# synthetischen Oktober 2026; dazwischen die Verwaltung vom leeren Start aus. Löscht das Schema "bienen" der Testdatenbank.
 # Braucht: BIENEN_TEST_DSN, python3 mit server/plattform/requirements.txt, node mit playwright (Chromium), curl.
 set -euo pipefail
 HIER="$(cd "$(dirname "$0")" && pwd)"
@@ -40,6 +40,8 @@ for _ in $(seq 1 50); do curl -fs -o /dev/null "http://127.0.0.1:$PORT/api/gesun
 
 echo "== leere Datenbank"
 node "$HIER/test_oberflaeche.mjs" "http://127.0.0.1:$PORT" "$PW" leer
+echo "== Verwaltung: leerer Start, alles über die Oberfläche anlegen"
+node "$HIER/test_oberflaeche.mjs" "http://127.0.0.1:$PORT" "$PW" verwaltung
 echo "== synthetischer Oktober 2026"
 python3 synthetisch.py --verzeichnis "$W/syn" > "$W/syn.log"
 head -5 "$W/syn.log"

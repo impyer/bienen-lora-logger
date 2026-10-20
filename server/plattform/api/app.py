@@ -15,15 +15,17 @@ from typing import Optional
 from urllib.parse import urlparse
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import abfragen
-from .anmeldung import COOKIE, Bremse, passwort_pruefen, sitzung_erzeugen, sitzung_gueltig
+from . import abfragen, stammdaten, verwaltung
+from .anmeldung import COOKIE, Bremse, csrf_gueltig, csrf_token, passwort_pruefen, sitzung_erzeugen, sitzung_gueltig
 from .verdichtung import MAX_ZEITRAUM, raster
 
 WEB = Path(__file__).resolve().parent.parent / "web"
-VORGABEN = {"dsn": "", "passwort_hash": "", "sitzungsschluessel": "", "cookie_sicher": True, "sitzung_tage": 90}
+VORGABEN = {"dsn": "", "dsn_schreiben": "", "passwort_hash": "", "sitzungsschluessel": "", "cookie_sicher": True,
+            "sitzung_tage": 90, "protokolle": {}}
 CSP = ("default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
        "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 
@@ -37,14 +39,13 @@ def konfig_laden(pfad=None):
     return k
 
 
-def psycopg_verbinden(dsn):
-    """Verbindung für eine Anfrage: nur lesen, UTC, Schema bienen."""
-    import psycopg
-    from psycopg.rows import dict_row
-
+def psycopg_verbinden(dsn, nur_lesen=True):
+    """Verbindung für eine Anfrage: UTC, Schema bienen; zum Lesen als Nur-Lese-Transaktion."""
     def verbinden():
+        import psycopg                     # erst bei Bedarf: Hosttests laufen ohne Treiber
+        from psycopg.rows import dict_row
         con = psycopg.connect(dsn, row_factory=dict_row, autocommit=False)
-        con.read_only = True
+        con.read_only = nur_lesen
         con.execute("SET search_path = bienen, public")
         con.execute("SET TIME ZONE 'UTC'")
         return con
@@ -92,11 +93,51 @@ class Anmeldung(BaseModel):
 
 # ---------------------------------------------------------------- App
 
-def erstellen(konfig=None, verbinden=None):
-    k = konfig or konfig_laden()
+def importer_nachtragen(dsn, protokolle):
+    """Nachtragen über server/datenbank/importer.py, falls die Protokollverzeichnisse konfiguriert sind."""
+    if not protokolle:
+        return None
+
+    def nachtragen(geraet):
+        import sys
+        import psycopg
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "datenbank"))
+        import importer
+        with psycopg.connect(dsn) as con:
+            b = importer.Importer(con).nachtragen({q: Path(v) for q, v in protokolle.items()}, geraet)
+        return {"messwerte": b.messwerte, "belegt": b.messwert_belegt, "fehler": b.fehler[:20]}
+    return nachtragen
+
+
+def erstellen(konfig=None, verbinden=None, verbinden_schreiben=None):
+    k = {**VORGABEN, **(konfig or konfig_laden())}
     verbinden = verbinden or psycopg_verbinden(k["dsn"])
+    verbinden_schreiben = verbinden_schreiben or psycopg_verbinden(k["dsn_schreiben"] or k["dsn"], nur_lesen=False)
     bremse = Bremse()
     app = FastAPI(title="Bienen-Plattform", docs_url=None, redoc_url=None, openapi_url=None)
+
+    @app.exception_handler(stammdaten.Konflikt)
+    async def konflikt(request, e):
+        return JSONResponse({"detail": str(e)}, status_code=409)
+
+    @app.exception_handler(stammdaten.NichtGefunden)
+    async def nicht_gefunden(request, e):
+        return JSONResponse({"detail": str(e)}, status_code=404)
+
+    try:
+        from psycopg import errors as pg
+
+        @app.exception_handler(pg.IntegrityError)
+        async def integritaet(request, e):
+            # Regeln der Datenbank (Überlappung, Eindeutigkeit, Prüfungen) als verständlicher Konflikt
+            text = {pg.ExclusionViolation: "Zeitraum überschneidet sich mit einer bestehenden Angabe "
+                                           "(z. B. Beute schon belegt, Gerät schon zugeordnet)",
+                    pg.UniqueViolation: "Name oder Kennung ist schon vergeben",
+                    pg.ForeignKeyViolation: "Verweis auf ein unbekanntes Objekt",
+                    pg.CheckViolation: "Angabe verletzt eine Regel der Datenbank"}.get(type(e), "Widerspruch zu den gespeicherten Daten")
+            return JSONResponse({"detail": text}, status_code=409)
+    except ImportError:          # Hosttests ohne Treiber
+        pass
 
     @app.middleware("http")
     async def kopfzeilen(request, call_next):
@@ -120,6 +161,33 @@ def erstellen(konfig=None, verbinden=None):
     def angemeldet(request: Request):
         if not sitzung_gueltig(k["sitzungsschluessel"], request.cookies.get(COOKIE)):
             raise HTTPException(401, "nicht angemeldet")
+
+    def herkunft_passt(request):
+        for kopf in ("origin", "referer"):
+            w = request.headers.get(kopf)
+            if w:
+                return urlparse(w).netloc == request.headers.get("host")
+        return True
+
+    def schreiben(request: Request):
+        """Cursor für schreibende Anfragen: Sitzung, Herkunft, CSRF-Token; Commit nur ohne Fehler (PLT26-04)."""
+        sitzung = request.cookies.get(COOKIE)
+        if not sitzung_gueltig(k["sitzungsschluessel"], sitzung):
+            raise HTTPException(401, "nicht angemeldet")
+        if not herkunft_passt(request):
+            raise HTTPException(403, "fremde Herkunft")
+        if not csrf_gueltig(k["sitzungsschluessel"], sitzung, request.headers.get("x-csrf-token")):
+            raise HTTPException(403, "CSRF-Token fehlt oder ist falsch")
+        con = verbinden_schreiben()
+        try:
+            with con.cursor() as cur:
+                yield cur
+            con.commit()
+        except BaseException:
+            con.rollback()
+            raise
+        finally:
+            con.close()
 
     nur_angemeldet = [Depends(angemeldet)]
 
@@ -151,8 +219,8 @@ def erstellen(konfig=None, verbinden=None):
 
     # ---------- mit Sitzung
     @app.get("/api/sitzung", dependencies=nur_angemeldet)
-    def sitzung():
-        return {"angemeldet": True}
+    def sitzung(request: Request):
+        return {"angemeldet": True, "csrf": csrf_token(k["sitzungsschluessel"], request.cookies.get(COOKIE))}
 
     @app.get("/api/messgroessen", dependencies=nur_angemeldet)
     def messgroessen(cur=Depends(cursor)):
@@ -204,6 +272,13 @@ def erstellen(konfig=None, verbinden=None):
     @app.get("/api/pruefungen", dependencies=nur_angemeldet)
     def pruefungen(cur=Depends(cursor)):
         return abfragen.pruefungen(cur)
+
+    def lesen_angemeldet(request: Request):
+        angemeldet(request)
+        yield from cursor()
+
+    app.include_router(verwaltung.router(lesen_angemeldet, schreiben,
+                                         importer_nachtragen(k["dsn_schreiben"] or k["dsn"], k["protokolle"])))
 
     @app.get("/api/{rest:path}")
     def unbekannt(rest: str):
