@@ -23,7 +23,10 @@ const browser = await chromium.launch(process.env.PW_CHROMIUM ? { executablePath
 const seite = await browser.newPage({ timezoneId: 'America/New_York', viewport: { width: 1200, height: 900 } });
 const jsFehler = [];
 seite.on('pageerror', (e) => jsFehler.push(String(e)));
-seite.on('console', (m) => { if (m.type() === 'error' && !/status of 401/.test(m.text())) jsFehler.push(m.text()); });
+// API-Fehlerantworten (401, 404 …) zeigt die Oberfläche selbst an; der Browser meldet sie zusätzlich als „Failed to load
+// resource“. Als Fehler zählen Skriptfehler, andere Konsolenfehler und fehlgeschlagene Dateien außerhalb von /api/.
+seite.on('console', (m) => { if (m.type() === 'error' && !m.text().startsWith('Failed to load resource')) jsFehler.push(m.text()); });
+seite.on('response', (r) => { if (r.status() >= 400 && !new URL(r.url()).pathname.startsWith('/api/')) jsFehler.push(`${r.status()} ${r.url()}`); });
 
 async function oeffnen(hash) {
   await seite.goto(basis + '/' + hash, { waitUntil: 'load' });
