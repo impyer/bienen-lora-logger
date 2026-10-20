@@ -141,11 +141,21 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install "psycopg[binary]==3.2.3"
-      - name: Schema (Akzeptanzfälle ER/K/HB)
-        run: python3 tests/datenbank/test_schema.py
-      - name: Importer (R-4, R-5, K-06, K-09)
+      # Ergebnis darf nicht von der Sitzungszeitzone abhängen (server/datenbank/README.md); PGTZ setzt sie für libpq
+      - name: Schema, Sitzungszeitzone Europe/Berlin
+        run: PGTZ=Europe/Berlin python3 tests/datenbank/test_schema.py
+      - name: Schema, Sitzungszeitzone UTC
         if: ${{ !cancelled() }}
-        run: python3 tests/datenbank/test_importer.py
+        run: PGTZ=UTC python3 tests/datenbank/test_schema.py
+      - name: Schema, Sitzungszeitzone America/New_York
+        if: ${{ !cancelled() }}
+        run: PGTZ=America/New_York python3 tests/datenbank/test_schema.py
+      - name: Importer (R-4, R-5, K-06, K-09), Sitzungszeitzone Europe/Berlin
+        if: ${{ !cancelled() }}
+        run: PGTZ=Europe/Berlin python3 tests/datenbank/test_importer.py
+      - name: Importer, Sitzungszeitzone UTC
+        if: ${{ !cancelled() }}
+        run: PGTZ=UTC python3 tests/datenbank/test_importer.py
 
   hardware-rechnungen:
     name: Hardware-Rechenmodelle (Energie, Mikrofonfilter, I²C, Funkmodul)
