@@ -6,6 +6,7 @@
 * Sitzung als signiertes Cookie (HMAC-SHA256, Ablaufzeit im Wert): kein Sitzungsspeicher nötig.
   Abmelden löscht das Cookie; alle Sitzungen beendet ein neuer Sitzungsschlüssel.
 * Bremse gegen Durchprobieren: nach 5 Fehlversuchen je Adresse 60 s Sperre.
+* Schreiben zusätzlich nur mit CSRF-Token (an die Sitzung gebunden) und passender Herkunft.
 Ohne Datenbank testbar. Hash erzeugen:  python3 -m api.anmeldung   (im Ordner server/plattform)
 """
 import base64
@@ -65,6 +66,16 @@ def sitzung_gueltig(schluessel, wert, jetzt=None):
     except ValueError:
         return False
     return (jetzt if jetzt is not None else time.time()) < ablauf
+
+
+def csrf_token(schluessel, sitzung):
+    """Token gegen Cross-Site-Anfragen, an die Sitzung gebunden. Die Oberfläche holt es über /api/sitzung und
+    schickt es bei jeder schreibenden Anfrage im Header X-CSRF-Token mit (zusätzlich zu SameSite=Strict)."""
+    return _signatur(schluessel, "csrf." + str(sitzung))
+
+
+def csrf_gueltig(schluessel, sitzung, token):
+    return isinstance(token, str) and bool(token) and hmac.compare_digest(token, csrf_token(schluessel, sitzung))
 
 
 class Bremse:

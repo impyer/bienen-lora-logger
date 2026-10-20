@@ -32,6 +32,8 @@ Rohnachricht verloren geht; Art und Kanäle danach in den Stammdaten pflegen.
 Aufruf (z. B. alle 1–5 min per systemd-Timer oder cron; ein zweiter gleichzeitiger Lauf beendet sich sofort):
     BIENEN_DSN="dbname=bienen user=bienen" python3 server/datenbank/importer.py \\
         --lora /var/www/html/lora/lora_log --wetter /var/www/html/wetter/wetter_log
+Nachtragen, nachdem ein Kanal angelegt wurde (Werte vorher nur in quellfeld_ohne_kanal; Prüfsumme je Zeile):
+    BIENEN_DSN=... python3 server/datenbank/importer.py --lora … --wetter … --nachtragen [--geraet beelogger-01]
 Benötigt: Python ≥ 3.9, psycopg 3 (pip install "psycopg[binary]").
 Rückgabe: 0 = alles gelesen, 1 = mindestens eine Datei nicht lesbar oder umgeschrieben, 2 = Aufruf/Verbindung.
 """
@@ -271,9 +273,11 @@ class Importer:
             bericht.doppelt += 1
             return
         bericht.neu += 1
-        if daten is None:
-            return
+        if daten is not None:
+            self.messwerte(cur, q, geraet_id, daten, empf_unix, kennung, bericht)
 
+    def messwerte(self, cur, q, geraet_id, daten, empf_unix, kennung, bericht, ohne_kanal_zaehlen=True):
+        """Zahlenfelder einer Nachricht als Messwerte (mit Kanal) bzw. als Feld ohne Kanal ablegen."""
         if q["geraetezeit"]:
             unix, zq = messzeit(daten, empf_unix, self.max_abweichung_s)
         else:
@@ -291,6 +295,8 @@ class Importer:
                                VALUES (%s, %s, %s, %s, %s) ON CONFLICT (kanal_id, zeit) DO NOTHING""", werte)
             bericht.messwerte += cur.rowcount
             bericht.messwert_belegt += len(werte) - cur.rowcount
+        if not ohne_kanal_zaehlen:
+            return
         for o in ohne:
             cur.execute("""INSERT INTO quellfeld_ohne_kanal AS q(geraet_id, quellfeld, zuerst, zuletzt)
                            VALUES (%s, %s, %s, %s)
@@ -353,6 +359,53 @@ class Importer:
         return bericht
 
 
+    def nachtragen(self, verzeichnisse, geraet=None):
+        """Messwerte für Kanäle nachtragen, die erst nach dem Import angelegt wurden.
+
+        Liest jede schon übernommene Rohnachricht (ggf. nur eines Geräts) erneut aus ihrer Protokollzeile, prüft deren
+        SHA-256 gegen rohnachricht.sha256 und legt fehlende Messwerte an (vorhandene bleiben, ON CONFLICT). Felder ohne
+        Kanal werden dabei nicht erneut gezählt. Abweichende oder fehlende Zeilen stehen im Bericht unter fehler.
+        """
+        bericht = Bericht()
+        self.con.execute("SET search_path = bienen, public")
+        self.con.commit()
+        with self.con.cursor() as cur:
+            cur.execute("""SELECT r.id, r.datei, r.zeile, r.sha256, g.id FROM rohnachricht r
+                           JOIN geraet g ON g.id = r.geraet_id
+                           WHERE %(g)s::text IS NULL OR g.name = %(g)s
+                           ORDER BY r.datei, r.zeile""", {"g": geraet})
+            je_datei = {}
+            for kennung, datei, nr, sha, gid in cur.fetchall():
+                je_datei.setdefault(datei, []).append((nr, kennung, sha, gid))
+        for datei, eintraege in je_datei.items():
+            quelle, _, name = datei.partition("/")
+            if quelle not in verzeichnisse or quelle not in QUELLEN:
+                bericht.fehler.append(f"{datei}: Verzeichnis für {quelle} nicht angegeben")
+                continue
+            try:
+                with open(Path(verzeichnisse[quelle]) / name, "rb") as f:
+                    zeilen = f.read().split(b"\n")
+            except OSError as e:
+                bericht.fehler.append(f"{datei}: {e}")
+                continue
+            with self.con.transaction(), self.con.cursor() as cur:
+                for nr, kennung, sha, gid in eintraege:
+                    roh = zeilen[nr - 1] if 0 < nr <= len(zeilen) else b""
+                    if hashlib.sha256(roh).hexdigest() != sha:
+                        bericht.fehler.append(f"{datei}:{nr} Zeile weicht von der Prüfsumme ab, übersprungen")
+                        continue
+                    e = json.loads(roh)
+                    msg = e["nachricht"]
+                    up = msg.get("uplink_message")
+                    daten = up.get("decoded_payload") if isinstance(up, dict) else None
+                    if not isinstance(daten, dict):
+                        continue
+                    bericht.uplinks += 1
+                    self.messwerte(cur, QUELLEN[quelle], gid, daten, ttn_zeit(empfangszeit(msg))[0], kennung, bericht,
+                                   ohne_kanal_zaehlen=False)
+        return bericht
+
+
 def importieren(con, verzeichnisse, max_abweichung_s=MAX_ABWEICHUNG_S):
     return Importer(con, max_abweichung_s).lauf(verzeichnisse)
 
@@ -364,6 +417,9 @@ def main(argv=None):
     ap.add_argument("--wetter", type=Path, help="Verzeichnis wetter_log des Wetter-Eingangs")
     ap.add_argument("--max-zeitabweichung", type=int, default=MAX_ABWEICHUNG_S,
                     help="wie max_zeitabweichung_s in lora_config.php (Vorgabe 900 s)")
+    ap.add_argument("--nachtragen", action="store_true",
+                    help="Messwerte für nachträglich angelegte Kanäle aus den schon übernommenen Zeilen ergänzen")
+    ap.add_argument("--geraet", help="mit --nachtragen: nur dieses Gerät (TTN-Gerätename)")
     a = ap.parse_args(argv)
     verz = {k: v for k, v in (("lora_log", a.lora), ("wetter_log", a.wetter)) if v is not None}
     if not a.dsn or not verz:
@@ -379,7 +435,8 @@ def main(argv=None):
             print("Importer läuft bereits, nichts zu tun")
             return 0
         con.commit()
-        b = importieren(con, verz, a.max_zeitabweichung)
+        imp = Importer(con, a.max_zeitabweichung)
+        b = imp.nachtragen(verz, a.geraet) if a.nachtragen else imp.lauf(verz)
     print(b.text())
     return 1 if b.fehler else 0
 

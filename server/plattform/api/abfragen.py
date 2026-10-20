@@ -185,7 +185,9 @@ def pruefungen(cur):
                 "FROM pruefung_geraet_zuordnung ORDER BY geraet")
     zuordnung = cur.fetchall()
     cur.execute("""SELECT g.name AS geraet, q.quellfeld, q.zuerst, q.zuletzt, q.anzahl
-                   FROM quellfeld_ohne_kanal q JOIN geraet g ON g.id = q.geraet_id ORDER BY g.name, q.quellfeld""")
+                   FROM quellfeld_ohne_kanal q JOIN geraet g ON g.id = q.geraet_id
+                   WHERE NOT EXISTS (SELECT 1 FROM kanal k WHERE k.geraet_id = q.geraet_id AND k.quellfeld = q.quellfeld)
+                   ORDER BY g.name, q.quellfeld""")
     unbenannt = cur.fetchall()
     cur.execute("""SELECT g.name, g.art, (SELECT max(empfangen) FROM rohnachricht r WHERE r.geraet_id = g.id) AS letzte
                    FROM geraet g

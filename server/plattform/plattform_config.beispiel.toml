@@ -13,3 +13,13 @@ cookie_sicher = true
 
 # Dauer der Sitzung auf dem eigenen Handy
 sitzung_tage = 90
+
+# Schreiben (Verwaltung): eigene Rolle mit INSERT/UPDATE-Rechten; leer = dieselbe Verbindung wie dsn.
+# Die Rolle für dsn braucht dann nur SELECT.
+dsn_schreiben = ""
+
+# Rohprotokolle der Eingänge für „Werte nachtragen“ in der Verwaltung (optional; ohne Angabe nur per
+# server/datenbank/importer.py --nachtragen). Der Dienst braucht Leserecht auf die Verzeichnisse.
+[protokolle]
+# lora_log = "/var/www/html/beelogger/lora/lora_log"
+# wetter_log = "/var/www/html/beelogger/wetter/wetter_log"

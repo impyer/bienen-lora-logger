@@ -169,6 +169,12 @@ jobs:
       - name: Plattform – Lese-API, Sitzungszeitzone UTC
         if: ${{ !cancelled() }}
         run: PGTZ=UTC python3 tests/plattform/test_plattform.py
+      - name: Plattform – Stammdaten-Pflege und Nachtragen, Sitzungszeitzone Europe/Berlin
+        if: ${{ !cancelled() }}
+        run: PGTZ=Europe/Berlin python3 tests/plattform/test_verwaltung.py
+      - name: Plattform – Stammdaten-Pflege, Sitzungszeitzone UTC
+        if: ${{ !cancelled() }}
+        run: PGTZ=UTC python3 tests/plattform/test_verwaltung.py
       - uses: actions/setup-node@v4
         if: ${{ !cancelled() }}
         with:

@@ -47,3 +47,15 @@ input { font: inherit; }
 .anmelden form { display: flex; flex-direction: column; gap: 10px; max-width: 320px; }
 .anmelden input { width: 100%; padding: 8px; }
 @media (max-width: 600px) { .tabelle { font-size: 0.9em; } .kachel .gross { font-size: 1.2rem; } }
+/* Verwaltung */
+.ok { color: var(--plus); }
+.zeile { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+.zeile input:not([type=number]), .zeile select { min-width: 9em; padding: 5px; }
+.zeile input[type=number] { width: 4.5em; padding: 5px; }
+.block { border: 1px solid var(--linie); border-radius: 8px; padding: 8px 12px; margin: 10px 0; background: var(--flaeche); }
+.geraet { border: 1px solid var(--linie); border-radius: 8px; padding: 8px 12px; margin: 8px 0; background: var(--flaeche); }
+.geraet header { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.ab { display: inline-flex; gap: 8px; align-items: center; padding: 6px 10px; border: 1px solid var(--akzent); border-radius: 8px; }
+tr.aufgeloest td, tr.beendet td { color: var(--leise); }
+button.gefahr { border-color: var(--minus); color: var(--minus); }
+details summary { cursor: pointer; color: var(--akzent); }

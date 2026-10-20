@@ -1,5 +1,24 @@
 # Änderungen
 
+## 2026-10-20 – Plattform Phase C, Teil 1: Stammdaten pflegen (Verwaltung)
+
+- **Neue Seite „Verwaltung“** mit Endpunkten `/api/verwaltung/…` (`api/verwaltung.py`, `api/stammdaten.py`). Fachliche Aktionen statt Rohtabellen:
+  - Volk mit neuer Beute am Stand anlegen
+  - Umsetzen in eine neue oder leere Beute; die Maßnahme `umsetzen` erklärt den Gewichtssprung (L8)
+  - Auflösen bzw. Vereinigen; beendet Belegung und Waagenzuordnung (HB-09)
+  - Beute versetzen, Zargen ändern
+  - Gerät anlegen, Art ändern und einem Volk oder Stand zuordnen
+  - Kanäle einzeln (mit Versatz und Kalibrierung) oder per Vorlage `beelogger` bzw. `s2120` (`api/katalog.py`); Kanal beenden
+  - Standardkatalog der Messgrößen übernehmen
+- **Historie:** Eine Änderung „ab Zeitpunkt“ beendet die offene Angabe und legt eine neue an; eine Änderung davor lehnt die API ab (409). Konflikte mit den Datenbankregeln ergeben 409 mit Klartext, ohne Teiländerung. Eingabe in Ortszeit Europe/Berlin.
+- **Schutz (PLT26-04):** Schreiben nur mit Sitzung, CSRF-Token (`GET /api/sitzung`, Header `X-CSRF-Token`) und passender Herkunft. Der Commit läuft vor der Antwort (`Depends(scope="function")`). Optional eigene Schreibrolle `dsn_schreiben`.
+- **Importer `--nachtragen [--geraet]`:** Werte, die vor dem Anlegen eines Kanals ankamen, werden aus den Rohprotokollen übernommen (Prüfsumme je Zeile); in der Verwaltung als „Werte nachtragen“, wenn `[protokolle]` konfiguriert ist. `Importer.zeile()` ist dafür in `messwerte()` aufgeteilt, ohne Verhaltensänderung beim Import.
+- **Datenquellen:** Ein Feld gilt als „unbenannt“ nur, solange es keinen Kanal hat.
+- **Tests:**
+  - neu `tests/plattform/test_verwaltung.py`: 2 Hosttests und 11 Datenbankfälle vom leeren Start an
+  - Browsertest um den Verwaltungsdurchlauf ergänzt; die CI läuft dafür in zwei Sitzungszeitzonen
+- **Änderungsklasse D2, Nachweis T1/T2 in der CI** (`be40d0e`, grün). Nur synthetische und erfundene Daten; kein Betrieb, kein Apache/TLS. Die Stockkarte zu erfassen folgt als Teil 2. [Prüfbericht](docs/testberichte/2026-10-20-plattform-stammdaten.md).
+
 ## 2026-10-20 – Plattform Phase B: Lese-API und Oberfläche (Konzept §10 Schritt 5)
 
 - **Neu `server/plattform/`** (GPL-3.0-or-later), nur lesend:
