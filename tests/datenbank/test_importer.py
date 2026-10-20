@@ -59,7 +59,7 @@ def kennung(msg):
     up = msg.get("uplink_message", {})
     teile = [msg["end_device_ids"]["device_id"], str(up.get("f_port", "")), str(up.get("f_cnt", "")),
              str(up.get("frm_payload", "")), str(imp.empfangszeit(msg) or "")]
-    return hashlib.sha1("|".join(teile).encode()).hexdigest()
+    return hashlib.sha1("|".join(teile).encode(), usedforsecurity=False).hexdigest()  # Kennung wie PHP sha1(), keine Sicherheit
 
 
 def zeile(eintrag):
