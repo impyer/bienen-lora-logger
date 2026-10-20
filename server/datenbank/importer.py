@@ -46,6 +46,11 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+try:
+    from psycopg import DataError    # z. B. NUL-Zeichen in einem Text, das PostgreSQL nicht speichern kann
+except ImportError:                  # Hosttests ohne psycopg
+    DataError = ValueError
+
 # Eingang → Herkunftsfeld, Art neu angelegter Geräte, ob das Gerät eine eigene Messzeit sendet
 QUELLEN = {
     "lora_log": {"feld": "geraet", "art": "sonstiges", "geraetezeit": True},
@@ -57,6 +62,10 @@ MAX_ABWEICHUNG_S = 900          # wie 'max_zeitabweichung_s' in lora_config.beis
 VORGEHEN_S = 30                 # wie le_messzeit(): Uhr darf 30 s vorgehen
 SPERRE = 0x6265_656E_0001       # Schlüssel für pg_try_advisory_lock (ein Importer zur Zeit)
 LESEBLOCK = 1 << 20
+UNIX_MAX = 253402300799         # 9999-12-31 23:59:59 UTC, größter Wert für datetime
+# Fehler, die nur an einer einzelnen Zeile liegen: Zeile überspringen statt die Datei bei jedem Lauf zu blockieren.
+# Verbindungs- und Serverfehler gehören nicht dazu und brechen den Lauf ab (Datei bleibt ungelesen, nichts geht verloren).
+ZEILENFEHLER = (ValueError, RecursionError, OverflowError, DataError)
 
 
 class Umgeschrieben(Exception):
@@ -71,6 +80,7 @@ class Bericht:
     doppelt: int = 0                # Kennung schon in der Datenbank
     andere: int = 0                 # Zeilen anderer Art (ergebnis, fehler, warnung …)
     ungueltig: int = 0              # kein JSON oder Uplink ohne Kennung/Nachricht/Herkunft/Empfangszeit
+    uebersprungen: list = field(default_factory=list)   # 'datei:zeile Fehler' – Zeile nicht übernehmbar
     messwerte: int = 0
     messwert_belegt: int = 0        # (kanal, zeit) schon mit einem Wert aus einer anderen Nachricht belegt
     ohne_kanal: int = 0             # Zahlenfelder ohne Kanal (K-06)
@@ -83,6 +93,8 @@ class Bericht:
              f"{self.andere} andere, {self.ungueltig} ungültig")
         if self.geraete_neu:
             s += "\nGeräte neu angelegt (Art und Kanäle pflegen): " + ", ".join(self.geraete_neu)
+        for z in self.uebersprungen:
+            s += "\nZeile übersprungen: " + z
         for f in self.fehler:
             s += "\nFEHLER " + f
         return s
@@ -144,7 +156,7 @@ def felder(daten, praefix=""):
 def geraetezeit(daten):
     """Messzeit_unix als int, falls gesendet (Zahl, kein Wahrheitswert), sonst None."""
     v = daten.get("Messzeit_unix") if isinstance(daten, dict) else None
-    if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+    if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or not 0 <= v <= UNIX_MAX:
         return None
     return int(v)
 
@@ -300,7 +312,19 @@ class Importer:
             for roh in zeilen:
                 nr += 1
                 bericht.zeilen += 1
-                self.zeile(cur, quelle, datei, nr, roh, bericht)
+                neu_vorher = len(bericht.geraete_neu)
+                zaehler = (bericht.uplinks, bericht.neu, bericht.doppelt, bericht.messwerte,
+                           bericht.messwert_belegt, bericht.ohne_kanal)
+                try:
+                    with self.con.transaction():     # Sicherungspunkt je Zeile
+                        self.zeile(cur, quelle, datei, nr, roh, bericht)
+                except ZEILENFEHLER as e:
+                    (bericht.uplinks, bericht.neu, bericht.doppelt, bericht.messwerte,
+                     bericht.messwert_belegt, bericht.ohne_kanal) = zaehler
+                    del bericht.geraete_neu[neu_vorher:]
+                    self.geraete.clear()
+                    bericht.ungueltig += 1
+                    bericht.uebersprungen.append(f"{datei}:{nr} {type(e).__name__}: {str(e)[:120]}")
             cur.execute("""INSERT INTO import_position(datei, bytes, zeilen, sha256) VALUES (%s, %s, %s, %s)
                            ON CONFLICT (datei) DO UPDATE SET bytes = excluded.bytes, zeilen = excluded.zeilen,
                                                              sha256 = excluded.sha256, aktualisiert = now()""",

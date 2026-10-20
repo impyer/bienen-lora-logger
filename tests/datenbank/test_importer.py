@@ -118,6 +118,8 @@ def t_messzeit():
     assert imp.messzeit(v2(1, 1, e - 60, zeit_ok=False), e) == (e, "empfang")
     assert imp.messzeit(v2(1, 1), e) == (e, "empfang"), "FPort 1 ohne Messzeit"
     assert imp.messzeit(dict(v2(1, 1, e - 60), Messzeit_unix=True), e) == (e, "empfang")
+    assert imp.messzeit(dict(v2(1, 1, e - 60), Messzeit_unix=1e300), e) == (e, "empfang")
+    assert imp.geraetezeit({"Messzeit_unix": -1}) is None and imp.geraetezeit({"Messzeit_unix": imp.UNIX_MAX}) == imp.UNIX_MAX
 
 
 @test("Lesen ab Position: unvollständige letzte Zeile bleibt liegen, geänderter Anfang wird erkannt (R-4)")
@@ -303,6 +305,25 @@ def t_zeit_herkunft(con, verz):
     assert eins(con, "SELECT messzeit_quelle FROM rohnachricht WHERE zeile = 2") == imp.utc(e - 5000)
     assert eins(con, "SELECT art FROM geraet WHERE name='s2120-1'") == "wetter"
     assert eins(con, "SELECT count(*) FROM rohnachricht WHERE geraet_id = %s", (ids["L08"],)) == 3
+
+
+@test("Fehlerhafte Einzelzeilen (NUL, riesige Gerätezeit, zu tiefe Verschachtelung) blockieren die Datei nicht", db=True)
+def t_giftzeilen(con, verz):
+    stamm(con)
+    e = u("2026-10-15 06:00")
+    anhaengen(verz["lora_log"] / OKT,
+              uplink(nachricht("L\u0000X", 1, e, v2(1.0, 1.0))),                   # NUL im Gerätenamen
+              uplink(nachricht("L08", 2, e, dict(v2(1.0, 1.0, e), Messzeit_unix=1e300))),
+              b'{"art":"uplink","id":"t","geraet":"L08","nachricht":' + b"[" * 100000 + b"]" * 100000 + b"}\n",
+              uplink(nachricht("L08", 4, e + 900, v2(30.0, 34.0))))
+    b = imp.importieren(con, verz)
+    assert b.fehler == [] and b.zeilen == 4 and b.neu == 2, b.text()
+    assert len(b.uebersprungen) == 2 and b.ungueltig == 2 and b.geraete_neu == [], b.text()
+    assert eins(con, "SELECT count(*) FROM geraet") == 1
+    assert eins(con, "SELECT messzeit_quelle FROM rohnachricht WHERE zeile = 2") is None
+    assert eins(con, "SELECT zeilen FROM import_position") == 4
+    assert eins(con, "SELECT count(*) FROM messwert") == 4
+    assert imp.importieren(con, verz).zeilen == 0
 
 
 @test("Kanal mit Zeitraum: Werte vor Gültigkeitsbeginn ohne Kanal, danach Messwert; Faktor in messwert_bezug", db=True)

@@ -8,7 +8,7 @@ Schema 0.4 der Bienen-Plattform nach [`docs/architektur/konzept-plattform-v02.md
 |---|---|
 | `schema.sql` | Legt das Schema `bienen` neu an. **Löscht ein vorhandenes Schema `bienen` samt Daten** (`DROP SCHEMA … CASCADE`), deshalb nur auf einer leeren Datenbank verwenden |
 | `importer.py` | Liest die Rohprotokolle der Eingänge (`lora_log/`, `wetter_log/`) in die Datenbank, siehe unten |
-| `../../tests/datenbank/test_importer.py` | 4 Hosttests ohne Datenbank, 8 Datenbankfälle (Grundfall, K-06, K-09, R-4, R-5 Doppelimport, Zeitqualität, Kanalzeitraum, halbe Zeile) |
+| `../../tests/datenbank/test_importer.py` | 4 Hosttests ohne Datenbank, 9 Datenbankfälle (Grundfall, fehlerhafte Einzelzeilen, K-06, K-09, R-4, R-5 Doppelimport, Zeitqualität, Kanalzeitraum, halbe Zeile) |
 | `../../tests/datenbank/test_schema.py` | 24 Prüffälle (u. a. ER-01, ER-03–05, ER-07, ER-12, K-01, K-02, K-04–06, K-10, HB-01–04, HB-09, Zeitumstellung, Zeitgenauigkeit, Berechnungsversion) |
 
 ## Aufbau
@@ -63,6 +63,7 @@ Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzei
 | Zahlenfeld ohne Kanal | kein Messwert, nur `quellfeld_ohne_kanal` (erste/letzte Zeit, Anzahl) – Anzeige „unbenannt“ (K-06) |
 | andere Arten (`ergebnis`, `fehler`, `warnung`, `nachgeholt` …) | übersprungen, gezählt |
 | kein JSON, Uplink ohne Kennung/Herkunft/Empfangszeit | übersprungen, als ungültig gezählt |
+| Zeile, die sich nicht speichern lässt (z. B. NUL-Zeichen im Text, zu tief verschachteltes JSON) | eigener Sicherungspunkt je Zeile: übersprungen, mit `Datei:Zeile` im Bericht; die Datei läuft weiter. Gerätezeit außerhalb 1970–9999 gilt als nicht gesendet. Verbindungs- und Serverfehler brechen den Lauf dagegen ab, ohne die Position zu verschieben |
 
 - **Quellfelder:** verschachtelte Felder mit Punkt (`Status.zeit_ok`), Listen mit Index (`FFT_Baender_dB[0]`), `true`/`false` als 1/0; Texte (z. B. `Messzeit`) werden nicht übernommen.
 - **Messzeit:** wie `le_messzeit()` im LoRa-Eingang – Gerätezeit (`zeitqualitaet = 'geraet'`), wenn `Status.zeit_ok` und höchstens `--max-zeitabweichung` (Vorgabe 900 s wie `lora_config.beispiel.php`) vor dem Empfang, sonst Empfangszeit auf die Sekunde (`'empfang'`). Wetter immer Empfangszeit. Wer `max_zeitabweichung_s` im Eingang ändert, muss den Wert hier gleich setzen.
