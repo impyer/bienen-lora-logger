@@ -127,20 +127,23 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: bienen
+          POSTGRES_PASSWORD: nur-ci-test
           POSTGRES_DB: bienen_test
-          POSTGRES_HOST_AUTH_METHOD: trust   # Wegwerf-Instanz nur für diesen Job, kein Passwort
-        ports: ["5432:5432"]
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U bienen" --health-interval 5s --health-timeout 5s --health-retries 12
+          --health-cmd "pg_isready -U bienen -d bienen_test"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     env:
-      BIENEN_TEST_DSN: host=localhost port=5432 user=bienen dbname=bienen_test
+      BIENEN_TEST_DSN: "host=127.0.0.1 port=5432 user=bienen password=nur-ci-test dbname=bienen_test"
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install "psycopg[binary]==3.2.3"
+      - name: psycopg
+        run: pip install "psycopg[binary]==3.2.3"
       # Ergebnis darf nicht von der Sitzungszeitzone abhängen (server/datenbank/README.md); PGTZ setzt sie für libpq
       - name: Schema, Sitzungszeitzone Europe/Berlin
         run: PGTZ=Europe/Berlin python3 tests/datenbank/test_schema.py

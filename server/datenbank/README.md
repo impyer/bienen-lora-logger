@@ -2,7 +2,7 @@
 
 Schema 0.4 der Bienen-Plattform nach [`docs/architektur/konzept-plattform-v02.md`](../../docs/architektur/konzept-plattform-v02.md), Abschnitt 5.
 
-**Status:** Entwurf. Getestet nur auf einer Testinstanz (PostgreSQL 16.15, T1). Noch nicht auf der ThinkStation eingespielt, keine Produktivdaten.
+**Status:** Entwurf. Schema 0.3 getestet auf einer Testinstanz (PostgreSQL 16.15, T1); seit 20.10.2026 laufen Schema und Importer bei jedem CI-Lauf (Job `datenbank` in `.github/workflows/tests.yml`: Dienst `postgres:16`, `test_schema.py` in den Sitzungszeitzonen Europe/Berlin, UTC und America/New_York, `test_importer.py` in Europe/Berlin und UTC). Der Importer (Schema 0.4, `import_position`) ist nur über diese Tests geprüft, nicht gegen echte Protokolle. Noch nicht auf der ThinkStation eingespielt, keine Produktivdaten.
 
 | Datei | Zweck |
 |---|---|
@@ -37,7 +37,7 @@ BIENEN_TEST_DSN="host=localhost dbname=bienen_test user=..." python3 tests/daten
 BIENEN_TEST_DSN="host=localhost dbname=bienen_test user=..." python3 tests/datenbank/test_importer.py
 ```
 
-Beide Tests laden `schema.sql` und **löschen dabei das Schema `bienen`** der Testdatenbank. Ohne erreichbare Datenbank meldet `test_importer.py` die Datenbankfälle als NICHT GELAUFEN (Rückgabe 2). In der CI laufen beide im Job `datenbank` von `tests.yml` gegen PostgreSQL 16.
+Beide Tests laden `schema.sql` und **löschen dabei das Schema `bienen`** der Testdatenbank. Ohne erreichbare Datenbank meldet `test_importer.py` die Datenbankfälle als NICHT GELAUFEN (Rückgabe 2). In der CI laufen beide im Job `datenbank` von `tests.yml` gegen PostgreSQL 16 (siehe Status).
 
 Zeitangaben beim Schreiben immer mit Zeitzone angeben. Die Tests laufen mit den Sitzungszeitzonen Europe/Berlin, UTC und America/New_York gleich.
 
