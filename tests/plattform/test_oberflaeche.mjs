@@ -29,6 +29,7 @@ seite.on('pageerror', (e) => jsFehler.push(String(e)));
 seite.on('console', (m) => { if (m.type() === 'error' && !m.text().startsWith('Failed to load resource')) jsFehler.push(m.text()); });
 seite.on('response', (r) => { if (r.status() >= 400 && !new URL(r.url()).pathname.startsWith('/api/')) jsFehler.push(`${r.status()} ${r.url()}`); });
 
+let schritt = 'Start';
 async function oeffnen(hash) {
   await seite.goto(basis + '/' + hash, { waitUntil: 'load' });
   await seite.waitForFunction(() => !document.querySelector('main')?.innerText.includes('Lädt'), null, { timeout: 15000 });
@@ -54,13 +55,17 @@ try {
     pruefe('unbekanntes Volk zeigt Fehlermeldung statt leerer Seite', (await seite.innerText('main')).includes('Volk unbekannt'));
   } else if (art === 'verwaltung') {
     const meldung = async () => { await seite.waitForSelector('.ok[role=status], .fehler', { timeout: 10000 }); return seite.innerText('main'); };
+    schritt = 'Verwaltung öffnen';
     await oeffnen('#/verwaltung');
+    schritt = 'Standardkatalog';
     await seite.click('button:has-text("Standardkatalog übernehmen")');
     pruefe('Verwaltung: Standardkatalog', (await meldung()).includes('12 Messgrößen neu'), (await seite.innerText('main')).slice(0, 300));
+    schritt = 'Stand anlegen';
     await seite.fill('input[aria-label="Name des Stands"]', 'Teststand');
     await seite.click('button:has-text("Stand anlegen")');
     await seite.waitForSelector('td:has-text("Teststand")', { timeout: 10000 });
     pruefe('Verwaltung: Stand angelegt', true);
+    schritt = 'Volk anlegen';
     const volk = seite.locator('form.block');
     await volk.locator('input[aria-label="Name des Volks"]').fill('Testvolk');
     await volk.locator('select[aria-label="Stand"]').selectOption({ label: 'Teststand' });
@@ -68,14 +73,17 @@ try {
     await volk.locator('button[type=submit]').click();
     await seite.waitForSelector('a:has-text("Testvolk")', { timeout: 10000 });
     pruefe('Verwaltung: Volk mit Beute angelegt', (await seite.innerText('main')).includes('Testbeute'));
+    schritt = 'Gerät anlegen';
     await seite.fill('input[aria-label="TTN-Gerätename"]', 'beelogger-07');
     await seite.click('button:has-text("Gerät anlegen")');
     const geraet = seite.locator('article.geraet', { hasText: 'beelogger-07' });
     await geraet.waitFor({ timeout: 10000 });
+    schritt = 'Gerät zuordnen';
     await geraet.locator('details').evaluate((d) => { d.open = true; });
     await geraet.locator('select[aria-label="Ziel"]').selectOption({ label: 'Testvolk' });
     await geraet.locator('button:has-text("Zuordnung speichern")').click();
     await seite.waitForSelector('article.geraet:has-text("an Testvolk")', { timeout: 10000 });
+    schritt = 'Vorlage anwenden';
     const g2 = seite.locator('article.geraet', { hasText: 'beelogger-07' });
     await g2.locator('details').evaluate((d) => { d.open = true; });
     await g2.locator('button:has-text("Kanäle anlegen")').click();
@@ -122,7 +130,8 @@ try {
   }
   pruefe('keine JavaScript-Fehler', jsFehler.length === 0, JSON.stringify(jsFehler.slice(0, 5)));
 } catch (e) {
-  pruefe('Ablauf ohne Abbruch', false, String(e));
+  const text = await seite.innerText('main').catch(() => '');
+  pruefe('Ablauf ohne Abbruch', false, `Schritt „${schritt}“: ${String(e).split('\n')[0]} | Seite: ${text.replace(/\s+/g, ' ').slice(0, 300)} | JS: ${JSON.stringify(jsFehler.slice(0, 3))}`);
   console.log((await seite.innerText('body').catch(() => '')).slice(0, 1500));
 } finally {
   await browser.close();

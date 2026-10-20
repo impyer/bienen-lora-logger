@@ -76,4 +76,10 @@ Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzei
 - Hat sich der schon gelesene Anfang einer Datei geändert, wird sie nicht weiter gelesen (Fehler im Bericht, Rückgabe 1); die anderen Dateien laufen weiter (R-4: Monatsdateien nur anhängen). Danach prüfen, was die Datei verändert hat; erst dann die Zeile in `import_position` löschen.
 - Belegt ein anderer Wert schon `(kanal, zeit)`, bleibt der erste (gezählt als „belegt“).
 
+**Nachtragen (`--nachtragen [--geraet NAME]`):**
+- Werte, die vor dem Anlegen eines Kanals ankamen, stehen nur in `quellfeld_ohne_kanal`.
+- Der Importer liest dafür die schon übernommenen Rohnachrichten erneut aus ihrer Protokollzeile, prüft die SHA-256 gegen `rohnachricht.sha256` und legt fehlende Messwerte an.
+- Vorhandene Messwerte bleiben unverändert; eine abweichende Zeile wird gemeldet und übersprungen.
+- Die Verwaltung der Plattform ruft dasselbe auf („Werte nachtragen“).
+
 **Grenzen:** Prüfsumme je abgeschlossenem Monat (R-4) und Sicherung der Rohprotokolle (R-6) sind nicht Teil des Importers. Eingänge für BEEP Base und Bodensonde gibt es noch nicht. Kein Lauf gegen echte Protokolle oder auf der ThinkStation.
