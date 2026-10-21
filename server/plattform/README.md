@@ -17,6 +17,7 @@ Eingänge (server/eingang, lora, wetter) → JSONL-Rohprotokolle → importer.py
 | `api/verdichtung.py` | Rasterweite (höchstens 2000 Punkte je Reihe), Verdichtung nach `messgroesse.verdichtung`, Lücken als `null` |
 | `api/anmeldung.py` | ein Konto, scrypt-Hash, signiertes Sitzungscookie, CSRF-Token, Bremse gegen Durchprobieren |
 | `api/verwaltung.py`, `api/stammdaten.py` | Stammdaten-Pflege: Endpunkte mit Eingabeprüfung; fachliche Aktionen mit Historie |
+| `api/auswertung.py` | Vorher/Nachher zu einem Stockkarten-Ereignis, Völkervergleich (Nachtmedian, Tagesbilanz, Summen, Plausibilitätshinweise) |
 | `api/katalog.py` | Standardkatalog der Messgrößen, Kanalvorlagen (beelogger, SenseCAP S2120), Standard-Checkliste der Durchsicht |
 | `api/stockkarte.py`, `api/stockkarte_api.py` | Stockkarte: Durchsicht mit Werten je Eingabetyp, Maßnahme, Varroa, Aufgabe; Ändern und Löschen |
 | `web/` | Oberfläche: Vue 3 und Apache ECharts ohne Build-Schritt (`vendor/README.md`) |
@@ -40,6 +41,15 @@ Alle lesend. Ohne Sitzung erreichbar sind nur `GET /api/gesundheit` und `POST /a
 | `GET /api/voelker/{id}/tagesbilanz?von&bis` | Sicht `gewicht_tagesbilanz` mit `mit_eingriff` (Leitplanke L8) |
 | `GET /api/voelker/{id}/ereignisse?von&bis` | Durchsichten (mit `zeitgenauigkeit`), Maßnahmen als Zeitraum, Varroa pro Tag, Vereinigung usw. |
 | `GET /api/pruefungen` | unbenannte Quellfelder (K-06), Geräte ohne Zuordnung, Zuordnungsprüfung (HB-09), Importstand |
+
+### Auswertung (lesend)
+
+| Endpunkt | Antwort |
+|---|---|
+| `GET /api/voelker/{id}/vorher_nachher?art=massnahme\|durchsicht\|varroa&ereignis_id=&tage=1\|3\|7\|14` | Mittelwerte im Fenster vor dem Beginn und nach dem Ende des Ereignisses: Tagesbilanz (kg/Tag), Temperaturen je Messstelle, Luft am Stand, Milbenfall pro Tag; mit Anzahl der Werte |
+| `GET /api/vergleich?volk_ids=1,2&von&bis` | je Volk Nachtmedian 00–04 Uhr (`gewicht_tagesreferenz`), Tagesbilanz mit `mit_eingriff`, Summe (alle bzw. ohne Eingriffstage), Sprünge über 1 kg ohne Eingriff, Sensor-Fehlercodes −127/85 °C (Hinweis zu PLT26-11), Anzahl Messpunkte |
+
+Keine biologische Deutung: Hinweise sagen nur, wo eine Maßnahme fehlt oder ein Sensor zu prüfen ist.
 
 ### Verwaltung (schreibend)
 
@@ -92,10 +102,15 @@ Fehler: 400 bei ungültiger Zeit, Zeitraum über 400 Tage oder unbekannter Messg
 ## Oberfläche
 
 - **Übersicht**: Kacheln je Stand und Volk, Hinweis bei veralteten Messungen und auf Meldungen der Datenquellen.
-- **Volk-Cockpit**: Kurven frei wählbar (vorgewählt Gewicht und Temperaturen), Achsen nach Katalog, Zoom mit Strg + Mausrad oder Schieber, Gewicht relativ.
-  - Maßnahmen erscheinen als Bänder, kurze als Linie.
-  - Durchsichten mit Uhrzeit als Linie, Einträge ohne Uhrzeit als Tagesband „Uhrzeit übernommen“ (K-03).
-  - Tagesbilanz als Balken, Tage mit Eingriff grau.
+- **Gestaltung** nach dem Designentwurf „Bienenlogger Weboberfläche“ (16.10.2026): Navigation oben, weiße Karten auf ruhigem Grund, Messwerte in IBM Plex Mono (falls installiert, sonst Systemschrift), dunkles Farbschema nach Systemeinstellung.
+- **Volk-Cockpit** (nach dem Entwurf):
+  - Kennzahlen Gewicht, Brutnest, Milbenfall, Durchsicht.
+  - **Gestapelte Felder mit gemeinsamer Zeitachse**: Gewicht, Temperatur, weitere Messgrößen, Milbenfall als Tagesbalken aus der Windel.
+  - **Ereignisleiste** mit Buchstabenmarken (D Durchsicht, B Behandlung, F Fütterung, U Umsetzen, T Tarieren, V Varroa …). Maßnahmen als Bänder, Einträge ohne Uhrzeit als Tagesband.
+  - **Messwerte**-Auswahl nach Messgröße und Messstelle, Gewicht relativ.
+  - **Vorher/Nachher** zum gewählten Eintrag (± 1/3/7 Tage) mit Bändern im Diagramm.
+  - Tagesbilanz; **Stockkarte** als Chronik mit „bearbeiten“.
+- **Analysen & Vergleich** (Vorbild beelogger): Stand und Völker wählen; Kennzahlen; Nachtmedian je Volk (relativ oder absolut); Tagesbilanz je Volk (Eingriffstage grau schraffiert); Summe der Tagesbilanzen (wahlweise ohne Eingriffstage); letzte Nacht als Balken; Methodik; Hinweise; Tagestabelle.
 - **Umwelt**: Klima, Wind (Richtung als Pfeile) und Regen eines Stands.
 - **Datenquellen**: was der Importer nicht zuordnen konnte, Geräte, Importstand.
 - **Stockkarte** (Handy zuerst): Reiter Durchsicht, Maßnahme, Varroa, Aufgabe; Völker je Stand ankreuzen (auch „alle“); Checkliste nach Gruppen mit Knöpfen für ja/nein und 1–5; offene Aufgaben zum Abhaken. Im Cockpit stehen die Merkmalswerte und ein Link „bearbeiten“ je Eintrag.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Philipp Schnabel
 // Gemeinsame Bausteine: Diagramm (ECharts), Zeitraumwahl, Lade- und Fehleranzeige
-import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch } from '../vendor/vue.esm-browser.prod.js';
+import { defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from '../vendor/vue.esm-browser.prod.js';
 
 // ECharts-Diagramm; "name" macht es für Tests unter window.bienenDiagramme[name] erreichbar
 export const Diagramm = defineComponent({
@@ -18,6 +18,7 @@ export const Diagramm = defineComponent({
       window.addEventListener('resize', groesse);
     });
     watch(() => props.optionen, zeichnen);
+    watch(() => props.hoehe, () => nextTick(groesse));   // gestapelte Felder ändern die Höhe
     onBeforeUnmount(() => {
       window.removeEventListener('resize', groesse);
       if (props.name && window.bienenDiagramme) delete window.bienenDiagramme[props.name];

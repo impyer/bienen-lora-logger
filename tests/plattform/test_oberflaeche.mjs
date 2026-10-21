@@ -121,12 +121,12 @@ try {
     schritt = 'Stockkarte im Cockpit';
     await oeffnen('#/');
     await seite.click('.kachel:has-text("Testvolk")');
-    await seite.waitForSelector('.tabelle', { timeout: 10000 });
-    const sk = await seite.innerText('.tabelle');
+    await seite.waitForSelector('.chronik li', { timeout: 10000 });
+    const sk = await seite.innerText('.chronik');
     pruefe('Cockpit: Durchsicht mit Werten und Fütterung', sk.includes('Königin gesehen: ja') && sk.includes('Brutwaben 6 Waben')
            && sk.includes('Sanftmut 4/5') && sk.includes('Fütterung') && sk.includes('5,0 kg'), sk.slice(0, 400));
     schritt = 'Stockkarte bearbeiten';
-    await seite.click('.tabelle a:has-text("bearbeiten")');
+    await seite.click('.chronik a:has-text("bearbeiten")');
     await seite.waitForSelector('h1:has-text("Eintrag bearbeiten")', { timeout: 10000 });
     pruefe('Bearbeiten: Werte vorbelegt', await seite.locator('input[aria-label="Brutwaben"]').inputValue() === '6');
   } else {
@@ -139,7 +139,10 @@ try {
     const o = await seite.evaluate(() => {
       const opt = window.bienenDiagramme.verlauf.getOption();
       const g = opt.series.find((s) => s.name.startsWith('Gewicht'));
-      return { namen: opt.series.map((s) => s.name), nullen: g.data.filter((p) => p[1] === null).length,
+      return { namen: opt.series.filter((s) => s.type === 'line').map((s) => s.name), nullen: g.data.filter((p) => p[1] === null).length,
+               felder: opt.grid.length, milben: (opt.series.find((s) => s.name === 'Milbenfall') || { data: [] }).data.length,
+               marken: (opt.series.find((s) => s.name === 'Stockkarte') || { data: [] }).data.map((d) => d.label.formatter),
+               achsenGleich: new Set(opt.xAxis.map((x) => String(x.min) + String(x.max))).size === 1,
                nullwerte: g.data.filter((p) => p[1] === 0).length, verbinden: g.connectNulls,
                flaechen: (opt.series[0].markArea?.data || []).map((a) => a[0].name),
                bilanz: !!window.bienenDiagramme.bilanz };
@@ -149,11 +152,37 @@ try {
     pruefe('Cockpit: Behandlung als Band (K-04)', o.flaechen.includes('Behandlung'), JSON.stringify(o.flaechen));
     pruefe('Cockpit: Durchsicht ohne Uhrzeit als Tagesband (K-03)', o.flaechen.some((f) => f.includes('Uhrzeit übernommen')), JSON.stringify(o.flaechen));
     pruefe('Cockpit: Tagesbilanz-Diagramm', o.bilanz);
-    const tabelle = await seite.innerText('.tabelle');
+    pruefe('Cockpit: gestapelte Felder mit gemeinsamer Zeitachse', o.felder >= 4 && o.achsenGleich, JSON.stringify(o));
+    pruefe('Cockpit: Milbenfall als Tagesbalken (Windel 3 Tage)', o.milben === 3, JSON.stringify(o.milben));
+    pruefe('Cockpit: Stockkarten-Marken B, D, V', ['B', 'D', 'V'].every((b) => o.marken.includes(b)), JSON.stringify(o.marken));
+    // Vorher/Nachher: jüngste Maßnahme ist vorgewählt, Tabelle mit Gewicht und Temperaturen
+    await seite.waitForSelector('table.vergleich tbody tr', { timeout: 10000 });
+    const vn = await seite.innerText('table.vergleich');
+    pruefe('Cockpit: Vorher/Nachher-Tabelle', vn.includes('Gewicht, Tagesbilanz') && vn.includes('Brutnest'), vn.slice(0, 300));
+    await seite.click('.segmente button:has-text("± 7 T")');
+    await seite.waitForFunction(() => (window.bienenDiagramme.verlauf.getOption().series[0].markArea.data || []).length >= 4, null, { timeout: 10000 });
+    pruefe('Cockpit: Vorher/Nachher-Fenster als Bänder', true);
+    const tabelle = await seite.innerText('.chronik');
     pruefe('Cockpit: Stockkarte mit Varroa pro Tag', tabelle.includes('45 Milben, 15,0 pro Tag'), tabelle.slice(0, 300));
     // Zeitanzeige in Europe/Berlin, obwohl der Browser in New York steht
     pruefe('Cockpit: Zeiten in Europe/Berlin', tabelle.includes('01.10., 10:00'), tabelle.slice(0, 200));
 
+    // Analysen & Vergleich: alle Völker des Stands, Nachtmedian, Tagesbilanz, Summen, Hinweise
+    schritt = 'Analysen';
+    await oeffnen('#/analysen?bis=2026-10-31T23:59:59Z&tage=30');
+    await seite.waitForFunction(() => window.bienenDiagramme?.referenz && window.bienenDiagramme?.summen, null, { timeout: 10000 });
+    const an = await seite.evaluate(() => ({ referenz: window.bienenDiagramme.referenz.getOption().series.map((s) => s.name),
+                                             bilanz: window.bienenDiagramme.bilanzvergleich.getOption().series.length,
+                                             zeilen: document.querySelectorAll('.tagestabelle tbody tr').length,
+                                             text: document.querySelector('main').innerText }));
+    pruefe('Analysen: Völker des Stands im Vergleich', JSON.stringify(an.referenz) === '["Volk 1 (syn)","Volk 2 (syn)"]' && an.bilanz === 2, JSON.stringify(an.referenz));
+    pruefe('Analysen: Tagestabelle', an.zeilen >= 28, String(an.zeilen));
+    pruefe('Analysen: Sprung ohne Eingriff und Fehlcodes als Hinweis', an.text.includes('Sprung') && an.text.includes('Fehlercode'), an.text.slice(0, 200));
+    await seite.click('button:has-text("Volk 2 (syn)")');
+    await seite.waitForFunction(() => window.bienenDiagramme?.referenz?.getOption().series.length === 1, null, { timeout: 10000 });
+    pruefe('Analysen: Volk abwählen', true);
+
+    schritt = 'Umwelt';
     await oeffnen(`#/stand/${stand}/umwelt?bis=2026-10-31T23:59:59Z&tage=7`);
     await seite.waitForFunction(() => window.bienenDiagramme?.umwelt_wind, null, { timeout: 10000 });
     const w = await seite.evaluate(() => window.bienenDiagramme.umwelt_wind.getOption().series.map((s) => [s.name, s.type, s.symbol]));

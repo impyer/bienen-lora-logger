@@ -19,7 +19,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import abfragen, stammdaten, stockkarte_api, verwaltung
+from . import abfragen, auswertung, stammdaten, stockkarte_api, verwaltung
 from .anmeldung import COOKIE, Bremse, csrf_gueltig, csrf_token, passwort_pruefen, sitzung_erzeugen, sitzung_gueltig
 from .verdichtung import MAX_ZEITRAUM, raster
 
@@ -268,6 +268,23 @@ def erstellen(konfig=None, verbinden=None, verbinden_schreiben=None):
             raise HTTPException(404, "Volk unbekannt")
         von_t, bis_t = zeitraum(von, bis)
         return abfragen.ereignisse(cur, volk_id, von_t, bis_t)
+
+    @app.get("/api/voelker/{volk_id}/vorher_nachher", dependencies=nur_angemeldet)
+    def vorher_nachher(volk_id: int, art: str, ereignis_id: int, tage: int = 3, cur=Depends(cursor)):
+        if tage not in (1, 3, 7, 14):
+            raise HTTPException(400, "tage: 1, 3, 7 oder 14")
+        return auswertung.vorher_nachher(cur, volk_id, art, ereignis_id, tage)
+
+    @app.get("/api/vergleich", dependencies=nur_angemeldet)
+    def vergleich(volk_ids: str, von: Optional[str] = None, bis: Optional[str] = None, cur=Depends(cursor)):
+        try:
+            ids = sorted({int(x) for x in volk_ids.split(",") if x.strip()})
+        except ValueError:
+            raise HTTPException(400, "volk_ids: Zahlen durch Komma getrennt") from None
+        if not 1 <= len(ids) <= 30:
+            raise HTTPException(400, "1 bis 30 Völker")
+        von_t, bis_t = zeitraum(von, bis)
+        return {"von": von_t, "bis": bis_t, "voelker": auswertung.vergleich(cur, ids, von_t, bis_t)}
 
     @app.get("/api/pruefungen", dependencies=nur_angemeldet)
     def pruefungen(cur=Depends(cursor)):

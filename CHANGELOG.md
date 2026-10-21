@@ -1,5 +1,21 @@
 # Änderungen
 
+## 2026-10-21 – Plattform: Gestaltung nach Designentwurf, Volk-Cockpit und Analysen & Vergleich
+
+- **Gestaltung** nach „Bienenlogger Weboberfläche“ (Designentwurf vom 16.10.2026): Farben, Karten, Navigation oben, IBM Plex Sans/Mono als bevorzugte Schrift (ohne Download; Systemschrift als Ersatz), dunkles Schema.
+- **Volk-Cockpit neu** (`web/seiten/volk.js`, `web/stapel.js`):
+  - Kennzahlen; gestapelte Diagrammfelder mit gemeinsamer Zeitachse, Milbenfall als Tagesbalken.
+  - Ereignisleiste mit Buchstabenmarken (auch für Ereignisse, die vor dem Zeitraum beginnen).
+  - Messwerte-Auswahl mit Farbmarken; Vorher/Nachher-Vergleich zu einem Stockkarten-Eintrag mit Fensterbändern.
+  - Stockkarten-Chronik neben dem Diagramm.
+- **Neue Seite Analysen & Vergleich** (`web/seiten/analysen.js`): Nachtmedian, Tagesbilanz und Summen je Volk, Plausibilitätshinweise, Tagestabelle; gleicher Berechnungsstandard (`gewicht_tagesreferenz@1`, `gewicht_tagesbilanz@1`).
+- **API** (`api/auswertung.py`): `GET /api/voelker/{id}/vorher_nachher` und `GET /api/vergleich`. Kennwerte aus den Sichten des Schemas; Hinweise zu Sprüngen über 1 kg ohne Eingriff und zu Sensor-Fehlercodes −127/85 °C (PLT26-11 bleibt offen).
+- **Tests:**
+  - `test_diagramm.mjs` +6 Prüfungen (16)
+  - `test_plattform.py` +3 Datenbankfälle (Vorher/Nachher Tarieren und Behandlung, Völkervergleich)
+  - Browsertest: Cockpit mit Feldern, Marken, Vorher/Nachher und Fensterbändern; Analysen mit Auswahl und Hinweisen
+- Änderungsklasse **D1** (Anzeige und Auswertung, keine Persistenz). Lokal liefen Diagrammlogik und Hosttests; Sichtprüfung im Browser gegen die lokale Testdatenbank (PostgreSQL 16, synthetische Daten). Datenbank- und Browsertests laufen in der CI. Bienenstand-Kacheln mit Beutensymbol, Wetterleiste und Handlungsbedarf folgen als nächster Schritt.
+
 ## 2026-10-20 – Plattform Phase C, Teil 2: Stockkarte erfassen
 
 - **Neue Seite „Stockkarte“** (`#/stockkarte`, Handy zuerst), Endpunkte `/api/stockkarte/…` (`api/stockkarte.py`, `api/stockkarte_api.py`):

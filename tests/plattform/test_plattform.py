@@ -437,6 +437,46 @@ def _():
     assert {x["messgroesse"] for x in r["reihen"]} == {"gewicht", "temperatur", "feuchte", "spannung"}
 
 
+@test("Vorher/Nachher: Tarieren senkt die Tagesbilanz um ~30 kg, Fenster ±3 Tage; falsches Volk 404, Fenster 400", db=True)
+def _():
+    e = c_().get(f"/api/voelker/{k_('volk1')}/ereignisse", params={"von": "2026-10-20T00:00:00Z", "bis": "2026-10-25T00:00:00Z"}).json()
+    tarieren = [m for m in e["massnahmen"] if m["art"] == "tarieren"][0]["id"]
+    r = c_().get(f"/api/voelker/{k_('volk1')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren, "tage": 3}).json()
+    g = {x["name"]: x for x in r["kennzahlen"]}
+    assert g["Gewicht, Tagesbilanz"]["n_vorher"] == 3 and abs(g["Gewicht, Tagesbilanz"]["vorher"]) < 0.2, g["Gewicht, Tagesbilanz"]
+    assert g["Gewicht, Tagesbilanz"]["nachher"] < -9 and g["Gewicht, Tagesbilanz"]["berechnung"] == "gewicht_tagesbilanz@1"
+    assert t(r["vorher"]["von"]) == syn.FAELLE["tarieren"] - timedelta(minutes=1) - timedelta(days=3)
+    assert any(n.startswith("Temperatur brutnest") for n in g) and any(n.startswith("Luft am Stand") for n in g), list(g)
+    assert c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren}).status_code == 404
+    assert c_().get(f"/api/voelker/{k_('volk1')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren, "tage": 5}).status_code == 400
+
+
+@test("Vorher/Nachher Behandlung: Milbenfall nach der Behandlung aus der Windelzählung", db=True)
+def _():
+    e = c_().get(f"/api/voelker/{k_('volk2')}/ereignisse", params={"von": "2026-10-01T00:00:00Z", "bis": "2026-10-20T00:00:00Z"}).json()
+    b = [m for m in e["massnahmen"] if m["art"] == "behandlung"][0]["id"]
+    r = c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": b, "tage": 7}).json()
+    m = {x["name"]: x for x in r["kennzahlen"]}["Milbenfall"]
+    assert m["nachher"] == 15.0 and m["n_nachher"] == 1 and m["vorher"] is None, m
+
+
+@test("Völkervergleich: Nachtmedian je Tag, Summen, Sprung ohne Eingriff (Vereinigung), Fehlcodes, 400", db=True)
+def _():
+    ids = f"{k_('volk1')},{k_('volk2')},{k_('volk4')}"
+    r = c_().get("/api/vergleich", params={"volk_ids": ids, "von": "2026-10-01T00:00:00Z", "bis": "2026-11-01T00:00:00Z"}).json()
+    v = {x["name"]: x for x in r["voelker"]}
+    v1, v2, v4 = v["Volk 1 (syn)"], v["Volk 2 (syn)"], v["Volk 4 (syn)"]
+    assert len(v1["tagesreferenz"]) == 31 and len(v1["tagesbilanz"]) == 30, (len(v1["tagesreferenz"]), len(v1["tagesbilanz"]))
+    assert v1["spruenge"] == ["2026-10-16"], v1["spruenge"]                 # Vereinigung +6 kg ohne erfasste Maßnahme
+    assert v2["fehlcodes"] == 2 and v1["fehlcodes"] == 0
+    assert v4["spruenge"] == [], v4["spruenge"]                             # Umsetzen ist als Maßnahme erfasst
+    assert abs(v1["summe_kg"] - sum(b["bilanz_kg"] for b in v1["tagesbilanz"])) < 1e-9
+    assert v1["summe_ohne_eingriff_kg"] > v1["summe_kg"]                     # Tarieren (−30 kg) ausgenommen
+    assert v1["messpunkte"] == 1488 and v1["letzte_referenz"]["tag"] == "2026-10-31"
+    assert c_().get("/api/vergleich", params={"volk_ids": "a,b"}).status_code == 400
+    assert c_().get("/api/vergleich", params={"volk_ids": ""}).status_code == 400
+
+
 # ================================================================ Ablauf
 
 def melden(name, fehler):
