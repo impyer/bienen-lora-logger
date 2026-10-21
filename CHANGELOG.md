@@ -1,5 +1,15 @@
 # Änderungen
 
+## 2026-10-21 – Plattform: Prüfung von Bedienbarkeit und Tests, Importer schneller
+
+- **Prüfbericht** [`docs/testberichte/2026-10-21-plattform-bedienbarkeit-tests.md`](docs/testberichte/2026-10-21-plattform-bedienbarkeit-tests.md):
+  - Rundgang über alle Seiten (Desktop, Handy, dunkles Schema, Sitzungsablauf)
+  - Abdeckung 89 %, Mutationstest 24 von 35 überlebt
+  - 17 Mängel und 7 Testlücken als Vorschlag zur Freigabe
+  - Ursache der Meldung „unbekannter Endpunkt“: Server nicht neu gestartet
+- **Importer** (`server/datenbank/importer.py`, PLT26-12): Felder ohne Kanal je Datei verdichtet statt ein Upsert je Wert; `test_plattform` lokal 36 s statt über 15 min. Änderungsklasse D1.
+- Befundregister: PLT26-12 im Entwurf behoben, PLT26-13 bis PLT26-16 offen.
+
 ## 2026-10-21 – Plattform: Gestaltung nach Designentwurf, Volk-Cockpit und Analysen & Vergleich
 
 - **Gestaltung** nach „Bienenlogger Weboberfläche“ (Designentwurf vom 16.10.2026): Farben, Karten, Navigation oben, IBM Plex Sans/Mono als bevorzugte Schrift (ohne Download; Systemschrift als Ersatz), dunkles Schema.

@@ -211,6 +211,7 @@ class Importer:
         self.max_abweichung_s = max_abweichung_s
         self.geraete = {}            # Name → id
         self.kanaele = {}            # geraet_id → {quellfeld: [(von, bis, kanal_id)]}
+        self.ohne_puffer = []        # Felder ohne Kanal der laufenden Datei: (geraet_id, quellfeld, zeit, zeit)
 
     def geraet(self, cur, name, art, bericht):
         if name in self.geraete:
@@ -297,13 +298,26 @@ class Importer:
             bericht.messwert_belegt += len(werte) - cur.rowcount
         if not ohne_kanal_zaehlen:
             return
-        for o in ohne:
-            cur.execute("""INSERT INTO quellfeld_ohne_kanal AS q(geraet_id, quellfeld, zuerst, zuletzt)
-                           VALUES (%s, %s, %s, %s)
+        self.ohne_puffer.extend(ohne)       # je Datei gesammelt, siehe ohne_kanal_schreiben()
+        bericht.ohne_kanal += len(ohne)
+
+    def ohne_kanal_schreiben(self, cur):
+        """Felder ohne Kanal einer Datei verdichtet ablegen: eine Anweisung je (Gerät, Quellfeld) statt je Wert.
+
+        Ein Upsert je Wert auf dieselbe Zeile in einer Transaktion wird quadratisch langsam (jede neue Zeilenversion
+        bleibt bis zum Ende der Transaktion sichtbar); beim leeren Start fehlen aber alle Kanäle.
+        """
+        summe = {}
+        for gid, feld, zeit, _ in self.ohne_puffer:
+            z = summe.get((gid, feld))
+            summe[(gid, feld)] = (min(z[0], zeit), max(z[1], zeit), z[2] + 1) if z else (zeit, zeit, 1)
+        self.ohne_puffer = []
+        cur.executemany("""INSERT INTO quellfeld_ohne_kanal AS q(geraet_id, quellfeld, zuerst, zuletzt, anzahl)
+                           VALUES (%s, %s, %s, %s, %s)
                            ON CONFLICT (geraet_id, quellfeld) DO UPDATE
                            SET zuerst = least(q.zuerst, excluded.zuerst),
-                               zuletzt = greatest(q.zuletzt, excluded.zuletzt), anzahl = q.anzahl + 1""", o)
-        bericht.ohne_kanal += len(ohne)
+                               zuletzt = greatest(q.zuletzt, excluded.zuletzt), anzahl = q.anzahl + excluded.anzahl""",
+                        [(gid, feld, a, b, n) for (gid, feld), (a, b, n) in summe.items()])
 
     def datei(self, quelle, pfad, bericht):
         """Neue Zeilen einer Monatsdatei in einer Transaktion übernehmen, samt neuer Leseposition."""
@@ -315,10 +329,12 @@ class Importer:
             zeilen, h, bytes_neu = neue_zeilen(pfad, bytes_bisher, sha)
             if not zeilen:
                 return
+            self.ohne_puffer = []
             for roh in zeilen:
                 nr += 1
                 bericht.zeilen += 1
                 neu_vorher = len(bericht.geraete_neu)
+                ohne_vorher = len(self.ohne_puffer)
                 zaehler = (bericht.uplinks, bericht.neu, bericht.doppelt, bericht.messwerte,
                            bericht.messwert_belegt, bericht.ohne_kanal)
                 try:
@@ -328,9 +344,11 @@ class Importer:
                     (bericht.uplinks, bericht.neu, bericht.doppelt, bericht.messwerte,
                      bericht.messwert_belegt, bericht.ohne_kanal) = zaehler
                     del bericht.geraete_neu[neu_vorher:]
+                    del self.ohne_puffer[ohne_vorher:]
                     self.geraete.clear()
                     bericht.ungueltig += 1
                     bericht.uebersprungen.append(f"{datei}:{nr} {type(e).__name__}: {str(e)[:120]}")
+            self.ohne_kanal_schreiben(cur)
             cur.execute("""INSERT INTO import_position(datei, bytes, zeilen, sha256) VALUES (%s, %s, %s, %s)
                            ON CONFLICT (datei) DO UPDATE SET bytes = excluded.bytes, zeilen = excluded.zeilen,
                                                              sha256 = excluded.sha256, aktualisiert = now()""",
