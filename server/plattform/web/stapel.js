@@ -3,7 +3,7 @@
 // Diagramme nach dem Designentwurf (16.10.2026): übereinander gestapelte Felder mit gemeinsamer Zeitachse
 // (Gewicht, Temperatur, Milbenfall …), Ereignisleiste mit Buchstabenmarken, Vorher/Nachher-Fenster, Völkervergleich.
 // Reine Funktionen ohne DOM (Test: tests/plattform/test_diagramm.mjs).
-import { achsenText, ereignisMarken, ortstag, reihenName, reihenSchluessel, zahl, zeitText } from './diagramm.js';
+import { achsenText, ereignisMarken, esc, ortstag, reihenName, reihenSchluessel, zahl, zeitText } from './diagramm.js';
 
 // Farben des Entwurfs; Temperaturen nach Messstelle, damit Brutnest, Deckel und außen unterscheidbar bleiben
 export const FARBEN = {
@@ -139,7 +139,7 @@ export function stapelOptionen(antwort, katalogListe, { sichtbar = null, relativ
                     value: [min ? Math.max(e.zeit, min) : e.zeit, 0.5], name: e.name, schluessel: e.schluessel, text: e.text, nurDatum: e.nurDatum,
                     itemStyle: { color: e.farbe, opacity: e.nurDatum ? 0.55 : 1, borderType: e.nurDatum ? 'dashed' : 'solid' },
                     label: { show: true, formatter: e.buchstabe, color: '#fff', fontSize: 10, fontWeight: 700 } })),
-                  tooltip: { trigger: 'item', formatter: (p) => `${p.name} · ${zeitText(p.value[0])}${p.data.nurDatum ? ' (nur Datum)' : ''}${p.data.text ? '<br>' + p.data.text : ''}` } });
+                  tooltip: { trigger: 'item', formatter: (p) => `${esc(p.name)} · ${zeitText(p.value[0])}${p.data.nurDatum ? ' (nur Datum)' : ''}${p.data.text ? '<br>' + esc(p.data.text) : ''}` } });
   }
   const achsenIndizes = fs.map((_, i) => i);
   return {
@@ -181,8 +181,8 @@ export function bilanzVergleichOptionen(voelker) {
                                                itemStyle: je[t].mit_eingriff ? { color: '#b3b3b3', decal: { symbol: 'rect', dashArrayX: [1, 0], dashArrayY: [2, 3], rotation: -0.8 } } : undefined } : null)) };
   });
   return { animation: false, aria: { enabled: true, decal: { show: false } }, grid: { left: 56, right: 18, top: 36, bottom: 30 }, legend: { top: 0, type: 'scroll' },
-           tooltip: { trigger: 'axis', formatter: (ps) => ps[0].axisValue + '<br>' + ps.filter((p) => p.value !== undefined && p.value !== null)
-             .map((p) => `${p.marker}${p.seriesName}: ${zahl(p.value, 2)} kg${p.data && p.data.eingriff ? ' (Eingriff)' : ''}`).join('<br>') },
+           tooltip: { trigger: 'axis', formatter: (ps) => esc(ps[0].axisValue) + '<br>' + ps.filter((p) => p.value !== undefined && p.value !== null)
+             .map((p) => `${p.marker}${esc(p.seriesName)}: ${zahl(p.value, 2)} kg${p.data && p.data.eingriff ? ' (Eingriff)' : ''}`).join('<br>') },
            xAxis: { type: 'category', data: tage, axisLabel: { formatter: (t) => t.slice(8, 10) + '.' + t.slice(5, 7) + '.' } },
            yAxis: { type: 'value', name: 'kg/Tag' }, series };
 }

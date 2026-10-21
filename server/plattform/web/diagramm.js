@@ -21,6 +21,11 @@ const fmtZeit = new Intl.DateTimeFormat('de-DE', {
 const fmtTag = new Intl.DateTimeFormat('de-DE', { timeZone: ZONE, weekday: 'short', day: '2-digit', month: '2-digit' });
 const fmtStunde = new Intl.DateTimeFormat('de-DE', { timeZone: ZONE, hour: '2-digit', minute: '2-digit' });
 
+// Text für HTML-Tooltips von ECharts maskieren: eigene Formatierer geben HTML zurück, Notizen und Namen sind Eingaben
+export function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 export function zeitText(t) { return t ? fmtZeit.format(new Date(t)) : '–'; }
 
 export function zahl(w, stellen = 1) {

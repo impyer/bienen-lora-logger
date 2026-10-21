@@ -170,5 +170,15 @@ test('Vergleich: Nachtmedian relativ zum ersten Tag, Summen ohne Eingriffstage, 
   assert.equal(b.series[1].data[0], null);
 });
 
+test('Tooltips maskieren Notizen und Namen (kein HTML aus Eingaben)', () => {
+  const o = stapelOptionen(antwort, katalog, { ereignisse: { durchsichten: [{ id: 9, zeit: '2026-10-25T00:00:00Z', zeitgenauigkeit: 'exakt', notiz: '<img src=x onerror=alert(1)>' }] } });
+  const leiste = o.series.find((s) => s.name === 'Stockkarte');
+  const html = leiste.tooltip.formatter({ name: leiste.data[0].name, value: leiste.data[0].value, data: leiste.data[0] });
+  assert.ok(!html.includes('<img') && html.includes('&lt;img'), html);
+  const b = bilanzVergleichOptionen([{ id: 1, name: '<b>Volk</b>', tagesreferenz: [], tagesbilanz: [{ tag: '2026-10-02', bilanz_kg: 1, mit_eingriff: false }] }]);
+  const t = b.tooltip.formatter([{ axisValue: '2026-10-02', marker: '', seriesName: '<b>Volk</b>', value: 1, data: {} }]);
+  assert.ok(!t.includes('<b>') && t.includes('&lt;b&gt;'), t);
+});
+
 console.log(`${anz - fehler} von ${anz} bestanden`);
 process.exit(fehler ? 1 : 0);
