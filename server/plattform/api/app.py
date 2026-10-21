@@ -19,7 +19,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import abfragen, stammdaten, verwaltung
+from . import abfragen, stammdaten, stockkarte_api, verwaltung
 from .anmeldung import COOKIE, Bremse, csrf_gueltig, csrf_token, passwort_pruefen, sitzung_erzeugen, sitzung_gueltig
 from .verdichtung import MAX_ZEITRAUM, raster
 
@@ -277,6 +277,7 @@ def erstellen(konfig=None, verbinden=None, verbinden_schreiben=None):
         angemeldet(request)
         yield from cursor()
 
+    app.include_router(stockkarte_api.router(lesen_angemeldet, schreiben))
     app.include_router(verwaltung.router(lesen_angemeldet, schreiben,
                                          importer_nachtragen(k["dsn_schreiben"] or k["dsn"], k["protokolle"])))
 

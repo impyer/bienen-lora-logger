@@ -39,6 +39,7 @@ php tests/server/test_eingang_funktionen.php; php tests/server/test_lora_funktio
 BIENEN_TEST_DSN="..." python3 tests/datenbank/test_importer.py   # PostgreSQL 16; ohne DB nur Hosttests (NICHT GELAUFEN = Rückgabe 2)
 pip install -r server/plattform/requirements.txt; BIENEN_TEST_DSN="..." python3 tests/plattform/test_plattform.py   # Lese-API, synthetische Daten
 BIENEN_TEST_DSN="..." python3 tests/plattform/test_verwaltung.py   # Stammdaten-Pflege, CSRF, Nachtragen
+BIENEN_TEST_DSN="..." python3 tests/plattform/test_stockkarte.py   # Stockkarte erfassen (Durchsicht, Maßnahme, Varroa, Aufgabe)
 node tests/plattform/test_diagramm.mjs; BIENEN_TEST_DSN="..." bash tests/plattform/oberflaeche_testen.sh   # Oberfläche (Playwright)
 python3 hardware/energiebilanz.py; python3 hardware/i2c_leitung.py
 python3 hardware/schaltplan_spice.py   # ngspice aus KiCad 10 (Windows) bzw. libngspice0: 12 Analogpfad-Prüfungen (T2)

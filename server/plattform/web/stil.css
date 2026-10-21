@@ -16,7 +16,7 @@ h2 { font-size: 1.15rem; margin: 1.4em 0 0.5em; }
 .kopf { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px;
         border-bottom: 1px solid var(--linie); background: var(--flaeche); flex-wrap: wrap; }
 .kopf .marke { font-weight: 700; text-decoration: none; color: var(--text); }
-.kopf nav { display: flex; gap: 14px; align-items: center; }
+.kopf nav { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
 button { font: inherit; padding: 6px 12px; border: 1px solid var(--linie); border-radius: 6px; background: var(--flaeche); color: var(--text); cursor: pointer; }
 button.link { border: none; background: none; color: var(--akzent); padding: 0; text-decoration: underline; }
 button.aktiv { border-color: var(--akzent); color: var(--akzent); font-weight: 600; }
@@ -59,3 +59,23 @@ input { font: inherit; }
 tr.aufgeloest td, tr.beendet td { color: var(--leise); }
 button.gefahr { border-color: var(--minus); color: var(--minus); }
 details summary { cursor: pointer; color: var(--akzent); }
+/* Stockkarte (Handy zuerst) */
+.reiter { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+.reiter button { flex: 1 1 auto; }
+.voelker { border: 1px solid var(--linie); border-radius: 8px; }
+.voelker div { margin: 4px 0; }
+.volkwahl { display: inline-flex; align-items: center; gap: 4px; margin: 4px 10px 4px 0; padding: 6px 8px; border: 1px solid var(--linie); border-radius: 6px; }
+.eingabe { display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+.eingabe label { display: flex; flex-direction: column; gap: 4px; }
+.eingabe input, .eingabe select, .eingabe textarea { font: inherit; padding: 8px; }
+.merkmal { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--linie); }
+.merkmal .name { flex: 1 1 12em; }
+.merkmal input[type=number] { width: 6em; }
+.merkmal textarea { flex: 1 1 100%; }
+.knoepfe { display: inline-flex; gap: 4px; }
+.knoepfe button { min-width: 2.6em; padding: 8px; }
+button.haupt { padding: 10px 18px; font-weight: 600; border-color: var(--akzent); }
+.knopf { font-size: 0.8rem; margin-left: 10px; padding: 3px 8px; border: 1px solid var(--akzent); border-radius: 6px; text-decoration: none; }
+.aufgaben { list-style: none; padding: 0; }
+.aufgaben li { padding: 6px 0; border-bottom: 1px solid var(--linie); }
+.aufgaben li.faellig { color: var(--warn); }

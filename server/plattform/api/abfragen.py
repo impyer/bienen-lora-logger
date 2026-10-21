@@ -6,6 +6,7 @@ Jede Funktion bekommt einen Cursor mit dict_row in einer READ-ONLY-Transaktion (
 Python-Werte. Kennwerte (Tagesbilanz, Varroa pro Tag) kommen aus den Sichten des Schemas, nicht aus Python,
 damit API, Auswertung und Wochenbericht dieselbe Berechnung zeigen (berechnung@version).
 """
+from .stockkarte import durchsicht_werte
 from .verdichtung import aggregat, mit_luecken
 
 
@@ -48,7 +49,7 @@ def staende(cur, zeit):
                    ORDER BY a.stand_id, a.platz NULLS LAST, v.name""", {"t": zeit})
     voelker = cur.fetchall()
     ids = [v["id"] for v in voelker]
-    gewicht, bilanz, letzte = {}, {}, {}
+    gewicht, bilanz, letzte, aufgaben, durchsicht = {}, {}, {}, {}, {}
     if ids:
         cur.execute("""SELECT DISTINCT ON (volk_id) volk_id, zeit, wert FROM messwert_bezug
                        WHERE messgroesse_code = 'gewicht' AND volk_id = ANY(%(ids)s) AND zeit <= %(t)s
@@ -63,6 +64,14 @@ def staende(cur, zeit):
         cur.execute("""SELECT volk_id, max(zeit) AS zeit FROM messwert_bezug
                        WHERE volk_id = ANY(%(ids)s) AND zeit <= %(t)s GROUP BY volk_id""", {"ids": ids, "t": zeit})
         letzte = {r["volk_id"]: r["zeit"] for r in cur.fetchall()}
+        # offene Aufgaben, die am Tag des Zeitpunkts (Ortszeit) fällig oder überfällig sind; letzte Durchsicht
+        cur.execute("""SELECT volk_id, count(*) AS n FROM aufgabe
+                       WHERE volk_id = ANY(%(ids)s) AND erledigt_am IS NULL
+                         AND faellig_am <= (%(t)s AT TIME ZONE 'Europe/Berlin')::date GROUP BY volk_id""", {"ids": ids, "t": zeit})
+        aufgaben = {r["volk_id"]: r["n"] for r in cur.fetchall()}
+        cur.execute("""SELECT volk_id, max(zeit) AS zeit FROM durchsicht
+                       WHERE volk_id = ANY(%(ids)s) AND zeit <= %(t)s GROUP BY volk_id""", {"ids": ids, "t": zeit})
+        durchsicht = {r["volk_id"]: r["zeit"] for r in cur.fetchall()}
     for v in voelker:
         g, b = gewicht.get(v["id"]), bilanz.get(v["id"])
         aus[v["stand_id"]]["voelker"].append({
@@ -71,6 +80,7 @@ def staende(cur, zeit):
             "tagesbilanz": ({"tag": b["tag"], "bilanz_kg": b["bilanz_kg"], "mit_eingriff": b["mit_eingriff"],
                              "berechnung": b["berechnung"]} if b else None),
             "letzte_messung": letzte.get(v["id"]),
+            "aufgaben_faellig": aufgaben.get(v["id"], 0), "letzte_durchsicht": durchsicht.get(v["id"]),
         })
     return list(aus.values())
 
@@ -160,14 +170,19 @@ def ereignisse(cur, volk_id, von, bis):
     cur.execute("""SELECT id, zeit, zeitgenauigkeit, notiz, quelle FROM durchsicht
                    WHERE volk_id = %(v)s AND zeit >= %(von)s AND zeit < %(bis)s ORDER BY zeit""", p)
     durchsichten = cur.fetchall()
+    werte = durchsicht_werte(cur, [d["id"] for d in durchsichten])
+    for d in durchsichten:
+        d["werte"] = werte.get(d["id"], [])
     cur.execute("""SELECT id, art, lower(zeitraum) AS von, upper(zeitraum) AS bis, zeitgenauigkeit,
                           menge, einheit, mittel, notiz, quelle
                    FROM massnahme WHERE volk_id = %(v)s AND zeitraum && tstzrange(%(von)s, %(bis)s)
                    ORDER BY lower(zeitraum)""", p)
     massnahmen = cur.fetchall()
-    cur.execute("""SELECT id, von, bis, milben, milben_pro_tag, anmerkung, zeitgenauigkeit, berechnung
-                   FROM varroa_pro_tag
-                   WHERE volk_id = %(v)s AND tstzrange(von, bis) && tstzrange(%(von)s, %(bis)s) ORDER BY von""", p)
+    # alle Methoden; Milbenfall pro Tag nur für die Windel (Sicht varroa_pro_tag)
+    cur.execute("""SELECT m.id, m.methode, lower(m.zeitraum) AS von, upper(m.zeitraum) AS bis, m.milben, t.milben_pro_tag,
+                          m.anmerkung, m.zeitgenauigkeit, m.quelle, t.berechnung
+                   FROM varroa_messung m LEFT JOIN varroa_pro_tag t ON t.id = m.id
+                   WHERE m.volk_id = %(v)s AND m.zeitraum && tstzrange(%(von)s, %(bis)s) ORDER BY lower(m.zeitraum)""", p)
     varroa = cur.fetchall()
     cur.execute("""SELECT e.id, e.art, e.zeit, e.notiz, t.rolle,
                           (SELECT json_agg(json_build_object('volk_id', t2.volk_id, 'name', v2.name, 'rolle', t2.rolle))
@@ -175,7 +190,11 @@ def ereignisse(cur, volk_id, von, bis):
                            WHERE t2.ereignis_id = e.id) AS beteiligte
                    FROM volk_ereignis e JOIN volk_ereignis_teil t ON t.ereignis_id = e.id
                    WHERE t.volk_id = %(v)s AND e.zeit >= %(von)s AND e.zeit < %(bis)s ORDER BY e.zeit""", p)
-    return {"durchsichten": durchsichten, "massnahmen": massnahmen, "varroa": varroa, "volk_ereignisse": cur.fetchall()}
+    ereignis = cur.fetchall()
+    cur.execute("""SELECT id, faellig_am, text, erledigt_am FROM aufgabe WHERE volk_id = %(v)s
+                   ORDER BY erledigt_am IS NOT NULL, faellig_am""", p)
+    return {"durchsichten": durchsichten, "massnahmen": massnahmen, "varroa": varroa, "volk_ereignisse": ereignis,
+            "aufgaben": cur.fetchall()}
 
 
 # ---------------------------------------------------------------- Prüfungen und Betrieb

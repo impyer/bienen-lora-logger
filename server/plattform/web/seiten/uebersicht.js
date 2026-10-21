@@ -34,6 +34,8 @@ export default defineComponent({
             </span>
             <span v-else class="klein">keine Tagesbilanz</span>
             <span class="klein">letzte Messung {{ zeitText(v.letzte_messung) }}</span>
+            <span class="klein">letzte Durchsicht {{ zeitText(v.letzte_durchsicht) }}</span>
+            <span v-if="v.aufgaben_faellig" class="warnung klein">{{ v.aufgaben_faellig }} Aufgabe(n) fällig</span>
           </a>
         </div>
       </article>

@@ -42,3 +42,26 @@ VORLAGEN = {
                     ("rain_mmh", "regen_rate", "luft_stand"), ("uv", "uv", "luft_stand"), ("l", "licht", "luft_stand")],
     },
 }
+
+# Standard-Checkliste der Durchsicht (Vorbild BEEP-Kategorien, Konzept 0.2 §5.2). Merkmal: (code, name, eingabetyp,
+# einheit, optionen, gruppe). Eine geänderte Liste wird als neue Version angelegt; alte Durchsichten behalten ihre (K-10).
+CHECKLISTE_NAME = "Durchsicht"
+CHECKLISTE_GRUPPEN = [("g_koenigin_brut", "Königin und Brut"), ("g_volk", "Volk"), ("g_futter_raum", "Futter und Raum"),
+                      ("g_gesundheit", "Gesundheit")]
+CHECKLISTE = [
+    ("koenigin_gesehen", "Königin gesehen", "janein", None, None, "g_koenigin_brut"),
+    ("stifte", "Stifte (Eier)", "janein", None, None, "g_koenigin_brut"),
+    ("offene_brut", "Offene Brut", "janein", None, None, "g_koenigin_brut"),
+    ("verdeckelte_brut", "Verdeckelte Brut", "janein", None, None, "g_koenigin_brut"),
+    ("brutwaben", "Brutwaben", "ganzzahl", "Waben", None, "g_koenigin_brut"),
+    ("weiselzellen", "Weiselzellen", "liste", None, ["keine", "Spielnäpfchen", "bestiftet", "verdeckelt"], "g_koenigin_brut"),
+    ("wabengassen", "Besetzte Wabengassen", "ganzzahl", "Gassen", None, "g_volk"),
+    ("volksstaerke", "Volksstärke", "bewertung", None, None, "g_volk"),
+    ("sanftmut", "Sanftmut", "bewertung", None, None, "g_volk"),
+    ("wabensitz", "Wabensitz", "bewertung", None, None, "g_volk"),
+    ("schwarmstimmung", "Schwarmstimmung", "janein", None, None, "g_volk"),
+    ("futtervorrat", "Futtervorrat", "liste", None, ["knapp", "ausreichend", "reichlich"], "g_futter_raum"),
+    ("futterwaben", "Futterwaben", "ganzzahl", "Waben", None, "g_futter_raum"),
+    ("raum", "Platz im Volk", "liste", None, ["eng", "passend", "viel"], "g_futter_raum"),
+    ("krankheitszeichen", "Auffälligkeiten / Krankheitszeichen", "text", None, None, "g_gesundheit"),
+]

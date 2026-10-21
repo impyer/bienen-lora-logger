@@ -9,6 +9,14 @@ import { Diagramm, Zeitraum, Zustand, zeitraumParameter } from './komponenten.js
 const ARTEN = { behandlung: 'Behandlung', fuetterung: 'Fütterung', ernte: 'Ernte', zarge_auf: 'Zarge auf',
                 zarge_ab: 'Zarge ab', umsetzen: 'Umsetzen', tarieren: 'Tarieren', sonstiges: 'Maßnahme' };
 const VORWAHL = ['gewicht', 'temperatur'];
+const METHODEN = { windel: 'Windel', puderzucker: 'Puderzucker', auswaschung: 'Auswaschung' };
+
+// Merkmalswert einer Durchsicht als kurzer Text, z. B. „Brutwaben 6 Waben“, „Königin gesehen: ja“
+function wertText(w) {
+  if (w.eingabetyp === 'janein') return `${w.name}: ${w.wert ? 'ja' : 'nein'}`;
+  if (w.eingabetyp === 'bewertung') return `${w.name} ${w.wert}/5`;
+  return `${w.name} ${typeof w.wert === 'number' ? zahl(w.wert, 0) : w.wert}${w.einheit ? ' ' + w.einheit : ''}`;
+}
 
 export default defineComponent({
   components: { Diagramm, Zeitraum, Zustand },
@@ -40,14 +48,16 @@ export default defineComponent({
         <h2>Tagesbilanz <small class="klein">Gewicht 00–04 Uhr, Vortag abgezogen</small></h2>
         <p v-if="!bilanz.length" class="leer">Keine Tagesbilanz in diesem Zeitraum.</p>
         <Diagramm v-else :optionen="bilanzDiagramm" hoehe="220px" name="bilanz" />
-        <h2>Stockkarte</h2>
+        <h2>Stockkarte <a :href="'#/stockkarte?volk=' + id" class="knopf">Eintrag erfassen</a></h2>
+        <p v-if="offeneAufgaben.length" class="warnung">Aufgaben: <span v-for="a in offeneAufgaben" :key="a.id">{{ a.faellig_am.slice(8, 10) }}.{{ a.faellig_am.slice(5, 7) }}. {{ a.text }}; </span></p>
         <p v-if="ereignisse && !anzahlEreignisse" class="leer">Keine Einträge in diesem Zeitraum.</p>
         <table v-if="anzahlEreignisse" class="tabelle">
-          <thead><tr><th>Zeit</th><th>Art</th><th>Angaben</th></tr></thead>
+          <thead><tr><th>Zeit</th><th>Art</th><th>Angaben</th><th></th></tr></thead>
           <tbody>
             <tr v-for="e in liste" :key="e.schluessel">
               <td>{{ e.zeit }}<em v-if="e.nurDatum" title="Uhrzeit aus BEEP übernommen, nicht erfasst"> Uhrzeit übernommen</em></td>
               <td>{{ e.art }}</td><td>{{ e.text }}</td>
+              <td><a v-if="e.bearbeiten" :href="'#/stockkarte?art=' + e.bearbeiten" class="klein">bearbeiten</a></td>
             </tr>
           </tbody>
         </table>
@@ -61,13 +71,14 @@ export default defineComponent({
       const e = this.ereignisse || {};
       const tag = (t) => zeitText(t).slice(0, 6);
       const z = [];
-      for (const d of e.durchsichten || []) z.push({ schluessel: 'd' + d.id, t: d.zeit, zeit: d.zeitgenauigkeit === 'nur_datum' ? tag(d.zeit) : zeitText(d.zeit), nurDatum: d.zeitgenauigkeit === 'nur_datum', art: 'Durchsicht', text: d.notiz || '' });
-      for (const m of e.massnahmen || []) z.push({ schluessel: 'm' + m.id, t: m.von, zeit: zeitText(m.von) + (m.bis ? ' – ' + zeitText(m.bis) : ''), nurDatum: m.zeitgenauigkeit === 'nur_datum', art: ARTEN[m.art] || m.art, text: [m.mittel, m.menge !== null ? zahl(m.menge, 1) + ' ' + (m.einheit || '') : '', m.notiz].filter(Boolean).join(' · ') });
-      for (const v of e.varroa || []) z.push({ schluessel: 'v' + v.id, t: v.von, zeit: zeitText(v.von) + ' – ' + zeitText(v.bis), nurDatum: v.zeitgenauigkeit === 'nur_datum', art: 'Varroa (Windel)', text: `${v.milben} Milben, ${zahl(v.milben_pro_tag, 1)} pro Tag` });
+      for (const d of e.durchsichten || []) z.push({ schluessel: 'd' + d.id, bearbeiten: 'durchsicht&id=' + d.id, t: d.zeit, zeit: d.zeitgenauigkeit === 'nur_datum' ? tag(d.zeit) : zeitText(d.zeit), nurDatum: d.zeitgenauigkeit === 'nur_datum', art: 'Durchsicht', text: [...(d.werte || []).map(wertText), d.notiz].filter(Boolean).join(' · ') });
+      for (const m of e.massnahmen || []) z.push({ schluessel: 'm' + m.id, bearbeiten: 'massnahme&id=' + m.id, t: m.von, zeit: zeitText(m.von) + (m.bis ? ' – ' + zeitText(m.bis) : ''), nurDatum: m.zeitgenauigkeit === 'nur_datum', art: ARTEN[m.art] || m.art, text: [m.mittel, m.menge !== null ? zahl(m.menge, 1) + ' ' + (m.einheit || '') : '', m.notiz].filter(Boolean).join(' · ') });
+      for (const v of e.varroa || []) z.push({ schluessel: 'v' + v.id, bearbeiten: 'varroa&id=' + v.id, t: v.von, zeit: zeitText(v.von) + ' – ' + zeitText(v.bis), nurDatum: v.zeitgenauigkeit === 'nur_datum', art: `Varroa (${METHODEN[v.methode] || v.methode})`, text: `${v.milben} Milben` + (v.milben_pro_tag !== null && v.milben_pro_tag !== undefined ? `, ${zahl(v.milben_pro_tag, 1)} pro Tag` : '') + (v.anmerkung ? ' · ' + v.anmerkung : '') });
       for (const v of e.volk_ereignisse || []) z.push({ schluessel: 'e' + v.id, t: v.zeit, zeit: zeitText(v.zeit), art: v.art[0].toUpperCase() + v.art.slice(1), text: (v.beteiligte || []).map((b) => `${b.name} (${b.rolle})`).join(', ') });
       return z.sort((a, b) => Date.parse(a.t) - Date.parse(b.t));
     },
     anzahlEreignisse() { return this.liste.length; },
+    offeneAufgaben() { return (this.ereignisse?.aufgaben || []).filter((a) => !a.erledigt_am); },
   },
   methods: {
     zeitText,

@@ -175,6 +175,12 @@ jobs:
       - name: Plattform – Stammdaten-Pflege, Sitzungszeitzone UTC
         if: ${{ !cancelled() }}
         run: PGTZ=UTC python3 tests/plattform/test_verwaltung.py
+      - name: Plattform – Stockkarte erfassen, Sitzungszeitzone Europe/Berlin
+        if: ${{ !cancelled() }}
+        run: PGTZ=Europe/Berlin python3 tests/plattform/test_stockkarte.py
+      - name: Plattform – Stockkarte erfassen, Sitzungszeitzone UTC
+        if: ${{ !cancelled() }}
+        run: PGTZ=UTC python3 tests/plattform/test_stockkarte.py
       - uses: actions/setup-node@v4
         if: ${{ !cancelled() }}
         with:

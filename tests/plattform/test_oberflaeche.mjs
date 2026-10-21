@@ -93,6 +93,42 @@ try {
     await oeffnen('#/');
     const k = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
     pruefe('Verwaltung: Volk erscheint in der Übersicht', JSON.stringify(k) === '["Testvolk"]', JSON.stringify(k));
+
+    // Stockkarte am Handy: Checkliste übernehmen, Durchsicht mit Werten, Maßnahme; danach im Cockpit sichtbar
+    schritt = 'Stockkarte am Handy';
+    await seite.setViewportSize({ width: 390, height: 844 });
+    await oeffnen('#/stockkarte');
+    await seite.click('button:has-text("Standard-Checkliste übernehmen")');
+    await seite.waitForSelector('.merkmal', { timeout: 10000 });
+    await seite.locator('label.volkwahl', { hasText: 'Testvolk' }).locator('input').check();
+    await seite.locator('.merkmal', { hasText: 'Königin gesehen' }).locator('button:has-text("ja")').click();
+    await seite.fill('input[aria-label="Brutwaben"]', '6');
+    await seite.locator('.merkmal', { hasText: 'Sanftmut' }).locator('button:has-text("4")').click();
+    await seite.click('button.haupt');
+    await seite.waitForSelector('.ok:has-text("Gespeichert (1 Eintrag)")', { timeout: 10000 });
+    pruefe('Stockkarte: Durchsicht gespeichert', true);
+    const breit = await seite.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    pruefe('Stockkarte: kein waagrechtes Scrollen bei 390 px', breit <= 0, `${breit} px zu breit`);
+    schritt = 'Stockkarte Maßnahme';
+    await seite.click('.reiter button:has-text("Maßnahme")');
+    await seite.locator('label.volkwahl', { hasText: 'Testvolk' }).locator('input').check();
+    await seite.selectOption('select[aria-label="Art der Maßnahme"]', 'fuetterung');
+    await seite.fill('input[aria-label="Menge"]', '5');
+    await seite.fill('input[aria-label="Einheit"]', 'kg');
+    await seite.click('button.haupt');
+    await seite.waitForSelector('.ok:has-text("Gespeichert (1 Eintrag)")', { timeout: 10000 });
+    await seite.setViewportSize({ width: 1200, height: 900 });
+    schritt = 'Stockkarte im Cockpit';
+    await oeffnen('#/');
+    await seite.click('.kachel:has-text("Testvolk")');
+    await seite.waitForSelector('.tabelle', { timeout: 10000 });
+    const sk = await seite.innerText('.tabelle');
+    pruefe('Cockpit: Durchsicht mit Werten und Fütterung', sk.includes('Königin gesehen: ja') && sk.includes('Brutwaben 6 Waben')
+           && sk.includes('Sanftmut 4/5') && sk.includes('Fütterung') && sk.includes('5,0 kg'), sk.slice(0, 400));
+    schritt = 'Stockkarte bearbeiten';
+    await seite.click('.tabelle a:has-text("bearbeiten")');
+    await seite.waitForSelector('h1:has-text("Eintrag bearbeiten")', { timeout: 10000 });
+    pruefe('Bearbeiten: Werte vorbelegt', await seite.locator('input[aria-label="Brutwaben"]').inputValue() === '6');
   } else {
     await oeffnen('#/?zeit=2026-10-31T23:00:00Z');
     const kacheln = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
