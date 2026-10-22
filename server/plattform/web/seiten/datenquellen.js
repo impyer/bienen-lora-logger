@@ -19,6 +19,8 @@ export default defineComponent({
         <p v-if="!p.unbenannt.length" class="leer">Keine.</p>
         <table v-else class="tabelle"><thead><tr><th>Gerät</th><th>Quellfeld</th><th>zuerst</th><th>zuletzt</th><th>Anzahl</th></tr></thead>
           <tbody><tr v-for="u in p.unbenannt" :key="u.geraet + u.quellfeld"><td>{{ u.geraet }}</td><td><code>{{ u.quellfeld }}</code></td><td>{{ zeitText(u.zuerst) }}</td><td>{{ zeitText(u.zuletzt) }}</td><td>{{ u.anzahl }}</td></tr></tbody></table>
+        <p v-if="p.steuerfelder && p.steuerfelder.length" class="klein">Steuerfelder des Funkformats (kein Messwert, kein Handlungsbedarf):
+          <span v-for="s in steuerNamen" :key="s"><code>{{ s }}</code> </span></p>
         <h2>Geräte ohne aktuelle Zuordnung</h2>
         <p v-if="!p.geraete_ohne_ziel.length" class="leer">Keine.</p>
         <table v-else class="tabelle"><thead><tr><th>Gerät</th><th>Art</th><th>letzte Nachricht</th></tr></thead>
@@ -37,6 +39,7 @@ export default defineComponent({
           <tbody><tr v-for="i in p.importe" :key="i.datei"><td><code>{{ i.datei }}</code></td><td>{{ i.zeilen }}</td><td>{{ zeitText(i.aktualisiert) }}</td></tr></tbody></table>
       </template>
     </section>`,
+  computed: { steuerNamen() { return [...new Set((this.p.steuerfelder || []).map((s) => s.quellfeld))].sort(); } },
   methods: { zeitText },
   async mounted() {
     try { this.p = await holen('pruefungen'); } catch (e) { this.$emit('fehler', e); this.fehler = e.message; } finally { this.laden = false; }

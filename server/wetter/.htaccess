@@ -1,7 +1,0 @@
-# Apache 2.4: nur wetter_eingang.php ist von außen erreichbar
-<FilesMatch ".*">
-  Require all denied
-</FilesMatch>
-<Files "wetter_eingang.php">
-  Require all granted
-</Files>

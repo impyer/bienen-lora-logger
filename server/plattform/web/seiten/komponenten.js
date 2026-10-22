@@ -1,7 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Philipp Schnabel
 // Gemeinsame Bausteine: Diagramm (ECharts), Zeitraumwahl, Lade- und Fehleranzeige
-import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch } from '../vendor/vue.esm-browser.prod.js';
+import { defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from '../vendor/vue.esm-browser.prod.js';
+import { bisTag, farbenAnpassen, tagesEnde, zeitraum } from '../diagramm.js';
+
+// Farben der Seite für Diagramme im dunklen Schema (stil.css, prefers-color-scheme)
+const DUNKEL = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function palette() {
+  const c = getComputedStyle(document.documentElement);
+  const v = (n) => c.getPropertyValue(n).trim();
+  return { dunkel: !!(DUNKEL && DUNKEL.matches) && document.documentElement.dataset.theme !== 'light',
+           text: v('--text'), leise: v('--leise'), gitter: v('--linie'), linie: v('--linie2'), blau: v('--link') };
+}
 
 // ECharts-Diagramm; "name" macht es für Tests unter window.bienenDiagramme[name] erreichbar
 export const Diagramm = defineComponent({
@@ -10,16 +20,19 @@ export const Diagramm = defineComponent({
     const el = ref(null);
     let chart = null;
     const groesse = () => chart && chart.resize();
-    const zeichnen = () => { if (chart && props.optionen) chart.setOption(props.optionen, { notMerge: true }); };
+    const zeichnen = () => { if (chart && props.optionen) chart.setOption(farbenAnpassen(props.optionen, palette()), { notMerge: true }); };
     onMounted(() => {
       chart = window.echarts.init(el.value, null, { renderer: 'canvas' });
       if (props.name) (window.bienenDiagramme ||= {})[props.name] = chart;
       zeichnen();
       window.addEventListener('resize', groesse);
+      DUNKEL?.addEventListener('change', zeichnen);
     });
     watch(() => props.optionen, zeichnen);
+    watch(() => props.hoehe, () => nextTick(groesse));   // gestapelte Felder ändern die Höhe
     onBeforeUnmount(() => {
       window.removeEventListener('resize', groesse);
+      DUNKEL?.removeEventListener('change', zeichnen);
       if (props.name && window.bienenDiagramme) delete window.bienenDiagramme[props.name];
       chart && chart.dispose();
     });
@@ -29,16 +42,16 @@ export const Diagramm = defineComponent({
 
 export const ZEITRAEUME = [['2 Tage', 2], ['7 Tage', 7], ['14 Tage', 14], ['30 Tage', 30], ['90 Tage', 90], ['1 Jahr', 365]];
 
-// Zeitraum als [von, bis] (ISO); bis = Ende des gewählten Tages bzw. jetzt
+// Zeitraum als [von, bis] (ISO); bis = Ende des gewählten Ortstags (Europe/Berlin) bzw. jetzt
 export const Zeitraum = defineComponent({
   props: { tage: Number, bis: String },
   emits: ['wahl'],
   template: `
     <div class="zeitraum" role="group" aria-label="Zeitraum">
       <button v-for="[text, t] in liste" :key="t" :class="{ aktiv: t === tage }" @click="$emit('wahl', { tage: t, bis })">{{ text }}</button>
-      <label>bis <input type="date" :value="bis ? bis.slice(0, 10) : ''" @change="$emit('wahl', { tage, bis: $event.target.value ? $event.target.value + 'T23:59:59Z' : '' })"></label>
+      <label>bis <input type="date" :value="bisTag(bis)" aria-label="Zeitraum bis" @change="$emit('wahl', { tage, bis: tagesEnde($event.target.value) })"></label>
     </div>`,
-  setup() { return { liste: ZEITRAEUME }; },
+  setup() { return { liste: ZEITRAEUME, bisTag, tagesEnde }; },
 });
 
 export const Zustand = defineComponent({
@@ -46,8 +59,4 @@ export const Zustand = defineComponent({
   template: `<p v-if="laden" class="hinweis">Lädt …</p><p v-else-if="fehler" class="fehler" role="alert">{{ fehler }}</p>`,
 });
 
-export function zeitraumParameter(route) {
-  const tage = Number(route.query.tage || 14);
-  const bisT = route.query.bis ? new Date(route.query.bis) : new Date();
-  return { tage, bis: route.query.bis || '', von: new Date(bisT.getTime() - tage * 86400000).toISOString(), bisIso: bisT.toISOString() };
-}
+export function zeitraumParameter(route, vorgabeTage = 14) { return zeitraum(route.query, vorgabeTage); }

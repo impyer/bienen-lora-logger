@@ -1,6 +1,6 @@
 #!/bin/bash
-# Ende-zu-Ende-Test des LoRa-Eingangs:
-# echte beelogger-Skripte M.40 (Original-ZIP) + server/eingang + server/lora + echter TTN-Formatter + PHP-Testserver.
+# Ende-zu-Ende-Test des Bienen-Eingangs:
+# echte beelogger-Skripte M.40 (Original-ZIP) + server/eingang + server/bienen + echter TTN-Formatter + PHP-Testserver.
 # Braucht: php (mit curl), node, unzip, curl. Zwei Testserver (Webhook-Eingang und beelogger_log.php getrennt), weil der Eingang
 # beelogger_log.php über HTTP beim selben Server aufruft.
 # Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
@@ -32,7 +32,7 @@ else
 fi
 echo "Variante: $VARIANTE"
 cp -r "$REPO/server/eingang" "$W/www/eingang"
-cp -r "$REPO/server/lora" "$W/www/lora"
+cp -r "$REPO/server/bienen" "$W/www/bienen"
 cat > "$W/router.php" <<'EOF'
 <?php
 // Testserver: HTTPS vortäuschen (beelogger_show.php verlangt es) und Skript im eigenen Verzeichnis starten
@@ -45,7 +45,7 @@ chdir(dirname($f));
 require $f;
 EOF
 cfg_schreiben() {  # $1 = zusätzliche Einträge (PHP), $2 = Port für basis_url (Vorgabe: Testserver)
-  cat > "$W/www/lora/lora_config.php" <<EOF
+  cat > "$W/www/bienen/bienen_config.php" <<EOF
 <?php
 return array(
   'token' => '$TOKEN',
@@ -57,7 +57,7 @@ return array(
 EOF
 }
 cfg_schreiben
-# OPcache aus: der Test schreibt lora_config.php, beelogger_ini.php und beelogger_log.php während des Laufs um.
+# OPcache aus: der Test schreibt bienen_config.php, beelogger_ini.php und beelogger_log.php während des Laufs um.
 # Zwei Testserver auf demselben Verzeichnis: PORT nimmt die Webhooks an, PORT2 bedient den Aufruf von beelogger_log.php.
 # Der eingebaute PHP-Server verteilt Verbindungen ungleichmäßig auf seine Arbeitsprozesse; landet der interne Aufruf
 # bei einem Prozess, der an der Sperre wartet, hängt er bis zum Zeitlimit. Apache/PHP-FPM haben das Problem nicht.
@@ -85,7 +85,7 @@ senden() {  # $1 = JSON-Parameter für ttn_nachricht.js, $2 = Token (optional)
 }
 senden_datei() {  # $1 = fertige JSON-Datei, $2 = Token (optional)
   curl -s -w ' [%{http_code}]' -X POST -H "Content-Type: application/json" -H "X-Bienen-Token: ${2:-$TOKEN}" \
-    --data-binary @"$1" "http://127.0.0.1:$PORT/lora/lora_eingang.php"
+    --data-binary @"$1" "http://127.0.0.1:$PORT/bienen/bienen_eingang.php"
 }
 zeilen() { wc -l < "$W/www/beelogger1/$1" | tr -d ' '; }
 nachholen_zahl() { ls "$W"/log/nachholen/*.json 2>/dev/null | wc -l | tr -d ' '; }
@@ -135,9 +135,10 @@ enthaelt "FPort 1: Sketch-ID in der Zusatzdatei" "$(zusatz)" ",1,260705,"
 
 # --- 6. Fehlerfälle ---
 enthaelt "falsches Token → 401" "$(senden '{"geraet":"beelogger-01","fport":2,"empfang":"2026-10-08T13:30:00Z"}' falsch-falsch-falsch-xx)" "[401]"
-enthaelt "unbekanntes Gerät → ignoriert, 200" "$(senden '{"geraet":"sensecap-s2120-rad","fport":3,"empfang":"2026-10-08T13:30:00Z","hex":"00"}')" "ignoriert: Gerät nicht"
+enthaelt "Gerät ohne beelogger-Weiterleitung → protokolliert, 200" "$(senden '{"geraet":"beep-base-01","fport":3,"empfang":"2026-10-08T13:30:00Z","hex":"00"}')" "protokolliert, ohne beelogger-Weiterleitung"
+pruefe "Gerät ohne beelogger-Weiterleitung steht im Rohprotokoll (für den Importer)" "$(cat "$W"/log/*.jsonl | grep '"art":"uplink"' | grep -c '"geraet":"beep-base-01"')" "1"
 enthaelt "ohne decoded_payload → ignoriert" "$(senden '{"geraet":"beelogger-01","fport":2,"empfang":"2026-10-08T13:30:00Z","ohne_decoded":true}')" "ignoriert: kein decoded_payload"
-enthaelt "GET → 405" "$(curl -s -w ' [%{http_code}]' "http://127.0.0.1:$PORT/lora/lora_eingang.php")" "[405]"
+enthaelt "GET → 405" "$(curl -s -w ' [%{http_code}]' "http://127.0.0.1:$PORT/bienen/bienen_eingang.php")" "[405]"
 [ "$(ls "$W"/log/*.jsonl 2>/dev/null | wc -l)" -ge 1 ] && ok "Protokoll geschrieben" || nok "Protokoll geschrieben"
 
 # --- 6b. SRV26-03/04: exakt dieselbe Nachricht noch einmal → doppelt, beelogger wird nicht aufgerufen ---
@@ -167,7 +168,7 @@ pruefe "parallel verschieden: jede Antwort gespeichert oder abgelehnt" "$((G+AB)
 pruefe "parallel verschieden: Zahl 'gespeichert' = neue Zeilen in week.csv" "$G" "$(($(zeilen week.csv)-W0))"
 echo "info - parallel verschieden: $G gespeichert, $AB abgelehnt (Reihenfolge zufällig; beelogger nimmt nur neuere Zeiten an)"
 
-# --- 6d. Nachholen: beelogger nicht erreichbar → 202 und Zwischenspeicher; danach lora_nachholen.php ---
+# --- 6d. Nachholen: beelogger nicht erreichbar → 202 und Zwischenspeicher; danach bienen_nachholen.php ---
 cfg_schreiben "" 1   # Port 1: nicht erreichbar
 nachricht "$W/m40.json" 40 1791547200   # 2026-10-09 12:00Z
 A=$(senden_datei "$W/m40.json")
@@ -176,12 +177,12 @@ pruefe "nicht erreichbar: 1 Datei zum Nachholen" "$(nachholen_zahl)" "1"
 senden_datei "$W/m40.json" > /dev/null
 pruefe "nicht erreichbar, Wiederholung: keine zweite Datei" "$(nachholen_zahl)" "1"
 cfg_schreiben
-N=$(cd "$W/www/lora" && php lora_nachholen.php 2>&1)
+N=$(cd "$W/www/bienen" && php bienen_nachholen.php 2>&1)
 enthaelt "nachholen: gespeichert" "$N" ": gespeichert"
 pruefe "nachholen: Zwischenspeicher leer" "$(nachholen_zahl)" "0"
 pruefe "nachholen: Zeile mit Messzeit 12:00Z in week.csv" "$(zeitstempel)" "1791547200"
 enthaelt "nachholen: danach dieselbe Nachricht doppelt" "$(senden_datei "$W/m40.json")" "doppelt"
-enthaelt "nachholen: nicht über das Web aufrufbar" "$(curl -s -w ' [%{http_code}]' "http://127.0.0.1:$PORT/lora/lora_nachholen.php")" "[403]"
+enthaelt "nachholen: nicht über das Web aufrufbar" "$(curl -s -w ' [%{http_code}]' "http://127.0.0.1:$PORT/bienen/bienen_nachholen.php")" "[403]"
 
 # --- 6e. SRV26-07: Zeitbasis je Ziel-Logger (Fassung von beelogger_log.php × Merkmal im Hauptordner × utc_zeit) ---
 LOGZIEL="$W/www/beelogger1/beelogger_log.php"
@@ -206,7 +207,7 @@ matrix "Matrix: alte log.php, utc_zeit=true → 202, nichts gespeichert" "$W/log
 pruefe "Matrix: utc_zeit=true + alte log.php: week.csv unverändert" "$(zeitstempel)" "1791630000"
 matrix "Matrix: eigene log.php ohne Merkmal im Hauptordner, auto → UTC-Modus" "$W/log_eigen.php" nein "'auto'" 53 1791637200 "gespeichert 2026/10/10_15:00:00 (UTC-Modus)"
 pruefe "Matrix: eigene log.php: Zeitstempel = Messzeit" "$(zeitstempel)" "1791637200"
-N=$(cd "$W/www/lora" && php lora_nachholen.php 2>&1)   # zurückgestellte Nachricht (14:00Z) jetzt mit eigener log.php
+N=$(cd "$W/www/bienen" && php bienen_nachholen.php 2>&1)   # zurückgestellte Nachricht (14:00Z) jetzt mit eigener log.php
 enthaelt "Matrix: zurückgestellte Nachricht nach dem Update verarbeitet (14:00Z vor 15:00Z → abgelehnt)" "$N" ": abgelehnt"
 pruefe "Matrix: Zwischenspeicher danach leer" "$(nachholen_zahl)" "0"
 matrix "Matrix: eigene log.php + Merkmal, utc_zeit=false → Ortszeit-Modus" "$W/log_eigen.php" ja "false" 54 1791640800 "gespeichert 2026/10/10_16:00:00 (Ortszeit-Modus)"

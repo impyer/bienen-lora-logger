@@ -30,6 +30,10 @@ seite.on('console', (m) => { if (m.type() === 'error' && !m.text().startsWith('F
 seite.on('response', (r) => { if (r.status() >= 400 && !new URL(r.url()).pathname.startsWith('/api/')) jsFehler.push(`${r.status()} ${r.url()}`); });
 
 let schritt = 'Start';
+// Sollwerte holt der Test bei der API selbst (gleiche Sitzung), die Anzeige muss sie wiedergeben
+const api = (pfad) => seite.evaluate((p) => fetch('api/' + p).then((r) => r.json()), pfad);
+const zahlDe = (t) => Number(String(t).replace(/\s/g, '').replace('−', '-').replace('±', '').replace(/\./g, '').replace(',', '.'));
+const fmt = (w, n) => w.toLocaleString('de-DE', { minimumFractionDigits: n, maximumFractionDigits: n });
 async function oeffnen(hash) {
   await seite.goto(basis + '/' + hash, { waitUntil: 'load' });
   await seite.waitForFunction(() => !document.querySelector('main')?.innerText.includes('Lädt'), null, { timeout: 15000 });
@@ -43,8 +47,8 @@ try {
   pruefe('falsches Passwort wird abgelehnt', (await seite.textContent('.fehler')).includes('Passwort falsch'));
   await seite.fill('input[type=password]', passwort);
   await seite.click('button[type=submit]');
-  await seite.waitForSelector('h1:has-text("Übersicht")', { timeout: 10000 });
-  pruefe('Anmeldung führt zur Übersicht', true);
+  await seite.waitForSelector('h1:has-text("Bienenstand")', { timeout: 10000 });
+  pruefe('Anmeldung führt zum Bienenstand', true);
 
   if (art === 'leer') {
     await oeffnen('#/');
@@ -53,6 +57,20 @@ try {
     pruefe('Leerzustand Datenquellen', (await seite.innerText('main')).includes('Der Importer ist noch nicht gelaufen'));
     await oeffnen('#/volk/1');
     pruefe('unbekanntes Volk zeigt Fehlermeldung statt leerer Seite', (await seite.innerText('main')).includes('Volk unbekannt'));
+    // PLT26-17: Server mit altem Code (kein api_stand, neue Endpunkte 404) → verständlicher Hinweis statt „unbekannter Endpunkt“
+    await seite.route('**/api/gesundheit', (r) => r.fulfill({ json: { datenbank: 'ok' } }));
+    await seite.route('**/api/vergleich*', (r) => r.fulfill({ status: 404, json: { detail: 'unbekannter Endpunkt' } }));
+    await seite.route('**/api/staende*', (r) => r.fulfill({ json: [{ id: 1, name: 'S', voelker: [{ id: 1, name: 'V' }] }] }));
+    await seite.reload();
+    await oeffnen('#/analysen');
+    await seite.waitForSelector('.warnung[role=alert]', { timeout: 10000 });
+    const alt = await seite.innerText('main');
+    pruefe('Versionsprüfung: alter Server wird gemeldet', alt.includes('passen nicht zusammen') && alt.includes('Server neu starten'), alt.slice(0, 300));
+    pruefe('Versionsprüfung: 404 eines neuen Endpunkts verständlich', alt.includes('älterem Code') && !alt.includes('unbekannter Endpunkt'), alt.slice(0, 300));
+    await seite.unrouteAll();
+    await seite.reload();
+    await oeffnen('#/');
+    pruefe('Versionsprüfung: passender Server ohne Hinweis', !(await seite.innerText('main')).includes('passen nicht zusammen'));
   } else if (art === 'verwaltung') {
     const meldung = async () => { await seite.waitForSelector('.ok[role=status], .fehler', { timeout: 10000 }); return seite.innerText('main'); };
     schritt = 'Verwaltung öffnen';
@@ -90,6 +108,20 @@ try {
     await seite.waitForSelector('.ok:has-text("5 Kanäle angelegt")', { timeout: 10000 }).catch(() => null);
     pruefe('Verwaltung: Zuordnung und Vorlage (5 Kanäle)', (await seite.innerText('main')).includes('5 Kanäle angelegt'),
            (await seite.innerText('main')).slice(0, 300));
+    schritt = 'Kanal beenden';
+    const g3 = seite.locator('article.geraet', { hasText: 'beelogger-07' });
+    pruefe('Verwaltung: Messgröße mit Namen statt Code', (await g3.innerText()).includes('Relative Feuchte'), (await g3.innerText()).slice(0, 200));
+    const zeileVBatt = g3.locator('tr', { hasText: 'VBatt' });
+    let frage = '';
+    seite.once('dialog', (d) => { frage = d.message(); d.dismiss(); });
+    await zeileVBatt.locator('button:has-text("beenden")').click();
+    await seite.waitForTimeout(500);
+    pruefe('Kanal beenden: Rückfrage nennt Kanal und Zeitpunkt; Abbrechen ändert nichts',
+           frage.includes('VBatt') && frage.includes('Spannung') && await zeileVBatt.locator('button:has-text("beenden")').count() === 1, frage);
+    seite.once('dialog', (d) => d.accept());
+    await zeileVBatt.locator('button:has-text("beenden")').click();
+    const beendet = await seite.waitForSelector('article.geraet:has-text("beelogger-07") tr.beendet:has-text("VBatt")', { timeout: 10000 }).catch(() => null);
+    pruefe('Kanal beenden: nach Bestätigung beendet', !!beendet, (await seite.innerText('main')).slice(0, 200));
     await oeffnen('#/');
     const k = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
     pruefe('Verwaltung: Volk erscheint in der Übersicht', JSON.stringify(k) === '["Testvolk"]', JSON.stringify(k));
@@ -121,25 +153,49 @@ try {
     schritt = 'Stockkarte im Cockpit';
     await oeffnen('#/');
     await seite.click('.kachel:has-text("Testvolk")');
-    await seite.waitForSelector('.tabelle', { timeout: 10000 });
-    const sk = await seite.innerText('.tabelle');
+    await seite.waitForSelector('.chronik li', { timeout: 10000 });
+    const sk = await seite.innerText('.chronik');
     pruefe('Cockpit: Durchsicht mit Werten und Fütterung', sk.includes('Königin gesehen: ja') && sk.includes('Brutwaben 6 Waben')
            && sk.includes('Sanftmut 4/5') && sk.includes('Fütterung') && sk.includes('5,0 kg'), sk.slice(0, 400));
     schritt = 'Stockkarte bearbeiten';
-    await seite.click('.tabelle a:has-text("bearbeiten")');
+    await seite.locator('.chronik li', { hasText: 'Durchsicht' }).locator('a:has-text("bearbeiten")').click();
     await seite.waitForSelector('h1:has-text("Eintrag bearbeiten")', { timeout: 10000 });
     pruefe('Bearbeiten: Werte vorbelegt', await seite.locator('input[aria-label="Brutwaben"]').inputValue() === '6');
+
+    // PLT26-15: Sitzung läuft während der Eingabe ab → Anmeldung über der Seite, Eingabe bleibt, Speichern wird wiederholt
+    schritt = 'Sitzungsablauf';
+    await oeffnen('#/stockkarte?art=massnahme');
+    await seite.locator('label.volkwahl', { hasText: 'Testvolk' }).locator('input').check();
+    await seite.fill('input[aria-label="Mittel"]', 'Ameisensäure 60 %');
+    await seite.context().clearCookies();
+    await seite.click('button.haupt');
+    await seite.waitForSelector('.ueberlagerung', { timeout: 10000 });
+    pruefe('Sitzungsablauf: Anmeldung über der Seite, Eingabe noch da',
+           await seite.locator('input[aria-label="Mittel"]').inputValue() === 'Ameisensäure 60 %');
+    await seite.fill('.ueberlagerung input[type=password]', passwort);
+    await seite.click('.ueberlagerung button[type=submit]');
+    await seite.waitForSelector('.ok:has-text("Gespeichert (1 Eintrag)")', { timeout: 10000 });
+    pruefe('Sitzungsablauf: nach Anmeldung gespeichert', !(await seite.$('.ueberlagerung')));
   } else {
     await oeffnen('#/?zeit=2026-10-31T23:00:00Z');
     const kacheln = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
     pruefe('Übersicht: Völker nach Vereinigung', JSON.stringify(kacheln) === JSON.stringify(['Volk 1 (syn)', 'Volk 2 (syn)', 'Volk 4 (syn)']), JSON.stringify(kacheln));
+    pruefe('Übersicht: aktuelle Kacheln nicht veraltet', await seite.locator('.kachel.veraltet').count() === 0);
+    const hinweis = await seite.innerText('main .warnung');
+    pruefe('Übersicht: Hinweise nach Art, Steuerfelder nicht gezählt (M-05)', hinweis.includes('2 Geräte ohne Zuordnung')
+           && hinweis.includes('7 unbenannte Felder') && !/\b3\d\b/.test(hinweis), hinweis);
+    await oeffnen('#/?zeit=2026-11-02T12:00:00Z');
+    pruefe('Übersicht: zwei Tage ohne Messung → alle veraltet', await seite.locator('.kachel.veraltet').count() === 3);
 
     await oeffnen(`#/volk/${volk}?bis=2026-10-15T23:59:59Z&tage=14`);
     await seite.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
     const o = await seite.evaluate(() => {
       const opt = window.bienenDiagramme.verlauf.getOption();
       const g = opt.series.find((s) => s.name.startsWith('Gewicht'));
-      return { namen: opt.series.map((s) => s.name), nullen: g.data.filter((p) => p[1] === null).length,
+      return { namen: opt.series.filter((s) => s.type === 'line').map((s) => s.name), nullen: g.data.filter((p) => p[1] === null).length,
+               felder: opt.grid.length, milben: (opt.series.find((s) => s.name === 'Milbenfall') || { data: [] }).data.length,
+               marken: (opt.series.find((s) => s.name === 'Stockkarte') || { data: [] }).data.map((d) => d.label.formatter),
+               achsenGleich: new Set(opt.xAxis.map((x) => String(x.min) + String(x.max))).size === 1,
                nullwerte: g.data.filter((p) => p[1] === 0).length, verbinden: g.connectNulls,
                flaechen: (opt.series[0].markArea?.data || []).map((a) => a[0].name),
                bilanz: !!window.bienenDiagramme.bilanz };
@@ -149,11 +205,147 @@ try {
     pruefe('Cockpit: Behandlung als Band (K-04)', o.flaechen.includes('Behandlung'), JSON.stringify(o.flaechen));
     pruefe('Cockpit: Durchsicht ohne Uhrzeit als Tagesband (K-03)', o.flaechen.some((f) => f.includes('Uhrzeit übernommen')), JSON.stringify(o.flaechen));
     pruefe('Cockpit: Tagesbilanz-Diagramm', o.bilanz);
-    const tabelle = await seite.innerText('.tabelle');
+    pruefe('Cockpit: gestapelte Felder mit gemeinsamer Zeitachse', o.felder >= 4 && o.achsenGleich, JSON.stringify(o));
+    pruefe('Cockpit: Milbenfall als Tagesbalken (Windel 3 Tage)', o.milben === 3, JSON.stringify(o.milben));
+    pruefe('Cockpit: Stockkarten-Marken B, D, V', ['B', 'D', 'V'].every((b) => o.marken.includes(b)), JSON.stringify(o.marken));
+    // Vorher/Nachher: jüngste Maßnahme ist vorgewählt, Tabelle mit Gewicht und Temperaturen
+    await seite.waitForSelector('table.vergleich tbody tr', { timeout: 10000 });
+    const vn = await seite.innerText('table.vergleich');
+    pruefe('Cockpit: Vorher/Nachher-Tabelle', vn.includes('Gewicht, Tagesbilanz') && vn.includes('Brutnest'), vn.slice(0, 300));
+    await seite.click('.segmente button:has-text("± 7 T")');
+    await seite.waitForFunction(() => (window.bienenDiagramme.verlauf.getOption().series[0].markArea.data || []).length >= 4, null, { timeout: 10000 });
+    pruefe('Cockpit: Vorher/Nachher-Fenster als Bänder', true);
+    schritt = 'Kennzahlen des Cockpits';
+    const p = `von=2026-10-01T23:59:59Z&bis=2026-10-15T23:59:59Z`;
+    const mr = await api(`voelker/${volk}/messreihen?${p}`);
+    const tb = await api(`voelker/${volk}/tagesbilanz?${p}`);
+    const letzt = (r) => r.punkte.filter((x) => x[1] !== null).at(-1)[1];
+    const kacheln2 = await seite.$$eval('.kennzahl', (e) => e.map((x) => x.innerText.replace(/\s+/g, ' ')));
+    const gw = letzt(mr.reihen.find((r) => r.messgroesse === 'gewicht'));
+    const bt = letzt(mr.reihen.find((r) => r.messgroesse === 'temperatur' && r.zone === 'brutnest'));
+    const lb = tb.at(-1).bilanz_kg;
+    pruefe('Kennzahl Gewicht = letzter Messwert', kacheln2[0].includes(fmt(gw, 1)), `${kacheln2[0]} / ${gw}`);
+    pruefe('Kennzahl Tagesbilanz = letzter Tag', kacheln2[0].includes((lb > 0 ? '+' : '') + fmt(lb, 2)), `${kacheln2[0]} / ${lb}`);
+    pruefe('Kennzahl Brutnest = Brutnest, nicht außen', kacheln2[1].includes(fmt(bt, 1)), `${kacheln2[1]} / ${bt}`);
+    pruefe('Kennzahl Milbenfall = jüngste Windel', kacheln2[2].includes('15,0') && kacheln2[2].includes('Windel'), kacheln2[2]);
+    const zeiten = await seite.$$eval('.chronik li', (e) => e.map((x) => x.querySelector('.klein').innerText.slice(0, 6)));
+    const ms = zeiten.map((z) => Date.UTC(2026, Number(z.slice(3, 5)) - 1, Number(z.slice(0, 2))));
+    pruefe('Chronik: neueste zuerst', ms.every((m, i) => i === 0 || ms[i - 1] >= m) && ms.length >= 3, JSON.stringify(zeiten));
+    const tabelle = await seite.innerText('.chronik');
     pruefe('Cockpit: Stockkarte mit Varroa pro Tag', tabelle.includes('45 Milben, 15,0 pro Tag'), tabelle.slice(0, 300));
     // Zeitanzeige in Europe/Berlin, obwohl der Browser in New York steht
     pruefe('Cockpit: Zeiten in Europe/Berlin', tabelle.includes('01.10., 10:00'), tabelle.slice(0, 200));
 
+    // PLT26-14: Datum „bis“ ist das Ende des Ortstags, auch in der Sommerzeit; Kopfzeile zeigt denselben Tag
+    schritt = 'Zeitraum bis';
+    await seite.fill('input[aria-label="Zeitraum bis"]', '2026-10-20');
+    await seite.waitForFunction(() => location.hash.includes('bis='), null, { timeout: 10000 });
+    await seite.waitForFunction(() => !document.querySelector('main')?.innerText.includes('Lädt'), null, { timeout: 15000 });
+    const bis = new URLSearchParams(await seite.evaluate(() => location.hash.split('?')[1])).get('bis');
+    pruefe('Zeitraum: bis = Mitternacht Ortszeit (MESZ)', bis === '2026-10-20T22:00:00.000Z', bis);
+    pruefe('Zeitraum: Datumsfeld und Kopfzeile zeigen den 20.10.', await seite.inputValue('input[aria-label="Zeitraum bis"]') === '2026-10-20'
+           && (await seite.innerText('.cockpit .kopfzeile')).includes('–20.10.'), await seite.innerText('.cockpit .kopfzeile'));
+
+    // PLT26-13: Tarieren in Volk 1; der Eingriffstag zählt nicht als „nachher“
+    schritt = 'Vorher/Nachher Tarieren';
+    await oeffnen(`#/volk/1?bis=2026-10-26T23:00:00.000Z&tage=14`);
+    await seite.waitForSelector('table.vergleich tbody tr', { timeout: 10000 });
+    const tr = await seite.evaluate(() => [...document.querySelectorAll('table.vergleich tbody tr')].find((z) => z.innerText.includes('Tagesbilanz'))
+      ?.innerText.split('	').map((x) => x.trim()));
+    const zahl = (t) => Number(String(t).replace('−', '-').replace('±', '').replace(',', '.'));
+    pruefe('Vorher/Nachher: Tarieren-Tag nicht als Wirkung', tr && Math.abs(zahl(tr[2])) < 0.2 && Math.abs(zahl(tr[3])) < 0.2, JSON.stringify(tr));
+    pruefe('Vorher/Nachher: ausgelassener Eingriffstag genannt', (await seite.innerText('aside')).includes('ohne 1 Tag(e) mit Eingriff'));
+    // Fenster enthält den Vereinigungssprung (+6 kg ohne erfassten Eingriff) → Achse ±7,2; Tarieren (−30) abgeschnitten
+    const yb = await seite.evaluate(() => { const o = window.bienenDiagramme.bilanz.getOption();
+      return { min: o.yAxis[0].min, max: o.yAxis[0].max, label: o.series[0].data.filter((d) => d.label?.show).map((d) => d.value[1]) }; });
+    pruefe('Tagesbilanz: Achse nach Tagen ohne Eingriff, Tarieren abgeschnitten mit Wert (M-09)',
+           yb.max === 7.2 && yb.min === -7.2 && yb.label.length === 1 && yb.label[0] < -29, JSON.stringify(yb));
+
+    schritt = 'Dunkles Schema';
+    const dunkel = await browser.newPage({ colorScheme: 'dark', timezoneId: 'Europe/Berlin', viewport: { width: 1200, height: 900 } });
+    await dunkel.goto(basis + '/');
+    await dunkel.fill('input[type=password]', passwort);
+    await dunkel.click('button[type=submit]');
+    await dunkel.waitForSelector('nav', { timeout: 10000 });
+    await dunkel.goto(basis + '/#/volk/1?bis=2026-10-26T23:00:00.000Z&tage=14');
+    await dunkel.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
+    const dk = await dunkel.evaluate(() => { const o = window.bienenDiagramme.verlauf.getOption();
+      return { titel: o.graphic[0].elements[0].style.fill, gewicht: o.series.find((s) => s.name.startsWith('Gewicht')).color,
+               grund: getComputedStyle(document.body).backgroundColor }; });
+    pruefe('Dunkles Schema: Feldtitel hell, Gewichtslinie hell (M-07)', dk.titel !== '#1a1f1c' && dk.gewicht !== '#1f4e79' && dk.grund !== 'rgb(244, 245, 242)', JSON.stringify(dk));
+    await dunkel.close();
+
+    schritt = 'Cockpit am Handy';
+    const handy = await browser.newPage({ timezoneId: 'Europe/Berlin', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    await handy.goto(basis + '/');
+    await handy.fill('input[type=password]', passwort);
+    await handy.click('button[type=submit]');
+    await handy.waitForSelector('nav', { timeout: 10000 });
+    await handy.goto(basis + '/#/volk/1?bis=2026-10-26T23:00:00.000Z&tage=14');
+    await handy.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
+    const lage = await handy.evaluate(() => ({ wahl: document.querySelector('.messwahl').getBoundingClientRect().top,
+      diagramm: document.querySelector('.k-messdaten').getBoundingClientRect().top, offen: document.querySelector('.messwahl').open,
+      breit: document.documentElement.scrollWidth - window.innerWidth,
+      hinweis: [...document.querySelectorAll('.nur-maus, .nur-touch')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.className) }));
+    pruefe('Handy: Messwerte-Auswahl zugeklappt über dem Diagramm (M-10)', lage.wahl < lage.diagramm && lage.offen === false && lage.breit <= 0, JSON.stringify(lage));
+    pruefe('Handy: Zoom-Hinweis für Touch (M-11)', JSON.stringify(lage.hinweis) === '["nur-touch"]', JSON.stringify(lage.hinweis));
+    await handy.click('.messwahl summary');
+    pruefe('Handy: Auswahl lässt sich aufklappen', await handy.evaluate(() => document.querySelector('.messwahl').open));
+    await handy.close();
+
+    // Analysen & Vergleich: alle Völker des Stands, Nachtmedian, Tagesbilanz, Summen, Hinweise
+    schritt = 'Analysen';
+    await oeffnen('#/analysen?bis=2026-10-31T23:59:59Z&tage=30');
+    await seite.waitForFunction(() => window.bienenDiagramme?.referenz && window.bienenDiagramme?.summen, null, { timeout: 10000 });
+    const an = await seite.evaluate(() => ({ referenz: window.bienenDiagramme.referenz.getOption().series.map((s) => s.name),
+                                             bilanz: window.bienenDiagramme.bilanzvergleich.getOption().series.length,
+                                             zeilen: document.querySelectorAll('.tagestabelle tbody tr').length,
+                                             text: document.querySelector('main').innerText }));
+    pruefe('Analysen: Völker des Stands im Vergleich', JSON.stringify(an.referenz) === '["Volk 1 (syn)","Volk 2 (syn)"]' && an.bilanz === 2, JSON.stringify(an.referenz));
+    pruefe('Analysen: Tagestabelle', an.zeilen >= 28, String(an.zeilen));
+    pruefe('Analysen: Sprung ohne Eingriff und Fehlcodes als Hinweis', an.text.includes('Sprung') && an.text.includes('Fehlercode'), an.text.slice(0, 200));
+    const vg = await api('vergleich?volk_ids=1,2&von=2026-10-01T23:59:59Z&bis=2026-10-31T23:59:59Z');
+    const letzte = vg.voelker.map((v) => [...v.tagesbilanz].reverse().find((b) => !b.mit_eingriff).bilanz_kg);
+    const mittel = letzte.reduce((a, b) => a + b, 0) / letzte.length;
+    const kz = await seite.$$eval('.kennzahl', (e) => e.map((x) => x.innerText.replace(/\s+/g, ' ')));
+    pruefe('Analysen: mittlere letzte Tagesbilanz ohne Eingriff', kz[1].includes(fmt(mittel, 2)), `${kz[1]} / ${mittel}`);
+    const summen = await seite.$$eval('.seitenleiste table', (t) => t.find((x) => /ohne eingriff/i.test(x.innerText))
+      .innerText.split('\n').slice(1).map((z) => z.split('\t')));
+    const v1 = vg.voelker.find((v) => v.name === 'Volk 1 (syn)');
+    const z1 = summen.find((z) => z[0].startsWith('Volk 1'));
+    pruefe('Analysen: Summen je Volk wie die API', Math.abs(zahlDe(z1[1]) - v1.summe_kg) < 0.006 && Math.abs(zahlDe(z1[2]) - v1.summe_ohne_eingriff_kg) < 0.006,
+           `${JSON.stringify(z1)} / ${v1.summe_kg} ${v1.summe_ohne_eingriff_kg}`);
+    await seite.click('button:has-text("Volk 2 (syn)")');
+    await seite.waitForFunction(() => window.bienenDiagramme?.referenz?.getOption().series.length === 1, null, { timeout: 10000 });
+    pruefe('Analysen: Volk abwählen', true);
+
+    // Ohne Angabe in der Adresse: 14 Tage bis jetzt (Vorgabe des Cockpits); Analysen: 30 Tage
+    await oeffnen(`#/volk/${volk}`);
+    pruefe('Zeitraum: Vorgabe 14 Tage im Cockpit', (await seite.innerText('.zeitraum button.aktiv')) === '14 Tage');
+    await oeffnen('#/analysen');
+    pruefe('Zeitraum: Vorgabe 30 Tage in Analysen', (await seite.innerText('.zeitraum button.aktiv')) === '30 Tage');
+
+    schritt = 'Maßnahme-Band bearbeiten';
+    const ev = await api(`voelker/${volk}/ereignisse?von=2026-09-01T00:00:00Z&bis=2026-11-01T00:00:00Z`);
+    const beh = ev.massnahmen.find((m) => m.art === 'behandlung');
+    await oeffnen(`#/stockkarte?art=massnahme&id=${beh.id}`);
+    pruefe('Bearbeiten: Ende eines Bands bleibt erhalten', await seite.inputValue('input[aria-label="Ende"]') === '2026-10-11T10:00',
+           await seite.inputValue('input[aria-label="Ende"]'));
+    // Fehlerpfade: 409 vom Server und Netzfehler erscheinen als deutsche Meldung, die Eingabe bleibt
+    await seite.fill('textarea[aria-label="Notiz"]', 'Test 409');
+    await seite.route('**/api/stockkarte/massnahmen/*', (r) => r.fulfill({ status: 409, json: { detail: 'Ende vor Beginn' } }));
+    await seite.click('button.haupt');
+    await seite.waitForSelector('.fehler', { timeout: 10000 });
+    pruefe('Fehlerpfad 409: Meldung des Servers, Eingabe bleibt', (await seite.innerText('.fehler')).includes('Ende vor Beginn')
+           && await seite.inputValue('textarea[aria-label="Notiz"]') === 'Test 409');
+    await seite.unrouteAll();
+    await seite.route('**/api/stockkarte/massnahmen/*', (r) => r.abort('connectionrefused'));
+    await seite.click('button.haupt');
+    await seite.waitForFunction(() => document.querySelector('.fehler')?.innerText.includes('nicht erreichbar'), null, { timeout: 10000 });
+    pruefe('Fehlerpfad Netz: „Server nicht erreichbar“ statt „Failed to fetch“', true);
+    await seite.unrouteAll();
+
+    schritt = 'Umwelt';
     await oeffnen(`#/stand/${stand}/umwelt?bis=2026-10-31T23:59:59Z&tage=7`);
     await seite.waitForFunction(() => window.bienenDiagramme?.umwelt_wind, null, { timeout: 10000 });
     const w = await seite.evaluate(() => window.bienenDiagramme.umwelt_wind.getOption().series.map((s) => [s.name, s.type, s.symbol]));

@@ -2,7 +2,7 @@
 // Gemeinsame Eingangsschicht: Annahme eines TTN-Webhooks (Konfiguration, Token, JSON), Rohprotokoll, Antwort
 // Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 //
-// Ablauf in jedem Eingang (lora_eingang.php, wetter_eingang.php, künftig Boden und BEEP Base):
+// Ablauf in jedem Eingang (bienen_eingang.php, umwelt_eingang.php):
 //   $cfg = ein_cfg_laden(<config>, <Vorgaben>);
 //   list($roh, $msg) = ein_webhook_annehmen($cfg, '<config-name>');   // 500/405/401/400 beenden die Anfrage
 //   ein_rohprotokoll(...);                                             // vor jeder Verarbeitung (PLT26-02, R-1/R-2/R-3)

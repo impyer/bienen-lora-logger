@@ -23,9 +23,9 @@ else
 fi
 if command -v php >/dev/null 2>&1; then
   php server/test_eingang_funktionen.php
-  php server/test_lora_funktionen.php
-  php server/test_wetter_funktionen.php
-  if command -v node >/dev/null 2>&1; then bash server/test_lora_eingang.sh; bash server/test_wetter_eingang.sh; fi
+  php server/test_bienen_funktionen.php
+  php server/test_umwelt_funktionen.php
+  if command -v node >/dev/null 2>&1; then bash server/test_bienen_eingang.sh; bash server/test_umwelt_eingang.sh; fi
 else
   echo "PHP fehlt: Server-Tests übersprungen"
 fi

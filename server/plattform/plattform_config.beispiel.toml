@@ -21,5 +21,8 @@ dsn_schreiben = ""
 # Rohprotokolle der Eingänge für „Werte nachtragen“ in der Verwaltung (optional; ohne Angabe nur per
 # server/datenbank/importer.py --nachtragen). Der Dienst braucht Leserecht auf die Verzeichnisse.
 [protokolle]
-# lora_log = "/var/www/html/beelogger/lora/lora_log"
-# wetter_log = "/var/www/html/beelogger/wetter/wetter_log"
+# bienen_log = "/var/lib/bienen/bienen_log"
+# umwelt_log = "/var/lib/bienen/umwelt_log"
+# Altbestand vor dem 22.10.2026, nur falls daraus nachgetragen werden soll:
+# lora_log = "/var/www/beelogger/lora/lora_log"
+# wetter_log = "/var/www/beelogger/wetter/wetter_log"

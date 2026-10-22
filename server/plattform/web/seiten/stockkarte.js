@@ -7,6 +7,7 @@
 import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen, senden } from '../api.js';
 import { jetztOrtszeit, ortszeitNachUtc, zeitText } from '../diagramm.js';
+import { istZeitpunkt } from '../kennzahlen.js';
 import { Zustand } from './komponenten.js';
 
 const ARTEN = [['durchsicht', 'Durchsicht'], ['massnahme', 'Maßnahme'], ['varroa', 'Varroa'], ['aufgabe', 'Aufgabe']];
@@ -18,7 +19,8 @@ const heute = (tage = 0) => jetztOrtszeit(Date.now() + tage * 86400000).slice(0,
 const ortszeit = (iso) => (iso ? jetztOrtszeit(Date.parse(iso)) : '');
 
 function leer(art = 'durchsicht') {
-  return { art, zeit: jetztOrtszeit(), genau: 'exakt', notiz: '', werte: {},
+  const jetzt = jetztOrtszeit();
+  return { art, zeit: jetzt, vorgabe: jetzt, genau: 'exakt', notiz: '', werte: {},
            massnahme: { art: 'behandlung', bis: '', mittel: '', menge: '', einheit: '' },
            varroa: { methode: 'windel', von: jetztOrtszeit(Date.now() - 3 * 86400000), milben: '' },
            aufgabe: { faellig: heute(7), text: '' } };
@@ -127,6 +129,8 @@ export default defineComponent({
     setzen(code, wert) { this.f.werte[code] = this.f.werte[code] === wert ? undefined : wert; },
     alleAmStand(s) { this.gewaehlt = [...new Set([...this.gewaehlt, ...s.voelker.map((v) => v.id)])]; },
     utc(text, name) {
+      // unveränderte Vorgabe „jetzt“: sekundengenau, damit ein eben angelegtes Volk schon besteht
+      if (!this.bearbeiten && text === this.f.vorgabe) return new Date().toISOString();
       const t = ortszeitNachUtc(text);
       if (!t) throw new Error(`${name}: Zeit ungültig (Umstellungsstunde?)`);
       return t;
@@ -194,8 +198,7 @@ export default defineComponent({
         for (const w of e.werte) f.werte[w.code] = w.wert;
       } else if (art === 'massnahme') {
         f.zeit = ortszeit(e.von); f.notiz = e.notiz || '';
-        const kurz = Date.parse(e.bis) - Date.parse(e.von) <= 60000;
-        Object.assign(f.massnahme, { art: e.art, bis: kurz ? '' : ortszeit(e.bis), mittel: e.mittel || '', menge: e.menge ?? '', einheit: e.einheit || '' });
+        Object.assign(f.massnahme, { art: e.art, bis: istZeitpunkt(e.von, e.bis) ? '' : ortszeit(e.bis), mittel: e.mittel || '', menge: e.menge ?? '', einheit: e.einheit || '' });
       } else {
         f.zeit = ortszeit(e.bis); f.notiz = e.anmerkung || '';
         Object.assign(f.varroa, { methode: e.methode, von: ortszeit(e.von), milben: e.milben });

@@ -138,6 +138,17 @@ def ereignisse(volk):
     return holen(f"voelker/{volk}/ereignisse", von="2026-09-01T00:00:00Z", bis="2026-12-01T00:00:00Z")
 
 
+@test("Löschen nur aus Stockkarten-Tabellen (Weißliste), auch ohne Datenbank")
+def _():
+    from api import stockkarte as sk
+    for tabelle in ("volk", "messwert", "massnahme; DROP TABLE volk"):
+        try:
+            sk.loeschen(None, tabelle, 1)
+            raise AssertionError(f"{tabelle} nicht abgelehnt")
+        except ValueError:
+            pass
+
+
 @test("Vorbereitung: zwei Völker am Stand, drittes aufgelöst; Standard-Checkliste, zweimal dieselbe Version", db=True)
 def _():
     import psycopg
@@ -232,6 +243,24 @@ def _():
     assert "nach dem Beginn" in post("stockkarte/varroa", {"volk_ids": [Z["v1"]], "methode": "windel", "von": "2026-10-15T10:00:00Z",
                                                            "bis": "2026-10-12T10:00:00Z", "milben": 1}, 409)["detail"]
     Z["puder"] = v["puderzucker"]["id"]
+
+
+@test("Ändern: Varroa (Milben, Ende), Maßnahme (Ende eines Bands); Eintrag zum Bearbeiten liest die neuen Werte", db=True)
+def _():
+    w = [v for v in ereignisse(Z["v1"])["varroa"] if v["methode"] == "windel"][0]
+    post(f"stockkarte/varroa/{w['id']}", {"methode": "windel", "von": "2026-10-12T10:00:00Z", "bis": "2026-10-16T10:00:00Z",
+                                           "milben": 60}, methode="put")
+    n = holen(f"stockkarte/eintrag/varroa/{w['id']}")
+    assert n["milben"] == 60 and n["bis"].startswith("2026-10-16T10:00"), n
+    w2 = [v for v in ereignisse(Z["v1"])["varroa"] if v["id"] == w["id"]][0]
+    assert float(w2["milben_pro_tag"]) == 15.0, w2               # 60 Milben in 4 Tagen
+    b = [m for m in ereignisse(Z["v1"])["massnahmen"] if m["art"] == "behandlung"][0]
+    post(f"stockkarte/massnahmen/{b['id']}", {"art": "behandlung", "von": b["von"], "bis": "2026-10-30T08:00:00Z",
+                                                "mittel": "Oxalsäure"}, methode="put")
+    m = holen(f"stockkarte/eintrag/massnahme/{b['id']}")
+    assert m["bis"].startswith("2026-10-30T08:00") and m["mittel"] == "Oxalsäure", m
+    post(f"stockkarte/varroa/{w['id']}", {"methode": "windel", "von": "2026-10-16T10:00:00Z", "bis": "2026-10-12T10:00:00Z",
+                                           "milben": 1}, 409, methode="put")
 
 
 @test("Aufgaben: fällig in der Übersicht, erledigt, Stand-Aufgabe; Völker und Stand zugleich → 409", db=True)

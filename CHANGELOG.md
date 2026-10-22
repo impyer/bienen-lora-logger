@@ -1,5 +1,62 @@
 # Änderungen
 
+## 2026-10-22 – Zwei Eingänge (Bienen, Umwelt), Messzeit einheitlich
+
+- **Entscheidung PLT-01:** genau zwei Eingänge statt einem je Sensor.
+  - `server/bienen/` ersetzt `server/lora/`. Geräte ohne beelogger-Eintrag (BEEP Base, eigene Platine) werden protokolliert und importiert.
+  - `server/umwelt/` ersetzt `server/wetter/`. Der Eingang kennt keine Geräte und Felder; die S2120-CSV entfällt.
+- **Importer:** `--bienen`/`--umwelt`, Altbestand `--lora`/`--wetter`. Gleiche Zeitregel für alle: Gerätezeit bei `zeit_ok`, ≤ 30 s vor und ≤ 30 Tage nach dem Empfang (`--max-alter-tage`, ersetzt `--max-zeitabweichung`); Liste `Eintraege` für nachgesendete Werte.
+- Befund PLT26-18; Bericht [`docs/testberichte/2026-10-22-zwei-eingaenge.md`](docs/testberichte/2026-10-22-zwei-eingaenge.md). Änderungsklasse D2.
+
+## 2026-10-22 – Plattform: Fachfehler behoben, Tests mit Sollwerten und Mutationstest, Bedienung
+
+- **Fachfehler** (Prüfbericht 21.10.):
+  - Vorher/Nachher ohne Eingriffstage (PLT26-13)
+  - Zeitraum „bis“ als Ende des Ortstags (PLT26-14)
+  - Anmeldung über der Seite bei abgelaufener Sitzung, Eingaben bleiben (PLT26-15)
+  - Versionsprüfung Oberfläche/API mit verständlicher Meldung (PLT26-17)
+- **Tests** (PLT26-16):
+  - Sollwerte statt „vorhanden“
+  - Randfälle im synthetischen Oktober
+  - Seitenlogik in `web/kennzahlen.js`
+  - Fehlerpfade (409, Netz, Sitzung, Altserver)
+  - Mutationsskript `tests/plattform/mutation.py`; erkannte Mutanten 31 % → 100 % (50 von 50)
+- **Bedienung:**
+  - Steuerfelder nicht mehr als Hinweis; Übersicht nennt Hinweise nach Art
+  - „Kanal beenden“ mit Rückfrage
+  - Zeitpunkt „jetzt“ sekundengenau
+  - Diagramme im dunklen Schema
+  - Tagesbilanz-Achse ohne Eingriffstage
+  - Handy: Messwerte-Auswahl über dem Diagramm
+  - Zoom-Hinweis je Gerät; „Bienenstand“
+- Bericht: [`docs/testberichte/2026-10-22-plattform-behebung.md`](docs/testberichte/2026-10-22-plattform-behebung.md). Änderungsklasse D2.
+
+## 2026-10-21 – Plattform: Prüfung von Bedienbarkeit und Tests, Importer schneller
+
+- **Prüfbericht** [`docs/testberichte/2026-10-21-plattform-bedienbarkeit-tests.md`](docs/testberichte/2026-10-21-plattform-bedienbarkeit-tests.md):
+  - Rundgang über alle Seiten (Desktop, Handy, dunkles Schema, Sitzungsablauf)
+  - Abdeckung 89 %, Mutationstest 24 von 35 überlebt
+  - 17 Mängel und 7 Testlücken als Vorschlag zur Freigabe
+  - Ursache der Meldung „unbekannter Endpunkt“: Server nicht neu gestartet
+- **Importer** (`server/datenbank/importer.py`, PLT26-12): Felder ohne Kanal je Datei verdichtet statt ein Upsert je Wert; `test_plattform` lokal 36 s statt über 15 min. Änderungsklasse D1.
+- Befundregister: PLT26-12 im Entwurf behoben, PLT26-13 bis PLT26-16 offen.
+
+## 2026-10-21 – Plattform: Gestaltung nach Designentwurf, Volk-Cockpit und Analysen & Vergleich
+
+- **Gestaltung** nach „Bienenlogger Weboberfläche“ (Designentwurf vom 16.10.2026): Farben, Karten, Navigation oben, IBM Plex Sans/Mono als bevorzugte Schrift (ohne Download; Systemschrift als Ersatz), dunkles Schema.
+- **Volk-Cockpit neu** (`web/seiten/volk.js`, `web/stapel.js`):
+  - Kennzahlen; gestapelte Diagrammfelder mit gemeinsamer Zeitachse, Milbenfall als Tagesbalken.
+  - Ereignisleiste mit Buchstabenmarken (auch für Ereignisse, die vor dem Zeitraum beginnen).
+  - Messwerte-Auswahl mit Farbmarken; Vorher/Nachher-Vergleich zu einem Stockkarten-Eintrag mit Fensterbändern.
+  - Stockkarten-Chronik neben dem Diagramm.
+- **Neue Seite Analysen & Vergleich** (`web/seiten/analysen.js`): Nachtmedian, Tagesbilanz und Summen je Volk, Plausibilitätshinweise, Tagestabelle; gleicher Berechnungsstandard (`gewicht_tagesreferenz@1`, `gewicht_tagesbilanz@1`).
+- **API** (`api/auswertung.py`): `GET /api/voelker/{id}/vorher_nachher` und `GET /api/vergleich`. Kennwerte aus den Sichten des Schemas; Hinweise zu Sprüngen über 1 kg ohne Eingriff und zu Sensor-Fehlercodes −127/85 °C (PLT26-11 bleibt offen).
+- **Tests:**
+  - `test_diagramm.mjs` +6 Prüfungen (16)
+  - `test_plattform.py` +3 Datenbankfälle (Vorher/Nachher Tarieren und Behandlung, Völkervergleich)
+  - Browsertest: Cockpit mit Feldern, Marken, Vorher/Nachher und Fensterbändern; Analysen mit Auswahl und Hinweisen
+- Änderungsklasse **D1** (Anzeige und Auswertung, keine Persistenz). Lokal liefen Diagrammlogik und Hosttests; Sichtprüfung im Browser gegen die lokale Testdatenbank (PostgreSQL 16, synthetische Daten). Datenbank- und Browsertests laufen in der CI. Bienenstand-Kacheln mit Beutensymbol, Wetterleiste und Handlungsbedarf folgen als nächster Schritt.
+
 ## 2026-10-20 – Plattform Phase C, Teil 2: Stockkarte erfassen
 
 - **Neue Seite „Stockkarte“** (`#/stockkarte`, Handy zuerst), Endpunkte `/api/stockkarte/…` (`api/stockkarte.py`, `api/stockkarte_api.py`):

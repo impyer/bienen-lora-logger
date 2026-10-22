@@ -1,8 +1,8 @@
 <?php
-// Unit-Tests für server/lora/lora_funktionen.php und die Hilfen in lora_verarbeitung.php. Aufruf: php tests/server/test_lora_funktionen.php
+// Unit-Tests für server/bienen/bienen_funktionen.php und die Hilfen in bienen_verarbeitung.php. Aufruf: php tests/server/test_bienen_funktionen.php
 // Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 date_default_timezone_set('Europe/Berlin');
-require __DIR__ . '/../../server/lora/lora_verarbeitung.php';
+require __DIR__ . '/../../server/bienen/bienen_verarbeitung.php';
 
 $anz = 0; $fehler = 0;
 function gleich($name, $ist, $soll)
@@ -103,7 +103,7 @@ gleich('Typ beeloggerDuo zählt als Einzel', le_logger_typ('beeloggerDuo'), 1);
 gleich('Statusbits ohne Status', le_statusbits(array()), '');
 gleich('Statusbits zeit_ok + fehler_waage1', le_statusbits(array('Status' => array('zeit_ok' => true, 'fehler_waage1' => true))), 17);
 
-// Aufruf-Adresse von beelogger_log.php und Nachholklassen (lora_verarbeitung.php)
+// Aufruf-Adresse von beelogger_log.php und Nachholklassen (bienen_verarbeitung.php)
 $cfg_t = array('basis_url' => 'https://example.org/beelogger/', 'aux' => array(), 'waegezellen_temp' => 'TempOut');
 $a_t = array('daten' => array('TempIn' => 34.5), 'typ' => 1, 'zeit_text' => '2026/10/08_12:00:00', 'pw' => 'P W', 'verz' => 'beelogger1', 'utc' => true);
 gleich('URL UTC-Modus', le_beelogger_url($cfg_t, $a_t),

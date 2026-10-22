@@ -31,15 +31,20 @@ Die CI erzeugt die Fassung bei jedem Lauf neu und vergleicht sie mit dem Ordner.
 
 ## `eingang/`
 
-Gemeinsame Eingangsschicht aller TTN-Webhooks (LoRa, Wetter, künftig Boden und BEEP Base): Annahme mit Token, Rohprotokoll nach R-1 bis R-3, Kennung gegen Doppelzustellung, Sperren, CSV-Anhängen. Wird von `lora/` und `wetter/` eingebunden und muss auf dem Server daneben liegen. Siehe [`eingang/README.md`](eingang/README.md).
+Gemeinsame Eingangsschicht der beiden TTN-Webhooks (Bienen, Umwelt): Annahme mit Token, Rohprotokoll nach R-1 bis R-3, Kennung gegen Doppelzustellung, Sperren, CSV-Anhängen. Wird von `bienen/` und `umwelt/` eingebunden und muss auf dem Server daneben liegen. Siehe [`eingang/README.md`](eingang/README.md).
 
-## `lora/`
+## Zwei Eingänge (seit 22.10.2026)
 
-Eigener LoRa-Eingang (Webhook-Ziel für TTN) mit richtiger Messzeit und Zusatzdatei; die beelogger-Skripte bleiben unverändert. Siehe [`lora/README.md`](lora/README.md).
+Es gibt genau zwei Webhook-Ziele, nicht eines je Sensor. Beide schreiben jeden Uplink ins Rohprotokoll; der Importer liest beide in die Datenbank. Was ein Feld bedeutet und wohin ein Gerät gehört, steht nur in der Datenbank (Kanalregister, Zuordnung). Ein neuer Sensor braucht einen Formatter in TTN und einen Eintrag in der Verwaltung, keinen Servercode.
 
-## `wetter/`
+| Eingang | Geräte | Messzeit | Zusatz |
+|---|---|---|---|
+| [`bienen/`](bienen/README.md) | Messwerte der Völker: beelogger, eigene Platine, BEEP Base | Regel des Importers, gleich für beide | Weiterleitung an beelogger M.40 nur für Geräte in `bienen_config.php` (solange M.40 parallel läuft) |
+| [`umwelt/`](umwelt/README.md) | Umweltsensoren am Stand: S2120, LSN50v2-D23, weitere | Regel des Importers, gleich für beide | keiner |
 
-Eigener Wetter-Eingang (Webhook-Ziel für TTN) für die Wetterstation SenseCAP S2120: speichert alle Werte je Bienenstand als CSV, auch Wind, Regen und UV. Siehe [`wetter/README.md`](wetter/README.md).
+Messzeit: Gerätezeit, wenn der Formatter sie als abgeglichen liefert (`Messzeit_unix`, `Status.zeit_ok`; mehrere Messungen als Liste `Eintraege`), höchstens 30 s vor und 30 Tage nach dem Empfang; sonst Empfangszeit. Die Zeitlogik hängt an den Daten, nicht am Eingang. Vertrag: [`datenbank/README.md`](datenbank/README.md).
+
+Früher: LoRa-Eingang (`lora/`) und Wetter-Eingang (`wetter/`, S2120-CSV je Stand). Ihre Protokolle `lora_log/` und `wetter_log/` liest der Importer als Altbestand weiter.
 
 ## `plattform/`
 

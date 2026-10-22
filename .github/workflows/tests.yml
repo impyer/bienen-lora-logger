@@ -87,7 +87,7 @@ jobs:
         with:
           node-version: 20
       - name: Syntax
-        run: for f in server/eingang/*.php server/lora/*.php server/wetter/*.php $(find server/beelogger_eigen -name '*.php'); do php -l "$f" > /dev/null || exit 1; done
+        run: for f in server/eingang/*.php server/bienen/*.php server/umwelt/*.php $(find server/beelogger_eigen -name '*.php'); do php -l "$f" > /dev/null || exit 1; done
       - name: Eigene Server-Fassung aus dem Original-ZIP neu erzeugen und mit dem Repo vergleichen
         run: |
           T=$(mktemp -d) && unzip -q server/M40_261004_ServerSkripte.zip -d "$T/neu"
@@ -96,10 +96,10 @@ jobs:
       - name: Unit-Tests
         run: |
           php tests/server/test_eingang_funktionen.php
-          php tests/server/test_lora_funktionen.php
-          php tests/server/test_wetter_funktionen.php
-      - name: Wetter-Eingang Ende-zu-Ende
-        run: bash tests/server/test_wetter_eingang.sh
+          php tests/server/test_bienen_funktionen.php
+          php tests/server/test_umwelt_funktionen.php
+      - name: Umwelt-Eingang Ende-zu-Ende
+        run: bash tests/server/test_umwelt_eingang.sh
       - name: Playwright mit Chromium für die Grafikprüfung (SRV26-08)
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.56.1
@@ -108,16 +108,16 @@ jobs:
         run: sudo apt-get update -q && sudo apt-get install -y -q faketime
       # beelogger kürzt week.csv nur vor 08:00 Uhr Serverzeit. Beide Fälle fest prüfen, unabhängig von der Laufzeit der CI.
       - name: Ende-zu-Ende, eigene Fassung (UTC), Serveruhr 05:00 (Kürzung aktiv), Grafik im Browser verpflichtend
-        run: SERVER_UHR="2026-10-09 05:00:00" BROWSER_PFLICHT=1 VARIANTE=eigen bash tests/server/test_lora_eingang.sh
+        run: SERVER_UHR="2026-10-09 05:00:00" BROWSER_PFLICHT=1 VARIANTE=eigen bash tests/server/test_bienen_eingang.sh
       - name: Ende-zu-Ende, eigene Fassung (UTC), Serveruhr 14:00 (ohne Kürzung)
         if: ${{ !cancelled() }}
-        run: SERVER_UHR="2026-10-09 14:00:00" BROWSER_PFLICHT=1 VARIANTE=eigen bash tests/server/test_lora_eingang.sh
+        run: SERVER_UHR="2026-10-09 14:00:00" BROWSER_PFLICHT=1 VARIANTE=eigen bash tests/server/test_bienen_eingang.sh
       - name: Ende-zu-Ende, Original M.40 (Winterzeit-Fehler bleibt nachgewiesen), Serveruhr 05:00
         if: ${{ !cancelled() }}
-        run: SERVER_UHR="2026-10-09 05:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
+        run: SERVER_UHR="2026-10-09 05:00:00" VARIANTE=original bash tests/server/test_bienen_eingang.sh
       - name: Ende-zu-Ende, Original M.40, Serveruhr 14:00
         if: ${{ !cancelled() }}
-        run: SERVER_UHR="2026-10-09 14:00:00" VARIANTE=original bash tests/server/test_lora_eingang.sh
+        run: SERVER_UHR="2026-10-09 14:00:00" VARIANTE=original bash tests/server/test_bienen_eingang.sh
 
   datenbank:
     name: Datenbank und Plattform (Schema, Importer, Lese-API, Oberfläche; PostgreSQL 16)

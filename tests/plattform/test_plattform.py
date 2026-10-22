@@ -124,7 +124,7 @@ def _():
         a, b = syn.protokolle_schreiben(d1), syn.protokolle_schreiben(d2)
         for q in a:
             assert (a[q] / "2026-10.jsonl").read_bytes() == (b[q] / "2026-10.jsonl").read_bytes(), q
-        zeilen = (a["lora_log"] / "2026-10.jsonl").read_text(encoding="utf-8").split("\n")
+        zeilen = (a["bienen_log"] / "2026-10.jsonl").read_text(encoding="utf-8").split("\n")
     assert zeilen[-1].startswith('{"geraet":"beelogger-01","art":"uplink","id":"halb'), "halbe letzte Zeile fehlt"
     ups = []
     for z in zeilen[:-1]:
@@ -398,7 +398,7 @@ def _():
     richtung = [b for _, b in reihe(r, "windrichtung")["punkte"] if b is not None]
     assert richtung and all(b <= 15 or b >= 345 for b in richtung), [b for b in richtung if 15 < b < 345][:5]
     regen = [b for _, b in reihe(r, "regen_summe")["punkte"] if b is not None]
-    zeilen = (pathlib.Path(ZUSTAND["verz"]) / "wetter_log" / "2026-10.jsonl").read_text(encoding="utf-8").splitlines()
+    zeilen = (pathlib.Path(ZUSTAND["verz"]) / "umwelt_log" / "2026-10.jsonl").read_text(encoding="utf-8").splitlines()
     roh = [json.loads(z)["nachricht"]["uplink_message"].get("decoded_payload", {}).get("rain_mm") for z in zeilen]
     roh = [x for x in roh if x is not None]
     assert max(regen) <= max(roh) + 1e-9, (max(regen), max(roh))
@@ -425,7 +425,7 @@ def _():
     assert ("beelogger-01", "Gewicht") not in unbenannt
     ohne = {x["name"] for x in p["geraete_ohne_ziel"]}
     assert ohne == {"beelogger-03", "beelogger-99"}, ohne
-    assert {x["datei"] for x in p["importe"]} == {"lora_log/2026-10.jsonl", "wetter_log/2026-10.jsonl"}
+    assert {x["datei"] for x in p["importe"]} == {"bienen_log/2026-10.jsonl", "umwelt_log/2026-10.jsonl"}
 
 
 @test("Unbekanntes Volk 404, unbekannte Messgröße 400, alle Messgrößen ohne Auswahl", db=True)
@@ -435,6 +435,154 @@ def _():
     r = c_().get(f"/api/voelker/{k_('volk1')}/messreihen",
                  params={"von": "2026-10-10T00:00:00Z", "bis": "2026-10-11T00:00:00Z"}).json()
     assert {x["messgroesse"] for x in r["reihen"]} == {"gewicht", "temperatur", "feuchte", "spannung"}
+
+
+@test("Vorher/Nachher: Tarieren-Tag (−30 kg) zählt nicht als Wirkung (PLT26-13), Δ = nachher − vorher; 404, 400", db=True)
+def _():
+    e = c_().get(f"/api/voelker/{k_('volk1')}/ereignisse", params={"von": "2026-10-20T00:00:00Z", "bis": "2026-10-25T00:00:00Z"}).json()
+    tarieren = [m for m in e["massnahmen"] if m["art"] == "tarieren"][0]["id"]
+    r = c_().get(f"/api/voelker/{k_('volk1')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren, "tage": 3}).json()
+    g = {x["name"]: x for x in r["kennzahlen"]}
+    b = g["Gewicht, Tagesbilanz"]
+    assert b["n_vorher"] == 3 and b["eingriff_vorher"] == 0 and abs(b["vorher"]) < 0.2, b
+    # Tag nach dem Tarieren (Bilanz −30 kg) ist Eingriffstag: ausgenommen, gezählt; übrig bleiben 2 normale Tage
+    assert b["n_nachher"] == 2 and b["eingriff_nachher"] == 1 and abs(b["nachher"]) < 0.2, b
+    assert b["berechnung"] == "gewicht_tagesbilanz@1"
+    for k in r["kennzahlen"]:
+        if k["vorher"] is not None and k["nachher"] is not None:
+            assert abs(k["delta"] - (k["nachher"] - k["vorher"])) < 1e-9, k
+    assert t(r["vorher"]["von"]) == syn.FAELLE["tarieren"] - timedelta(minutes=1) - timedelta(days=3)
+    assert any(n.startswith("Temperatur brutnest") for n in g) and any(n.startswith("Luft am Stand") for n in g), list(g)
+    # Im Vorher-Fenster liegt der als ungültig markierte Wert 99,9 °C (20.10. 03:00): Mittel bleibt beim Sensorwert
+    # 33,0 °C (Logger 1: 33,5 − 0,5; nach dem Sensortausch +0,5 roh, Versatz −0,5)
+    brut = [x for n, x in g.items() if n.startswith("Temperatur brutnest")][0]
+    assert abs(brut["vorher"] - 33.0) < 0.05 and brut["n_vorher"] == 143, brut
+    assert c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren}).status_code == 404
+    assert c_().get(f"/api/voelker/{k_('volk1')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren, "tage": 5}).status_code == 400
+
+
+@test("Vorher/Nachher Behandlung: Milbenfall nach der Behandlung aus der Windelzählung", db=True)
+def _():
+    e = c_().get(f"/api/voelker/{k_('volk2')}/ereignisse", params={"von": "2026-10-01T00:00:00Z", "bis": "2026-10-20T00:00:00Z"}).json()
+    b = [m for m in e["massnahmen"] if m["art"] == "behandlung"][0]["id"]
+    r = c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": b, "tage": 7}).json()
+    m = {x["name"]: x for x in r["kennzahlen"]}["Milbenfall"]
+    assert m["nachher"] == 15.0 and m["n_nachher"] == 1 and m["vorher"] is None, m
+
+
+@test("Völkervergleich: Nachtmedian je Tag, Summen, Sprung ohne Eingriff (Vereinigung), Fehlcodes, 400", db=True)
+def _():
+    ids = f"{k_('volk1')},{k_('volk2')},{k_('volk4')}"
+    r = c_().get("/api/vergleich", params={"volk_ids": ids, "von": "2026-10-01T00:00:00Z", "bis": "2026-11-01T00:00:00Z"}).json()
+    v = {x["name"]: x for x in r["voelker"]}
+    v1, v2, v4 = v["Volk 1 (syn)"], v["Volk 2 (syn)"], v["Volk 4 (syn)"]
+    assert len(v1["tagesreferenz"]) == 31 and len(v1["tagesbilanz"]) == 30, (len(v1["tagesreferenz"]), len(v1["tagesbilanz"]))
+    assert v1["spruenge"] == ["2026-10-16"], v1["spruenge"]                 # Vereinigung +6 kg ohne erfasste Maßnahme
+    assert v2["fehlcodes"] == 2 and v1["fehlcodes"] == 0
+    # Umsetzen ist als Maßnahme erfasst (kein Sprung); −3 kg am 27.10. ohne Maßnahme zeigt sich am 28.10. (negativ!)
+    assert v4["spruenge"] == ["2026-10-28"], v4["spruenge"]
+    assert abs([b for b in v4["tagesbilanz"] if b["tag"] == "2026-10-28"][0]["bilanz_kg"] + 3) < 0.2
+    assert abs(v1["summe_kg"] - sum(b["bilanz_kg"] for b in v1["tagesbilanz"])) < 1e-9
+    assert v1["summe_ohne_eingriff_kg"] > v1["summe_kg"]                     # Tarieren (−30 kg) ausgenommen
+    assert v1["messpunkte"] == 1488 and v1["letzte_referenz"]["tag"] == "2026-10-31"
+    assert c_().get("/api/vergleich", params={"volk_ids": "a,b"}).status_code == 400
+    assert c_().get("/api/vergleich", params={"volk_ids": ""}).status_code == 400
+
+
+@test("Verdichtung in SQL: jedes Aggregat rechnet, was es heißt (mittel, median, summe, max, min, letzter, vektor, keine)", db=True)
+def _():
+    import psycopg
+    werte = "(1.0, '2026-10-01T00:00Z'::timestamptz), (5.0, '2026-10-01T00:10Z'), (3.0, '2026-10-01T00:20Z'), (2.0, '2026-10-01T00:05Z')"
+    soll = {"mittel": 2.75, "median": 2.5, "summe": 11.0, "max": 5.0, "min": 1.0, "letzter": 3.0, "keine": 3.0}
+    with psycopg.connect(DSN) as con:
+        for v, s in soll.items():
+            w = con.execute(f"SELECT ({vd.aggregat(v)})::float8 FROM (VALUES {werte}) AS x(wert, zeit)").fetchone()[0]
+            assert abs(w - s) < 1e-9, (v, w, s)
+        w = con.execute(f"SELECT ({vd.aggregat('vektor')})::float8 FROM (VALUES (350.0, now()), (20.0, now())) AS x(wert, zeit)").fetchone()[0]
+        assert abs(w - 5.0) < 1e-6, w
+
+
+@test("Ungültig markierter Wert fehlt in Kurve und Mittelwert; kurzer Ausfall (120 min) wird Lücke", db=True)
+def _():
+    r = c_().get(f"/api/voelker/{k_('volk1')}/messreihen", params={"von": "2026-10-19T12:00:00Z", "bis": "2026-10-20T12:00:00Z",
+                                                                 "groessen": "temperatur"}).json()
+    brut = [x for x in r["reihen"] if x["zone"] == "brutnest"][0]
+    assert all(w is None or w < 40 for _, w in brut["punkte"]), max(w for _, w in brut["punkte"] if w is not None)
+    assert not any(t(z) == syn.FAELLE["ungueltig"] for z, _ in brut["punkte"])
+    r = c_().get(f"/api/voelker/{k_('volk4')}/messreihen", params={"von": "2026-10-27T00:00:00Z", "bis": "2026-10-27T12:00:00Z",
+                                                                 "groessen": "gewicht"}).json()
+    p = r["reihen"][0]["punkte"]
+    nullen = [t(z) for z, w in p if w is None]
+    assert len(nullen) == 1 and syn.FAELLE["kurzausfall"][0] - timedelta(minutes=30) < nullen[0] < syn.FAELLE["kurzausfall"][1], nullen
+    assert all(w is None or w != 0 for _, w in p)
+
+
+@test("Verdichtung max über einen Monat: Windböe zeigt die größte Böe, nicht den Mittelwert", db=True)
+def _():
+    import psycopg
+    r = c_().get(f"/api/staende/{k_('stand1')}/umwelt", params={"von": "2026-09-01T00:00:00Z", "bis": "2026-12-01T00:00:00Z",
+                                                              "groessen": "windboe"}).json()
+    hoechst = max(w for _, w in r["reihen"][0]["punkte"] if w is not None)
+    with psycopg.connect(DSN) as con:
+        soll = con.execute("SELECT max(wert) FROM bienen.messwert_bezug WHERE messgroesse_code = 'windboe'").fetchone()[0]
+    assert abs(hoechst - soll) < 1e-9 and r["raster_s"] > 1800, (hoechst, soll, r.get("raster_s"))
+
+
+@test("Vergleich: Tagesgrenzen in Ortszeit (von 11.10. 00:00 MESZ = 10.10. 22:00 UTC)", db=True)
+def _():
+    r = c_().get("/api/vergleich", params={"volk_ids": k_("volk1"), "von": "2026-10-10T22:00:00Z", "bis": "2026-10-12T22:00:00Z"}).json()
+    v = r["voelker"][0]
+    assert [x["tag"] for x in v["tagesreferenz"]] == ["2026-10-11", "2026-10-12"], v["tagesreferenz"]
+    assert [x["tag"] for x in v["tagesbilanz"]] == ["2026-10-11", "2026-10-12"], v["tagesbilanz"]
+
+
+@test("Vorher/Nachher: Durchsicht und Varroa als Bezug; Windel, die ins Fenster hineinreicht, zählt; Luft am Stand ≠ außen", db=True)
+def _():
+    e = c_().get(f"/api/voelker/{k_('volk2')}/ereignisse", params={"von": "2026-10-01T00:00:00Z", "bis": "2026-10-20T00:00:00Z"}).json()
+    w = e["varroa"][0]
+    r = c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "varroa", "ereignis_id": w["id"], "tage": 3}).json()
+    assert t(r["vorher"]["bis"]) == syn.FAELLE["windel"][0] and t(r["nachher"]["von"]) == syn.FAELLE["windel"][1], r["vorher"]
+    assert r["ereignis"]["text"] == "Varroa windel"
+    d = e["durchsichten"][0]
+    r = c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "durchsicht", "ereignis_id": d["id"], "tage": 1}).json()
+    assert r["vorher"]["bis"] == r["nachher"]["von"] == d["zeit"] and r["ereignis"]["text"] == "Durchsicht"
+    b = [m for m in e["massnahmen"] if m["art"] == "behandlung"][0]["id"]
+    # Behandlung endet 11.10. 08:00, Fenster ± 3 Tage bis 14.10.; die Windel (12.–15.10.) reicht hinein
+    r = c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": b, "tage": 3}).json()
+    m = {x["name"]: x for x in r["kennzahlen"]}["Milbenfall"]
+    assert m["n_nachher"] == 1 and m["nachher"] == 15.0, m
+    g = {x["name"]: x for x in r["kennzahlen"]}
+    aussen = [x for n, x in g.items() if n.startswith("Temperatur") and "aussen" in n][0]
+    luft = [x for n, x in g.items() if n.startswith("Luft am Stand")][0]
+    assert abs((luft["vorher"] - aussen["vorher"]) - syn.VERSATZ_STATION) < 0.05, (luft, aussen)
+    assert c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "x", "ereignis_id": b}).status_code == 404
+
+
+@test("Felder ohne Kanal: Anzahl je Gerät und Feld (31 Tage × 48 Werte; Logger 4 mit 3 fehlenden)", db=True)
+def _():
+    u = {(x["geraet"], x["quellfeld"]): x for x in c_().get("/api/pruefungen").json()["unbenannt"]}
+    assert u[("beelogger-01", "FeuchteIn")]["anzahl"] == 1488, u[("beelogger-01", "FeuchteIn")]
+    assert u[("beelogger-04", "FeuchteIn")]["anzahl"] == 1485, u[("beelogger-04", "FeuchteIn")]
+    assert t(u[("beelogger-01", "FeuchteIn")]["zuerst"]) == syn.START
+    # Steuerfelder (Format, Messzeit_unix, Status.*) getrennt geführt, keine Hinweise (M-05)
+    p = c_().get("/api/pruefungen").json()
+    assert not [x for x in p["unbenannt"] if x["quellfeld"] in ("Format", "Messzeit_unix") or x["quellfeld"].startswith("Status.")]
+    assert {"Format", "Messzeit_unix", "Status.zeit_ok"} <= {x["quellfeld"] for x in p["steuerfelder"]}
+    assert sorted({x["quellfeld"] for x in p["unbenannt"]}) == ["FeuchteIn", "Gewicht", "TempIn", "l"], sorted({x["quellfeld"] for x in p["unbenannt"]})
+
+
+@test("Oberfläche und API führen denselben API_STAND; /api/gesundheit liefert ihn (PLT26-17)")
+def _():
+    from api import app as app_modul
+    js = (pathlib.Path(__file__).resolve().parents[2] / "server/plattform/web/api.js").read_text(encoding="utf-8")
+    m = re.search(r"export const API_STAND = (\d+);", js)
+    assert m and int(m.group(1)) == app_modul.API_STAND, (m and m.group(1), app_modul.API_STAND)
+
+
+@test("Gesundheit nennt den API-Stand", db=True)
+def _():
+    from api import app as app_modul
+    assert c_().get("/api/gesundheit").json()["api_stand"] == app_modul.API_STAND
 
 
 # ================================================================ Ablauf

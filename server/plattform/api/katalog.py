@@ -43,6 +43,17 @@ VORLAGEN = {
     },
 }
 
+# Steuerfelder des Funkformats (formatter/formatter.js, FPort 2): Formatkennung, Gerätezeit und Zustandsbits. Der
+# Importer zählt sie wie jedes Feld ohne Kanal (K-06); als Messwert sind sie nicht gedacht und deshalb kein Hinweis
+# „unbenanntes Feld“ (sonst gehen echte Hinweise in Dutzenden Meldungen unter, M-05).
+STEUERFELDER = ("Format", "Messzeit_unix")
+STEUERFELD_PRAEFIXE = ("Status.",)
+
+
+def ist_steuerfeld(quellfeld):
+    return quellfeld in STEUERFELDER or quellfeld.startswith(STEUERFELD_PRAEFIXE)
+
+
 # Standard-Checkliste der Durchsicht (Vorbild BEEP-Kategorien, Konzept 0.2 §5.2). Merkmal: (code, name, eingabetyp,
 # einheit, optionen, gruppe). Eine geänderte Liste wird als neue Version angelegt; alte Durchsichten behalten ihre (K-10).
 CHECKLISTE_NAME = "Durchsicht"

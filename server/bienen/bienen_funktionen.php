@@ -1,5 +1,5 @@
 <?php
-// LoRa-Eingang für den beelogger-Webserver: Hilfsfunktionen (ohne Seiteneffekte, testbar)
+// Bienen-Eingang für den beelogger-Webserver: Hilfsfunktionen (ohne Seiteneffekte, testbar)
 // Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 // Läuft ab PHP 7.4. Allgemeine TTN-Hilfen (Zeit, Zahlen, Funk, Kennung) liegen in server/eingang/eingang_funktionen.php.
 

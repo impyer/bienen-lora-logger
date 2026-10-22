@@ -5,10 +5,14 @@
 
 Konzept 0.2, §4/§4a und §10 Schritt 4 (Befund PLT26-02, R-4/R-5; Akzeptanzfälle K-06, K-09).
 
-Liest die Monatsdateien JJJJ-MM.jsonl der Eingänge
-    lora_log/   (Herkunftsfeld "geraet", lora_eingang.php)
-    wetter_log/ (Herkunftsfeld "station", wetter_eingang.php)
-und übernimmt jede Zeile mit "art": "uplink":
+Liest die Monatsdateien JJJJ-MM.jsonl der beiden Eingänge
+    bienen_log/ (Herkunftsfeld "geraet", server/bienen/bienen_eingang.php: Messwerte der Völker)
+    umwelt_log/ (Herkunftsfeld "geraet", server/umwelt/umwelt_eingang.php: Umweltsensoren am Stand)
+und, für den Altbestand vor dem Umbau auf zwei Eingänge (22.10.2026), die früheren Protokolle
+    lora_log/   (Herkunftsfeld "geraet", früher lora_eingang.php, Gerätezeit wie bienen_log)
+    wetter_log/ (Herkunftsfeld "station", früher wetter_eingang.php, nur Empfangszeit wie umwelt_log)
+Dieselbe Nachricht in einem alten und einem neuen Protokoll hat dieselbe Kennung und wird nur einmal übernommen.
+Der Importer übernimmt jede Zeile mit "art": "uplink":
   * rohnachricht: Verweis auf Datei, Zeile und SHA-256 der Protokollzeile (nicht ihr Inhalt),
     Kennung = Feld "id" des Eingangs (ein_nachricht_id, SRV26-03).
   * messwert: jedes Zahlenfeld aus uplink_message.decoded_payload, für das zum Messzeitpunkt ein
@@ -22,18 +26,22 @@ Wird die Position gelöscht, liest der Importer die Datei neu und es entsteht di
 Eine Datei, deren schon gelesener Anfang sich geändert hat, wird nicht weiter gelesen (R-4: nur anhängen).
 Eine unvollständige letzte Zeile (Eingang schreibt gerade) bleibt für den nächsten Lauf liegen.
 
-Messzeit wie lora_funktionen.php le_messzeit(): Gerätezeit (Messzeit_unix), wenn Status.zeit_ok und
-höchstens --max-zeitabweichung Sekunden vor dem Empfang (30 s Vorgehen erlaubt), sonst Empfangszeit (TTN).
-Der Wetter-Eingang kennt nur die Empfangszeit.
+Messzeit, gleich für alle Eingänge (sie hängt an den Daten, nicht am Eingang): Gerätezeit (Messzeit_unix), wenn
+Status.zeit_ok wahr ist, sie höchstens 30 s nach dem Empfang und höchstens --max-alter-tage (Vorgabe 30) davor liegt;
+sonst Empfangszeit (TTN). Das lange Fenster ist für nachgesendete Werte (Datalog nach einem Netzausfall).
+Mehrere Messungen in einem Uplink liefert der Formatter als Liste "Eintraege": jeder Eintrag ist ein Objekt mit
+denselben Feldnamen wie eine Einzelmessung und eigener Messzeit_unix/Status.zeit_ok. Felder außerhalb der Liste
+gelten als eine Messung zur Zeit der Nachricht. Vertrag: server/datenbank/README.md, Abschnitt Messzeit.
+Die Weiterleitung an beelogger im Bienen-Eingang (le_messzeit, max_zeitabweichung_s) ist davon unabhängig.
 
-Unbekannte Geräte legt der Importer an (lora_log: art 'sonstiges', wetter_log: art 'wetter'), damit keine
+Unbekannte Geräte legt der Importer an (art 'sonstiges', aus wetter_log 'wetter'), damit keine
 Rohnachricht verloren geht; Art und Kanäle danach in den Stammdaten pflegen.
 
 Aufruf (z. B. alle 1–5 min per systemd-Timer oder cron; ein zweiter gleichzeitiger Lauf beendet sich sofort):
     BIENEN_DSN="dbname=bienen user=bienen" python3 server/datenbank/importer.py \\
-        --lora /var/www/html/lora/lora_log --wetter /var/www/html/wetter/wetter_log
+        --bienen /var/lib/bienen/bienen_log --umwelt /var/lib/bienen/umwelt_log
 Nachtragen, nachdem ein Kanal angelegt wurde (Werte vorher nur in quellfeld_ohne_kanal; Prüfsumme je Zeile):
-    BIENEN_DSN=... python3 server/datenbank/importer.py --lora … --wetter … --nachtragen [--geraet beelogger-01]
+    BIENEN_DSN=... python3 server/datenbank/importer.py --bienen … --umwelt … --nachtragen [--geraet beelogger-01]
 Benötigt: Python ≥ 3.9, psycopg 3 (pip install "psycopg[binary]").
 Rückgabe: 0 = alles gelesen, 1 = mindestens eine Datei nicht lesbar oder umgeschrieben, 2 = Aufruf/Verbindung.
 """
@@ -53,14 +61,18 @@ try:
 except ImportError:                  # Hosttests ohne psycopg
     DataError = ValueError
 
-# Eingang → Herkunftsfeld, Art neu angelegter Geräte, ob das Gerät eine eigene Messzeit sendet
+# Eingang → Herkunftsfeld und Art neu angelegter Geräte
 QUELLEN = {
-    "lora_log": {"feld": "geraet", "art": "sonstiges", "geraetezeit": True},
-    "wetter_log": {"feld": "station", "art": "wetter", "geraetezeit": False},
+    "bienen_log": {"feld": "geraet", "art": "sonstiges"},
+    "umwelt_log": {"feld": "geraet", "art": "sonstiges"},
+    # Altbestand der Eingänge vor dem 22.10.2026 (lora_eingang.php, wetter_eingang.php)
+    "lora_log": {"feld": "geraet", "art": "sonstiges"},
+    "wetter_log": {"feld": "station", "art": "wetter"},
 }
+EINTRAEGE = "Eintraege"         # Liste mehrerer Messungen in einem Uplink (Datalog)
 DATEINAME = re.compile(r"^\d{4}-\d{2}\.jsonl$")
 TTN_ZEIT = re.compile(r"^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(?:\.(\d+))?Z$")
-MAX_ABWEICHUNG_S = 900          # wie 'max_zeitabweichung_s' in lora_config.beispiel.php
+MAX_ALTER_TAGE = 30             # älteste übernommene Gerätezeit vor dem Empfang (nachgesendete Werte)
 VORGEHEN_S = 30                 # wie le_messzeit(): Uhr darf 30 s vorgehen
 SPERRE = 0x6265_656E_0001       # Schlüssel für pg_try_advisory_lock (ein Importer zur Zeit)
 LESEBLOCK = 1 << 20
@@ -163,14 +175,25 @@ def geraetezeit(daten):
     return int(v)
 
 
-def messzeit(daten, empfang_unix, max_abweichung_s=MAX_ABWEICHUNG_S):
-    """Wie le_messzeit(): (unix, 'geraet') bei abgeglichener, plausibler Gerätezeit, sonst (empfang, 'empfang')."""
+def messzeit(daten, empfang_unix, max_alter_s=MAX_ALTER_TAGE * 86400):
+    """(unix, 'geraet') bei abgeglichener, plausibler Gerätezeit, sonst (empfang, 'empfang')."""
     t = geraetezeit(daten)
     status = daten.get("Status") if isinstance(daten, dict) else None
     if t is not None and isinstance(status, dict) and status.get("zeit_ok") is True:
-        if t <= empfang_unix + VORGEHEN_S and empfang_unix - t <= max_abweichung_s:
+        if t <= empfang_unix + VORGEHEN_S and empfang_unix - t <= max_alter_s:
             return t, "geraet"
     return empfang_unix, "empfang"
+
+
+def messungen(daten):
+    """Messungen einer Nachricht: [daten ohne 'Eintraege'] + jeder Eintrag der Liste, der ein Objekt ist."""
+    if not isinstance(daten, dict):
+        return []
+    liste = daten.get(EINTRAEGE)
+    if not isinstance(liste, list):
+        return [daten]
+    haupt = {k: v for k, v in daten.items() if k != EINTRAEGE}
+    return [haupt] + [e for e in liste if isinstance(e, dict)]
 
 
 def utc(unix):
@@ -206,11 +229,12 @@ def neue_zeilen(pfad, bytes_bisher, sha_bisher):
 # ---------------------------------------------------------------- Datenbank
 
 class Importer:
-    def __init__(self, con, max_abweichung_s=MAX_ABWEICHUNG_S):
+    def __init__(self, con, max_alter_s=MAX_ALTER_TAGE * 86400):
         self.con = con
-        self.max_abweichung_s = max_abweichung_s
+        self.max_alter_s = max_alter_s
         self.geraete = {}            # Name → id
         self.kanaele = {}            # geraet_id → {quellfeld: [(von, bis, kanal_id)]}
+        self.ohne_puffer = []        # Felder ohne Kanal der laufenden Datei: (geraet_id, quellfeld, zeit, zeit)
 
     def geraet(self, cur, name, art, bericht):
         if name in self.geraete:
@@ -263,7 +287,7 @@ class Importer:
         daten = up.get("decoded_payload") if isinstance(up, dict) else None
         if not isinstance(daten, dict):
             daten = None
-        gz = geraetezeit(daten) if (daten and q["geraetezeit"]) else None
+        gz = geraetezeit(daten) if daten else None
 
         cur.execute("""INSERT INTO rohnachricht(id, geraet_id, empfangen, messzeit_quelle, datei, zeile, sha256)
                        VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO NOTHING""",
@@ -277,19 +301,19 @@ class Importer:
             self.messwerte(cur, q, geraet_id, daten, empf_unix, kennung, bericht)
 
     def messwerte(self, cur, q, geraet_id, daten, empf_unix, kennung, bericht, ohne_kanal_zaehlen=True):
-        """Zahlenfelder einer Nachricht als Messwerte (mit Kanal) bzw. als Feld ohne Kanal ablegen."""
-        if q["geraetezeit"]:
-            unix, zq = messzeit(daten, empf_unix, self.max_abweichung_s)
-        else:
-            unix, zq = empf_unix, "empfang"
-        zeit = utc(unix)
+        """Zahlenfelder einer Nachricht als Messwerte (mit Kanal) bzw. als Feld ohne Kanal ablegen.
+
+        Jede Messung (Einzelmessung bzw. jeder Eintrag der Liste 'Eintraege') bekommt ihre eigene Messzeit."""
         werte, ohne = [], []
-        for feld, wert in felder(daten):
-            kid = self.kanal(cur, geraet_id, feld, zeit)
-            if kid is None:
-                ohne.append((geraet_id, feld, zeit, zeit))
-            else:
-                werte.append((kid, zeit, wert, zq, kennung))
+        for m in messungen(daten):
+            unix, zq = messzeit(m, empf_unix, self.max_alter_s)
+            zeit = utc(unix)
+            for feld, wert in felder(m):
+                kid = self.kanal(cur, geraet_id, feld, zeit)
+                if kid is None:
+                    ohne.append((geraet_id, feld, zeit, zeit))
+                else:
+                    werte.append((kid, zeit, wert, zq, kennung))
         if werte:
             cur.executemany("""INSERT INTO messwert(kanal_id, zeit, wert, zeitqualitaet, roh_id)
                                VALUES (%s, %s, %s, %s, %s) ON CONFLICT (kanal_id, zeit) DO NOTHING""", werte)
@@ -297,13 +321,26 @@ class Importer:
             bericht.messwert_belegt += len(werte) - cur.rowcount
         if not ohne_kanal_zaehlen:
             return
-        for o in ohne:
-            cur.execute("""INSERT INTO quellfeld_ohne_kanal AS q(geraet_id, quellfeld, zuerst, zuletzt)
-                           VALUES (%s, %s, %s, %s)
+        self.ohne_puffer.extend(ohne)       # je Datei gesammelt, siehe ohne_kanal_schreiben()
+        bericht.ohne_kanal += len(ohne)
+
+    def ohne_kanal_schreiben(self, cur):
+        """Felder ohne Kanal einer Datei verdichtet ablegen: eine Anweisung je (Gerät, Quellfeld) statt je Wert.
+
+        Ein Upsert je Wert auf dieselbe Zeile in einer Transaktion wird quadratisch langsam (jede neue Zeilenversion
+        bleibt bis zum Ende der Transaktion sichtbar); beim leeren Start fehlen aber alle Kanäle.
+        """
+        summe = {}
+        for gid, feld, zeit, _ in self.ohne_puffer:
+            z = summe.get((gid, feld))
+            summe[(gid, feld)] = (min(z[0], zeit), max(z[1], zeit), z[2] + 1) if z else (zeit, zeit, 1)
+        self.ohne_puffer = []
+        cur.executemany("""INSERT INTO quellfeld_ohne_kanal AS q(geraet_id, quellfeld, zuerst, zuletzt, anzahl)
+                           VALUES (%s, %s, %s, %s, %s)
                            ON CONFLICT (geraet_id, quellfeld) DO UPDATE
                            SET zuerst = least(q.zuerst, excluded.zuerst),
-                               zuletzt = greatest(q.zuletzt, excluded.zuletzt), anzahl = q.anzahl + 1""", o)
-        bericht.ohne_kanal += len(ohne)
+                               zuletzt = greatest(q.zuletzt, excluded.zuletzt), anzahl = q.anzahl + excluded.anzahl""",
+                        [(gid, feld, a, b, n) for (gid, feld), (a, b, n) in summe.items()])
 
     def datei(self, quelle, pfad, bericht):
         """Neue Zeilen einer Monatsdatei in einer Transaktion übernehmen, samt neuer Leseposition."""
@@ -315,10 +352,12 @@ class Importer:
             zeilen, h, bytes_neu = neue_zeilen(pfad, bytes_bisher, sha)
             if not zeilen:
                 return
+            self.ohne_puffer = []
             for roh in zeilen:
                 nr += 1
                 bericht.zeilen += 1
                 neu_vorher = len(bericht.geraete_neu)
+                ohne_vorher = len(self.ohne_puffer)
                 zaehler = (bericht.uplinks, bericht.neu, bericht.doppelt, bericht.messwerte,
                            bericht.messwert_belegt, bericht.ohne_kanal)
                 try:
@@ -328,16 +367,18 @@ class Importer:
                     (bericht.uplinks, bericht.neu, bericht.doppelt, bericht.messwerte,
                      bericht.messwert_belegt, bericht.ohne_kanal) = zaehler
                     del bericht.geraete_neu[neu_vorher:]
+                    del self.ohne_puffer[ohne_vorher:]
                     self.geraete.clear()
                     bericht.ungueltig += 1
                     bericht.uebersprungen.append(f"{datei}:{nr} {type(e).__name__}: {str(e)[:120]}")
+            self.ohne_kanal_schreiben(cur)
             cur.execute("""INSERT INTO import_position(datei, bytes, zeilen, sha256) VALUES (%s, %s, %s, %s)
                            ON CONFLICT (datei) DO UPDATE SET bytes = excluded.bytes, zeilen = excluded.zeilen,
                                                              sha256 = excluded.sha256, aktualisiert = now()""",
                         (datei, bytes_neu, nr, h.hexdigest()))
 
     def lauf(self, verzeichnisse):
-        """verzeichnisse: {'lora_log': Pfad, 'wetter_log': Pfad}. Liefert den Bericht."""
+        """verzeichnisse: {'bienen_log': Pfad, 'umwelt_log': Pfad, …} (Schlüssel aus QUELLEN). Liefert den Bericht."""
         bericht = Bericht()
         self.con.execute("SET search_path = bienen, public")
         self.con.commit()
@@ -406,24 +447,29 @@ class Importer:
         return bericht
 
 
-def importieren(con, verzeichnisse, max_abweichung_s=MAX_ABWEICHUNG_S):
-    return Importer(con, max_abweichung_s).lauf(verzeichnisse)
+def importieren(con, verzeichnisse, max_alter_s=MAX_ALTER_TAGE * 86400):
+    return Importer(con, max_alter_s).lauf(verzeichnisse)
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Rohprotokolle der Eingänge in PostgreSQL übernehmen")
     ap.add_argument("--dsn", default=os.environ.get("BIENEN_DSN"), help="libpq-DSN (Vorgabe: $BIENEN_DSN)")
-    ap.add_argument("--lora", type=Path, help="Verzeichnis lora_log des LoRa-Eingangs")
-    ap.add_argument("--wetter", type=Path, help="Verzeichnis wetter_log des Wetter-Eingangs")
-    ap.add_argument("--max-zeitabweichung", type=int, default=MAX_ABWEICHUNG_S,
-                    help="wie max_zeitabweichung_s in lora_config.php (Vorgabe 900 s)")
+    ap.add_argument("--bienen", type=Path, help="Verzeichnis bienen_log des Bienen-Eingangs")
+    ap.add_argument("--umwelt", type=Path, help="Verzeichnis umwelt_log des Umwelt-Eingangs")
+    ap.add_argument("--lora", type=Path, help="Altbestand: Verzeichnis lora_log des früheren LoRa-Eingangs")
+    ap.add_argument("--wetter", type=Path, help="Altbestand: Verzeichnis wetter_log des früheren Wetter-Eingangs")
+    ap.add_argument("--max-alter-tage", type=float, default=MAX_ALTER_TAGE,
+                    help="Gerätezeit höchstens so viele Tage vor dem Empfang übernehmen (Vorgabe 30)")
     ap.add_argument("--nachtragen", action="store_true",
                     help="Messwerte für nachträglich angelegte Kanäle aus den schon übernommenen Zeilen ergänzen")
     ap.add_argument("--geraet", help="mit --nachtragen: nur dieses Gerät (TTN-Gerätename)")
     a = ap.parse_args(argv)
-    verz = {k: v for k, v in (("lora_log", a.lora), ("wetter_log", a.wetter)) if v is not None}
+    if not a.max_alter_tage > 0:
+        ap.error("--max-alter-tage muss größer als 0 sein")
+    verz = {k: v for k, v in (("bienen_log", a.bienen), ("umwelt_log", a.umwelt),
+                              ("lora_log", a.lora), ("wetter_log", a.wetter)) if v is not None}
     if not a.dsn or not verz:
-        ap.error("--dsn (oder BIENEN_DSN) und mindestens --lora oder --wetter angeben")
+        ap.error("--dsn (oder BIENEN_DSN) und mindestens --bienen, --umwelt, --lora oder --wetter angeben")
     import psycopg
     try:
         con = psycopg.connect(a.dsn)
@@ -435,7 +481,7 @@ def main(argv=None):
             print("Importer läuft bereits, nichts zu tun")
             return 0
         con.commit()
-        imp = Importer(con, a.max_zeitabweichung)
+        imp = Importer(con, int(a.max_alter_tage * 86400))
         b = imp.nachtragen(verz, a.geraet) if a.nachtragen else imp.lauf(verz)
     print(b.text())
     return 1 if b.fehler else 0

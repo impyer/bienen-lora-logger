@@ -13,7 +13,7 @@ export default defineComponent({
   data: () => ({ stand: null, katalog: [], reihen: null, laden: true, fehler: '' }),
   template: `
     <section>
-      <p><a href="#/">← Übersicht</a></p>
+      <p><a href="#/">← Bienenstand</a></p>
       <h1>Umwelt <span v-if="stand">– {{ stand.name }}</span></h1>
       <Zustand :laden="laden" :fehler="fehler" />
       <Zeitraum :tage="zr.tage" :bis="zr.bis" @wahl="$emit('navigieren', { tage: $event.tage, bis: $event.bis })" />

@@ -119,7 +119,7 @@ def uebersicht():
 
 def protokoll_schreiben(verz, geraet, von, anzahl, start_fcnt=0):
     """Uplinks eines beelogger alle 30 min, wie sie der LoRa-Eingang protokolliert"""
-    d = pathlib.Path(verz) / "lora_log"
+    d = pathlib.Path(verz) / "bienen_log"
     d.mkdir(parents=True, exist_ok=True)
     zeilen = []
     for i in range(anzahl):
@@ -136,7 +136,7 @@ def importieren():
     import importer
     import psycopg
     with psycopg.connect(DSN) as con:
-        return importer.importieren(con, {"lora_log": pathlib.Path(ZUSTAND["verz"]) / "lora_log"})
+        return importer.importieren(con, {"bienen_log": pathlib.Path(ZUSTAND["verz"]) / "bienen_log"})
 
 
 @test("Leerer Start: Katalog, Stand, Volk (409 bei doppeltem Stand)", db=True)
@@ -149,7 +149,7 @@ def _():
         con.execute((WURZEL / "server" / "datenbank" / "schema.sql").read_text(encoding="utf-8"))
     verz = tempfile.mkdtemp(prefix="bienen_verw_")
     k = {"dsn": DSN, "passwort_hash": passwort_hash(PASSWORT), "sitzungsschluessel": SCHLUESSEL, "cookie_sicher": False,
-         "protokolle": {"lora_log": str(pathlib.Path(verz) / "lora_log")}}
+         "protokolle": {"bienen_log": str(pathlib.Path(verz) / "bienen_log")}}
     c = TestClient(app_modul.erstellen(k))
     assert c.post("/api/anmelden", json={"passwort": PASSWORT}).status_code == 200
     ZUSTAND.update(c=c, csrf=c.get("/api/sitzung").json()["csrf"], verz=verz)
@@ -163,6 +163,22 @@ def _():
         ZUSTAND[f"volk{i}"], ZUSTAND[f"beute{i}"] = r["id"], r["beute_id"]
     s = cl().get("/api/staende", params={"zeit": "2026-10-02T00:00:00Z"}).json()
     assert [v["name"] for v in s[0]["voelker"]] == ["Volk 1", "Volk 2"], s
+
+
+@test("Umbenennen von Stand und Volk; eigene Messgröße mit Verdichtung min; ungültige Verdichtung 422", db=True)
+def _():
+    post(f"staende/{ZUSTAND['stand']}", {"name": "Hauptstand Nord", "ort_oeffentlich": "Radeberg"}, methode="put")
+    post(f"voelker/{ZUSTAND['volk1']}", {"name": "Volk Eins", "notiz": "ruhig"}, methode="put")
+    s = cl().get("/api/staende", params={"zeit": "2026-10-02T00:00:00Z"}).json()
+    assert s[0]["name"] == "Hauptstand Nord" and s[0]["voelker"][0]["name"] == "Volk Eins", s
+    post(f"staende/{ZUSTAND['stand']}", {"name": "Hauptstand", "ort_oeffentlich": "Radeberg"}, methode="put")
+    post(f"voelker/{ZUSTAND['volk1']}", {"name": "Volk 1"}, methode="put")
+    post("staende/99999", {"name": "x"}, 404, methode="put")
+    post("messgroessen", {"code": "bodenfrost", "name": "Bodenfrost", "einheit": "°C", "semantik": "momentan",
+                          "verdichtung": "min", "achse": "temperatur"})
+    g = {m["code"]: m for m in cl().get("/api/messgroessen").json()}
+    assert g["bodenfrost"]["verdichtung"] == "min" and g["bodenfrost"]["name"] == "Bodenfrost"
+    post("messgroessen", {"code": "x", "name": "x", "einheit": "", "semantik": "momentan", "verdichtung": "avg", "achse": "x"}, 422)
 
 
 @test("Logger sendet vor der Zuordnung: Importer legt ihn an, Werte nur als unbenannte Felder", db=True)
@@ -206,14 +222,14 @@ def _():
 def _():
     import importer
     import psycopg
-    datei = pathlib.Path(ZUSTAND["verz"]) / "lora_log" / "2026-10.jsonl"
+    datei = pathlib.Path(ZUSTAND["verz"]) / "bienen_log" / "2026-10.jsonl"
     original = datei.read_bytes()
     zeilen = original.split(b"\n")
     zeilen[0] = zeilen[0].replace(b'"Gewicht":30.0', b'"Gewicht":99.0')
     datei.write_bytes(b"\n".join(zeilen))
     try:
         with psycopg.connect(DSN) as con:
-            b = importer.Importer(con).nachtragen({"lora_log": datei.parent}, "beelogger-01")
+            b = importer.Importer(con).nachtragen({"bienen_log": datei.parent}, "beelogger-01")
         assert len(b.fehler) == 1 and "Prüfsumme" in b.fehler[0], b.fehler
     finally:
         datei.write_bytes(original)

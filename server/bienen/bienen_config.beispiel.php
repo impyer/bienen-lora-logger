@@ -1,5 +1,6 @@
 <?php
-// Vorlage: kopieren nach lora_config.php und anpassen. lora_config.php wird nicht ins Repo hochgeladen.
+// Bienen-Eingang (Messwerte der Völker: beelogger, eigene Platine, BEEP Base)
+// Vorlage: kopieren nach bienen_config.php und anpassen. bienen_config.php wird nicht ins Repo hochgeladen.
 return array(
     // Geheimes Wort, gleich wie im TTN-Webhook unter "Additional headers" (mindestens 16 Zeichen, zufällig)
     'token' => 'HIER-EIN-LANGES-ZUFALLSWORT-EINTRAGEN',
@@ -8,8 +9,11 @@ return array(
     // Adresse des Ordners, in dem beelogger1, beelogger2 … liegen (mit https)
     'basis_url' => 'https://example.org/beelogger',
 
+    // Nur Geräte, deren Werte zusätzlich an den beelogger-Webserver M.40 gehen (solange er parallel läuft):
     // TTN-Gerätename => beelogger-Verzeichnis. Der Verzeichnisname bestimmt den Typ wie beim beelogger:
     // beelogger1 = Einzel, Duo1 = zwei Waagen usw.
+    // Alle anderen Geräte (eigene Platine, BEEP Base …) brauchen hier keinen Eintrag: Ihr Uplink steht im
+    // Rohprotokoll (log_verzeichnis) und kommt über den Importer in die Datenbank.
     'geraete' => array(
         'beelogger-01' => array('verzeichnis' => 'beelogger1'),
         'beelogger-02' => array('verzeichnis' => 'beelogger2'),
@@ -35,7 +39,7 @@ return array(
     'max_zeitabweichung_s' => 900,
 
     // Protokoll aller Webhooks (JSON-Zeilen je Monat). Möglichst außerhalb des Webverzeichnisses.
-    'log_verzeichnis' => __DIR__ . '/lora_log',
+    'log_verzeichnis' => __DIR__ . '/bienen_log',
 
     // Ordner mit beelogger1, beelogger2 … auf dem Server (Dateisystem). Vorgabe: eine Ebene über diesem Ordner.
     'beelogger_verzeichnis' => dirname(__DIR__),

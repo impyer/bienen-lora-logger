@@ -9,7 +9,7 @@ Alle Funktionen laufen in der Transaktion des Aufrufers (app.py: Commit nur bei 
 """
 from datetime import timedelta
 
-from .katalog import MESSGROESSEN, VORLAGEN
+from .katalog import MESSGROESSEN, VORLAGEN, ist_steuerfeld
 
 
 class Konflikt(Exception):
@@ -323,7 +323,7 @@ def uebersicht(cur, zeit):
     unbenannt = cur.fetchall()
     for g in geraete:
         g["kanaele"] = [k for k in kanaele if k["geraet_id"] == g["id"]]
-        g["unbenannt"] = [u for u in unbenannt if u["geraet_id"] == g["id"]]
+        g["unbenannt"] = [u for u in unbenannt if u["geraet_id"] == g["id"] and not ist_steuerfeld(u["quellfeld"])]
     cur.execute("SELECT code, name, einheit, semantik, verdichtung, achse, darstellung, farbe, oeffentlich "
                 "FROM messgroesse ORDER BY achse, code")
     return {"zeit": zeit, "staende": staende, "voelker": voelker, "geraete": geraete, "messgroessen": cur.fetchall(),

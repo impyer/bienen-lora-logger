@@ -4,8 +4,8 @@
 """Synthetische Testdaten für die Plattform: ein Oktober 2026 mit Fehlern und Grenzfällen.
 
 Erzeugt
-  * Rohprotokolle im Format der Eingänge (server/eingang/ ein_rohprotokoll): lora_log/2026-10.jsonl
-    (Herkunftsfeld "geraet") und wetter_log/2026-10.jsonl ("station"). Diese liest server/datenbank/importer.py
+  * Rohprotokolle im Format der Eingänge (server/eingang/ ein_rohprotokoll): bienen_log/2026-10.jsonl
+    (Herkunftsfeld "geraet") und umwelt_log/2026-10.jsonl (ebenfalls "geraet"). Diese liest server/datenbank/importer.py
     ein – so läuft die ganze Kette Eingang → Importer → Datenbank → Lese-API.
   * Stammdaten und Stockkarte direkt per SQL (dafür gibt es noch keinen Eingang).
 
@@ -66,7 +66,12 @@ FAELLE = {
     "durchsicht_nur_datum": z("2026-10-07 10:00"),                  # K-03 (12:00 Ortszeit, aus BEEP übernommen)
     "durchsicht_exakt": z("2026-10-02 12:30"),
     "windel": (z("2026-10-12 10:00"), z("2026-10-15 10:00")),
+    # Randfälle, damit Tests Vorzeichen, Grenzen und Verwechslungen erkennen (PLT26-16)
+    "sprung_negativ": z("2026-10-27 12:00"),                       # Volk 4 −3 kg ohne erfasste Maßnahme (Schwarm?)
+    "kurzausfall": (z("2026-10-27 06:00"), z("2026-10-27 07:30")),  # Logger 4: 3 Nachrichten fehlen, Abstand 120 min
+    "ungueltig": z("2026-10-20 03:00"),                             # Logger 1 TempIn 99,9 °C, nach Import als ungültig markiert
 }
+VERSATZ_STATION = 1.5   # Luft an der Wetterstation wärmer als der Außenfühler am Kasten: Verwechslungen fallen auf
 FCNT_START = 16000      # Logger 1 läuft am 08.10. über 16383 und beginnt wieder bei 0 (ABP-Reset, bewusst akzeptiert)
 DOPPELT_JEDE = 97       # jede 97. Nachricht stellt TTN ein zweites Mal zu
 
@@ -111,6 +116,8 @@ class Modell:
             g = 0.4                                                     # leere Waage, Logger sendet weiter
         if logger == 4 and t >= FAELLE["umsetzen"]:
             g -= 4.0                                                    # leichtere Beute
+        if logger == 4 and t >= FAELLE["sprung_negativ"]:
+            g -= 3.0                                                    # ohne Maßnahme: muss als Sprung gemeldet werden
         if logger == 2 and t == FAELLE["gewichtsspitze"]:
             g += 50.0
         return round(g + self.r.gauss(0, 0.02), 3)
@@ -120,6 +127,8 @@ class Modell:
             return -127.0
         if logger == 2 and t == FAELLE["ds18b20_85"]:
             return 85.0
+        if logger == 1 and t == FAELLE["ungueltig"]:
+            return 99.9
         if logger == 3 and t >= FAELLE["vereinigung"]:
             return round(self.temp_aussen(t) + 1, 2)
         roh = 33.5 - 0.5 * logger + self.r.gauss(0, 0.1)
@@ -139,7 +148,7 @@ class Modell:
         richtung = (360 + 12 * math.sin(tage * 3.1)) % 360               # pendelt um 0/360°
         regen_mmh = 2.4 if 4 <= ortsstunde(t) < 7 and int(tage) % 3 == 0 else 0.0
         return {
-            "t": self.temp_aussen(t), "h": self.feuchte_aussen(t), "p_hpa": round(1003 + 6 * math.sin(tage / 2), 1),
+            "t": round(self.temp_aussen(t) + VERSATZ_STATION, 2), "h": self.feuchte_aussen(t), "p_hpa": round(1003 + 6 * math.sin(tage / 2), 1),
             "l": round(40000 * tagesgang(t)), "uv": round(4 * tagesgang(t), 1),
             "wind_ms": round(2 + 1.5 * tagesgang(t), 1), "gust_ms": round(4 + 3 * tagesgang(t), 1),
             "wind_dir_deg": round(richtung), "rain_mmh": regen_mmh,
@@ -186,11 +195,13 @@ def zeitpunkte():
 
 
 def logger_zeilen(m):
-    """Zeilen für lora_log/2026-10.jsonl in Empfangsreihenfolge"""
+    """Zeilen für bienen_log/2026-10.jsonl in Empfangsreihenfolge"""
     zeilen, fcnt, nr = [], {1: FCNT_START, 2: 0, 3: 0, 4: 0}, 0
     for t in zeitpunkte():
         for lg in (1, 2, 3, 4):
             if lg == 2 and FAELLE["luecke"][0] <= t < FAELLE["luecke"][1]:
+                continue
+            if lg == 4 and FAELLE["kurzausfall"][0] <= t < FAELLE["kurzausfall"][1]:
                 continue
             uhr_ok = not (lg == 2 and FAELLE["uhr_falsch"][0] <= t < FAELLE["uhr_falsch"][1])
             daten = {"Format": 2, "TempIn": m.temp_in(lg, t), "TempOut": m.temp_aussen(t),
@@ -223,7 +234,7 @@ def wetter_zeilen(m):
         if t == FAELLE["regen_reset"]:                         # nach Neustart: Join, erster Uplink ohne Nutzdaten
             leer = uplink("wetterstation-01", 3, 0, ttn_text(FAELLE["join_leer"]), {})
             del leer["uplink_message"]["decoded_payload"], leer["uplink_message"]["frm_payload"]
-            zeilen.append(protokollzeile("station", "wetterstation-01", leer, ttn_text(FAELLE["join_leer"])[:19] + "Z"))
+            zeilen.append(protokollzeile("geraet", "wetterstation-01", leer, ttn_text(FAELLE["join_leer"])[:19] + "Z"))
         d = m.wetter(t)
         summe += d["rain_mmh"] * 0.5
         if t == FAELLE["regen_reset"]:
@@ -231,21 +242,21 @@ def wetter_zeilen(m):
         d["rain_mm"] = round(summe - offset, 3)
         msg = uplink("wetterstation-01", 3, fcnt, ttn_text(t + timedelta(seconds=2), 476207), d, rssi=-66)
         fcnt += 1
-        zeilen.append(protokollzeile("station", "wetterstation-01", msg, ttn_text(t)[:19] + "Z"))
+        zeilen.append(protokollzeile("geraet", "wetterstation-01", msg, ttn_text(t)[:19] + "Z"))
     return zeilen
 
 
 def protokolle_schreiben(verz, seed=1):
-    """Schreibt <verz>/lora_log/2026-10.jsonl und <verz>/wetter_log/2026-10.jsonl.
-    Rückgabe: {'lora_log': Pfad, 'wetter_log': Pfad} für importer.importieren()."""
+    """Schreibt <verz>/bienen_log/2026-10.jsonl und <verz>/umwelt_log/2026-10.jsonl.
+    Rückgabe: {'bienen_log': Pfad, 'umwelt_log': Pfad} für importer.importieren()."""
     m = Modell(seed)
     verz = Path(verz)
     aus = {}
-    for quelle, zeilen in (("lora_log", logger_zeilen(m)), ("wetter_log", wetter_zeilen(m))):
+    for quelle, zeilen in (("bienen_log", logger_zeilen(m)), ("umwelt_log", wetter_zeilen(m))):
         d = verz / quelle
         d.mkdir(parents=True, exist_ok=True)
         text = "\n".join(zeilen) + "\n"
-        if quelle == "lora_log":
+        if quelle == "bienen_log":
             text += '{"geraet":"beelogger-01","art":"uplink","id":"halb'      # Eingang schreibt gerade: halbe Zeile
         (d / "2026-10.jsonl").write_text(text, encoding="utf-8", newline="\n")
         aus[quelle] = d
@@ -366,13 +377,21 @@ def aufbauen(con, verz, seed=1):
         k = stammdaten_schreiben(cur)
     con.commit()
     bericht = importer.importieren(con, protokolle_schreiben(verz, seed))
+    # Von Hand als ungültig markierter Messwert (wie eine spätere Plausibilitätsprüfung, PLT26-11): darf in keine
+    # Kurve und keinen Mittelwert eingehen
+    with con.cursor() as cur:
+        cur.execute("""UPDATE bienen.messwert m SET qualitaet = 'ungueltig' FROM bienen.kanal k JOIN bienen.geraet g ON g.id = k.geraet_id
+                       WHERE m.kanal_id = k.id AND g.name = 'beelogger-01' AND k.quellfeld = 'TempIn' AND m.zeit = %s""",
+                    (FAELLE["ungueltig"],))
+        assert cur.rowcount == 1, cur.rowcount
+    con.commit()
     return k, bericht
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Synthetische Testdaten in eine Testdatenbank laden (löscht das Schema bienen)")
     ap.add_argument("--dsn", default=os.environ.get("BIENEN_TEST_DSN"))
-    ap.add_argument("--verzeichnis", type=Path, required=True, help="Ziel für lora_log/ und wetter_log/")
+    ap.add_argument("--verzeichnis", type=Path, required=True, help="Ziel für bienen_log/ und umwelt_log/")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--ziel-ist-test", action="store_true", help="auch wenn der Datenbankname nicht 'test' enthält")
     a = ap.parse_args(argv)
