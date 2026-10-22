@@ -114,7 +114,8 @@ def umsetzen(quellen, umwelt=None):
             meta = {k: d[k] for k in ("rssi", "snr") if isinstance(d.get(k), (int, float))}
             if meta:
                 up["rx_metadata"] = [meta]
-            kennung = hashlib.sha1("|".join((geraet, str(f_port), str(f_cnt), b64, t)).encode()).hexdigest()
+            kennung = hashlib.sha1("|".join((geraet, str(f_port), str(f_cnt), b64, t)).encode(),
+                                   usedforsecurity=False).hexdigest()   # Kennung wie PHP sha1(), kein Schutz
             zeile = {"geraet": geraet, "art": "uplink", "id": kennung,
                      "herkunft": {"eingang": "boden_eingang.php", "datei": str(q), "zeile": nr,
                                   "sha256": hashlib.sha256(roh).hexdigest()},

@@ -62,7 +62,7 @@ with tempfile.TemporaryDirectory() as tmp:
     pruefe("echte Zeile: Farben aus dem Payload, nicht die vertauschten gespeicherten Werte",
            (d0["temp_weiss"], d0["temp_rot"], d0["temp_schwarz"], d0["BatV"]) == (12.3, 12.4, 13.1, 3.624), d0)
     pruefe("keine alten Namen", not {"Temp_Red", "Temp_White", "temp_5cm"} & set(d0), d0)
-    pruefe("Kennung wie ein_nachricht_id", z[0]["id"] == hashlib.sha1(
+    pruefe("Kennung wie ein_nachricht_id", z[0]["id"] == hashlib.sha1(usedforsecurity=False, data=
         "erdboden-temperatur|2|21|DigAewAADAB8AIM=|2026-10-14T17:27:13.795443Z".encode()).hexdigest(), z[0]["id"])
     pruefe("Herkunft: Datei, Zeile, SHA-256 der Originalzeile",
            z[0]["herkunft"]["zeile"] == 1 and z[0]["herkunft"]["sha256"] == hashlib.sha256(ECHT.encode()).hexdigest(),
