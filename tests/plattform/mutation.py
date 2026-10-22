@@ -115,7 +115,8 @@ def lauf(befehl):
         befehl = [ganz, *befehl[1:]]
     umgebung = {**os.environ, "PYTHONIOENCODING": "utf-8"}
     p = subprocess.run(befehl, cwd=WURZEL, capture_output=True, text=True, encoding="utf-8", errors="replace", env=umgebung, timeout=1800)
-    return p.returncode
+    fehler = [z for z in (p.stdout + p.stderr).splitlines() if z.startswith("FEHLER") or "Error" in z]
+    return p.returncode, (fehler[-1] if fehler else (p.stdout + p.stderr).strip()[-200:])[:160]
 
 
 def main(argv=None):
@@ -131,6 +132,12 @@ def main(argv=None):
     if not os.environ.get("BIENEN_TEST_DSN"):
         print("BIENEN_TEST_DSN fehlt (Testdatenbank, wird geleert)")
         return 2
+    # Grundlauf: ohne Mutation müssen alle benötigten Tests grün sein, sonst zählt jeder Mutant falsch als erkannt
+    for t in sorted({t for i, (_, _, _, ts) in enumerate(MUTANTEN) if not a.nummern or i in a.nummern for t in ts}):
+        rc, zeile = lauf(TESTS[t])
+        if rc != 0:
+            print(f"Grundlauf {t} nicht grün ({zeile}) – erst die Tests reparieren")
+            return 1
     ergebnisse, kaputt = [], 0
     for i, (datei, alt, neu, tests) in enumerate(MUTANTEN):
         if a.nummern and i not in a.nummern:
@@ -147,11 +154,18 @@ def main(argv=None):
         mutiert = text.replace(alt, neu)
         pfad.write_bytes((mutiert.replace("\n", "\r\n") if crlf else mutiert).encode("utf-8"))
         try:
-            erkannt = next((t for t in tests if lauf(TESTS[t]) != 0), None)
+            erkannt, grund = None, ""
+            for t in tests:
+                rc, zeile = lauf(TESTS[t])
+                if rc != 0:
+                    erkannt, grund = t, zeile
+                    break
         finally:
             pfad.write_bytes(roh)
         ergebnisse.append({"nr": i, "datei": datei, "erkannt": erkannt})
         print(f"{i:3d} {'erkannt von ' + erkannt if erkannt else 'ÜBERLEBT':24s} {datei}: {alt.strip()[:60]} ({time.time() - t0:.0f} s)", flush=True)
+        if erkannt:
+            print(f"      ↳ {grund}", flush=True)
     n = len(ergebnisse)
     erkannt = sum(1 for e in ergebnisse if e["erkannt"])
     quote = 100.0 * erkannt / n if n else 100.0
