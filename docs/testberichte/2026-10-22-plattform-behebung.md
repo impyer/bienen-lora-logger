@@ -52,7 +52,7 @@
 | Mutationstest auf `8e1479c` (Tests verbessert, vor M-05 bis M-10) | lokal | **46 von 51 erkannt (90 %)**, Prüfbericht vom 21.10.: 11 von 35 (31 %) |
 | Die 4 Überlebenden nach Ergänzung (qualitaet-Filter, Anzahl über zwei Läufe, Mitternacht der Windel, Vorgabezeitraum) | lokal, Endstand | 4 von 4 erkannt |
 | Vollständiger Lauf auf dem Endstand (`tests/plattform/mutation.py`, 50 Mutanten) | lokal | **50 von 50 erkannt (100 %)** |
-| CI | GitHub Actions | CI_ERGEBNIS |
+| CI für `d9b8003` | GitHub Actions, Läufe `tests` #39728738378 und `statische-analyse` #39728738361 | alle Jobs *success* (Datenbankjob mit postgres:16, Playwright 1.56.1) |
 
 Ein Mutant wurde als **gleichwertig** gestrichen: das Zurücksetzen des Puffers der Felder ohne Kanal nach einem Zeilenfehler. Heute wirft keine Zeile mehr nach dem Sammeln, der Mutant ändert das Verhalten also nicht. Die Zeile bleibt als Absicherung im Code.
 
