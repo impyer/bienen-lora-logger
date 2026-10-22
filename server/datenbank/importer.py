@@ -68,6 +68,8 @@ QUELLEN = {
     # Altbestand der Eingänge vor dem 22.10.2026 (lora_eingang.php, wetter_eingang.php)
     "lora_log": {"feld": "geraet", "art": "sonstiges"},
     "wetter_log": {"feld": "station", "art": "wetter"},
+    # Altbestand des früheren Boden-Eingangs, umgesetzt mit server/datenbank/altbestand_boden.py
+    "boden_alt": {"feld": "geraet", "art": "boden"},
 }
 EINTRAEGE = "Eintraege"         # Liste mehrerer Messungen in einem Uplink (Datalog)
 DATEINAME = re.compile(r"^\d{4}-\d{2}\.jsonl$")
@@ -458,6 +460,7 @@ def main(argv=None):
     ap.add_argument("--umwelt", type=Path, help="Verzeichnis umwelt_log des Umwelt-Eingangs")
     ap.add_argument("--lora", type=Path, help="Altbestand: Verzeichnis lora_log des früheren LoRa-Eingangs")
     ap.add_argument("--wetter", type=Path, help="Altbestand: Verzeichnis wetter_log des früheren Wetter-Eingangs")
+    ap.add_argument("--boden-alt", type=Path, help="Altbestand: mit altbestand_boden.py umgesetzter Boden-Eingang")
     ap.add_argument("--max-alter-tage", type=float, default=MAX_ALTER_TAGE,
                     help="Gerätezeit höchstens so viele Tage vor dem Empfang übernehmen (Vorgabe 30)")
     ap.add_argument("--nachtragen", action="store_true",
@@ -467,9 +470,9 @@ def main(argv=None):
     if not a.max_alter_tage > 0:
         ap.error("--max-alter-tage muss größer als 0 sein")
     verz = {k: v for k, v in (("bienen_log", a.bienen), ("umwelt_log", a.umwelt),
-                              ("lora_log", a.lora), ("wetter_log", a.wetter)) if v is not None}
+                              ("lora_log", a.lora), ("wetter_log", a.wetter), ("boden_alt", a.boden_alt)) if v is not None}
     if not a.dsn or not verz:
-        ap.error("--dsn (oder BIENEN_DSN) und mindestens --bienen, --umwelt, --lora oder --wetter angeben")
+        ap.error("--dsn (oder BIENEN_DSN) und mindestens --bienen, --umwelt, --lora, --wetter oder --boden-alt angeben")
     import psycopg
     try:
         con = psycopg.connect(a.dsn)

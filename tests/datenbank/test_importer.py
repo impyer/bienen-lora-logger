@@ -421,6 +421,24 @@ def t_datalog(con, verz):
     assert imp.importieren(con, verz).doppelt == 1 and abbild(con) == vorher
 
 
+@test("Boden-Altbestand: umgesetzte Zeilen (boden_alt) landen mit Empfangszeit in den Kanälen der neuen Namen", db=True)
+def t_boden_alt(con, verz):
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "server" / "datenbank"))
+    import altbestand_boden as ab
+    stamm(con, kanaele=(("erdboden-temperatur", "temp_weiss", "temperatur"), ("erdboden-temperatur", "temp_rot", "temperatur")))
+    alt = verz["boden_alt"].parent / "alt.jsonl"
+    alt.write_text('{"time_utc":"2026-10-14T17:27:13.795443Z","device_id":"erdboden-temperatur","f_cnt":21,"f_port":2,'
+                   '"payload_base64":"DigAewAADAB8AIM=","temp_5cm":12.4}\n')
+    assert ab.main([str(alt), "--ziel", str(verz["boden_alt"])]) == 0
+    b = imp.importieren(con, verz)
+    assert b.neu == 1 and b.messwerte == 2, b.text()
+    r = con.execute("""SELECT k.quellfeld, m.wert, m.zeit, m.zeitqualitaet FROM messwert m JOIN kanal k ON k.id = m.kanal_id
+                       ORDER BY k.quellfeld""").fetchall()
+    assert r == [("temp_rot", 12.4, imp.utc(u("2026-10-14 17:27") + 13), "empfang"),
+                 ("temp_weiss", 12.3, imp.utc(u("2026-10-14 17:27") + 13), "empfang")], r
+    assert eins(con, "SELECT datei FROM rohnachricht") == "boden_alt/2026-10.jsonl"
+
+
 # ---------------------------------------------------------------- Ablauf
 
 def main():
@@ -456,7 +474,7 @@ def main():
             with psycopg.connect(DSN, autocommit=True) as con, tempfile.TemporaryDirectory() as d:
                 con.execute(schema)
                 con.execute("SET search_path = bienen, public")
-                verz = {q: pathlib.Path(d) / q for q in ("bienen_log", "umwelt_log", "lora_log", "wetter_log")}
+                verz = {q: pathlib.Path(d) / q for q in ("bienen_log", "umwelt_log", "lora_log", "wetter_log", "boden_alt")}
                 for v in verz.values():
                     v.mkdir()
                 t(con, verz)
