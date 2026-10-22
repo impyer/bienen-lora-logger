@@ -3,7 +3,7 @@
 // Diagramme nach dem Designentwurf (16.10.2026): übereinander gestapelte Felder mit gemeinsamer Zeitachse
 // (Gewicht, Temperatur, Milbenfall …), Ereignisleiste mit Buchstabenmarken, Vorher/Nachher-Fenster, Völkervergleich.
 // Reine Funktionen ohne DOM (Test: tests/plattform/test_diagramm.mjs).
-import { achsenText, ereignisMarken, esc, ortstag, reihenName, reihenSchluessel, zahl, zeitText } from './diagramm.js';
+import { achsenText, bilanzBereich, eingriffLabel, ereignisMarken, esc, ortstag, reihenName, reihenSchluessel, zahl, zeitText } from './diagramm.js';
 
 // Farben des Entwurfs; Temperaturen nach Messstelle, damit Brutnest, Deckel und außen unterscheidbar bleiben
 export const FARBEN = {
@@ -174,17 +174,20 @@ export function referenzOptionen(voelker, { relativ = true } = {}) {
 // Tagesbilanz je Volk als gruppierte Balken; Tage mit Eingriff grau schraffiert (nicht biologisch deuten, L8)
 export function bilanzVergleichOptionen(voelker) {
   const tage = [...new Set(voelker.flatMap((v) => v.tagesbilanz.map((b) => b.tag)))].sort();
+  const bereich = bilanzBereich(voelker.flatMap((v) => v.tagesbilanz));
   const series = voelker.map((v, i) => {
     const je = Object.fromEntries(v.tagesbilanz.map((b) => [b.tag, b]));
     return { name: v.name, type: 'bar', color: VOLKFARBEN[i % VOLKFARBEN.length], barMaxWidth: 12,
+             clip: true,
              data: tage.map((t) => (je[t] ? { value: Math.round(je[t].bilanz_kg * 1000) / 1000, eingriff: je[t].mit_eingriff,
+                                               label: eingriffLabel(je[t].bilanz_kg, bereich),
                                                itemStyle: je[t].mit_eingriff ? { color: '#b3b3b3', decal: { symbol: 'rect', dashArrayX: [1, 0], dashArrayY: [2, 3], rotation: -0.8 } } : undefined } : null)) };
   });
   return { animation: false, aria: { enabled: true, decal: { show: false } }, grid: { left: 56, right: 18, top: 36, bottom: 30 }, legend: { top: 0, type: 'scroll' },
            tooltip: { trigger: 'axis', formatter: (ps) => esc(ps[0].axisValue) + '<br>' + ps.filter((p) => p.value !== undefined && p.value !== null)
              .map((p) => `${p.marker}${esc(p.seriesName)}: ${zahl(p.value, 2)} kg${p.data && p.data.eingriff ? ' (Eingriff)' : ''}`).join('<br>') },
            xAxis: { type: 'category', data: tage, axisLabel: { formatter: (t) => t.slice(8, 10) + '.' + t.slice(5, 7) + '.' } },
-           yAxis: { type: 'value', name: 'kg/Tag' }, series };
+           yAxis: { type: 'value', name: 'kg/Tag', ...(bereich || {}) }, series };
 }
 
 // Summe der Tagesbilanzen je Volk (beelogger „Summen“); ohne Eingriffstage, wenn gewünscht

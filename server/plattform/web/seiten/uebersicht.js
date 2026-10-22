@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Philipp Schnabel
-// Übersicht: Stände mit ihren Völkern als Kacheln (Vorbild BEEP), Kurzwerte aus der Lese-API
+// Bienenstand (Übersicht): Stände mit ihren Völkern als Kacheln (Vorbild BEEP), Kurzwerte aus der Lese-API
 import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen } from '../api.js';
 import { zahl, zeitText } from '../diagramm.js';
@@ -11,15 +11,15 @@ export default defineComponent({
   components: { Zustand },
   props: { route: Object },
   emits: ['fehler'],
-  data: () => ({ staende: [], meldungen: 0, laden: true, fehler: '' }),
+  data: () => ({ staende: [], meldungen: [], laden: true, fehler: '' }),
   template: `
     <section>
-      <h1>Übersicht</h1>
+      <h1>Bienenstand</h1>
       <Zustand :laden="laden" :fehler="fehler" />
       <p v-if="!laden && !fehler && !staende.length" class="leer">
         Noch keine Stände angelegt. Sobald Stände, Völker und Geräte in den Stammdaten stehen und der Importer läuft, erscheinen sie hier.
       </p>
-      <p v-if="meldungen" class="warnung"><a href="#/datenquellen">{{ meldungen }} Hinweis(e) zu Datenquellen</a></p>
+      <p v-if="meldungen.length" class="warnung"><a href="#/datenquellen">Datenquellen prüfen:</a> {{ meldungen.join(' · ') }}</p>
       <article v-for="s in staende" :key="s.id" class="stand">
         <header><h2>{{ s.name }}</h2> <a :href="'#/stand/' + s.id + '/umwelt' + abfrage">Umwelt</a></header>
         <p v-if="!s.voelker.length" class="leer">Keine Völker an diesem Stand.</p>
@@ -52,7 +52,10 @@ export default defineComponent({
     try {
       const [staende, p] = await Promise.all([holen('staende', { zeit: this.route.query.zeit }), holen('pruefungen')]);
       this.staende = staende;
-      this.meldungen = p.zuordnung.length + p.unbenannt.length + p.geraete_ohne_ziel.length;
+      const n = (zahl, eins, mehr) => (zahl ? [`${zahl} ${zahl === 1 ? eins : mehr}`] : []);
+      this.meldungen = [...n(p.geraete_ohne_ziel.length, 'Gerät ohne Zuordnung', 'Geräte ohne Zuordnung'),
+                        ...n(p.unbenannt.length, 'unbenanntes Feld', 'unbenannte Felder'),
+                        ...n(p.zuordnung.length, 'Auffälligkeit bei Zuordnungen', 'Auffälligkeiten bei Zuordnungen')];
     } catch (e) { this.$emit('fehler', e); this.fehler = e.message; } finally { this.laden = false; }
   },
 });

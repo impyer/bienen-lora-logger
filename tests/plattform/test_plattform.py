@@ -453,6 +453,10 @@ def _():
             assert abs(k["delta"] - (k["nachher"] - k["vorher"])) < 1e-9, k
     assert t(r["vorher"]["von"]) == syn.FAELLE["tarieren"] - timedelta(minutes=1) - timedelta(days=3)
     assert any(n.startswith("Temperatur brutnest") for n in g) and any(n.startswith("Luft am Stand") for n in g), list(g)
+    # Im Vorher-Fenster liegt der als ungültig markierte Wert 99,9 °C (20.10. 03:00): Mittel bleibt beim Sensorwert
+    # 33,0 °C (Logger 1: 33,5 − 0,5; nach dem Sensortausch +0,5 roh, Versatz −0,5)
+    brut = [x for n, x in g.items() if n.startswith("Temperatur brutnest")][0]
+    assert abs(brut["vorher"] - 33.0) < 0.05 and brut["n_vorher"] == 143, brut
     assert c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren}).status_code == 404
     assert c_().get(f"/api/voelker/{k_('volk1')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren, "tage": 5}).status_code == 400
 
@@ -560,6 +564,11 @@ def _():
     assert u[("beelogger-01", "FeuchteIn")]["anzahl"] == 1488, u[("beelogger-01", "FeuchteIn")]
     assert u[("beelogger-04", "FeuchteIn")]["anzahl"] == 1485, u[("beelogger-04", "FeuchteIn")]
     assert t(u[("beelogger-01", "FeuchteIn")]["zuerst"]) == syn.START
+    # Steuerfelder (Format, Messzeit_unix, Status.*) getrennt geführt, keine Hinweise (M-05)
+    p = c_().get("/api/pruefungen").json()
+    assert not [x for x in p["unbenannt"] if x["quellfeld"] in ("Format", "Messzeit_unix") or x["quellfeld"].startswith("Status.")]
+    assert {"Format", "Messzeit_unix", "Status.zeit_ok"} <= {x["quellfeld"] for x in p["steuerfelder"]}
+    assert sorted({x["quellfeld"] for x in p["unbenannt"]}) == ["FeuchteIn", "Gewicht", "TempIn", "l"], sorted({x["quellfeld"] for x in p["unbenannt"]})
 
 
 @test("Oberfläche und API führen denselben API_STAND; /api/gesundheit liefert ihn (PLT26-17)")

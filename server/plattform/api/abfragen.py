@@ -6,6 +6,7 @@ Jede Funktion bekommt einen Cursor mit dict_row in einer READ-ONLY-Transaktion (
 Python-Werte. Kennwerte (Tagesbilanz, Varroa pro Tag) kommen aus den Sichten des Schemas, nicht aus Python,
 damit API, Auswertung und Wochenbericht dieselbe Berechnung zeigen (berechnung@version).
 """
+from .katalog import ist_steuerfeld
 from .stockkarte import durchsicht_werte
 from .verdichtung import aggregat, mit_luecken
 
@@ -207,7 +208,9 @@ def pruefungen(cur):
                    FROM quellfeld_ohne_kanal q JOIN geraet g ON g.id = q.geraet_id
                    WHERE NOT EXISTS (SELECT 1 FROM kanal k WHERE k.geraet_id = q.geraet_id AND k.quellfeld = q.quellfeld)
                    ORDER BY g.name, q.quellfeld""")
-    unbenannt = cur.fetchall()
+    alle = cur.fetchall()
+    unbenannt = [u for u in alle if not ist_steuerfeld(u["quellfeld"])]
+    steuerfelder = [u for u in alle if ist_steuerfeld(u["quellfeld"])]
     cur.execute("""SELECT g.name, g.art, (SELECT max(empfangen) FROM rohnachricht r WHERE r.geraet_id = g.id) AS letzte
                    FROM geraet g
                    WHERE NOT EXISTS (SELECT 1 FROM geraet_zuordnung z WHERE z.geraet_id = g.id AND upper_inf(z.gueltig))
@@ -218,7 +221,7 @@ def pruefungen(cur):
     geraete = cur.fetchall()
     cur.execute("SELECT datei, zeilen, bytes, aktualisiert FROM import_position ORDER BY datei")
     importe = cur.fetchall()
-    return {"zuordnung": zuordnung, "unbenannt": unbenannt, "geraete_ohne_ziel": ohne_ziel,
+    return {"zuordnung": zuordnung, "unbenannt": unbenannt, "steuerfelder": steuerfelder, "geraete_ohne_ziel": ohne_ziel,
             "geraete": geraete, "importe": importe}
 
 

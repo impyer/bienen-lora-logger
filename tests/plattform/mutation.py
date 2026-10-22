@@ -73,9 +73,10 @@ MUTANTEN = [
     # Importer
     ("server/datenbank/importer.py", "anzahl = q.anzahl + excluded.anzahl", "anzahl = excluded.anzahl", ["importer", "plattform"]),
     ("server/datenbank/importer.py", "summe[(gid, feld)] = (min(z[0], zeit), max(z[1], zeit), z[2] + 1)", "summe[(gid, feld)] = (z[0], z[1], z[2] + 1)", ["importer", "plattform"]),
-    ("server/datenbank/importer.py", "                    del self.ohne_puffer[ohne_vorher:]\n", "", ["importer"]),
+    # nicht aufgenommen: „del self.ohne_puffer[ohne_vorher:]“ im Importer ist eine Absicherung; heute wirft keine Zeile
+    # nach dem Sammeln der Felder ohne Kanal mehr, der Mutant wäre gleichwertig (Mutationstest 22.10.2026)
     # Diagrammlogik und Zeit
-    (W + "stapel.js", "    } while (morgen.getTime() <= ende);", "    } while (morgen.getTime() < ende + 3600000);", ["diagramm"]),
+    (W + "stapel.js", "    } while (morgen.getTime() <= ende);", "    } while (morgen.getTime() < ende);", ["diagramm"]),
     (W + "stapel.js", "if (relativ && punkte.length) { const a = punkte[0][1];", "if (relativ && punkte.length) { const a = punkte[punkte.length - 1][1];", ["diagramm"]),
     (W + "stapel.js", "if (!(ohneEingriff && b.mit_eingriff)) s += b.bilanz_kg;", "s += b.bilanz_kg;", ["diagramm"]),
     (W + "stapel.js", "value: [min ? Math.max(e.zeit, min) : e.zeit, 0.5]", "value: [e.zeit, 0.5]", ["diagramm"]),

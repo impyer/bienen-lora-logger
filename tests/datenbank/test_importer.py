@@ -207,6 +207,11 @@ def t_k06(con, verz):
     assert q == (imp.utc(e - 60), imp.utc(e + 840), 2), q
     felder = {r[0] for r in con.execute("SELECT quellfeld FROM quellfeld_ohne_kanal")}
     assert felder == {"FeuchteIn", "Format", "Status.zeit_ok", "Status.akku_niedrig", "Messzeit_unix"}, felder
+    # zweiter Lauf mit einer neuen Nachricht: Anzahl wird addiert, nicht ersetzt; zuerst bleibt (PLT26-12)
+    anhaengen(verz["lora_log"] / OKT, uplink(nachricht("L08", 3, e + 1800, v2(30.2, 34.2, e + 1740, feuchte=52))))
+    imp.importieren(con, verz)
+    q = con.execute("SELECT zuerst, zuletzt, anzahl FROM quellfeld_ohne_kanal WHERE quellfeld='FeuchteIn'").fetchone()
+    assert q == (imp.utc(e - 60), imp.utc(e + 1740), 3), q
 
 
 @test("R-5 Doppelimport: zweiter Lauf, Neulesen ohne Position und andere Sitzungszeitzone → dieselbe Datenbank", db=True)

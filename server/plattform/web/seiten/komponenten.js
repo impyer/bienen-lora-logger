@@ -2,7 +2,16 @@
 // Copyright (C) 2026 Philipp Schnabel
 // Gemeinsame Bausteine: Diagramm (ECharts), Zeitraumwahl, Lade- und Fehleranzeige
 import { defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from '../vendor/vue.esm-browser.prod.js';
-import { bisTag, tagesEnde, zeitraum } from '../diagramm.js';
+import { bisTag, farbenAnpassen, tagesEnde, zeitraum } from '../diagramm.js';
+
+// Farben der Seite für Diagramme im dunklen Schema (stil.css, prefers-color-scheme)
+const DUNKEL = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function palette() {
+  const c = getComputedStyle(document.documentElement);
+  const v = (n) => c.getPropertyValue(n).trim();
+  return { dunkel: !!(DUNKEL && DUNKEL.matches) && document.documentElement.dataset.theme !== 'light',
+           text: v('--text'), leise: v('--leise'), gitter: v('--linie'), linie: v('--linie2'), blau: v('--link') };
+}
 
 // ECharts-Diagramm; "name" macht es für Tests unter window.bienenDiagramme[name] erreichbar
 export const Diagramm = defineComponent({
@@ -11,17 +20,19 @@ export const Diagramm = defineComponent({
     const el = ref(null);
     let chart = null;
     const groesse = () => chart && chart.resize();
-    const zeichnen = () => { if (chart && props.optionen) chart.setOption(props.optionen, { notMerge: true }); };
+    const zeichnen = () => { if (chart && props.optionen) chart.setOption(farbenAnpassen(props.optionen, palette()), { notMerge: true }); };
     onMounted(() => {
       chart = window.echarts.init(el.value, null, { renderer: 'canvas' });
       if (props.name) (window.bienenDiagramme ||= {})[props.name] = chart;
       zeichnen();
       window.addEventListener('resize', groesse);
+      DUNKEL?.addEventListener('change', zeichnen);
     });
     watch(() => props.optionen, zeichnen);
     watch(() => props.hoehe, () => nextTick(groesse));   // gestapelte Felder ändern die Höhe
     onBeforeUnmount(() => {
       window.removeEventListener('resize', groesse);
+      DUNKEL?.removeEventListener('change', zeichnen);
       if (props.name && window.bienenDiagramme) delete window.bienenDiagramme[props.name];
       chart && chart.dispose();
     });

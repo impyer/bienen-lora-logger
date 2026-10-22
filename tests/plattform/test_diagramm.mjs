@@ -2,7 +2,7 @@
 // Tests der Diagrammlogik der Oberfläche (server/plattform/web/diagramm.js), ohne Browser.
 // Aufruf: node tests/plattform/test_diagramm.mjs
 import assert from 'node:assert/strict';
-import { achsenText, bilanzOptionen, bisTag, ereignisMarken, ortstag, tagesEnde, verlaufOptionen, zeitraum } from '../../server/plattform/web/diagramm.js';
+import { achsenText, bilanzOptionen, bisTag, ereignisMarken, farbenAnpassen, ortstag, tagesEnde, verlaufOptionen, zeitraum } from '../../server/plattform/web/diagramm.js';
 import { bilanzVergleichOptionen, ereignisListe, milbenTage, referenzOptionen, stapelOptionen, summenOptionen } from '../../server/plattform/web/stapel.js';
 import { chronik, cockpitKennzahlen, istZeitpunkt, letzteBilanzMittel, vergleichHinweise, veraltet, vorzeichen } from '../../server/plattform/web/kennzahlen.js';
 
@@ -98,6 +98,14 @@ test('Tagesbilanz: Eingriffstage grau, sonst grün/rot', () => {
                             { tag: '2026-10-24', bilanz_kg: -0.2, mit_eingriff: false }, { tag: '2026-10-25', bilanz_kg: null, mit_eingriff: false }]);
   assert.deepEqual(o.series[0].data.map((d) => d.itemStyle.color), ['#2e7d32', '#b3b3b3', '#c62828']);
   assert.match(o.tooltip.formatter({ value: ['2026-10-23', -30], data: { eingriff: true } }), /nicht biologisch deuten/);
+  // Achse nach den Tagen ohne Eingriff (±0,5 kg Mindestbereich), Eingriff abgeschnitten mit Wert (M-09)
+  assert.deepEqual([o.yAxis.min, o.yAxis.max], [-0.6, 0.6]);
+  assert.equal(o.series[0].data[1].label.formatter(), '-30,0');
+  assert.equal(o.series[0].data[0].label, undefined);
+  assert.equal(o.series[0].clip, true);
+  const gross = bilanzOptionen([{ tag: '2026-10-22', bilanz_kg: 2.4, mit_eingriff: false }]);
+  assert.deepEqual([gross.yAxis.min, gross.yAxis.max], [-2.9, 2.9]);
+  assert.equal(bilanzOptionen([{ tag: '2026-10-23', bilanz_kg: -30, mit_eingriff: true }]).yAxis.min, undefined);
 });
 
 test('leere Antwort ergibt ein gültiges, leeres Diagramm', () => {
@@ -168,6 +176,8 @@ test('Vergleich: Nachtmedian relativ zum ersten Tag, Summen ohne Eingriffstage, 
   const b = bilanzVergleichOptionen(voelker);
   assert.deepEqual(b.xAxis.data, ['2026-10-02', '2026-10-03']);
   assert.equal(b.series[0].data[1].itemStyle.color, '#b3b3b3');
+  assert.deepEqual([b.yAxis.min, b.yAxis.max], [-1.2, 1.2]);              // nach dem Tag ohne Eingriff (+1 kg)
+  assert.equal(b.series[0].data[1].label.formatter(), '-11,0');
   assert.equal(b.series[1].data[0], null);
 });
 
@@ -270,6 +280,19 @@ test('Übersicht „veraltet“ nach 3 h; Maßnahme ohne Ende ist ein Zeitpunkt 
   const jetzt = Date.parse('2026-10-25T12:00:00Z');
   assert.deepEqual([veraltet('2026-10-25T09:30:00Z', jetzt), veraltet('2026-10-25T08:59:00Z', jetzt), veraltet(null, jetzt)], [false, true, true]);
   assert.deepEqual([istZeitpunkt('2026-10-03T15:00:00Z', '2026-10-03T15:01:00Z'), istZeitpunkt('2026-10-01T08:00:00Z', '2026-10-11T08:00:00Z')], [true, false]);
+});
+
+test('Dunkles Schema: helle Entwurfsfarben ersetzt, Datenfarben und Formatierer bleiben; helles Schema unverändert (M-07)', () => {
+  const o = stapelOptionen(antwort, katalog, { ereignisse });
+  const p = { dunkel: true, text: '#e8ece9', leise: '#9aa39d', gitter: '#2f3732', linie: '#3a443e', blau: '#8fb8e0' };
+  const d = farbenAnpassen(o, p);
+  const alles = JSON.stringify(d);
+  for (const hell of ['#1a1f1c', '#5b635e', '#eef1ec', '#cdd3cb', '#1f4e79']) assert.ok(!alles.toLowerCase().includes(hell), hell);
+  assert.equal(d.graphic[0].style.fill, '#e8ece9');
+  assert.equal(d.series.find((s) => s.name === 'Milbenfall').color, '#9f1239');
+  assert.equal(typeof d.tooltip.valueFormatter, 'function');
+  assert.equal(d.textStyle.color, '#9aa39d');
+  assert.equal(farbenAnpassen(o, { ...p, dunkel: false }), o);
 });
 
 console.log(`${anz - fehler} von ${anz} bestanden`);

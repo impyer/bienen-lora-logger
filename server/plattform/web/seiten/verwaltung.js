@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Philipp Schnabel
 // Verwaltung der Stammdaten (Phase C, Teil 1): Messgrößen, Stände, Völker mit Beute, Geräte und Kanäle.
 // Jede Änderung gilt ab dem oben gewählten Zeitpunkt (Ortszeit); die Datenbank beendet die alte Angabe und legt eine
-// neue an, Historie wird nie überschrieben.
+// neue an, Historie wird nie überschrieben. Ohne eigene Wahl gilt „jetzt“ zum Zeitpunkt des Klicks (M-06).
 import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen, senden } from '../api.js';
 import { jetztOrtszeit, ortszeitNachUtc, zeitText } from '../diagramm.js';
@@ -21,14 +21,16 @@ const leer = () => ({
 export default defineComponent({
   components: { Zustand },
   emits: ['fehler'],
-  data: () => ({ d: null, laden: true, fehler: '', meldung: '', ab: jetztOrtszeit(), neu: leer(), aktion: {}, laeuft: false,
+  data: () => ({ d: null, laden: true, fehler: '', meldung: '', ab: jetztOrtszeit(), abGewaehlt: false, neu: leer(), aktion: {}, laeuft: false,
                  zonen: ZONEN, arten: ARTEN }),
   template: `
     <section class="verwaltung">
       <h1>Verwaltung</h1>
       <Zustand :laden="laden" :fehler="fehler" />
       <p v-if="meldung" class="ok" role="status">{{ meldung }}</p>
-      <label class="ab">Änderungen gelten ab <input type="datetime-local" v-model="ab"> <small class="klein">Ortszeit</small></label>
+      <label class="ab">Änderungen gelten ab <input type="datetime-local" v-model="ab" @input="abGewaehlt = true" aria-label="Änderungen gelten ab">
+        <small class="klein">{{ abGewaehlt ? 'Ortszeit, fest gewählt' : 'Ortszeit, jetzt beim Speichern' }}</small>
+        <button v-if="abGewaehlt" type="button" class="link" @click="abGewaehlt = false; ab = jetzt()">wieder jetzt</button></label>
       <template v-if="d">
         <h2>Messgrößen <small class="klein">{{ d.messgroessen.length }} im Katalog</small></h2>
         <p v-if="!d.messgroessen.length" class="leer">Der Katalog ist leer. Ohne Messgrößen gibt es keine Kanäle und keine Kurven.</p>
@@ -95,9 +97,9 @@ export default defineComponent({
           <table v-if="g.kanaele.length" class="tabelle klein">
             <thead><tr><th>Quellfeld</th><th>Messgröße</th><th>Messstelle</th><th>gültig</th><th></th></tr></thead>
             <tbody><tr v-for="k in g.kanaele" :key="k.id" :class="{ beendet: k.bis }">
-              <td><code>{{ k.quellfeld }}</code></td><td>{{ k.messgroesse_code }}<template v-if="k.versatz || k.faktor !== 1"> ({{ k.faktor }}·x{{ k.versatz >= 0 ? '+' : '' }}{{ k.versatz }})</template></td>
+              <td><code>{{ k.quellfeld }}</code></td><td>{{ messgroesseName(k.messgroesse_code) }}<template v-if="k.versatz || k.faktor !== 1"> ({{ k.faktor }}·x{{ k.versatz >= 0 ? '+' : '' }}{{ k.versatz }})</template></td>
               <td>{{ zonen[k.zone] || k.zone }} {{ k.bezeichnung || '' }}</td><td>{{ zeitText(k.von) }}<template v-if="k.bis"> – {{ zeitText(k.bis) }}</template></td>
-              <td><button v-if="!k.bis" class="link" @click="los('verwaltung/kanaele/' + k.id + '/beenden', { zeit: zeit() })">beenden</button></td></tr></tbody></table>
+              <td><button v-if="!k.bis" class="link" @click="kanalBeenden(g, k)">beenden</button></td></tr></tbody></table>
           <p v-if="g.unbenannt.length" class="warnung klein">Unbenannte Felder: <span v-for="u in g.unbenannt" :key="u.quellfeld"><code>{{ u.quellfeld }}</code> ({{ u.anzahl }}) </span></p>
           <details><summary>ändern</summary>
             <form class="zeile" @submit.prevent="zuordnen(g)">
@@ -134,7 +136,20 @@ export default defineComponent({
   methods: {
     zeitText,
     leer,            // leere Formulare, auch in der Vorlage (Zurücksetzen nach dem Speichern)
-    zeit() { return ortszeitNachUtc(this.ab); },
+    jetzt: () => jetztOrtszeit(),
+    // Zeitpunkt der Änderung: fest gewählt oder jetzt (die Seite kann lange offen sein)
+    zeit() {
+      if (this.abGewaehlt) return ortszeitNachUtc(this.ab);
+      this.ab = jetztOrtszeit();
+      return new Date().toISOString();       // sekundengenau: Anlegen und Ändern in derselben Minute bleiben getrennt
+    },
+    messgroesseName(code) { return this.d.messgroessen.find((m) => m.code === code)?.name || code; },
+    kanalBeenden(g, k) {
+      const zeit = this.zeit();
+      if (!window.confirm(`Kanal ${k.quellfeld} (${this.messgroesseName(k.messgroesse_code)}) von ${g.name} ab ${zeitText(zeit)} beenden?\n`
+                          + 'Danach werden aus diesem Feld keine Messwerte mehr übernommen.')) return;
+      this.los('verwaltung/kanaele/' + k.id + '/beenden', { zeit });
+    },
     standName(id) { return this.d.staende.find((s) => s.id === id)?.name || '–'; },
     zielText(g) {
       if (g.volk_id) return 'an ' + (this.d.voelker.find((v) => v.id === g.volk_id)?.name || 'Volk ' + g.volk_id);

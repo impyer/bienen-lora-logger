@@ -26,6 +26,24 @@ export function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Dunkles Schema (M-07): Die Optionen nutzen die hellen Farben des Entwurfs. Für das dunkle Schema ersetzt
+// farbenAnpassen() genau diese Werte durch die CSS-Farben der Seite; Datenfarben bleiben, außer dem dunklen Blau.
+const HELL = { '#1a1f1c': 'text', '#3d4540': 'text', '#5b635e': 'leise', '#eef1ec': 'gitter', '#cdd3cb': 'linie', '#1f4e79': 'blau' };
+
+export function farbenAnpassen(option, palette) {
+  if (!palette || !palette.dunkel) return option;
+  const tausch = (w) => {
+    if (typeof w === 'string') { const k = HELL[w.toLowerCase()]; return k && palette[k] ? palette[k] : w; }
+    if (Array.isArray(w)) return w.map(tausch);
+    if (w && typeof w === 'object' && !(w instanceof Date)) return Object.fromEntries(Object.entries(w).map(([k, v]) => [k, tausch(v)]));
+    return w;                                         // Zahlen, Funktionen (Formatierer) unverändert
+  };
+  const o = tausch(option);
+  o.textStyle = { color: palette.leise, ...(o.textStyle || {}) };
+  if (o.legend && !Array.isArray(o.legend)) o.legend = { ...o.legend, textStyle: { color: palette.text, ...(o.legend.textStyle || {}) } };
+  return o;
+}
+
 export function zeitText(t) { return t ? fmtZeit.format(new Date(t)) : '–'; }
 
 export function zahl(w, stellen = 1) {
@@ -195,18 +213,35 @@ export function verlaufOptionen(antwort, katalogListe, { sichtbar = null, relati
 }
 
 // Tagesbilanz als Balken; Tage mit Eingriff grau und ausdrücklich gekennzeichnet (Leitplanke L8: nicht biologisch deuten)
+// Achse der Tagesbilanz nach den Tagen ohne Eingriff (M-09): Ein Tarieren (−30 kg) soll die normalen Tage (±0,1 kg)
+// nicht unsichtbar machen. Symmetrisch, mindestens ±0,5 kg, 20 % Rand. null = automatisch (keine Tage ohne Eingriff).
+export function bilanzBereich(tage) {
+  const w = (tage || []).filter((t) => t.bilanz_kg !== null && !t.mit_eingriff).map((t) => Math.abs(t.bilanz_kg));
+  if (!w.length) return null;
+  const r = Math.ceil(Math.max(0.5, ...w) * 1.2 * 10) / 10;
+  return { min: -r, max: r };
+}
+
+// Eingriffsbalken außerhalb des Bereichs: abgeschnitten, Wert als Beschriftung
+export function eingriffLabel(wert, bereich) {
+  if (!bereich || (wert >= bereich.min && wert <= bereich.max)) return undefined;
+  return { show: true, position: wert < 0 ? 'insideBottom' : 'insideTop', formatter: () => zahl(wert, 1), fontSize: 10, color: '#3d4540' };
+}
+
 export function bilanzOptionen(tage) {
+  const bereich = bilanzBereich(tage);
   const daten = (tage || []).filter((t) => t.bilanz_kg !== null).map((t) => ({
     value: [t.tag, Math.round(t.bilanz_kg * 1000) / 1000],
     eingriff: t.mit_eingriff,
     itemStyle: { color: t.mit_eingriff ? '#b3b3b3' : (t.bilanz_kg >= 0 ? '#2e7d32' : '#c62828') },
+    label: eingriffLabel(t.bilanz_kg, bereich),
   }));
   return {
     animation: false,
     grid: { left: 56, right: 16, top: 24, bottom: 40 },
     tooltip: { trigger: 'item', formatter: (p) => `${p.value[0]}: ${zahl(p.value[1], 2)} kg` + (p.data.eingriff ? '<br>Eingriff an diesem Tag – Sprung nicht biologisch deuten' : '') },
     xAxis: { type: 'category', data: daten.map((d) => d.value[0]), axisLabel: { formatter: (t) => t.slice(8, 10) + '.' + t.slice(5, 7) + '.' } },
-    yAxis: { type: 'value', name: 'kg/Tag' },
-    series: [{ type: 'bar', name: 'Tagesbilanz', data: daten, encode: { x: 0, y: 1 } }],
+    yAxis: { type: 'value', name: 'kg/Tag', ...(bereich || {}) },
+    series: [{ type: 'bar', name: 'Tagesbilanz', data: daten, encode: { x: 0, y: 1 }, clip: true }],
   };
 }

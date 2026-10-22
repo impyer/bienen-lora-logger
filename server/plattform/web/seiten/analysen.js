@@ -53,11 +53,11 @@ export default defineComponent({
                 <Diagramm :optionen="referenzDiagramm" hoehe="300px" name="referenz" />
                 <p class="klein">Unterschiedliche Beutenmasse und Kalibrierung: Für den Vergleich zählt die Veränderung, nicht die absolute Masse.</p>
               </div>
-              <div class="karte" style="margin-top: 16px">
+              <div class="karte">
                 <h2>Tagesbilanz je Volk <small class="klein">grau schraffiert = Tag mit Eingriff, nicht biologisch deuten</small></h2>
                 <Diagramm :optionen="bilanzDiagramm" hoehe="260px" name="bilanzvergleich" />
               </div>
-              <div class="karte" style="margin-top: 16px">
+              <div class="karte">
                 <div class="kopfzeile"><h2 style="margin: 0">Summe der Tagesbilanzen</h2>
                   <label class="klein"><input type="checkbox" v-model="ohneEingriff"> Tage mit Eingriff auslassen</label></div>
                 <Diagramm :optionen="summenDiagramm" hoehe="260px" name="summen" />

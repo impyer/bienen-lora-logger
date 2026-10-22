@@ -19,7 +19,8 @@ const heute = (tage = 0) => jetztOrtszeit(Date.now() + tage * 86400000).slice(0,
 const ortszeit = (iso) => (iso ? jetztOrtszeit(Date.parse(iso)) : '');
 
 function leer(art = 'durchsicht') {
-  return { art, zeit: jetztOrtszeit(), genau: 'exakt', notiz: '', werte: {},
+  const jetzt = jetztOrtszeit();
+  return { art, zeit: jetzt, vorgabe: jetzt, genau: 'exakt', notiz: '', werte: {},
            massnahme: { art: 'behandlung', bis: '', mittel: '', menge: '', einheit: '' },
            varroa: { methode: 'windel', von: jetztOrtszeit(Date.now() - 3 * 86400000), milben: '' },
            aufgabe: { faellig: heute(7), text: '' } };
@@ -128,6 +129,8 @@ export default defineComponent({
     setzen(code, wert) { this.f.werte[code] = this.f.werte[code] === wert ? undefined : wert; },
     alleAmStand(s) { this.gewaehlt = [...new Set([...this.gewaehlt, ...s.voelker.map((v) => v.id)])]; },
     utc(text, name) {
+      // unveränderte Vorgabe „jetzt“: sekundengenau, damit ein eben angelegtes Volk schon besteht
+      if (!this.bearbeiten && text === this.f.vorgabe) return new Date().toISOString();
       const t = ortszeitNachUtc(text);
       if (!t) throw new Error(`${name}: Zeit ungültig (Umstellungsstunde?)`);
       return t;

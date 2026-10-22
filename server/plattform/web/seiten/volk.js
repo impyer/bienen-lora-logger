@@ -18,7 +18,7 @@ export default defineComponent({
   props: { route: Object, id: Number },
   emits: ['fehler', 'navigieren'],
   data: () => ({ volk: null, katalog: [], reihen: null, bilanz: [], ereignisse: null, sichtbar: null, relativ: false,
-                 vergleich: null, vergleichWahl: '', fensterTage: 3, laden: true, fehler: '', marken: MARKEN, zonen: ZONEN }),
+                 vergleich: null, vergleichWahl: '', fensterTage: 3, schmal: window.matchMedia('(max-width: 980px)').matches, laden: true, fehler: '', marken: MARKEN, zonen: ZONEN }),
   template: `
     <section>
       <p class="klein"><a href="#/">← Bienenstand</a></p>
@@ -54,7 +54,7 @@ export default defineComponent({
 
         <div class="cockpit">
           <div>
-            <div class="karte">
+            <div class="karte k-messdaten">
               <div class="kopfzeile">
                 <div><h2 style="margin: 0">Messdaten und Stockkarte</h2>
                   <span class="klein">{{ zeitText(zr.von).slice(0, 6) }}–{{ zeitText(Date.parse(zr.bisIso) - 1).slice(0, 6) }} · Ortszeit Europe/Berlin, gespeichert in UTC</span></div>
@@ -66,7 +66,7 @@ export default defineComponent({
                 <span v-if="hatNurDatum" class="chip">Tagesband = Eintrag ohne Uhrzeit</span>
                 <span v-if="vergleich" class="chip" style="background: rgba(37,99,235,.10)">vorher</span><span v-if="vergleich" class="chip warn">nachher</span></p>
             </div>
-            <div class="karte" style="margin-top: 16px">
+            <div class="karte k-bilanz">
               <h2>Tagesbilanz <small class="klein">Median 00–04 Uhr, Vortag abgezogen · gewicht_tagesbilanz@1</small></h2>
               <p v-if="!bilanz.length" class="leer">Keine Tagesbilanz in diesem Zeitraum.</p>
               <Diagramm v-else :optionen="bilanzDiagramm" hoehe="200px" name="bilanz" />
@@ -74,8 +74,8 @@ export default defineComponent({
           </div>
 
           <aside class="seitenleiste">
-            <div class="karte messwahl">
-              <h2>Messwerte</h2>
+            <details class="karte messwahl" :open="!schmal">
+              <summary><h2>Messwerte <small v-if="schmal" class="klein">{{ sichtbarAnzahl }} gewählt</small></h2></summary>
               <template v-for="(gruppe, titel) in gruppen" :key="titel">
                 <h3>{{ titel }}</h3>
                 <label v-for="r in gruppe" :key="schluessel(r)"><input type="checkbox" :checked="!sichtbar || sichtbar.has(schluessel(r))" @change="umschalten(schluessel(r))">
@@ -85,10 +85,11 @@ export default defineComponent({
               <template v-if="hatMilben"><h3>Milbenfall</h3>
                 <label><input type="checkbox" :checked="!sichtbar || sichtbar.has('milbenfall')" @change="umschalten('milbenfall')"><span class="farbe" style="background: #9f1239"></span>Windel, pro Tag</label></template>
               <label style="margin-top: 10px"><input type="checkbox" v-model="relativ"> Gewicht relativ zum Beginn</label>
-              <p class="klein">Nur Messwerte mit Daten im gewählten Zeitraum. Zoomen mit Strg + Mausrad oder dem Schieber.</p>
-            </div>
+              <p class="klein">Nur Messwerte mit Daten im gewählten Zeitraum.
+                <span class="nur-maus">Zoomen mit Strg + Mausrad oder dem Schieber.</span><span class="nur-touch">Zoomen mit zwei Fingern oder dem Schieber.</span></p>
+            </details>
 
-            <div class="karte">
+            <div class="karte k-vorher">
               <h2>Vorher / nachher</h2>
               <p v-if="!vergleichsZiele.length" class="leer">Keine Stockkarten-Einträge im Zeitraum.</p>
               <template v-else>
@@ -107,7 +108,7 @@ export default defineComponent({
               </template>
             </div>
 
-            <div class="karte">
+            <div class="karte k-chronik">
               <h2>Stockkarte <small class="klein">neueste zuerst</small></h2>
               <p v-if="offeneAufgaben.length" class="warnung klein">Aufgaben: <span v-for="a in offeneAufgaben" :key="a.id">{{ a.faellig_am.slice(8, 10) }}.{{ a.faellig_am.slice(5, 7) }}. {{ a.text }}; </span></p>
               <p v-if="ereignisse && !liste.length" class="leer">Keine Einträge in diesem Zeitraum.</p>
@@ -154,6 +155,10 @@ export default defineComponent({
     eingriffstage() {
       const g = (this.vergleich?.kennzahlen || []).find((k) => k.berechnung === 'gewicht_tagesbilanz@1');
       return g ? (g.eingriff_vorher || 0) + (g.eingriff_nachher || 0) : 0;
+    },
+    sichtbarAnzahl() {
+      const alle = (this.reihen?.reihen || []).map(reihenSchluessel);
+      return this.sichtbar ? alle.filter((k) => this.sichtbar.has(k)).length : alle.length;
     },
     offeneAufgaben() { return (this.ereignisse?.aufgaben || []).filter((a) => !a.erledigt_am); },
     methoden: () => METHODEN,

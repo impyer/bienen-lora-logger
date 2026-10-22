@@ -47,8 +47,8 @@ try {
   pruefe('falsches Passwort wird abgelehnt', (await seite.textContent('.fehler')).includes('Passwort falsch'));
   await seite.fill('input[type=password]', passwort);
   await seite.click('button[type=submit]');
-  await seite.waitForSelector('h1:has-text("Übersicht")', { timeout: 10000 });
-  pruefe('Anmeldung führt zur Übersicht', true);
+  await seite.waitForSelector('h1:has-text("Bienenstand")', { timeout: 10000 });
+  pruefe('Anmeldung führt zum Bienenstand', true);
 
   if (art === 'leer') {
     await oeffnen('#/');
@@ -108,6 +108,20 @@ try {
     await seite.waitForSelector('.ok:has-text("5 Kanäle angelegt")', { timeout: 10000 }).catch(() => null);
     pruefe('Verwaltung: Zuordnung und Vorlage (5 Kanäle)', (await seite.innerText('main')).includes('5 Kanäle angelegt'),
            (await seite.innerText('main')).slice(0, 300));
+    schritt = 'Kanal beenden';
+    const g3 = seite.locator('article.geraet', { hasText: 'beelogger-07' });
+    pruefe('Verwaltung: Messgröße mit Namen statt Code', (await g3.innerText()).includes('Relative Feuchte'), (await g3.innerText()).slice(0, 200));
+    const zeileVBatt = g3.locator('tr', { hasText: 'VBatt' });
+    let frage = '';
+    seite.once('dialog', (d) => { frage = d.message(); d.dismiss(); });
+    await zeileVBatt.locator('button:has-text("beenden")').click();
+    await seite.waitForTimeout(500);
+    pruefe('Kanal beenden: Rückfrage nennt Kanal und Zeitpunkt; Abbrechen ändert nichts',
+           frage.includes('VBatt') && frage.includes('Spannung') && await zeileVBatt.locator('button:has-text("beenden")').count() === 1, frage);
+    seite.once('dialog', (d) => d.accept());
+    await zeileVBatt.locator('button:has-text("beenden")').click();
+    const beendet = await seite.waitForSelector('article.geraet:has-text("beelogger-07") tr.beendet:has-text("VBatt")', { timeout: 10000 }).catch(() => null);
+    pruefe('Kanal beenden: nach Bestätigung beendet', !!beendet, (await seite.innerText('main')).slice(0, 200));
     await oeffnen('#/');
     const k = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
     pruefe('Verwaltung: Volk erscheint in der Übersicht', JSON.stringify(k) === '["Testvolk"]', JSON.stringify(k));
@@ -144,7 +158,7 @@ try {
     pruefe('Cockpit: Durchsicht mit Werten und Fütterung', sk.includes('Königin gesehen: ja') && sk.includes('Brutwaben 6 Waben')
            && sk.includes('Sanftmut 4/5') && sk.includes('Fütterung') && sk.includes('5,0 kg'), sk.slice(0, 400));
     schritt = 'Stockkarte bearbeiten';
-    await seite.click('.chronik a:has-text("bearbeiten")');
+    await seite.locator('.chronik li', { hasText: 'Durchsicht' }).locator('a:has-text("bearbeiten")').click();
     await seite.waitForSelector('h1:has-text("Eintrag bearbeiten")', { timeout: 10000 });
     pruefe('Bearbeiten: Werte vorbelegt', await seite.locator('input[aria-label="Brutwaben"]').inputValue() === '6');
 
@@ -167,6 +181,9 @@ try {
     const kacheln = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
     pruefe('Übersicht: Völker nach Vereinigung', JSON.stringify(kacheln) === JSON.stringify(['Volk 1 (syn)', 'Volk 2 (syn)', 'Volk 4 (syn)']), JSON.stringify(kacheln));
     pruefe('Übersicht: aktuelle Kacheln nicht veraltet', await seite.locator('.kachel.veraltet').count() === 0);
+    const hinweis = await seite.innerText('main .warnung');
+    pruefe('Übersicht: Hinweise nach Art, Steuerfelder nicht gezählt (M-05)', hinweis.includes('2 Geräte ohne Zuordnung')
+           && hinweis.includes('7 unbenannte Felder') && !/\b3\d\b/.test(hinweis), hinweis);
     await oeffnen('#/?zeit=2026-11-02T12:00:00Z');
     pruefe('Übersicht: zwei Tage ohne Messung → alle veraltet', await seite.locator('.kachel.veraltet').count() === 3);
 
@@ -238,6 +255,43 @@ try {
     const zahl = (t) => Number(String(t).replace('−', '-').replace('±', '').replace(',', '.'));
     pruefe('Vorher/Nachher: Tarieren-Tag nicht als Wirkung', tr && Math.abs(zahl(tr[2])) < 0.2 && Math.abs(zahl(tr[3])) < 0.2, JSON.stringify(tr));
     pruefe('Vorher/Nachher: ausgelassener Eingriffstag genannt', (await seite.innerText('aside')).includes('ohne 1 Tag(e) mit Eingriff'));
+    // Fenster enthält den Vereinigungssprung (+6 kg ohne erfassten Eingriff) → Achse ±7,2; Tarieren (−30) abgeschnitten
+    const yb = await seite.evaluate(() => { const o = window.bienenDiagramme.bilanz.getOption();
+      return { min: o.yAxis[0].min, max: o.yAxis[0].max, label: o.series[0].data.filter((d) => d.label?.show).map((d) => d.value[1]) }; });
+    pruefe('Tagesbilanz: Achse nach Tagen ohne Eingriff, Tarieren abgeschnitten mit Wert (M-09)',
+           yb.max === 7.2 && yb.min === -7.2 && yb.label.length === 1 && yb.label[0] < -29, JSON.stringify(yb));
+
+    schritt = 'Dunkles Schema';
+    const dunkel = await browser.newPage({ colorScheme: 'dark', timezoneId: 'Europe/Berlin', viewport: { width: 1200, height: 900 } });
+    await dunkel.goto(basis + '/');
+    await dunkel.fill('input[type=password]', passwort);
+    await dunkel.click('button[type=submit]');
+    await dunkel.waitForSelector('nav', { timeout: 10000 });
+    await dunkel.goto(basis + '/#/volk/1?bis=2026-10-26T23:00:00.000Z&tage=14');
+    await dunkel.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
+    const dk = await dunkel.evaluate(() => { const o = window.bienenDiagramme.verlauf.getOption();
+      return { titel: o.graphic[0].elements[0].style.fill, gewicht: o.series.find((s) => s.name.startsWith('Gewicht')).color,
+               grund: getComputedStyle(document.body).backgroundColor }; });
+    pruefe('Dunkles Schema: Feldtitel hell, Gewichtslinie hell (M-07)', dk.titel !== '#1a1f1c' && dk.gewicht !== '#1f4e79' && dk.grund !== 'rgb(244, 245, 242)', JSON.stringify(dk));
+    await dunkel.close();
+
+    schritt = 'Cockpit am Handy';
+    const handy = await browser.newPage({ timezoneId: 'Europe/Berlin', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    await handy.goto(basis + '/');
+    await handy.fill('input[type=password]', passwort);
+    await handy.click('button[type=submit]');
+    await handy.waitForSelector('nav', { timeout: 10000 });
+    await handy.goto(basis + '/#/volk/1?bis=2026-10-26T23:00:00.000Z&tage=14');
+    await handy.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
+    const lage = await handy.evaluate(() => ({ wahl: document.querySelector('.messwahl').getBoundingClientRect().top,
+      diagramm: document.querySelector('.k-messdaten').getBoundingClientRect().top, offen: document.querySelector('.messwahl').open,
+      breit: document.documentElement.scrollWidth - window.innerWidth,
+      hinweis: [...document.querySelectorAll('.nur-maus, .nur-touch')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.className) }));
+    pruefe('Handy: Messwerte-Auswahl zugeklappt über dem Diagramm (M-10)', lage.wahl < lage.diagramm && lage.offen === false && lage.breit <= 0, JSON.stringify(lage));
+    pruefe('Handy: Zoom-Hinweis für Touch (M-11)', JSON.stringify(lage.hinweis) === '["nur-touch"]', JSON.stringify(lage.hinweis));
+    await handy.click('.messwahl summary');
+    pruefe('Handy: Auswahl lässt sich aufklappen', await handy.evaluate(() => document.querySelector('.messwahl').open));
+    await handy.close();
 
     // Analysen & Vergleich: alle Völker des Stands, Nachtmedian, Tagesbilanz, Summen, Hinweise
     schritt = 'Analysen';
@@ -264,6 +318,12 @@ try {
     await seite.click('button:has-text("Volk 2 (syn)")');
     await seite.waitForFunction(() => window.bienenDiagramme?.referenz?.getOption().series.length === 1, null, { timeout: 10000 });
     pruefe('Analysen: Volk abwählen', true);
+
+    // Ohne Angabe in der Adresse: 14 Tage bis jetzt (Vorgabe des Cockpits); Analysen: 30 Tage
+    await oeffnen(`#/volk/${volk}`);
+    pruefe('Zeitraum: Vorgabe 14 Tage im Cockpit', (await seite.innerText('.zeitraum button.aktiv')) === '14 Tage');
+    await oeffnen('#/analysen');
+    pruefe('Zeitraum: Vorgabe 30 Tage in Analysen', (await seite.innerText('.zeitraum button.aktiv')) === '30 Tage');
 
     schritt = 'Maßnahme-Band bearbeiten';
     const ev = await api(`voelker/${volk}/ereignisse?von=2026-09-01T00:00:00Z&bis=2026-11-01T00:00:00Z`);
