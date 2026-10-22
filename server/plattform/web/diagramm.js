@@ -82,6 +82,22 @@ export function ortszeitNachUtc(text) {
 // Jetzt als Wert für <input type="datetime-local"> in Ortszeit
 export function jetztOrtszeit(ms = Date.now()) { return ortText(ms); }
 
+// Ende des Ortstags tag ("2026-10-31") als ISO in UTC: Mitternacht des Folgetags in Europe/Berlin (exklusiv)
+export function tagesEnde(tag) {
+  if (!/^\d{4}-\d\d-\d\d$/.test(tag || '')) return '';
+  return mitternacht(new Date(Date.parse(tag + 'T00:00:00Z') + 86400000).toISOString().slice(0, 10)).toISOString();
+}
+
+// Ortstag, zu dem ein exklusives Zeitraumende gehört (Ende 01.11. 00:00 → "2026-10-31"), für das Datumsfeld
+export function bisTag(bis) { return bis ? ortText(Date.parse(bis) - 1).slice(0, 10) : ''; }
+
+// Zeitraum aus der Adresse (?tage=14&bis=ISO): von/bis in UTC; ohne bis gilt jetzt
+export function zeitraum(query, vorgabeTage = 14, jetzt = Date.now()) {
+  const tage = Number(query.tage || vorgabeTage);
+  const bisMs = query.bis ? Date.parse(query.bis) : jetzt;
+  return { tage, bis: query.bis || '', von: new Date(bisMs - tage * 86400000).toISOString(), bisIso: new Date(bisMs).toISOString() };
+}
+
 export function ortstag(t) {
   const tag = ortText(Date.parse(t)).slice(0, 10);
   const morgen = new Date(Date.parse(tag + 'T00:00:00Z') + 86400000).toISOString().slice(0, 10);

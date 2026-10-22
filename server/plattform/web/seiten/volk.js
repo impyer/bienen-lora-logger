@@ -68,7 +68,7 @@ export default defineComponent({
             <div class="karte">
               <div class="kopfzeile">
                 <div><h2 style="margin: 0">Messdaten und Stockkarte</h2>
-                  <span class="klein">{{ zeitText(zr.von).slice(0, 6) }}–{{ zeitText(zr.bisIso).slice(0, 6) }} · Ortszeit Europe/Berlin, gespeichert in UTC</span></div>
+                  <span class="klein">{{ zeitText(zr.von).slice(0, 6) }}–{{ zeitText(Date.parse(zr.bisIso) - 1).slice(0, 6) }} · Ortszeit Europe/Berlin, gespeichert in UTC</span></div>
                 <Zeitraum :tage="zr.tage" :bis="zr.bis" @wahl="$emit('navigieren', { tage: $event.tage, bis: $event.bis })" />
               </div>
               <p v-if="reihen && !reihen.reihen.length && !hatMilben" class="leer">Keine Messwerte in diesem Zeitraum.</p>
@@ -113,6 +113,7 @@ export default defineComponent({
                     <td>{{ kennzahlName(k) }} <small>({{ k.einheit }})</small></td>
                     <td class="zahl">{{ k.vorher === null ? '–' : zahl(k.vorher, 2) }}</td><td class="zahl">{{ k.nachher === null ? '–' : zahl(k.nachher, 2) }}</td>
                     <td class="zahl">{{ k.delta === null ? '–' : vorzeichen(k.delta) }}</td></tr></tbody></table>
+                <p v-if="eingriffstage" class="klein">Tagesbilanz ohne {{ eingriffstage }} Tag(e) mit Eingriff.</p>
                 <p class="klein">Mittelwerte aus den Messwerten. Erst Wetter und Eingriff prüfen, dann deuten.</p>
               </template>
             </div>
@@ -179,6 +180,10 @@ export default defineComponent({
       for (const v of e.varroa || []) z.push({ schluessel: 'v' + v.id, bearbeiten: 'varroa&id=' + v.id, t: v.von, zeit: zeitText(v.von) + ' – ' + zeitText(v.bis), nurDatum: v.zeitgenauigkeit === 'nur_datum', art: `Varroa (${METHODEN[v.methode] || v.methode})`, buchstabe: 'V', farbe: marke('varroa')[1], text: `${v.milben} Milben` + (v.milben_pro_tag !== null && v.milben_pro_tag !== undefined ? `, ${zahl(v.milben_pro_tag, 1)} pro Tag` : '') + (v.anmerkung ? ' · ' + v.anmerkung : '') });
       for (const v of e.volk_ereignisse || []) z.push({ schluessel: 'e' + v.id, t: v.zeit, zeit: zeitText(v.zeit), art: v.art[0].toUpperCase() + v.art.slice(1), buchstabe: 'E', farbe: marke(v.art)[1], text: (v.beteiligte || []).map((b) => `${b.name} (${b.rolle})`).join(', ') });
       return z.sort((a, b) => Date.parse(b.t) - Date.parse(a.t));
+    },
+    eingriffstage() {
+      const g = (this.vergleich?.kennzahlen || []).find((k) => k.berechnung === 'gewicht_tagesbilanz@1');
+      return g ? (g.eingriff_vorher || 0) + (g.eingriff_nachher || 0) : 0;
     },
     offeneAufgaben() { return (this.ereignisse?.aufgaben || []).filter((a) => !a.erledigt_am); },
     methoden: () => METHODEN,

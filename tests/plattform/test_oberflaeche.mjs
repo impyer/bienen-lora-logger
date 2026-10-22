@@ -53,6 +53,20 @@ try {
     pruefe('Leerzustand Datenquellen', (await seite.innerText('main')).includes('Der Importer ist noch nicht gelaufen'));
     await oeffnen('#/volk/1');
     pruefe('unbekanntes Volk zeigt Fehlermeldung statt leerer Seite', (await seite.innerText('main')).includes('Volk unbekannt'));
+    // PLT26-17: Server mit altem Code (kein api_stand, neue Endpunkte 404) → verständlicher Hinweis statt „unbekannter Endpunkt“
+    await seite.route('**/api/gesundheit', (r) => r.fulfill({ json: { datenbank: 'ok' } }));
+    await seite.route('**/api/vergleich*', (r) => r.fulfill({ status: 404, json: { detail: 'unbekannter Endpunkt' } }));
+    await seite.route('**/api/staende*', (r) => r.fulfill({ json: [{ id: 1, name: 'S', voelker: [{ id: 1, name: 'V' }] }] }));
+    await seite.reload();
+    await oeffnen('#/analysen');
+    await seite.waitForSelector('.warnung[role=alert]', { timeout: 10000 });
+    const alt = await seite.innerText('main');
+    pruefe('Versionsprüfung: alter Server wird gemeldet', alt.includes('passen nicht zusammen') && alt.includes('Server neu starten'), alt.slice(0, 300));
+    pruefe('Versionsprüfung: 404 eines neuen Endpunkts verständlich', alt.includes('älterem Code') && !alt.includes('unbekannter Endpunkt'), alt.slice(0, 300));
+    await seite.unrouteAll();
+    await seite.reload();
+    await oeffnen('#/');
+    pruefe('Versionsprüfung: passender Server ohne Hinweis', !(await seite.innerText('main')).includes('passen nicht zusammen'));
   } else if (art === 'verwaltung') {
     const meldung = async () => { await seite.waitForSelector('.ok[role=status], .fehler', { timeout: 10000 }); return seite.innerText('main'); };
     schritt = 'Verwaltung öffnen';
@@ -129,6 +143,21 @@ try {
     await seite.click('.chronik a:has-text("bearbeiten")');
     await seite.waitForSelector('h1:has-text("Eintrag bearbeiten")', { timeout: 10000 });
     pruefe('Bearbeiten: Werte vorbelegt', await seite.locator('input[aria-label="Brutwaben"]').inputValue() === '6');
+
+    // PLT26-15: Sitzung läuft während der Eingabe ab → Anmeldung über der Seite, Eingabe bleibt, Speichern wird wiederholt
+    schritt = 'Sitzungsablauf';
+    await oeffnen('#/stockkarte?art=massnahme');
+    await seite.locator('label.volkwahl', { hasText: 'Testvolk' }).locator('input').check();
+    await seite.fill('input[aria-label="Mittel"]', 'Ameisensäure 60 %');
+    await seite.context().clearCookies();
+    await seite.click('button.haupt');
+    await seite.waitForSelector('.ueberlagerung', { timeout: 10000 });
+    pruefe('Sitzungsablauf: Anmeldung über der Seite, Eingabe noch da',
+           await seite.locator('input[aria-label="Mittel"]').inputValue() === 'Ameisensäure 60 %');
+    await seite.fill('.ueberlagerung input[type=password]', passwort);
+    await seite.click('.ueberlagerung button[type=submit]');
+    await seite.waitForSelector('.ok:has-text("Gespeichert (1 Eintrag)")', { timeout: 10000 });
+    pruefe('Sitzungsablauf: nach Anmeldung gespeichert', !(await seite.$('.ueberlagerung')));
   } else {
     await oeffnen('#/?zeit=2026-10-31T23:00:00Z');
     const kacheln = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
@@ -166,6 +195,26 @@ try {
     pruefe('Cockpit: Stockkarte mit Varroa pro Tag', tabelle.includes('45 Milben, 15,0 pro Tag'), tabelle.slice(0, 300));
     // Zeitanzeige in Europe/Berlin, obwohl der Browser in New York steht
     pruefe('Cockpit: Zeiten in Europe/Berlin', tabelle.includes('01.10., 10:00'), tabelle.slice(0, 200));
+
+    // PLT26-14: Datum „bis“ ist das Ende des Ortstags, auch in der Sommerzeit; Kopfzeile zeigt denselben Tag
+    schritt = 'Zeitraum bis';
+    await seite.fill('input[aria-label="Zeitraum bis"]', '2026-10-20');
+    await seite.waitForFunction(() => location.hash.includes('bis='), null, { timeout: 10000 });
+    await seite.waitForFunction(() => !document.querySelector('main')?.innerText.includes('Lädt'), null, { timeout: 15000 });
+    const bis = new URLSearchParams(await seite.evaluate(() => location.hash.split('?')[1])).get('bis');
+    pruefe('Zeitraum: bis = Mitternacht Ortszeit (MESZ)', bis === '2026-10-20T22:00:00.000Z', bis);
+    pruefe('Zeitraum: Datumsfeld und Kopfzeile zeigen den 20.10.', await seite.inputValue('input[aria-label="Zeitraum bis"]') === '2026-10-20'
+           && (await seite.innerText('.cockpit .kopfzeile')).includes('–20.10.'), await seite.innerText('.cockpit .kopfzeile'));
+
+    // PLT26-13: Tarieren in Volk 1; der Eingriffstag zählt nicht als „nachher“
+    schritt = 'Vorher/Nachher Tarieren';
+    await oeffnen(`#/volk/1?bis=2026-10-26T23:00:00.000Z&tage=14`);
+    await seite.waitForSelector('table.vergleich tbody tr', { timeout: 10000 });
+    const tr = await seite.evaluate(() => [...document.querySelectorAll('table.vergleich tbody tr')].find((z) => z.innerText.includes('Tagesbilanz'))
+      ?.innerText.split('	').map((x) => x.trim()));
+    const zahl = (t) => Number(String(t).replace('−', '-').replace('±', '').replace(',', '.'));
+    pruefe('Vorher/Nachher: Tarieren-Tag nicht als Wirkung', tr && Math.abs(zahl(tr[2])) < 0.2 && Math.abs(zahl(tr[3])) < 0.2, JSON.stringify(tr));
+    pruefe('Vorher/Nachher: ausgelassener Eingriffstag genannt', (await seite.innerText('aside')).includes('ohne 1 Tag(e) mit Eingriff'));
 
     // Analysen & Vergleich: alle Völker des Stands, Nachtmedian, Tagesbilanz, Summen, Hinweise
     schritt = 'Analysen';

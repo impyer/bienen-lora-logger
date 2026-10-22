@@ -24,6 +24,9 @@ from .anmeldung import COOKIE, Bremse, csrf_gueltig, csrf_token, passwort_pruefe
 from .verdichtung import MAX_ZEITRAUM, raster
 
 WEB = Path(__file__).resolve().parent.parent / "web"
+# Stand der Schnittstelle; web/api.js führt denselben Wert. Bei neuen oder geänderten Endpunkten in beiden Dateien
+# erhöhen: Die Oberfläche meldet dann einen Server, der noch mit altem Code läuft (PLT26-17).
+API_STAND = 4
 VORGABEN = {"dsn": "", "dsn_schreiben": "", "passwort_hash": "", "sitzungsschluessel": "", "cookie_sicher": True,
             "sitzung_tage": 90, "protokolle": {}}
 CSP = ("default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
@@ -194,7 +197,7 @@ def erstellen(konfig=None, verbinden=None, verbinden_schreiben=None):
     # ---------- ohne Sitzung
     @app.get("/api/gesundheit")
     def gesundheit(cur=Depends(cursor)):
-        return {"datenbank": "ok", **abfragen.gesundheit(cur)}
+        return {"datenbank": "ok", "api_stand": API_STAND, **abfragen.gesundheit(cur)}
 
     @app.post("/api/anmelden")
     def anmelden(daten: Anmeldung, request: Request, response: Response):

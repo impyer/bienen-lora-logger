@@ -112,7 +112,7 @@ export default defineComponent({
       </template>
     </section>`,
   computed: {
-    zr() { return zeitraumParameter({ query: { tage: 30, ...this.route.query } }); },
+    zr() { return zeitraumParameter(this.route, 30); },
     standId() { return Number(this.route.query.stand) || this.staende[0]?.id; },
     voelkerAmStand() { return this.staende.find((s) => s.id === this.standId)?.voelker || []; },
     gewaehlt() {

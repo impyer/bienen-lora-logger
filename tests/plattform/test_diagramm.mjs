@@ -2,7 +2,7 @@
 // Tests der Diagrammlogik der Oberfläche (server/plattform/web/diagramm.js), ohne Browser.
 // Aufruf: node tests/plattform/test_diagramm.mjs
 import assert from 'node:assert/strict';
-import { achsenText, bilanzOptionen, ereignisMarken, ortstag, verlaufOptionen } from '../../server/plattform/web/diagramm.js';
+import { achsenText, bilanzOptionen, bisTag, ereignisMarken, ortstag, tagesEnde, verlaufOptionen, zeitraum } from '../../server/plattform/web/diagramm.js';
 import { bilanzVergleichOptionen, ereignisListe, milbenTage, referenzOptionen, stapelOptionen, summenOptionen } from '../../server/plattform/web/stapel.js';
 
 let anz = 0, fehler = 0;
@@ -178,6 +178,20 @@ test('Tooltips maskieren Notizen und Namen (kein HTML aus Eingaben)', () => {
   const b = bilanzVergleichOptionen([{ id: 1, name: '<b>Volk</b>', tagesreferenz: [], tagesbilanz: [{ tag: '2026-10-02', bilanz_kg: 1, mit_eingriff: false }] }]);
   const t = b.tooltip.formatter([{ axisValue: '2026-10-02', marker: '', seriesName: '<b>Volk</b>', value: 1, data: {} }]);
   assert.ok(!t.includes('<b>') && t.includes('&lt;b&gt;'), t);
+});
+
+test('Zeitraum „bis“ endet um Mitternacht Ortszeit (PLT26-14), Sommer- und Winterzeit, Umstellungstag', () => {
+  assert.equal(tagesEnde('2026-10-31'), '2026-10-31T23:00:00.000Z');        // MEZ
+  assert.equal(tagesEnde('2026-07-14'), '2026-07-14T22:00:00.000Z');        // MESZ
+  assert.equal(tagesEnde('2026-10-24'), '2026-10-24T22:00:00.000Z');        // 25.10. beginnt noch in MESZ
+  assert.equal(tagesEnde('2026-10-25'), '2026-10-25T23:00:00.000Z');        // Umstellungstag hat 25 h
+  assert.equal(tagesEnde(''), '');
+  assert.equal(bisTag('2026-10-31T23:00:00.000Z'), '2026-10-31');
+  assert.equal(bisTag('2026-07-14T22:00:00.000Z'), '2026-07-14');
+  assert.equal(bisTag('2026-10-31T23:59:59Z'), '2026-11-01');                // alte Adressen bleiben lesbar
+  const z = zeitraum({ tage: '7', bis: '2026-10-31T23:00:00.000Z' });
+  assert.deepEqual([z.tage, z.von, z.bisIso], [7, '2026-10-24T23:00:00.000Z', '2026-10-31T23:00:00.000Z']);
+  assert.equal(zeitraum({}, 30, Date.parse('2026-10-22T10:00:00Z')).von, '2026-09-22T10:00:00.000Z');
 });
 
 console.log(`${anz - fehler} von ${anz} bestanden`);

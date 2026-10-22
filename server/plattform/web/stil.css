@@ -149,3 +149,7 @@ details summary { cursor: pointer; color: var(--link); }
 .aufgaben li { padding: 6px 0; border-bottom: 1px solid var(--linie); }
 .aufgaben li.faellig { color: var(--warn); }
 @media (max-width: 600px) { .tabelle { font-size: 0.9em; } .kachel .gross { font-size: 20px; } main { padding: 12px 12px 40px; } }
+
+/* Sitzung abgelaufen: Anmeldung über der Seite, Eingaben darunter bleiben erhalten */
+.ueberlagerung { position: fixed; inset: 0; z-index: 50; background: rgba(20, 24, 22, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.ueberlagerung .karte { max-width: 420px; width: 100%; }

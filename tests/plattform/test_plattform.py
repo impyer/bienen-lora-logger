@@ -437,14 +437,20 @@ def _():
     assert {x["messgroesse"] for x in r["reihen"]} == {"gewicht", "temperatur", "feuchte", "spannung"}
 
 
-@test("Vorher/Nachher: Tarieren senkt die Tagesbilanz um ~30 kg, Fenster ±3 Tage; falsches Volk 404, Fenster 400", db=True)
+@test("Vorher/Nachher: Tarieren-Tag (−30 kg) zählt nicht als Wirkung (PLT26-13), Δ = nachher − vorher; 404, 400", db=True)
 def _():
     e = c_().get(f"/api/voelker/{k_('volk1')}/ereignisse", params={"von": "2026-10-20T00:00:00Z", "bis": "2026-10-25T00:00:00Z"}).json()
     tarieren = [m for m in e["massnahmen"] if m["art"] == "tarieren"][0]["id"]
     r = c_().get(f"/api/voelker/{k_('volk1')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren, "tage": 3}).json()
     g = {x["name"]: x for x in r["kennzahlen"]}
-    assert g["Gewicht, Tagesbilanz"]["n_vorher"] == 3 and abs(g["Gewicht, Tagesbilanz"]["vorher"]) < 0.2, g["Gewicht, Tagesbilanz"]
-    assert g["Gewicht, Tagesbilanz"]["nachher"] < -9 and g["Gewicht, Tagesbilanz"]["berechnung"] == "gewicht_tagesbilanz@1"
+    b = g["Gewicht, Tagesbilanz"]
+    assert b["n_vorher"] == 3 and b["eingriff_vorher"] == 0 and abs(b["vorher"]) < 0.2, b
+    # Tag nach dem Tarieren (Bilanz −30 kg) ist Eingriffstag: ausgenommen, gezählt; übrig bleiben 2 normale Tage
+    assert b["n_nachher"] == 2 and b["eingriff_nachher"] == 1 and abs(b["nachher"]) < 0.2, b
+    assert b["berechnung"] == "gewicht_tagesbilanz@1"
+    for k in r["kennzahlen"]:
+        if k["vorher"] is not None and k["nachher"] is not None:
+            assert abs(k["delta"] - (k["nachher"] - k["vorher"])) < 1e-9, k
     assert t(r["vorher"]["von"]) == syn.FAELLE["tarieren"] - timedelta(minutes=1) - timedelta(days=3)
     assert any(n.startswith("Temperatur brutnest") for n in g) and any(n.startswith("Luft am Stand") for n in g), list(g)
     assert c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren}).status_code == 404
@@ -475,6 +481,20 @@ def _():
     assert v1["messpunkte"] == 1488 and v1["letzte_referenz"]["tag"] == "2026-10-31"
     assert c_().get("/api/vergleich", params={"volk_ids": "a,b"}).status_code == 400
     assert c_().get("/api/vergleich", params={"volk_ids": ""}).status_code == 400
+
+
+@test("Oberfläche und API führen denselben API_STAND; /api/gesundheit liefert ihn (PLT26-17)")
+def _():
+    from api import app as app_modul
+    js = (pathlib.Path(__file__).resolve().parents[2] / "server/plattform/web/api.js").read_text(encoding="utf-8")
+    m = re.search(r"export const API_STAND = (\d+);", js)
+    assert m and int(m.group(1)) == app_modul.API_STAND, (m and m.group(1), app_modul.API_STAND)
+
+
+@test("Gesundheit nennt den API-Stand", db=True)
+def _():
+    from api import app as app_modul
+    assert c_().get("/api/gesundheit").json()["api_stand"] == app_modul.API_STAND
 
 
 # ================================================================ Ablauf

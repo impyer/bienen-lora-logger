@@ -54,18 +54,22 @@ def vorher_nachher(cur, volk_id, art, id_, tage):
     vorher, nachher = (e["a"] - f, e["a"]), (e["b"], e["b"] + f)
     zeilen = []
 
-    def zeile(name, einheit, v, n, nv, nn, berechnung=None):
+    def zeile(name, einheit, v, n, nv, nn, berechnung=None, **mehr):
         zeilen.append({"name": name, "einheit": einheit, "vorher": v, "nachher": n, "n_vorher": nv, "n_nachher": nn,
-                       "delta": (n - v) if v is not None and n is not None else None, "berechnung": berechnung})
+                       "delta": (n - v) if v is not None and n is not None else None, "berechnung": berechnung, **mehr})
 
-    # Gewicht: mittlere Tagesbilanz der Tage im Fenster (Tag t = Referenz t − Referenz t−1, Ortszeit)
+    # Gewicht: mittlere Tagesbilanz der Tage im Fenster (Tag t = Referenz t − Referenz t−1, Ortszeit). Tage mit
+    # Eingriff (auch der des Ereignisses selbst, z. B. Tarieren) zählen nicht: ihr Sprung ist keine Wirkung (L8).
     def bilanz(a, b):
-        cur.execute("""SELECT avg(bilanz_kg) AS m, count(*) AS n FROM gewicht_tagesbilanz
+        cur.execute("""SELECT avg(bilanz_kg) FILTER (WHERE NOT mit_eingriff) AS m, count(*) FILTER (WHERE NOT mit_eingriff) AS n,
+                              count(*) FILTER (WHERE mit_eingriff) AS eingriff
+                       FROM gewicht_tagesbilanz
                        WHERE volk_id = %(v)s AND tag > (%(a)s AT TIME ZONE 'Europe/Berlin')::date
                          AND tag <= (%(b)s AT TIME ZONE 'Europe/Berlin')::date""", {"v": volk_id, "a": a, "b": b})
         return cur.fetchone()
     bv, bn = bilanz(*vorher), bilanz(*nachher)
-    zeile("Gewicht, Tagesbilanz", "kg/Tag", bv["m"], bn["m"], bv["n"], bn["n"], "gewicht_tagesbilanz@1")
+    zeile("Gewicht, Tagesbilanz", "kg/Tag", bv["m"], bn["m"], bv["n"], bn["n"], "gewicht_tagesbilanz@1",
+          eingriff_vorher=bv["eingriff"], eingriff_nachher=bn["eingriff"])
 
     # Temperaturen je Messstelle des Volks
     tv, tn = _mittel(cur, "volk_id", volk_id, *vorher, "temperatur"), _mittel(cur, "volk_id", volk_id, *nachher, "temperatur")
