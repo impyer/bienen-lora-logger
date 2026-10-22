@@ -112,6 +112,8 @@ try {
     const gn = seite.locator('article.geraet', { hasText: 'beelogger-07' });
     await gn.locator('details').evaluate((d) => { d.open = false; });
     const knopf = gn.locator('button:has-text("Werte nachtragen")');
+    // Die Meldung erscheint vor dem Neuladen der Geräteliste; der Knopf (nur bei vorhandenen Kanälen) kommt erst danach
+    await knopf.waitFor({ state: 'visible', timeout: 10000 }).catch(() => null);
     pruefe('Werte nachtragen: sichtbar ohne „ändern“ aufzuklappen, nach der Vorlage hervorgehoben mit Hinweis',
            (await knopf.isVisible()) && (await knopf.getAttribute('class') || '').includes('wichtig')
              && (await seite.innerText('main')).includes('„Werte nachtragen“ klicken'),
