@@ -307,6 +307,27 @@ def _():
     assert post(f"geraete/{w}/zuordnen", {"zeit": "2026-10-20T00:00:00Z"}) == {"beendet": 1}
 
 
+@test("Bodensonde: Zone Boden nur mit Tiefe (409 mit Klartext), drei Tiefen = drei Messstellen, Tiefe in der Übersicht", db=True)
+def _():
+    b = post("geraete", {"name": "erdboden-test", "art": "boden", "modell": "Dragino LSN50v2-D23"})["id"]
+    post(f"geraete/{b}/zuordnen", {"zeit": iso(T0), "stand_id": ZUSTAND["stand"]})
+    ohne = post(f"geraete/{b}/kanaele", {"zeit": iso(T0), "quellfeld": "Temp_White", "messgroesse": "temperatur", "zone": "boden"}, 409)
+    assert "Tiefe" in ohne["detail"], ohne
+    assert "1000" in post(f"geraete/{b}/kanaele", {"zeit": iso(T0), "quellfeld": "Temp_White", "messgroesse": "temperatur",
+                                                   "zone": "boden", "tiefe_cm": -5}, 409)["detail"]
+    for feld, tiefe in (("Temp_White", 5), ("Temp_Red", 20), ("Temp_Black", 50)):
+        post(f"geraete/{b}/kanaele", {"zeit": iso(T0), "quellfeld": feld, "messgroesse": "temperatur", "zone": "boden",
+                                      "tiefe_cm": tiefe, "bezeichnung": f"{tiefe} cm"})
+    k = {x["quellfeld"]: x for x in {y["name"]: y for y in uebersicht()["geraete"]}["erdboden-test"]["kanaele"]}
+    assert {f: (x["zone"], float(x["tiefe_cm"])) for f, x in k.items()} == \
+        {"Temp_White": ("boden", 5.0), "Temp_Red": ("boden", 20.0), "Temp_Black": ("boden", 50.0)}, k
+    import psycopg
+    with psycopg.connect(DSN) as con:
+        n = con.execute("""SELECT count(DISTINCT k.messstelle_id) FROM bienen.kanal k JOIN bienen.geraet g ON g.id = k.geraet_id
+                           WHERE g.name = 'erdboden-test'""").fetchone()[0]
+    assert n == 3, n
+
+
 # ================================================================ Ablauf
 
 def melden(name, fehler):

@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-22 – Verwaltung: Kanal mit Tiefe (Bodensonden)
+
+- Das Formular „Kanal anlegen“ fragt bei Zone **Boden** die **Tiefe in cm** ab und hat ein optionales Feld **Bezeichnung**. Bisher fehlten beide; ein Bodenkanal ließ sich in der Oberfläche nicht anlegen (Meldung „Angabe verletzt eine Regel der Datenbank“), und eine andere Zone führte zu falschen Kanälen (PLT26-19).
+- API: Zone Boden ohne Tiefe → 409 mit Klartext; Tiefe außerhalb 0–1000 cm → 409. Die Kanalliste zeigt die Tiefe.
+- Test: `test_verwaltung.py` Fall „Bodensonde“ (Gegenprobe: ohne Prüfung schlägt er fehl). Änderungsklasse D1.
+
 ## 2026-10-22 – Zwei Eingänge (Bienen, Umwelt), Messzeit einheitlich
 
 - **Entscheidung PLT-01:** genau zwei Eingänge statt einem je Sensor.

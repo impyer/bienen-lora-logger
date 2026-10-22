@@ -98,7 +98,7 @@ export default defineComponent({
             <thead><tr><th>Quellfeld</th><th>Messgröße</th><th>Messstelle</th><th>gültig</th><th></th></tr></thead>
             <tbody><tr v-for="k in g.kanaele" :key="k.id" :class="{ beendet: k.bis }">
               <td><code>{{ k.quellfeld }}</code></td><td>{{ messgroesseName(k.messgroesse_code) }}<template v-if="k.versatz || k.faktor !== 1"> ({{ k.faktor }}·x{{ k.versatz >= 0 ? '+' : '' }}{{ k.versatz }})</template></td>
-              <td>{{ zonen[k.zone] || k.zone }} {{ k.bezeichnung || '' }}</td><td>{{ zeitText(k.von) }}<template v-if="k.bis"> – {{ zeitText(k.bis) }}</template></td>
+              <td>{{ zonen[k.zone] || k.zone }}<template v-if="k.tiefe_cm != null"> {{ k.tiefe_cm }} cm</template><template v-if="k.bezeichnung && k.bezeichnung !== k.tiefe_cm + ' cm'"> {{ k.bezeichnung }}</template></td><td>{{ zeitText(k.von) }}<template v-if="k.bis"> – {{ zeitText(k.bis) }}</template></td>
               <td><button v-if="!k.bis" class="link" @click="kanalBeenden(g, k)">beenden</button></td></tr></tbody></table>
           <p v-if="g.unbenannt.length" class="warnung klein">Unbenannte Felder: <span v-for="u in g.unbenannt" :key="u.quellfeld"><code>{{ u.quellfeld }}</code> ({{ u.anzahl }}) </span></p>
           <details><summary>ändern</summary>
@@ -116,6 +116,8 @@ export default defineComponent({
               <datalist :id="'felder' + g.id"><option v-for="u in g.unbenannt" :value="u.quellfeld" /></datalist>
               <select v-model="feld(g, 'messgroesse', '').wert" required aria-label="Messgröße"><option value="" disabled>Messgröße</option><option v-for="m in d.messgroessen" :value="m.code">{{ m.name }}</option></select>
               <select v-model="feld(g, 'zone', g.stand_id ? 'luft_stand' : 'brutnest').wert" aria-label="Zone"><option v-for="(t, z) in zonen" :value="z">{{ t }}</option></select>
+              <template v-if="f(g, 'zone', '') === 'boden'">Tiefe <input type="number" min="0" max="1000" step="0.5" required v-model.number="feld(g, 'tiefe', null).wert" aria-label="Tiefe in cm"> cm</template>
+              <input v-model.trim="feld(g, 'bezeichnung', '').wert" maxlength="80" placeholder="Bezeichnung (optional)" aria-label="Bezeichnung">
               Versatz <input type="number" step="0.01" v-model.number="feld(g, 'versatz', 0).wert" aria-label="Versatz">
               <button type="submit">Kanal anlegen</button></form>
             <form class="zeile" @submit.prevent="los('verwaltung/geraete/' + g.id, { art: f(g, 'art', g.art), modell: g.modell, dev_eui: g.dev_eui }, 'PUT')">
@@ -193,8 +195,13 @@ export default defineComponent({
       this.los(`verwaltung/geraete/${g.id}/zuordnen`, { zeit: this.zeit(), volk_id: w[0] === 'v' ? +w.slice(1) : null, stand_id: w[0] === 's' ? +w.slice(1) : null });
     },
     kanalAnlegen(g) {
+      const zone = this.f(g, 'zone', 'brutnest');
+      const tiefe = this.f(g, 'tiefe', null);
+      const bezeichnung = this.f(g, 'bezeichnung', '');
       this.los(`verwaltung/geraete/${g.id}/kanaele`, { zeit: this.zeit(), quellfeld: this.f(g, 'quellfeld', ''), messgroesse: this.f(g, 'messgroesse', ''),
-                                                      zone: this.f(g, 'zone', 'brutnest'), versatz: this.f(g, 'versatz', 0) || 0 });
+                                                      zone, versatz: this.f(g, 'versatz', 0) || 0,
+                                                      tiefe_cm: zone === 'boden' && tiefe !== '' && tiefe != null ? +tiefe : null,
+                                                      bezeichnung: bezeichnung || (zone === 'boden' && tiefe != null && tiefe !== '' ? `${+tiefe} cm` : null) });
     },
     async laden_() { this.d = await holen('verwaltung'); },
   },
