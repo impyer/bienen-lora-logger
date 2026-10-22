@@ -107,19 +107,35 @@ def t_felder():
                              ("FFT_Baender_dB[0]", -10.5), ("FFT_Baender_dB[1]", -20.0)]
 
 
-@test("Messzeit wie le_messzeit: Gerätezeit nur abgeglichen und plausibel, sonst Empfang")
+@test("Messzeit: Gerätezeit nur abgeglichen, höchstens 30 s vor und 30 Tage nach, sonst Empfang; gleich für alle Eingänge")
 def t_messzeit():
     e = u("2026-10-15 06:00")
+    tag = 86400
     assert imp.messzeit(v2(1, 1, e - 60), e) == (e - 60, "geraet")
     assert imp.messzeit(v2(1, 1, e + 30), e) == (e + 30, "geraet")
     assert imp.messzeit(v2(1, 1, e + 31), e) == (e, "empfang"), "Uhr mehr als 30 s vor"
     assert imp.messzeit(v2(1, 1, e - 900), e) == (e - 900, "geraet")
-    assert imp.messzeit(v2(1, 1, e - 901), e) == (e, "empfang"), "älter als max_zeitabweichung_s"
+    assert imp.messzeit(v2(1, 1, e - 901), e) == (e - 901, "geraet"), "nachgesendeter Wert (früher 900-s-Grenze)"
+    assert imp.messzeit(v2(1, 1, e - 30 * tag), e) == (e - 30 * tag, "geraet"), "genau 30 Tage"
+    assert imp.messzeit(v2(1, 1, e - 30 * tag - 1), e) == (e, "empfang"), "älter als 30 Tage"
+    assert imp.messzeit(v2(1, 1, e - 3 * tag), e, max_alter_s=2 * tag) == (e, "empfang"), "Grenze einstellbar"
+    assert imp.MAX_ALTER_TAGE == 30
     assert imp.messzeit(v2(1, 1, e - 60, zeit_ok=False), e) == (e, "empfang")
     assert imp.messzeit(v2(1, 1), e) == (e, "empfang"), "FPort 1 ohne Messzeit"
     assert imp.messzeit(dict(v2(1, 1, e - 60), Messzeit_unix=True), e) == (e, "empfang")
     assert imp.messzeit(dict(v2(1, 1, e - 60), Messzeit_unix=1e300), e) == (e, "empfang")
+    assert imp.messzeit({"Messzeit_unix": e - 60, "Status": {"zeit_ok": 1}}, e) == (e, "empfang"), "zeit_ok muss true sein"
     assert imp.geraetezeit({"Messzeit_unix": -1}) is None and imp.geraetezeit({"Messzeit_unix": imp.UNIX_MAX}) == imp.UNIX_MAX
+
+
+@test("Mehrere Messungen je Uplink: Liste Eintraege, Felder außerhalb als eigene Messung, Unbrauchbares übersprungen")
+def t_messungen():
+    d = {"BatV": 3.6, "Eintraege": [{"TempC1": 1.0, "Messzeit_unix": 10}, "kaputt", None, {"TempC1": 2.0}]}
+    m = imp.messungen(d)
+    assert m == [{"BatV": 3.6}, {"TempC1": 1.0, "Messzeit_unix": 10}, {"TempC1": 2.0}], m
+    assert imp.messungen({"t": 1}) == [{"t": 1}]
+    assert imp.messungen({"t": 1, "Eintraege": "keine Liste"}) == [{"t": 1, "Eintraege": "keine Liste"}]
+    assert imp.messungen(None) == [] and imp.messungen([1]) == []
 
 
 @test("Lesen ab Position: unvollständige letzte Zeile bleibt liegen, geänderter Anfang wird erkannt (R-4)")
@@ -298,7 +314,7 @@ def t_zeit_herkunft(con, verz):
     e = u("2026-10-15 06:00")
     anhaengen(verz["lora_log"] / OKT,
               uplink(nachricht("L08", 1, e, v2(30.0, 34.0, e - 60, zeit_ok=False))),
-              uplink(nachricht("L08", 2, e + 900, v2(30.1, 34.0, e - 5000))),     # Uhr weit daneben
+              uplink(nachricht("L08", 2, e + 900, v2(30.1, 34.0, e - 31 * 86400))),  # Uhr weit daneben (> 30 Tage)
               uplink(nachricht("L08", 3, e + 1800, None)),                         # Formatter-Fehler
               zeile({"geraet": "L08", "art": "uplink", "nachricht": {}}),          # ohne Kennung
               b"kein json\n")
@@ -307,7 +323,7 @@ def t_zeit_herkunft(con, verz):
     assert (b.neu, b.ungueltig, b.geraete_neu) == (4, 2, ["s2120-1"]), b.text()
     q = con.execute("SELECT zeit, zeitqualitaet FROM messwert WHERE kanal_id IN (SELECT id FROM kanal WHERE quellfeld='Gewicht') ORDER BY zeit").fetchall()
     assert q == [(imp.utc(e), "empfang"), (imp.utc(e + 900), "empfang")], q
-    assert eins(con, "SELECT messzeit_quelle FROM rohnachricht WHERE zeile = 2") == imp.utc(e - 5000)
+    assert eins(con, "SELECT messzeit_quelle FROM rohnachricht WHERE zeile = 2") == imp.utc(e - 31 * 86400)
     assert eins(con, "SELECT art FROM geraet WHERE name='s2120-1'") == "wetter"
     assert eins(con, "SELECT count(*) FROM rohnachricht WHERE geraet_id = %s", (ids["L08"],)) == 3
 
@@ -341,6 +357,68 @@ def t_kanal_zeitraum(con, verz):
     assert con.execute("SELECT zeit, wert FROM messwert_bezug WHERE messgroesse_code='gewicht'").fetchall() == \
         [(imp.utc(u("2026-10-16 00:00")), 21.0)]
     assert eins(con, "SELECT anzahl FROM quellfeld_ohne_kanal WHERE quellfeld='Gewicht'") == 1
+
+
+@test("Zwei Eingänge: gleiche Zeitregel, Umweltgerät mit Uhr behält Gerätezeit, Altbestand wetter_log + umwelt_log nur einmal", db=True)
+def t_zwei_eingaenge(con, verz):
+    ids = stamm(con, kanaele=(("L08", "Gewicht", "gewicht"), ("s2120-1", "t", "temperatur"),
+                              ("boden-1", "TempC1", "temperatur")))
+    e = u("2026-10-22 06:00")
+    # Bienen-Eingang: abgeglichene Gerätezeit 60 s vor dem Empfang wird übernommen
+    anhaengen(verz["bienen_log"] / OKT, uplink(nachricht("L08", 1, e, v2(30.0, 34.0, e - 60))))
+    # Umwelt-Eingang: abgeglichene Gerätezeit gilt genauso (z. B. Dragino mit SYNCMOD)
+    boden = nachricht("boden-1", 4, e, {"TempC1": 12.5, "Status": {"zeit_ok": True}, "Messzeit_unix": e - 600})
+    anhaengen(verz["umwelt_log"] / OKT, uplink(boden))
+    # dieselbe S2120-Nachricht im Altbestand (Herkunft "station") und im neuen Umwelt-Protokoll (Herkunft "geraet")
+    w = nachricht("s2120-1", 3, e, {"t": 11.5, "h": 80}, fport=3)
+    anhaengen(verz["wetter_log"] / OKT, uplink(w, "station"))
+    anhaengen(verz["umwelt_log"] / OKT, uplink(w))
+    # unbekanntes Gerät im Umwelt-Eingang (z. B. neue Bodensonde): wird angelegt, Felder „unbenannt“
+    anhaengen(verz["umwelt_log"] / OKT, uplink(nachricht("boden-2", 1, e, {"Temp_Red": 9.75})))
+    b = imp.importieren(con, verz)
+    assert b.neu == 4 and b.doppelt == 1, b.text()
+    zeiten = dict(con.execute("""SELECT g.name, m.zeit FROM messwert m JOIN kanal k ON k.id = m.kanal_id
+                                 JOIN geraet g ON g.id = k.geraet_id""").fetchall())
+    assert zeiten == {"L08": imp.utc(e - 60), "boden-1": imp.utc(e - 600), "s2120-1": imp.utc(e)}, zeiten
+    zq = dict(con.execute("""SELECT g.name, m.zeitqualitaet FROM messwert m JOIN kanal k ON k.id = m.kanal_id
+                             JOIN geraet g ON g.id = k.geraet_id""").fetchall())
+    assert zq == {"L08": "geraet", "boden-1": "geraet", "s2120-1": "empfang"}, zq
+    assert eins(con, "SELECT count(*) FROM messwert m JOIN kanal k ON k.id=m.kanal_id WHERE k.geraet_id=%s",
+                (ids["s2120-1"],)) == 1
+    assert eins(con, "SELECT art FROM geraet WHERE name='boden-2'") == "sonstiges"
+    assert eins(con, "SELECT count(*) FROM quellfeld_ohne_kanal q JOIN geraet g ON g.id=q.geraet_id "
+                     "WHERE g.name='boden-2' AND q.quellfeld='Temp_Red'") == 1
+    dateien = {r[0] for r in con.execute("SELECT datei FROM import_position")}
+    assert dateien == {"bienen_log/" + OKT, "umwelt_log/" + OKT, "wetter_log/" + OKT}, dateien
+
+
+@test("Datalog: mehrere Einträge je Uplink mit eigener Gerätezeit, Nachsenden nach Tagen, zu alt → Empfangszeit", db=True)
+def t_datalog(con, verz):
+    stamm(con, kanaele=(("boden-1", "TempC1", "temperatur"), ("boden-1", "BatV", "gewicht")))
+    e = u("2026-10-22 06:00")
+    tag = 86400
+    ok = {"zeit_ok": True}
+    d = {"BatV": 3.6, "Eintraege": [
+        {"TempC1": 10.0, "Messzeit_unix": e - 3 * tag, "Status": ok},          # nach drei Tagen Netzausfall nachgesendet
+        {"TempC1": 10.5, "Messzeit_unix": e - 3 * tag + 1200, "Status": ok},
+        {"TempC1": 11.0, "Messzeit_unix": e - 3 * tag + 2400},                  # ohne zeit_ok → Empfangszeit
+        {"TempC1": 9.0, "Messzeit_unix": e - 31 * tag, "Status": ok},          # älter als 30 Tage → Empfangszeit
+    ]}
+    anhaengen(verz["umwelt_log"] / OKT, uplink(nachricht("boden-1", 9, e, d)))
+    b = imp.importieren(con, verz)
+    assert b.neu == 1, b.text()
+    r = con.execute("""SELECT k.quellfeld, m.zeit, m.wert, m.zeitqualitaet FROM messwert m JOIN kanal k ON k.id = m.kanal_id
+                       ORDER BY m.zeit, k.quellfeld""").fetchall()
+    assert r == [("TempC1", imp.utc(e - 3 * tag), 10.0, "geraet"),
+                 ("TempC1", imp.utc(e - 3 * tag + 1200), 10.5, "geraet"),
+                 ("BatV", imp.utc(e), 3.6, "empfang"),
+                 ("TempC1", imp.utc(e), 11.0, "empfang")], r
+    # der vierte Eintrag fällt auf dieselbe Empfangszeit und wird nicht doppelt gespeichert (sichtbar im Bericht)
+    assert b.messwert_belegt == 1, b.text()
+    # zweiter Lauf und Neulesen ändern nichts (R-5 auch mit Einträgen)
+    vorher = abbild(con)
+    con.execute("DELETE FROM import_position")
+    assert imp.importieren(con, verz).doppelt == 1 and abbild(con) == vorher
 
 
 # ---------------------------------------------------------------- Ablauf
@@ -378,7 +456,7 @@ def main():
             with psycopg.connect(DSN, autocommit=True) as con, tempfile.TemporaryDirectory() as d:
                 con.execute(schema)
                 con.execute("SET search_path = bienen, public")
-                verz = {"lora_log": pathlib.Path(d) / "lora_log", "wetter_log": pathlib.Path(d) / "wetter_log"}
+                verz = {q: pathlib.Path(d) / q for q in ("bienen_log", "umwelt_log", "lora_log", "wetter_log")}
                 for v in verz.values():
                     v.mkdir()
                 t(con, verz)

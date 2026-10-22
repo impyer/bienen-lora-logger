@@ -1,7 +1,0 @@
-# Apache 2.4: nur lora_eingang.php ist von außen erreichbar
-<FilesMatch ".*">
-  Require all denied
-</FilesMatch>
-<Files "lora_eingang.php">
-  Require all granted
-</Files>

@@ -60,8 +60,8 @@ Hinweis zum NTP des Gateways: TTN nimmt für die Zeitantwort die GPS-Zeit des Ga
 
 ## Webhook zum eigenen beelogger-Server
 
-Ab 08.10.2026 geht der Webhook an den eigenen **LoRa-Eingang** `server/lora/lora_eingang.php`, nicht mehr direkt an `beelogger_log.php`.
-Einrichtung und Webhook-Einstellungen stehen in [`../server/lora/README.md`](../server/lora/README.md).
+Ab 08.10.2026 geht der Webhook an den eigenen Eingang, nicht mehr direkt an `beelogger_log.php`; seit 22.10.2026 gibt es genau zwei: **Bienen-Eingang** `server/bienen/bienen_eingang.php` (Logger, eigene Platine, BEEP Base) und **Umwelt-Eingang** `server/umwelt/umwelt_eingang.php` (Wetterstation, Bodensonden).
+Einrichtung und Webhook-Einstellungen: [`../server/bienen/README.md`](../server/bienen/README.md), [`../server/umwelt/README.md`](../server/umwelt/README.md).
 
 - Ein Webhook für alle Geräte. Der Eingang ordnet die Geräte über `lora_config.php` den Verzeichnissen `beelogger1` … `beelogger10` zu.
 - Die Verzeichnisse behalten die beelogger-Namen. Hinweis zur früheren Empfehlung, die Verzeichnisse wie die Geräte zu benennen (`beelogger-03`): `beelogger_log.php` liest die Nummer aus dem Namen (`intval("-03")` = −3). Davon rate ich ab.

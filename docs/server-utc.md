@@ -67,4 +67,4 @@ Alte Datensätze bleiben gültig. Sie haben schon den Zeitstempel in der letzten
 - `server/eigen_anpassen.py`: erzeugt die Fassung. Jede Ersetzung muss genau einmal passen, sonst bricht das Skript ab.
 - `server/beelogger_eigen/`: Ergebnis, ohne die Bilder `beelogger_icons/` (wie beim Original nur im ZIP). Die CI erzeugt es neu und vergleicht.
 - `server/eigen_utc.patch`: Unterschied zum Original, zum Lesen.
-- Tests: `tests/server/test_lora_eingang.sh` (`VARIANTE=eigen` / `original`), `tests/server/grafik_pruefen.js`.
+- Tests: `tests/server/test_bienen_eingang.sh` (`VARIANTE=eigen` / `original`), `tests/server/grafik_pruefen.js`.

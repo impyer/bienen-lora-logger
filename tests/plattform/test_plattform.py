@@ -124,7 +124,7 @@ def _():
         a, b = syn.protokolle_schreiben(d1), syn.protokolle_schreiben(d2)
         for q in a:
             assert (a[q] / "2026-10.jsonl").read_bytes() == (b[q] / "2026-10.jsonl").read_bytes(), q
-        zeilen = (a["lora_log"] / "2026-10.jsonl").read_text(encoding="utf-8").split("\n")
+        zeilen = (a["bienen_log"] / "2026-10.jsonl").read_text(encoding="utf-8").split("\n")
     assert zeilen[-1].startswith('{"geraet":"beelogger-01","art":"uplink","id":"halb'), "halbe letzte Zeile fehlt"
     ups = []
     for z in zeilen[:-1]:
@@ -398,7 +398,7 @@ def _():
     richtung = [b for _, b in reihe(r, "windrichtung")["punkte"] if b is not None]
     assert richtung and all(b <= 15 or b >= 345 for b in richtung), [b for b in richtung if 15 < b < 345][:5]
     regen = [b for _, b in reihe(r, "regen_summe")["punkte"] if b is not None]
-    zeilen = (pathlib.Path(ZUSTAND["verz"]) / "wetter_log" / "2026-10.jsonl").read_text(encoding="utf-8").splitlines()
+    zeilen = (pathlib.Path(ZUSTAND["verz"]) / "umwelt_log" / "2026-10.jsonl").read_text(encoding="utf-8").splitlines()
     roh = [json.loads(z)["nachricht"]["uplink_message"].get("decoded_payload", {}).get("rain_mm") for z in zeilen]
     roh = [x for x in roh if x is not None]
     assert max(regen) <= max(roh) + 1e-9, (max(regen), max(roh))
@@ -425,7 +425,7 @@ def _():
     assert ("beelogger-01", "Gewicht") not in unbenannt
     ohne = {x["name"] for x in p["geraete_ohne_ziel"]}
     assert ohne == {"beelogger-03", "beelogger-99"}, ohne
-    assert {x["datei"] for x in p["importe"]} == {"lora_log/2026-10.jsonl", "wetter_log/2026-10.jsonl"}
+    assert {x["datei"] for x in p["importe"]} == {"bienen_log/2026-10.jsonl", "umwelt_log/2026-10.jsonl"}
 
 
 @test("Unbekanntes Volk 404, unbekannte Messgröße 400, alle Messgrößen ohne Auswahl", db=True)

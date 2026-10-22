@@ -218,7 +218,7 @@ def router(lesen, schreiben, nachtragen=None):
     @r.post("/geraete/{geraet_id}/nachtragen")
     def nachtragen_endpunkt(geraet_id: int, cur=Depends(schreiben, scope="function")):
         if nachtragen is None:
-            raise HTTPException(409, "Nachtragen nicht eingerichtet: in plattform_config.toml [protokolle] lora_log/wetter_log "
+            raise HTTPException(409, "Nachtragen nicht eingerichtet: in plattform_config.toml [protokolle] bienen_log/umwelt_log "
                                      "angeben oder server/datenbank/importer.py --nachtragen aufrufen")
         cur.execute("SELECT name FROM geraet WHERE id = %s", (geraet_id,))
         g = cur.fetchone()

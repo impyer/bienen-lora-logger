@@ -119,7 +119,7 @@ def uebersicht():
 
 def protokoll_schreiben(verz, geraet, von, anzahl, start_fcnt=0):
     """Uplinks eines beelogger alle 30 min, wie sie der LoRa-Eingang protokolliert"""
-    d = pathlib.Path(verz) / "lora_log"
+    d = pathlib.Path(verz) / "bienen_log"
     d.mkdir(parents=True, exist_ok=True)
     zeilen = []
     for i in range(anzahl):
@@ -136,7 +136,7 @@ def importieren():
     import importer
     import psycopg
     with psycopg.connect(DSN) as con:
-        return importer.importieren(con, {"lora_log": pathlib.Path(ZUSTAND["verz"]) / "lora_log"})
+        return importer.importieren(con, {"bienen_log": pathlib.Path(ZUSTAND["verz"]) / "bienen_log"})
 
 
 @test("Leerer Start: Katalog, Stand, Volk (409 bei doppeltem Stand)", db=True)
@@ -149,7 +149,7 @@ def _():
         con.execute((WURZEL / "server" / "datenbank" / "schema.sql").read_text(encoding="utf-8"))
     verz = tempfile.mkdtemp(prefix="bienen_verw_")
     k = {"dsn": DSN, "passwort_hash": passwort_hash(PASSWORT), "sitzungsschluessel": SCHLUESSEL, "cookie_sicher": False,
-         "protokolle": {"lora_log": str(pathlib.Path(verz) / "lora_log")}}
+         "protokolle": {"bienen_log": str(pathlib.Path(verz) / "bienen_log")}}
     c = TestClient(app_modul.erstellen(k))
     assert c.post("/api/anmelden", json={"passwort": PASSWORT}).status_code == 200
     ZUSTAND.update(c=c, csrf=c.get("/api/sitzung").json()["csrf"], verz=verz)
@@ -222,14 +222,14 @@ def _():
 def _():
     import importer
     import psycopg
-    datei = pathlib.Path(ZUSTAND["verz"]) / "lora_log" / "2026-10.jsonl"
+    datei = pathlib.Path(ZUSTAND["verz"]) / "bienen_log" / "2026-10.jsonl"
     original = datei.read_bytes()
     zeilen = original.split(b"\n")
     zeilen[0] = zeilen[0].replace(b'"Gewicht":30.0', b'"Gewicht":99.0')
     datei.write_bytes(b"\n".join(zeilen))
     try:
         with psycopg.connect(DSN) as con:
-            b = importer.Importer(con).nachtragen({"lora_log": datei.parent}, "beelogger-01")
+            b = importer.Importer(con).nachtragen({"bienen_log": datei.parent}, "beelogger-01")
         assert len(b.fehler) == 1 and "Prüfsumme" in b.fehler[0], b.fehler
     finally:
         datei.write_bytes(original)

@@ -1,10 +1,10 @@
 # Gemeinsame Eingangsschicht
 
-Alle TTN-Webhooks der Plattform laufen durch dieselbe Annahme und dasselbe Rohprotokoll. Heute nutzen sie `../lora/` (Stockwaagen) und `../wetter/` (SenseCAP S2120); künftige Eingänge für Bodensonden und BEEP Base bauen darauf auf. Das ist die Eingangsschicht aus der Zielarchitektur ([Konzept 0.2, §4 und §4a](../../docs/architektur/konzept-plattform-v02.md)): Die Eingänge schreiben verlustfreie Rohprotokolle, ein späterer Importer liest sie in PostgreSQL.
+Alle TTN-Webhooks der Plattform laufen durch dieselbe Annahme und dasselbe Rohprotokoll. Es gibt genau zwei Eingänge: `../bienen/` (Messwerte der Völker) und `../umwelt/` (Umweltsensoren am Stand). Das ist die Eingangsschicht aus der Zielarchitektur ([Konzept 0.2, §4 und §4a](../../docs/architektur/konzept-plattform-v02.md)): Die Eingänge schreiben verlustfreie Rohprotokolle, ein späterer Importer liest sie in PostgreSQL.
 
 | Datei | Aufgabe |
 |---|---|
-| `eingang_funktionen.php` | Hilfsfunktionen ohne HTTP-Seiteneffekte (auch für Kommandozeilenskripte wie `lora_nachholen.php`): Konfiguration laden, TTN-Zeit, Zahlen, Felder der Nachricht, Funkdaten, Kennung gegen Doppelzustellung, Liste verarbeiteter Kennungen, Monatsprotokoll, CSV anhängen, Sperre |
+| `eingang_funktionen.php` | Hilfsfunktionen ohne HTTP-Seiteneffekte (auch für Kommandozeilenskripte wie `bienen_nachholen.php`): Konfiguration laden, TTN-Zeit, Zahlen, Felder der Nachricht, Funkdaten, Kennung gegen Doppelzustellung, Liste verarbeiteter Kennungen, Monatsprotokoll, CSV anhängen, Sperre |
 | `eingang_webhook.php` | Annahme eines Webhooks: Konfiguration prüfen, Token und Methode prüfen, JSON lesen, Rohprotokoll vor jeder Verarbeitung, Antwort an TTN mit angehängten Warnungen |
 | `.htaccess` | Apache: kein Zugriff von außen; die Dateien werden nur eingebunden |
 
@@ -24,15 +24,15 @@ ein_ende(200, 'gespeichert: …');                                    // hängt 
 - Je Eingang eine Monatsdatei `<log_verzeichnis>/JJJJ-MM.jsonl` (Monat in UTC), eine JSON-Zeile je Eintrag, nur angehängt.
 - Uplinks stehen **vor** jeder Verarbeitung vollständig darin: Herkunft (`geraet` bzw. `station`), `art: "uplink"`, Kennung `id`, `roh_sha256` (SHA-256 des empfangenen Textes), `nachricht`, `log_zeit`.
 - Scheitert das Schreiben, wird trotzdem verarbeitet; die Antwort an TTN endet auf `| WARNUNG: Rohprotokoll nicht geschrieben`, und im PHP-Fehlerprotokoll steht die Kennung (R-2).
-- Die Feldnamen der Herkunft (`geraet`, `station`) sind je Eingang verschieden geblieben, damit vorhandene Protokolle gleich gelesen werden.
+- Herkunftsfeld ist in beiden Eingängen `geraet` (TTN-Gerätename). Nur der frühere Wetter-Eingang schrieb `station`; der Importer liest diesen Altbestand weiter.
 
 ## Einspielen
 
-Ordner `eingang/` auf dem Server **neben** `lora/` und `wetter/` ablegen (gleiche Ebene wie `beelogger1` …). Die Eingänge binden ihn über `../eingang/` ein. Auf nginx gilt die `.htaccess` nicht; dort den Ordner per Server-Konfiguration sperren.
+Ordner `eingang/` auf dem Server **neben** `bienen/` und `umwelt/` ablegen (gleiche Ebene wie `beelogger1` …). Die Eingänge binden ihn über `../eingang/` ein. Auf nginx gilt die `.htaccess` nicht; dort den Ordner per Server-Konfiguration sperren.
 
 ## Tests
 
 - `php tests/server/test_eingang_funktionen.php` (Unit-Tests)
-- `bash tests/server/test_lora_eingang.sh` und `bash tests/server/test_wetter_eingang.sh` prüfen die Schicht Ende zu Ende mit beiden Eingängen (T2, PHP-Testserver, kein Apache, kein TTN-Feldtest).
+- `bash tests/server/test_bienen_eingang.sh` und `bash tests/server/test_umwelt_eingang.sh` prüfen die Schicht Ende zu Ende mit beiden Eingängen (T2, PHP-Testserver, kein Apache, kein TTN-Feldtest).
 
 Lizenz: GPL-3.0-or-later.

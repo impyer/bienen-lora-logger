@@ -1,5 +1,13 @@
 # Änderungen
 
+## 2026-10-22 – Zwei Eingänge (Bienen, Umwelt), Messzeit einheitlich
+
+- **Entscheidung PLT-01:** genau zwei Eingänge statt einem je Sensor.
+  - `server/bienen/` ersetzt `server/lora/`. Geräte ohne beelogger-Eintrag (BEEP Base, eigene Platine) werden protokolliert und importiert.
+  - `server/umwelt/` ersetzt `server/wetter/`. Der Eingang kennt keine Geräte und Felder; die S2120-CSV entfällt.
+- **Importer:** `--bienen`/`--umwelt`, Altbestand `--lora`/`--wetter`. Gleiche Zeitregel für alle: Gerätezeit bei `zeit_ok`, ≤ 30 s vor und ≤ 30 Tage nach dem Empfang (`--max-alter-tage`, ersetzt `--max-zeitabweichung`); Liste `Eintraege` für nachgesendete Werte.
+- Befund PLT26-18; Bericht [`docs/testberichte/2026-10-22-zwei-eingaenge.md`](docs/testberichte/2026-10-22-zwei-eingaenge.md). Änderungsklasse D2.
+
 ## 2026-10-22 – Plattform: Fachfehler behoben, Tests mit Sollwerten und Mutationstest, Bedienung
 
 - **Fachfehler** (Prüfbericht 21.10.):

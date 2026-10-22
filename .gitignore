@@ -40,14 +40,11 @@ node_modules/
 tests/formatter/goja/goja
 vek_*.json
 
-# LoRa-Eingang: Zugangsdaten und Protokoll
-server/lora/lora_config.php
-server/lora/lora_log/
-
-# Wetter-Eingang: Zugangsdaten, Messwerte und Protokoll
-server/wetter/wetter_config.php
-server/wetter/wetter_daten/
-server/wetter/wetter_log/
+# Bienen-Eingang und Umwelt-Eingang: Zugangsdaten und Rohprotokolle
+server/bienen/bienen_config.php
+server/bienen/bienen_log/
+server/umwelt/umwelt_config.php
+server/umwelt/umwelt_log/
 # Plattform (Lese-API): Zugangsdaten
 server/plattform/plattform_config.toml
 

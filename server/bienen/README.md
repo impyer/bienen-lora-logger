@@ -1,19 +1,25 @@
-# LoRa-Eingang für den beelogger-Webserver
+# Bienen-Eingang
 
-`lora_eingang.php` ist das Webhook-Ziel für The Things Stack (TTN). Er arbeitet mit dem Original M.40 und mit der eigenen Fassung (`server/beelogger_eigen/`).
+`bienen_eingang.php` ist das Webhook-Ziel für The Things Stack (TTN) für **alle Messwerte der Völker**: beelogger, eigene Platine, BEEP Base. Umweltsensoren am Stand gehen an den [Umwelt-Eingang](../umwelt/README.md).
+
+- Jeder Uplink steht **vor** jeder Verarbeitung im Rohprotokoll `bienen_log/JJJJ-MM.jsonl`. Daraus liest `server/datenbank/importer.py --bienen` in die Datenbank. Bedeutung und Zuordnung der Felder (Kanäle, Volk) stehen nur in der Datenbank.
+- **Nur** Geräte, die in `bienen_config.php` unter `geraete` stehen, gehen zusätzlich an den beelogger-Webserver M.40 (Original oder eigene Fassung `server/beelogger_eigen/`), solange er parallel läuft. Alle anderen Geräte brauchen keinen Eintrag; sie werden mit 200 „protokolliert, ohne beelogger-Weiterleitung“ beantwortet.
+- Bis 22.10.2026 hieß dieser Eingang LoRa-Eingang (`server/lora/lora_eingang.php`, Protokoll `lora_log/`). Die Datei `lora_zusatz.csv` in den beelogger-Verzeichnissen behält ihren Namen, damit vorhandene Daten weiter angehängt werden. Die Funktionsnamen `le_…` sind geblieben.
+
+Der Rest dieses Dokuments beschreibt die Weiterleitung an beelogger.
 
 | Datei | Aufgabe |
 |---|---|
-| `lora_eingang.php` | Webhook annehmen (Token, JSON), Ergebnis an TTN melden |
-| `lora_verarbeitung.php` | Verarbeitung eines Uplinks, gemeinsam für Eingang und Nachholen |
-| `lora_nachholen.php` | zwischengespeicherte Nachrichten erneut verarbeiten (nur Kommandozeile, z. B. cron) |
-| `lora_funktionen.php` | Hilfsfunktionen ohne Seiteneffekte (Unit-Tests) |
+| `bienen_eingang.php` | Webhook annehmen (Token, JSON), Ergebnis an TTN melden |
+| `bienen_verarbeitung.php` | Verarbeitung eines Uplinks, gemeinsam für Eingang und Nachholen |
+| `bienen_nachholen.php` | zwischengespeicherte Nachrichten erneut verarbeiten (nur Kommandozeile, z. B. cron) |
+| `bienen_funktionen.php` | Hilfsfunktionen ohne Seiteneffekte (Unit-Tests) |
 | `../eingang/` | gemeinsame Eingangsschicht aller Webhooks: Annahme, Token, Rohprotokoll, Kennung, Duplikatliste, Sperre ([README](../eingang/README.md)) |
 
 ## Was er macht
 
 1. Er nimmt den TTN-Webhook an und prüft das geheime Wort im Header `X-Bienen-Token`.
-2. Er ordnet das Gerät über den TTN-Gerätenamen einem beelogger-Verzeichnis zu (`lora_config.php`).
+2. Er ordnet das Gerät über den TTN-Gerätenamen einem beelogger-Verzeichnis zu (`bienen_config.php`). Gerät ohne Eintrag: Ende mit 200 „protokolliert, ohne beelogger-Weiterleitung“.
 3. Er wählt den **Messzeitpunkt**:
    - die Gerätezeit (Funkformat v2, Uhr abgeglichen, höchstens 15 min vor dem Empfang),
    - sonst die Empfangszeit `received_at` von TTN.
@@ -21,8 +27,8 @@
 4. Er baut daraus einen Datensatz im Format, das beelogger für EE-Logger mit eigener Zeit vorsieht (`M1=Zeit,…`), und ruft damit `beelogger_log.php` des Loggers auf.
    - Gewichtskorrektur, Alarme, Anmerkungen, BEEP- und ThingSpeak-Weitergabe laufen also wie gewohnt, aber mit der richtigen Zeit.
 5. Er prüft in `week.csv`, ob der Datensatz wirklich gespeichert wurde. `beelogger_log.php` antwortet auch bei verworfenen Datensätzen mit „…ok *“.
-   - Je Logger arbeitet immer nur ein Aufruf (Sperre `lora_log/sperre_<verzeichnis>.lock`). Gleichzeitige Webhooks warten aufeinander. So ist die Prüfung über Dateigröße und letzten Zeitstempel eindeutig (SRV26-03).
-   - Jede Nachricht bekommt eine Kennung aus Gerät, FPort, FCnt, Nutzdaten und `received_at`. FCnt allein reicht nicht, weil der Musterlogger den Zähler bei 16384 zurücksetzt. Kommt dieselbe Nachricht noch einmal, wird sie als „doppelt“ beantwortet und **nicht** an beelogger weitergegeben. Es entstehen also keine doppelten Zeilen und keine doppelte BEEP-Übertragung (SRV26-03/04/05). Liste: `lora_log/ids_<verzeichnis>.txt`, die letzten 5000.
+   - Je Logger arbeitet immer nur ein Aufruf (Sperre `bienen_log/sperre_<verzeichnis>.lock`). Gleichzeitige Webhooks warten aufeinander. So ist die Prüfung über Dateigröße und letzten Zeitstempel eindeutig (SRV26-03).
+   - Jede Nachricht bekommt eine Kennung aus Gerät, FPort, FCnt, Nutzdaten und `received_at`. FCnt allein reicht nicht, weil der Musterlogger den Zähler bei 16384 zurücksetzt. Kommt dieselbe Nachricht noch einmal, wird sie als „doppelt“ beantwortet und **nicht** an beelogger weitergegeben. Es entstehen also keine doppelten Zeilen und keine doppelte BEEP-Übertragung (SRV26-03/04/05). Liste: `bienen_log/ids_<verzeichnis>.txt`, die letzten 5000.
 6. Er schreibt alles, wofür beelogger keine Spalte hat, in `lora_zusatz.csv` im Logger-Verzeichnis:
    - RSSI und SNR des besten Gateways, Anzahl Gateways, Spreizfaktor, Frame-Zähler
    - Firmware-ID, CPU-Temperatur, zweite Innentemperatur
@@ -30,7 +36,7 @@
    - Zustandsbits, Neustart-Grund, Warnungen des Formatters
    - Ergebnis der Speicherung
    - Schlägt das Schreiben fehl, steht die Zeile im Protokoll („zusatz_fehler“) und die Antwort an TTN trägt eine Warnung (SRV26-04).
-7. Er protokolliert jede Webhook-Nachricht als JSON-Zeile in `lora_log/JJJJ-MM.jsonl`.
+7. Er protokolliert jede Webhook-Nachricht als JSON-Zeile in `bienen_log/JJJJ-MM.jsonl`.
    - Uplinks **vor** der Verarbeitung, vollständig, mit `roh_sha256` (SHA-256 des empfangenen Textes). Das ist das Rohprotokoll der Datenplattform (PLT26-02).
    - Scheitert das Schreiben, wird die Nachricht trotzdem verarbeitet; die Antwort an TTN endet dann auf `| WARNUNG: Rohprotokoll nicht geschrieben`, und im PHP-Fehlerprotokoll steht die Kennung.
 
@@ -46,8 +52,8 @@
 
 ## Einrichtung
 
-1. Ordner `server/eingang` und `server/lora` auf den Server kopieren, und zwar **neben** die Verzeichnisse `beelogger1`, `beelogger2` …: `…/beelogger/eingang/` und `…/beelogger/lora/`. Ohne `eingang/` bricht der Eingang mit einem PHP-Fehler ab (HTTP 500).
-2. `lora_config.beispiel.php` nach `lora_config.php` kopieren und eintragen:
+1. Ordner `server/eingang` und `server/bienen` auf den Server kopieren, und zwar **neben** die Verzeichnisse `beelogger1`, `beelogger2` …: `…/beelogger/eingang/` und `…/beelogger/bienen/`. Ohne `eingang/` bricht der Eingang mit einem PHP-Fehler ab (HTTP 500).
+2. `bienen_config.beispiel.php` nach `bienen_config.php` kopieren und eintragen:
    - `token`: ein langes Zufallswort, mindestens 16 Zeichen. Zum Beispiel unter Linux mit `openssl rand -hex 24` erzeugen.
    - `basis_url`: Adresse des beelogger-Ordners, z. B. `https://example.org/beelogger`.
    - `geraete`: TTN-Gerätename → Verzeichnis.
@@ -56,11 +62,11 @@
    - Eine Datei `beelogger_zeitzone.php` im Hauptordner entscheidet **nicht** mehr über UTC. Liegt sie dort, aber ein Logger hat noch das alte `beelogger_log.php`, meldet das Protokoll „Mischinstallation“ (SRV26-07).
 3. Voraussetzung: PHP 7.4 oder neuer mit der Erweiterung **curl**. Getestet ist mit PHP 8.3.
 4. Schutz:
-   - Apache: Die mitgelieferte `.htaccess` lässt nur `lora_eingang.php` von außen zu; `lora_log/` wird gesperrt.
-   - **nginx** liest keine `.htaccess`. Dort `lora_log` außerhalb des Webverzeichnisses legen bzw. per Server-Konfiguration sperren.
+   - Apache: Die mitgelieferte `.htaccess` lässt nur `bienen_eingang.php` von außen zu; `bienen_log/` wird gesperrt.
+   - **nginx** liest keine `.htaccess`. Dort `bienen_log` außerhalb des Webverzeichnisses legen bzw. per Server-Konfiguration sperren.
 5. TTN-Konsole → Applikation `beelog-de-sn` → Integrations → **Webhooks**. Den bisherigen beelogger-Webhook ändern oder einen neuen anlegen:
    - Webhook format: JSON
-   - Base URL: `https://example.org/beelogger/lora/lora_eingang.php`
+   - Base URL: `https://example.org/beelogger/bienen/bienen_eingang.php`
    - Additional headers: `X-Bienen-Token` = das Wort aus `token`
    - Enabled event types: nur **Uplink message**, Pfad leer lassen
 6. Prüfen:
@@ -72,9 +78,9 @@ Die alte Webhook-Adresse (`…/beelogger_log.php?…&LORA=1`) wird danach nicht 
 
 7. **Nachholen einrichten** (cron, z. B. alle 15 min):
    ```
-   */15 * * * * cd /pfad/zu/beelogger/lora && php lora_nachholen.php >> lora_log/nachholen.txt 2>&1
+   */15 * * * * cd /pfad/zu/beelogger/bienen && php bienen_nachholen.php >> bienen_log/nachholen.txt 2>&1
    ```
-   Ist `beelogger_log.php` nicht erreichbar oder passt die Einrichtung nicht, legt der Eingang die Nachricht in `lora_log/nachholen/` ab und antwortet TTN mit 202. Das Skript verarbeitet die Dateien später und löscht sie, sobald das Ergebnis endgültig ist. Doppelte Weitergabe verhindert die Kennung.
+   Ist `beelogger_log.php` nicht erreichbar oder passt die Einrichtung nicht, legt der Eingang die Nachricht in `bienen_log/nachholen/` ab und antwortet TTN mit 202. Das Skript verarbeitet die Dateien später und löscht sie, sobald das Ergebnis endgültig ist. Doppelte Weitergabe verhindert die Kennung.
 
 ## Antworten an TTN
 
@@ -83,19 +89,20 @@ Die alte Webhook-Adresse (`…/beelogger_log.php?…&LORA=1`) wird danach nicht 
 | 200 | `gespeichert` | Datensatz in `week.csv` angelegt |
 | 200 | `abgelehnt` | beelogger hat geantwortet, aber nicht gespeichert (Zeit doppelt oder älter als der letzte Datensatz) |
 | 200 | `doppelt` | dieselbe Nachricht wurde schon verarbeitet; beelogger nicht erneut aufgerufen |
-| 200 | `ignoriert` | keine Uplink-Nachricht, unbekanntes Gerät oder ohne `decoded_payload`; steht im Protokoll |
-| 202 | `zwischengespeichert` | vorübergehender Fehler (beelogger nicht erreichbar, Einrichtung passt nicht); `lora_nachholen.php` holt nach |
+| 200 | `ignoriert` | keine Uplink-Nachricht oder ohne `decoded_payload`; steht im Protokoll |
+| 200 | `protokolliert, ohne beelogger-Weiterleitung` | Gerät nicht in `geraete`; Uplink steht im Rohprotokoll und kommt über den Importer in die Datenbank |
+| 202 | `zwischengespeichert` | vorübergehender Fehler (beelogger nicht erreichbar, Einrichtung passt nicht); `bienen_nachholen.php` holt nach |
 | 400 | | kein JSON bzw. ohne `received_at` |
 | 401 | | Token falsch |
 | 405 | | kein POST |
-| 500 | | `lora_config.php` fehlt, oder Zwischenspeichern ist fehlgeschlagen (dann geht die Nachricht verloren; steht im Protokoll) |
+| 500 | | `bienen_config.php` fehlt, oder Zwischenspeichern ist fehlgeschlagen (dann geht die Nachricht verloren; steht im Protokoll) |
 | 502 | | nur wenn auch das Zwischenspeichern scheitert |
 
 Warum 202 statt 5xx bei vorübergehenden Fehlern (SRV26-02): The Things Stack wiederholt einen einzelnen Webhook nach meinem Stand nicht. Gehäufte Fehlerantworten können den Webhook dagegen abschalten. Die Wiederholung übernimmt deshalb der Server selbst. **[P]** Das Verhalten von TTS bei Fehlerantworten ist aus dem Quelltext abgeleitet, nicht mit TTN gemessen.
 
 ## Grenzen (bekannt)
 
-- **Winterzeit-Umstellung:** Mit dem **Original** M.40 verwirft beelogger in der doppelten Stunde weiterhin Datensätze (Test: 2 von 7 bei 30-min-Takt), weil es die Ortszeit speichert und mit `strtotime()` zurückrechnet. Mit der **eigenen Fassung** (`server/beelogger_eigen/`, siehe [`../../docs/server-utc.md`](../../docs/server-utc.md)) übergibt der Eingang die Zeit in UTC (`UTC=1`) und alle 7 Datensätze werden gespeichert. Umschalten: `'utc_zeit'` in `lora_config.php` (`'auto'` = UTC, wenn `beelogger_zeitzone.php` im beelogger-Ordner liegt). Die Zusatzdatei hat in beiden Fällen die richtige UTC-Zeit.
+- **Winterzeit-Umstellung:** Mit dem **Original** M.40 verwirft beelogger in der doppelten Stunde weiterhin Datensätze (Test: 2 von 7 bei 30-min-Takt), weil es die Ortszeit speichert und mit `strtotime()` zurückrechnet. Mit der **eigenen Fassung** (`server/beelogger_eigen/`, siehe [`../../docs/server-utc.md`](../../docs/server-utc.md)) übergibt der Eingang die Zeit in UTC (`UTC=1`) und alle 7 Datensätze werden gespeichert. Umschalten: `'utc_zeit'` in `bienen_config.php` (`'auto'` = UTC, wenn `beelogger_zeitzone.php` im beelogger-Ordner liegt). Die Zusatzdatei hat in beiden Fällen die richtige UTC-Zeit.
 - Duo, Triple usw. sind nur über die Feldzahl geprüft, nicht mit echten Unterverzeichnissen. **[P]** Beim ersten Duo-Logger nachsehen.
 - Der Testserver (`php -S`) verteilt Verbindungen ungleichmäßig auf seine Arbeitsprozesse. Der Test nutzt deshalb einen zweiten Testserver für `beelogger_log.php`. Auf Apache bzw. PHP-FPM ist das nicht nötig.
 - Die Sperre wirkt nur zwischen Aufrufen des LoRa-Eingangs. Schreibt ein anderer Weg gleichzeitig in dasselbe Logger-Verzeichnis (z. B. ein WLAN-Logger mit demselben Verzeichnis), gilt die Speicherprüfung nicht sicher.
@@ -104,8 +111,8 @@ Warum 202 statt 5xx bei vorübergehenden Fehlern (SRV26-02): The Things Stack wi
 ## Tests
 
 - `php tests/server/test_eingang_funktionen.php`: gemeinsame Eingangsschicht (Zeit, Zahlen, Funk, Kennung, Duplikatliste, Protokoll, CSV, Sperre, Konfiguration)
-- `php tests/server/test_lora_funktionen.php`: Hilfsfunktionen des LoRa-Eingangs (Messzeit, EE-Datensatz, Zusatzzeile, Speicherprüfung, Zeitbasis, Aufruf-Adresse)
-- `bash tests/server/test_lora_eingang.sh`: Ende-zu-Ende mit dem echten Formatter und zwei PHP-Testservern. `VARIANTE=eigen` (Vorgabe, 73 Prüfungen) oder `VARIANTE=original` (56 Prüfungen, weist den Winterzeit-Fehler des Originals nach). Enthalten:
+- `php tests/server/test_bienen_funktionen.php`: Hilfsfunktionen des LoRa-Eingangs (Messzeit, EE-Datensatz, Zusatzzeile, Speicherprüfung, Zeitbasis, Aufruf-Adresse)
+- `bash tests/server/test_bienen_eingang.sh`: Ende-zu-Ende mit dem echten Formatter und zwei PHP-Testservern. `VARIANTE=eigen` (Vorgabe, 73 Prüfungen) oder `VARIANTE=original` (56 Prüfungen, weist den Winterzeit-Fehler des Originals nach). Enthalten:
   - Funkformat v1/v2, Zeitquelle, Fehlerfälle, Winterzeit-Nacht
   - doppelte und gleichzeitige Nachrichten (4 parallele Webhooks), Nachholen nach Ausfall
   - Zeitbasis-Matrix: altes/eigenes `beelogger_log.php` × Merkmal im Hauptordner × `utc_zeit`

@@ -1,5 +1,5 @@
 <?php
-// LoRa-Eingang: Verarbeitung eines TTN-Uplinks (gemeinsam für lora_eingang.php und lora_nachholen.php)
+// Bienen-Eingang: Verarbeitung eines TTN-Uplinks (gemeinsam für bienen_eingang.php und bienen_nachholen.php)
 // Copyright (C) 2026 Philipp Schnabel – GPL-3.0-or-later
 //
 // Ergebnisklassen (SRV26-02):
@@ -10,25 +10,25 @@
 //   ungueltig          Nachricht unbrauchbar (z. B. ohne received_at)                    → 400
 //   fehler_einrichtung Konfiguration/Installation passt nicht (vorübergehend behebbar)   → nachholen
 //   fehler_endpunkt    beelogger_log.php nicht erreichbar oder Fehlerantwort             → nachholen
-// "nachholen": Die Nachricht wird zwischengespeichert und von lora_nachholen.php erneut verarbeitet.
+// "nachholen": Die Nachricht wird zwischengespeichert und von bienen_nachholen.php erneut verarbeitet.
 //
 // Ablauf von le_verarbeiten():
 //   1. le_auftrag()        Nachricht prüfen, Ziel-Logger, Messzeit und Zeitbasis bestimmen (ohne Schreibzugriff auf beelogger)
 //   2. le_weitergeben()    unter der Sperre je Logger: Duplikat, Aufruf von beelogger_log.php, Speicherprüfung, Zusatzdatei
 
-require_once __DIR__ . '/lora_funktionen.php';
+require_once __DIR__ . '/bienen_funktionen.php';
 
 // Klassen, bei denen die Nachricht zwischengespeichert und später nachgeholt wird
 const LE_KLASSEN_NACHHOLEN = array('fehler_endpunkt', 'fehler_einrichtung');
 
 function le_cfg_laden()
 {
-    return ein_cfg_laden(__DIR__ . '/lora_config.php', array(
+    return ein_cfg_laden(__DIR__ . '/bienen_config.php', array(
         'header' => 'X-Bienen-Token',
         'aux' => array(1 => 'Aux1', 2 => 'FFT_Hz', 3 => 'FFT_dB'),
         'waegezellen_temp' => 'TempOut',
         'max_zeitabweichung_s' => 900,
-        'log_verzeichnis' => __DIR__ . '/lora_log',
+        'log_verzeichnis' => __DIR__ . '/bienen_log',
         'beelogger_verzeichnis' => dirname(__DIR__),
         'tls_pruefen' => true,
         'zeitlimit_s' => 20,
@@ -38,7 +38,7 @@ function le_cfg_laden()
     ));
 }
 
-// Eintrag im Monatsprotokoll des LoRa-Eingangs
+// Eintrag im Monatsprotokoll des Bienen-Eingangs
 function le_log(array $cfg, array $eintrag)
 {
     return ein_protokoll($cfg['log_verzeichnis'], $eintrag);
@@ -84,7 +84,7 @@ function le_auftrag(array $cfg, array $msg)
 
     // ---------- Ziel-Logger ----------
     if (!isset($cfg['geraete'][$geraet])) {
-        return array('ergebnis' => le_ergebnis(200, 'ignoriert', 'ignoriert: Gerät nicht in lora_config.php: ' . $geraet));
+        return array('ergebnis' => le_ergebnis(200, 'ignoriert', 'protokolliert, ohne beelogger-Weiterleitung (Gerät nicht in bienen_config.php): ' . $geraet));
     }
     $verz = (string)$cfg['geraete'][$geraet]['verzeichnis'];
     if (!preg_match('/^[A-Za-z0-9_]+$/', $verz)) {

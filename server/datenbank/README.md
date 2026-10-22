@@ -7,7 +7,7 @@ Schema 0.4 der Bienen-Plattform nach [`docs/architektur/konzept-plattform-v02.md
 | Datei | Zweck |
 |---|---|
 | `schema.sql` | Legt das Schema `bienen` neu an. **Löscht ein vorhandenes Schema `bienen` samt Daten** (`DROP SCHEMA … CASCADE`), deshalb nur auf einer leeren Datenbank verwenden |
-| `importer.py` | Liest die Rohprotokolle der Eingänge (`lora_log/`, `wetter_log/`) in die Datenbank, siehe unten |
+| `importer.py` | Liest die Rohprotokolle der beiden Eingänge (`bienen_log/`, `umwelt_log/`; Altbestand `lora_log/`, `wetter_log/`) in die Datenbank, siehe unten |
 | `../../tests/datenbank/test_importer.py` | 4 Hosttests ohne Datenbank, 9 Datenbankfälle (Grundfall, fehlerhafte Einzelzeilen, K-06, K-09, R-4, R-5 Doppelimport, Zeitqualität, Kanalzeitraum, halbe Zeile) |
 | `../../tests/datenbank/test_schema.py` | 24 Prüffälle (u. a. ER-01, ER-03–05, ER-07, ER-12, K-01, K-02, K-04–06, K-10, HB-01–04, HB-09, Zeitumstellung, Zeitgenauigkeit, Berechnungsversion) |
 
@@ -49,7 +49,9 @@ Konzept 0.2 §10 Schritt 4; erfüllt im Entwurf R-5 und den Erkennungsteil von R
 
 ```bash
 pip install "psycopg[binary]"          # psycopg ≥ 3.1
-BIENEN_DSN="dbname=bienen user=bienen" python3 server/datenbank/importer.py     --lora /var/www/html/lora/lora_log --wetter /var/www/html/wetter/wetter_log
+BIENEN_DSN="dbname=bienen user=bienen" python3 server/datenbank/importer.py \
+    --bienen /var/lib/bienen/bienen_log --umwelt /var/lib/bienen/umwelt_log
+# Altbestand vor dem 22.10.2026 einmalig dazu: --lora …/lora_log --wetter …/wetter_log
 ```
 
 Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzeitiger Lauf beendet sich sofort (`pg_try_advisory_lock`). Rückgabe 0 = alles gelesen, 1 = eine Datei nicht lesbar oder umgeschrieben, 2 = Aufruf oder Verbindung.
@@ -58,7 +60,7 @@ Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzei
 
 | Protokollzeile | Ergebnis |
 |---|---|
-| `"art": "uplink"` mit `id`, Herkunft (`geraet` bzw. `station`), `nachricht` mit Empfangszeit | `rohnachricht`: Kennung `id`, Gerät, Empfangszeit (µs), Gerätezeit `Messzeit_unix` falls gesendet, Datei (`lora_log/2026-10.jsonl`), Zeilennummer, SHA-256 der Protokollzeile ohne Zeilenende. Der Inhalt bleibt in der Datei |
+| `"art": "uplink"` mit `id`, Herkunft (`geraet` bzw. `station`), `nachricht` mit Empfangszeit | `rohnachricht`: Kennung `id`, Gerät, Empfangszeit (µs), Gerätezeit `Messzeit_unix` falls gesendet, Datei (`bienen_log/2026-10.jsonl`), Zeilennummer, SHA-256 der Protokollzeile ohne Zeilenende. Der Inhalt bleibt in der Datei |
 | Zahlenfeld aus `decoded_payload` mit gültigem `kanal` (Gerät, Quellfeld, Zeitraum enthält die Messzeit) | `messwert` mit dem Rohwert; `faktor`/`versatz` rechnet die Sicht `messwert_bezug` |
 | Zahlenfeld ohne Kanal | kein Messwert, nur `quellfeld_ohne_kanal` (erste/letzte Zeit, Anzahl) – Anzeige „unbenannt“ (K-06) |
 | andere Arten (`ergebnis`, `fehler`, `warnung`, `nachgeholt` …) | übersprungen, gezählt |
@@ -66,8 +68,24 @@ Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzei
 | Zeile, die sich nicht speichern lässt (z. B. NUL-Zeichen im Text, zu tief verschachteltes JSON) | eigener Sicherungspunkt je Zeile: übersprungen, mit `Datei:Zeile` im Bericht; die Datei läuft weiter. Gerätezeit außerhalb 1970–9999 gilt als nicht gesendet. Verbindungs- und Serverfehler brechen den Lauf dagegen ab, ohne die Position zu verschieben |
 
 - **Quellfelder:** verschachtelte Felder mit Punkt (`Status.zeit_ok`), Listen mit Index (`FFT_Baender_dB[0]`), `true`/`false` als 1/0; Texte (z. B. `Messzeit`) werden nicht übernommen.
-- **Messzeit:** wie `le_messzeit()` im LoRa-Eingang – Gerätezeit (`zeitqualitaet = 'geraet'`), wenn `Status.zeit_ok` und höchstens `--max-zeitabweichung` (Vorgabe 900 s wie `lora_config.beispiel.php`) vor dem Empfang, sonst Empfangszeit auf die Sekunde (`'empfang'`). Wetter immer Empfangszeit. Wer `max_zeitabweichung_s` im Eingang ändert, muss den Wert hier gleich setzen.
-- **Unbekannte Geräte** werden angelegt (`lora_log`: Art `sonstiges`, `wetter_log`: `wetter`) und im Bericht genannt; Art und Kanäle danach in den Stammdaten pflegen. So geht keine Rohnachricht verloren.
+- **Messzeit:** siehe Abschnitt „Messzeit“ unten; gleich für alle Eingänge.
+- **Unbekannte Geräte** werden angelegt (Art `sonstiges`, aus `wetter_log` `wetter`) und im Bericht genannt; Art und Kanäle danach in den Stammdaten pflegen. So geht keine Rohnachricht verloren.
+
+### Messzeit (Vertrag für Formatter, seit 22.10.2026)
+
+Die Zeitlogik hängt an den Daten, nicht am Eingang. Für jede Messung gilt:
+
+| Bedingung | Messzeit | `zeitqualitaet` |
+|---|---|---|
+| `Messzeit_unix` (Zahl, Unix-Sekunden UTC) **und** `Status.zeit_ok` ist `true` **und** höchstens 30 s nach und höchstens `--max-alter-tage` (Vorgabe 30) vor dem Empfang | `Messzeit_unix` | `geraet` |
+| sonst | Empfangszeit `received_at` auf die Sekunde | `empfang` |
+
+- `Status.zeit_ok` setzt nur der Formatter, und nur, wenn das Gerät seine Uhr nachweislich abgeglichen hat (eigene Firmware: Abgleich höchstens 3 Tage her; Dragino: SYNCMOD). Ein Gerät ohne solchen Nachweis liefert kein `zeit_ok` und bekommt die Empfangszeit.
+- **Mehrere Messungen in einem Uplink** (Datalog, Nachsenden nach Netzausfall): Liste `Eintraege`, jeder Eintrag ein Objekt mit denselben Feldnamen wie eine Einzelmessung und eigener `Messzeit_unix`/`Status.zeit_ok`. Felder außerhalb der Liste (z. B. Batterie) sind eine Messung zur Zeit der Nachricht. Andere Listeneinträge als Objekte werden übersprungen.
+- **Grenzen:**
+  - Innerhalb von 30 Tagen wird eine falsch gehende Uhr nicht mehr erkannt, wenn der Formatter `zeit_ok` setzt. Früher lag die Grenze bei 900 s. Deshalb ist `zeit_ok` die eigentliche Prüfung.
+  - Ein Eintrag älter als 30 Tage bekommt die Empfangszeit. Fallen mehrere Einträge eines Uplinks auf dieselbe Empfangszeit, bleibt der erste; die anderen zählt der Bericht als „belegt“. Die Rohnachricht bleibt vollständig.
+- Die Weiterleitung an beelogger im Bienen-Eingang (`le_messzeit`, `max_zeitabweichung_s` = 900 s) ist davon unabhängig und bleibt.
 
 **Wiederholbarkeit (R-5, K-09):**
 - `import_position` speichert je Datei die gelesenen Bytes, Zeilen und die SHA-256 dieser Bytes. Jeder Lauf liest ab dort weiter; Daten und Position werden je Datei in einer Transaktion geschrieben.
@@ -82,4 +100,4 @@ Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzei
 - Vorhandene Messwerte bleiben unverändert; eine abweichende Zeile wird gemeldet und übersprungen.
 - Die Verwaltung der Plattform ruft dasselbe auf („Werte nachtragen“).
 
-**Grenzen:** Prüfsumme je abgeschlossenem Monat (R-4) und Sicherung der Rohprotokolle (R-6) sind nicht Teil des Importers. Eingänge für BEEP Base und Bodensonde gibt es noch nicht. Kein Lauf gegen echte Protokolle oder auf der ThinkStation.
+**Grenzen:** Prüfsumme je abgeschlossenem Monat (R-4) und Sicherung der Rohprotokolle (R-6) sind nicht Teil des Importers. BEEP Base und Bodensonde laufen über den Bienen- bzw. Umwelt-Eingang; ihre Felder sind erst nach dem Anlegen der Kanäle Messwerte (vorher „unbenannt“). Kein Lauf gegen echte Protokolle oder auf der ThinkStation.

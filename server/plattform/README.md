@@ -3,7 +3,7 @@
 Konzept 0.2, §4 Nr. 4–5, §6 und §10 Schritt 5: Die eigene Plattform verbindet die **Stockkarte** (Vorbild BEEP) mit der **Datenauswertung** (Vorbild beelogger). Phase B zeigt die Daten an. Phase C pflegt die **Stammdaten** (Seite „Verwaltung“, Teil 1) und erfasst die **Stockkarte** am Handy (Seite „Stockkarte“, Teil 2: Durchsicht mit Checkliste, Maßnahme, Varroa, Aufgabe).
 
 ```
-Eingänge (server/eingang, lora, wetter) → JSONL-Rohprotokolle → importer.py → PostgreSQL (server/datenbank)
+Eingänge (server/eingang, bienen, umwelt) → JSONL-Rohprotokolle → importer.py → PostgreSQL (server/datenbank)
                                                                                    │
                                      Browser ← Oberfläche (web/) ← Lese-API (api/, FastAPI) ┘
 ```

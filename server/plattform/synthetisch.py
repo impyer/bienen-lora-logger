@@ -4,8 +4,8 @@
 """Synthetische Testdaten für die Plattform: ein Oktober 2026 mit Fehlern und Grenzfällen.
 
 Erzeugt
-  * Rohprotokolle im Format der Eingänge (server/eingang/ ein_rohprotokoll): lora_log/2026-10.jsonl
-    (Herkunftsfeld "geraet") und wetter_log/2026-10.jsonl ("station"). Diese liest server/datenbank/importer.py
+  * Rohprotokolle im Format der Eingänge (server/eingang/ ein_rohprotokoll): bienen_log/2026-10.jsonl
+    (Herkunftsfeld "geraet") und umwelt_log/2026-10.jsonl (ebenfalls "geraet"). Diese liest server/datenbank/importer.py
     ein – so läuft die ganze Kette Eingang → Importer → Datenbank → Lese-API.
   * Stammdaten und Stockkarte direkt per SQL (dafür gibt es noch keinen Eingang).
 
@@ -195,7 +195,7 @@ def zeitpunkte():
 
 
 def logger_zeilen(m):
-    """Zeilen für lora_log/2026-10.jsonl in Empfangsreihenfolge"""
+    """Zeilen für bienen_log/2026-10.jsonl in Empfangsreihenfolge"""
     zeilen, fcnt, nr = [], {1: FCNT_START, 2: 0, 3: 0, 4: 0}, 0
     for t in zeitpunkte():
         for lg in (1, 2, 3, 4):
@@ -234,7 +234,7 @@ def wetter_zeilen(m):
         if t == FAELLE["regen_reset"]:                         # nach Neustart: Join, erster Uplink ohne Nutzdaten
             leer = uplink("wetterstation-01", 3, 0, ttn_text(FAELLE["join_leer"]), {})
             del leer["uplink_message"]["decoded_payload"], leer["uplink_message"]["frm_payload"]
-            zeilen.append(protokollzeile("station", "wetterstation-01", leer, ttn_text(FAELLE["join_leer"])[:19] + "Z"))
+            zeilen.append(protokollzeile("geraet", "wetterstation-01", leer, ttn_text(FAELLE["join_leer"])[:19] + "Z"))
         d = m.wetter(t)
         summe += d["rain_mmh"] * 0.5
         if t == FAELLE["regen_reset"]:
@@ -242,21 +242,21 @@ def wetter_zeilen(m):
         d["rain_mm"] = round(summe - offset, 3)
         msg = uplink("wetterstation-01", 3, fcnt, ttn_text(t + timedelta(seconds=2), 476207), d, rssi=-66)
         fcnt += 1
-        zeilen.append(protokollzeile("station", "wetterstation-01", msg, ttn_text(t)[:19] + "Z"))
+        zeilen.append(protokollzeile("geraet", "wetterstation-01", msg, ttn_text(t)[:19] + "Z"))
     return zeilen
 
 
 def protokolle_schreiben(verz, seed=1):
-    """Schreibt <verz>/lora_log/2026-10.jsonl und <verz>/wetter_log/2026-10.jsonl.
-    Rückgabe: {'lora_log': Pfad, 'wetter_log': Pfad} für importer.importieren()."""
+    """Schreibt <verz>/bienen_log/2026-10.jsonl und <verz>/umwelt_log/2026-10.jsonl.
+    Rückgabe: {'bienen_log': Pfad, 'umwelt_log': Pfad} für importer.importieren()."""
     m = Modell(seed)
     verz = Path(verz)
     aus = {}
-    for quelle, zeilen in (("lora_log", logger_zeilen(m)), ("wetter_log", wetter_zeilen(m))):
+    for quelle, zeilen in (("bienen_log", logger_zeilen(m)), ("umwelt_log", wetter_zeilen(m))):
         d = verz / quelle
         d.mkdir(parents=True, exist_ok=True)
         text = "\n".join(zeilen) + "\n"
-        if quelle == "lora_log":
+        if quelle == "bienen_log":
             text += '{"geraet":"beelogger-01","art":"uplink","id":"halb'      # Eingang schreibt gerade: halbe Zeile
         (d / "2026-10.jsonl").write_text(text, encoding="utf-8", newline="\n")
         aus[quelle] = d
@@ -391,7 +391,7 @@ def aufbauen(con, verz, seed=1):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Synthetische Testdaten in eine Testdatenbank laden (löscht das Schema bienen)")
     ap.add_argument("--dsn", default=os.environ.get("BIENEN_TEST_DSN"))
-    ap.add_argument("--verzeichnis", type=Path, required=True, help="Ziel für lora_log/ und wetter_log/")
+    ap.add_argument("--verzeichnis", type=Path, required=True, help="Ziel für bienen_log/ und umwelt_log/")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--ziel-ist-test", action="store_true", help="auch wenn der Datenbankname nicht 'test' enthält")
     a = ap.parse_args(argv)
