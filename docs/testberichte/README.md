@@ -8,6 +8,7 @@ Dieser Ordner enthält nachvollziehbare, **commitbezogene** Reviews zum Projekt 
 
 | Bericht | Stand | Verifikation |
 |---|---|---|
+| **[Plattform: Behebung Fachfehler, Testgenauigkeit, Bedienung](2026-10-22-plattform-behebung.md)** | **22.10.2026, Branch `feature/plattform-behebung-20261022`** | **lokal alle Tests grün (Python 75, Diagramm 26, Browser 73); Mutationstest 50/50 erkannt (vorher 11/35); PLT26-13 bis -17 im Entwurf behoben** |
 | **[Plattform: Bedienbarkeit und Aussagekraft der Tests](2026-10-21-plattform-bedienbarkeit-tests.md)** | **21.10.2026, Stand `10e09a7` + Importer-Änderung** | **lokal: alle Tests grün (64 Python, 17 Diagramm, 40 Browser), Abdeckung 89 %, aber 24 von 35 Mutanten überlebt; 17 Mängel, PLT26-12 bis -16** |
 | **[Plattform Phase C, Teil 2: Stockkarte erfassen](2026-10-20-plattform-stockkarte.md)** | **20.10.2026, Stand `2008d2b`** | **CI grün: Hosttests 2/2, Datenbankfälle 9/9 in zwei Sitzungszeitzonen, Browser am Handy (390 px); Ausreißer im LoRa-E2E als CI26-02** |
 | **[Plattform Phase C, Teil 1: Stammdaten-Pflege mit CSRF, Nachtragen](2026-10-20-plattform-stammdaten.md)** | **20.10.2026, Stand `be40d0e`** | **CI: Hosttests 2/2, Datenbankfälle 11/11 in zwei Sitzungszeitzonen, Browser vom leeren Start bis zur Kachel; PLT26-04 im Entwurf behoben** |

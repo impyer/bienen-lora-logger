@@ -1,5 +1,28 @@
 # Änderungen
 
+## 2026-10-22 – Plattform: Fachfehler behoben, Tests mit Sollwerten und Mutationstest, Bedienung
+
+- **Fachfehler** (Prüfbericht 21.10.):
+  - Vorher/Nachher ohne Eingriffstage (PLT26-13)
+  - Zeitraum „bis“ als Ende des Ortstags (PLT26-14)
+  - Anmeldung über der Seite bei abgelaufener Sitzung, Eingaben bleiben (PLT26-15)
+  - Versionsprüfung Oberfläche/API mit verständlicher Meldung (PLT26-17)
+- **Tests** (PLT26-16):
+  - Sollwerte statt „vorhanden“
+  - Randfälle im synthetischen Oktober
+  - Seitenlogik in `web/kennzahlen.js`
+  - Fehlerpfade (409, Netz, Sitzung, Altserver)
+  - Mutationsskript `tests/plattform/mutation.py`; erkannte Mutanten 31 % → 100 % (50 von 50)
+- **Bedienung:**
+  - Steuerfelder nicht mehr als Hinweis; Übersicht nennt Hinweise nach Art
+  - „Kanal beenden“ mit Rückfrage
+  - Zeitpunkt „jetzt“ sekundengenau
+  - Diagramme im dunklen Schema
+  - Tagesbilanz-Achse ohne Eingriffstage
+  - Handy: Messwerte-Auswahl über dem Diagramm
+  - Zoom-Hinweis je Gerät; „Bienenstand“
+- Bericht: [`docs/testberichte/2026-10-22-plattform-behebung.md`](docs/testberichte/2026-10-22-plattform-behebung.md). Änderungsklasse D2.
+
 ## 2026-10-21 – Plattform: Prüfung von Bedienbarkeit und Tests, Importer schneller
 
 - **Prüfbericht** [`docs/testberichte/2026-10-21-plattform-bedienbarkeit-tests.md`](docs/testberichte/2026-10-21-plattform-bedienbarkeit-tests.md):
