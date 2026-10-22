@@ -66,7 +66,12 @@ FAELLE = {
     "durchsicht_nur_datum": z("2026-10-07 10:00"),                  # K-03 (12:00 Ortszeit, aus BEEP übernommen)
     "durchsicht_exakt": z("2026-10-02 12:30"),
     "windel": (z("2026-10-12 10:00"), z("2026-10-15 10:00")),
+    # Randfälle, damit Tests Vorzeichen, Grenzen und Verwechslungen erkennen (PLT26-16)
+    "sprung_negativ": z("2026-10-27 12:00"),                       # Volk 4 −3 kg ohne erfasste Maßnahme (Schwarm?)
+    "kurzausfall": (z("2026-10-27 06:00"), z("2026-10-27 07:30")),  # Logger 4: 3 Nachrichten fehlen, Abstand 120 min
+    "ungueltig": z("2026-10-20 03:00"),                             # Logger 1 TempIn 99,9 °C, nach Import als ungültig markiert
 }
+VERSATZ_STATION = 1.5   # Luft an der Wetterstation wärmer als der Außenfühler am Kasten: Verwechslungen fallen auf
 FCNT_START = 16000      # Logger 1 läuft am 08.10. über 16383 und beginnt wieder bei 0 (ABP-Reset, bewusst akzeptiert)
 DOPPELT_JEDE = 97       # jede 97. Nachricht stellt TTN ein zweites Mal zu
 
@@ -111,6 +116,8 @@ class Modell:
             g = 0.4                                                     # leere Waage, Logger sendet weiter
         if logger == 4 and t >= FAELLE["umsetzen"]:
             g -= 4.0                                                    # leichtere Beute
+        if logger == 4 and t >= FAELLE["sprung_negativ"]:
+            g -= 3.0                                                    # ohne Maßnahme: muss als Sprung gemeldet werden
         if logger == 2 and t == FAELLE["gewichtsspitze"]:
             g += 50.0
         return round(g + self.r.gauss(0, 0.02), 3)
@@ -120,6 +127,8 @@ class Modell:
             return -127.0
         if logger == 2 and t == FAELLE["ds18b20_85"]:
             return 85.0
+        if logger == 1 and t == FAELLE["ungueltig"]:
+            return 99.9
         if logger == 3 and t >= FAELLE["vereinigung"]:
             return round(self.temp_aussen(t) + 1, 2)
         roh = 33.5 - 0.5 * logger + self.r.gauss(0, 0.1)
@@ -139,7 +148,7 @@ class Modell:
         richtung = (360 + 12 * math.sin(tage * 3.1)) % 360               # pendelt um 0/360°
         regen_mmh = 2.4 if 4 <= ortsstunde(t) < 7 and int(tage) % 3 == 0 else 0.0
         return {
-            "t": self.temp_aussen(t), "h": self.feuchte_aussen(t), "p_hpa": round(1003 + 6 * math.sin(tage / 2), 1),
+            "t": round(self.temp_aussen(t) + VERSATZ_STATION, 2), "h": self.feuchte_aussen(t), "p_hpa": round(1003 + 6 * math.sin(tage / 2), 1),
             "l": round(40000 * tagesgang(t)), "uv": round(4 * tagesgang(t), 1),
             "wind_ms": round(2 + 1.5 * tagesgang(t), 1), "gust_ms": round(4 + 3 * tagesgang(t), 1),
             "wind_dir_deg": round(richtung), "rain_mmh": regen_mmh,
@@ -191,6 +200,8 @@ def logger_zeilen(m):
     for t in zeitpunkte():
         for lg in (1, 2, 3, 4):
             if lg == 2 and FAELLE["luecke"][0] <= t < FAELLE["luecke"][1]:
+                continue
+            if lg == 4 and FAELLE["kurzausfall"][0] <= t < FAELLE["kurzausfall"][1]:
                 continue
             uhr_ok = not (lg == 2 and FAELLE["uhr_falsch"][0] <= t < FAELLE["uhr_falsch"][1])
             daten = {"Format": 2, "TempIn": m.temp_in(lg, t), "TempOut": m.temp_aussen(t),
@@ -366,6 +377,14 @@ def aufbauen(con, verz, seed=1):
         k = stammdaten_schreiben(cur)
     con.commit()
     bericht = importer.importieren(con, protokolle_schreiben(verz, seed))
+    # Von Hand als ungültig markierter Messwert (wie eine spätere Plausibilitätsprüfung, PLT26-11): darf in keine
+    # Kurve und keinen Mittelwert eingehen
+    with con.cursor() as cur:
+        cur.execute("""UPDATE bienen.messwert m SET qualitaet = 'ungueltig' FROM bienen.kanal k JOIN bienen.geraet g ON g.id = k.geraet_id
+                       WHERE m.kanal_id = k.id AND g.name = 'beelogger-01' AND k.quellfeld = 'TempIn' AND m.zeit = %s""",
+                    (FAELLE["ungueltig"],))
+        assert cur.rowcount == 1, cur.rowcount
+    con.commit()
     return k, bericht
 
 

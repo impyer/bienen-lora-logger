@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { achsenText, bilanzOptionen, bisTag, ereignisMarken, ortstag, tagesEnde, verlaufOptionen, zeitraum } from '../../server/plattform/web/diagramm.js';
 import { bilanzVergleichOptionen, ereignisListe, milbenTage, referenzOptionen, stapelOptionen, summenOptionen } from '../../server/plattform/web/stapel.js';
+import { chronik, cockpitKennzahlen, istZeitpunkt, letzteBilanzMittel, vergleichHinweise, veraltet, vorzeichen } from '../../server/plattform/web/kennzahlen.js';
 
 let anz = 0, fehler = 0;
 function test(name, fn) {
@@ -192,6 +193,83 @@ test('Zeitraum „bis“ endet um Mitternacht Ortszeit (PLT26-14), Sommer- und W
   const z = zeitraum({ tage: '7', bis: '2026-10-31T23:00:00.000Z' });
   assert.deepEqual([z.tage, z.von, z.bisIso], [7, '2026-10-24T23:00:00.000Z', '2026-10-31T23:00:00.000Z']);
   assert.equal(zeitraum({}, 30, Date.parse('2026-10-22T10:00:00Z')).von, '2026-09-22T10:00:00.000Z');
+});
+
+test('Milbenfall: Windel bis genau Mitternacht Ortszeit endet mit dem Vortag (kein leerer Folgetag)', () => {
+  const t = milbenTage([{ von: '2026-10-11T22:00:00Z', bis: '2026-10-13T22:00:00Z', milben_pro_tag: 4 }])   // 12.10. 00:00 – 14.10. 00:00 MESZ
+    .map((p) => new Date(p[0]).toISOString().slice(0, 10));
+  assert.deepEqual(t, ['2026-10-12', '2026-10-13']);
+});
+
+test('Gestapelt: relatives Gewicht ab dem ersten Wert, auch wenn die Reihe mit einer Lücke beginnt', () => {
+  const a = structuredClone(antwort);
+  a.reihen[0].punkte = [['2026-10-25T00:00:00Z', null], ['2026-10-25T00:30:00Z', 31.5], ['2026-10-25T01:00:00Z', 31.0]];
+  const o = stapelOptionen(a, katalog, { relativ: true });
+  assert.deepEqual(o.series[0].data.map((p) => p[1]), [null, 0, -0.5]);
+});
+
+test('Gestapelt: Milbenfall-Achse ab 0, Messachsen skaliert; Zoom nur mit Strg; Zeitbeschriftung nur im untersten Feld', () => {
+  const o = stapelOptionen(antwort, katalog, { ereignisse });
+  const felder = o.grid.length - 1;                                    // letztes Raster ist die Ereignisleiste
+  assert.equal(o.yAxis[felder - 1].scale, false);                      // Milbenfall (unterstes Feld)
+  assert.ok(o.yAxis.slice(0, felder - 1).every((y) => y.scale === true));
+  assert.equal(o.dataZoom[0].zoomOnMouseWheel, 'ctrl');
+  assert.deepEqual(o.xAxis.slice(0, felder).map((x) => x.axisLabel.show), [false, false, true]);
+});
+
+const ereig = {
+  durchsichten: [{ id: 5, zeit: '2026-10-02T10:30:00Z', zeitgenauigkeit: 'exakt', notiz: 'ruhig',
+                   werte: [{ name: 'Königin gesehen', eingabetyp: 'janein', wert: true }, { name: 'Brutwaben', eingabetyp: 'ganzzahl', wert: 6, einheit: 'Waben' }] },
+                 { id: 6, zeit: '2026-10-07T10:00:00Z', zeitgenauigkeit: 'nur_datum', werte: [] }],
+  massnahmen: [{ id: 7, art: 'behandlung', von: '2026-10-01T08:00:00Z', bis: '2026-10-11T08:00:00Z', mittel: 'AS 60 %', menge: null },
+               { id: 8, art: 'fuetterung', von: '2026-10-03T15:00:00Z', bis: '2026-10-03T15:01:00Z', menge: 5, einheit: 'kg' }],
+  varroa: [{ id: 9, methode: 'windel', von: '2026-10-12T10:00:00Z', bis: '2026-10-15T10:00:00Z', milben: 45, milben_pro_tag: 15 },
+           { id: 10, methode: 'puderzucker', von: '2026-10-16T10:00:00Z', bis: '2026-10-16T10:20:00Z', milben: 3, milben_pro_tag: null }],
+};
+
+test('Cockpit-Kennzahlen: jüngster Wert (Lücke am Ende übersprungen), Brutnest statt außen, letzte Tagesbilanz, jüngste Einträge', () => {
+  const reihen = [{ messgroesse: 'temperatur', zone: 'aussen', punkte: [['2026-10-25T00:00:00Z', 8]] },
+                  { messgroesse: 'temperatur', zone: 'brutnest', punkte: [['2026-10-25T00:00:00Z', 34.5], ['2026-10-25T00:30:00Z', 34.9]] },
+                  { messgroesse: 'gewicht', zone: 'waage', punkte: [['2026-10-25T00:00:00Z', 31], ['2026-10-25T00:30:00Z', 30.5], ['2026-10-25T01:00:00Z', null]] }];
+  const bilanz = [{ tag: '2026-10-23', bilanz_kg: -0.1 }, { tag: '2026-10-24', bilanz_kg: 0.2 }];
+  const k = cockpitKennzahlen(reihen, bilanz, ereig);
+  assert.deepEqual([k.gewicht[1], k.brut[1], k.bilanz.tag, k.varroa.id, k.durchsicht.id], [30.5, 34.9, '2026-10-24', 10, 6]);
+  assert.deepEqual(cockpitKennzahlen([], [], null), { gewicht: null, brut: null, bilanz: null, varroa: null, durchsicht: null });
+});
+
+test('Chronik: neueste zuerst, Texte und Zeiten in Ortszeit, Band mit Ende, Zeitpunkt ohne Ende', () => {
+  const c = chronik(ereig);
+  assert.deepEqual(c.map((e) => e.schluessel), ['v10', 'v9', 'd6', 'm8', 'd5', 'm7']);
+  const d5 = c.find((e) => e.schluessel === 'd5');
+  assert.equal(d5.text, 'Königin gesehen: ja · Brutwaben 6 Waben · ruhig');
+  assert.equal(d5.zeit, '02.10., 12:30');
+  assert.equal(c.find((e) => e.schluessel === 'd6').zeit, '07.10.');                        // nur Datum
+  assert.equal(c.find((e) => e.schluessel === 'm7').zeit, '01.10., 10:00 – 11.10., 10:00');
+  assert.equal(c.find((e) => e.schluessel === 'm8').zeit, '03.10., 17:00');
+  assert.equal(c.find((e) => e.schluessel === 'm8').text, '5,0 kg');
+  assert.equal(c.find((e) => e.schluessel === 'v9').text, '45 Milben, 15,0 pro Tag');
+  assert.equal(c.find((e) => e.schluessel === 'v10').text, '3 Milben');
+});
+
+const vergleichVoelker = [
+  { name: 'A', spruenge: ['2026-10-16'], fehlcodes: 0, tagesbilanz: [{ tag: '2026-10-16', bilanz_kg: 5.96, mit_eingriff: false }, { tag: '2026-10-30', bilanz_kg: -0.04, mit_eingriff: false }, { tag: '2026-10-31', bilanz_kg: -30, mit_eingriff: true }] },
+  { name: 'B', spruenge: ['2026-10-28'], fehlcodes: 2, tagesbilanz: [{ tag: '2026-10-28', bilanz_kg: -3.02, mit_eingriff: false }, { tag: '2026-10-31', bilanz_kg: -0.06, mit_eingriff: false }] },
+];
+
+test('Völkervergleich: Mittel der letzten Tagesbilanz ohne Eingriff; Hinweise mit Vorzeichen und Datum', () => {
+  assert.ok(Math.abs(letzteBilanzMittel(vergleichVoelker) - -0.05) < 1e-9);
+  assert.equal(letzteBilanzMittel([{ tagesbilanz: [{ bilanz_kg: 1, mit_eingriff: true }] }]), null);
+  assert.deepEqual(vergleichHinweise(vergleichVoelker), [
+    'A: Sprung +5,96 kg am 16.10. ohne erfassten Eingriff – Maßnahme nachtragen oder Messung prüfen',
+    'B: Sprung -3,02 kg am 28.10. ohne erfassten Eingriff – Maßnahme nachtragen oder Messung prüfen',
+    'B: 2 Temperaturwert(e) mit Sensor-Fehlercode (−127 / 85 °C) – Sensor prüfen (PLT26-11)']);
+  assert.deepEqual([vorzeichen(0.004), vorzeichen(-0.004), vorzeichen(1.234)], ['±0,00', '±0,00', '+1,23']);
+});
+
+test('Übersicht „veraltet“ nach 3 h; Maßnahme ohne Ende ist ein Zeitpunkt (1 min), Band bleibt Band', () => {
+  const jetzt = Date.parse('2026-10-25T12:00:00Z');
+  assert.deepEqual([veraltet('2026-10-25T09:30:00Z', jetzt), veraltet('2026-10-25T08:59:00Z', jetzt), veraltet(null, jetzt)], [false, true, true]);
+  assert.deepEqual([istZeitpunkt('2026-10-03T15:00:00Z', '2026-10-03T15:01:00Z'), istZeitpunkt('2026-10-01T08:00:00Z', '2026-10-11T08:00:00Z')], [true, false]);
 });
 
 console.log(`${anz - fehler} von ${anz} bestanden`);

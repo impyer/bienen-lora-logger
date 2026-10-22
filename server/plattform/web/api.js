@@ -18,11 +18,19 @@ export const API_STAND = 4;
 let anmeldungAnfordern = null;
 export function anmeldungAnfordernSetzen(f) { anmeldungAnfordern = f; }
 
+// Netzfehler (Server aus, WLAN weg) als deutsche Meldung statt „Failed to fetch“
+async function versuchen(machen) {
+  try { return await machen(); } catch (e) {
+    if (e instanceof TypeError) throw new Error('Server nicht erreichbar – Verbindung prüfen und erneut versuchen. Eingaben bleiben auf der Seite.');
+    throw e;
+  }
+}
+
 async function anfragen(pfad, machen) {
-  let antwort = await machen();
+  let antwort = await versuchen(machen);
   if (antwort.status === 401 && !['anmelden', 'sitzung', 'abmelden'].includes(pfad) && anmeldungAnfordern) {
     await anmeldungAnfordern();               // wirft NichtAngemeldet, wenn abgebrochen
-    antwort = await machen();
+    antwort = await versuchen(machen);
   }
   if (antwort.status === 401 && pfad !== 'anmelden') throw new NichtAngemeldet();
   const daten = await antwort.json().catch(() => ({}));

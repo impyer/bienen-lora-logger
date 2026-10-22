@@ -6,23 +6,12 @@ import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen } from '../api.js';
 import { bilanzOptionen, reihenName, reihenSchluessel, zahl, zeitText } from '../diagramm.js';
 import { MARKEN, ereignisListe, reihenFarbe, stapelOptionen } from '../stapel.js';
+import { METHODEN, chronik, cockpitKennzahlen, vorzeichen } from '../kennzahlen.js';
 import { Diagramm, Zeitraum, Zustand, zeitraumParameter } from './komponenten.js';
 
-const ARTEN = { behandlung: 'Behandlung', fuetterung: 'Fütterung', ernte: 'Ernte', zarge_auf: 'Zarge auf',
-                zarge_ab: 'Zarge ab', umsetzen: 'Umsetzen', tarieren: 'Tarieren', sonstiges: 'Maßnahme' };
 const VORWAHL = ['gewicht', 'temperatur'];
-const METHODEN = { windel: 'Windel', puderzucker: 'Puderzucker', auswaschung: 'Auswaschung' };
 const ZONEN = { brutnest: 'Brutnest', deckel: 'Deckel', aussen: 'außen', luft_stand: 'Luft am Stand', waage: 'Waage',
                 boden: 'Boden', flugloch: 'Flugloch', elektronik: 'Elektronik', funk: 'Funk' };
-
-// Merkmalswert einer Durchsicht als kurzer Text, z. B. „Brutwaben 6 Waben“, „Königin gesehen: ja“
-function wertText(w) {
-  if (w.eingabetyp === 'janein') return `${w.name}: ${w.wert ? 'ja' : 'nein'}`;
-  if (w.eingabetyp === 'bewertung') return `${w.name} ${w.wert}/5`;
-  return `${w.name} ${typeof w.wert === 'number' ? zahl(w.wert, 0) : w.wert}${w.einheit ? ' ' + w.einheit : ''}`;
-}
-
-const letzter = (punkte) => { for (let i = punkte.length - 1; i >= 0; i--) if (punkte[i][1] !== null) return punkte[i]; return null; };
 
 export default defineComponent({
   components: { Diagramm, Zeitraum, Zustand },
@@ -157,30 +146,11 @@ export default defineComponent({
       for (const r of this.reihen?.reihen || []) (g[this.katalogMap[r.messgroesse]?.name || r.messgroesse] ||= []).push(r);
       return g;
     },
-    kz() {
-      const r = this.reihen?.reihen || [];
-      const gew = r.find((x) => x.messgroesse === 'gewicht');
-      const brut = r.find((x) => x.messgroesse === 'temperatur' && x.zone === 'brutnest');
-      const e = this.ereignisse || {};
-      const varroa = [...(e.varroa || [])].sort((a, b) => Date.parse(b.bis) - Date.parse(a.bis))[0] || null;
-      const durchsicht = [...(e.durchsichten || [])].sort((a, b) => Date.parse(b.zeit) - Date.parse(a.zeit))[0] || null;
-      return { gewicht: gew ? letzter(gew.punkte) : null, brut: brut ? letzter(brut.punkte) : null,
-               bilanz: this.bilanz.length ? this.bilanz[this.bilanz.length - 1] : null, varroa, durchsicht };
-    },
+    kz() { return cockpitKennzahlen(this.reihen?.reihen, this.bilanz, this.ereignisse); },
     vergleichsZiele() {
       return ereignisListe(this.ereignisse).filter((e) => e.schluessel).reverse();
     },
-    liste() {
-      const e = this.ereignisse || {};
-      const tag = (t) => zeitText(t).slice(0, 6);
-      const z = [];
-      const marke = (art) => MARKEN[art] || MARKEN.sonstiges;
-      for (const d of e.durchsichten || []) z.push({ schluessel: 'd' + d.id, bearbeiten: 'durchsicht&id=' + d.id, t: d.zeit, zeit: d.zeitgenauigkeit === 'nur_datum' ? tag(d.zeit) : zeitText(d.zeit), nurDatum: d.zeitgenauigkeit === 'nur_datum', art: 'Durchsicht', buchstabe: marke('durchsicht')[0], farbe: marke('durchsicht')[1], text: [...(d.werte || []).map(wertText), d.notiz].filter(Boolean).join(' · ') });
-      for (const m of e.massnahmen || []) z.push({ schluessel: 'm' + m.id, bearbeiten: 'massnahme&id=' + m.id, t: m.von, zeit: zeitText(m.von) + (m.bis && Date.parse(m.bis) - Date.parse(m.von) > 120000 ? ' – ' + zeitText(m.bis) : ''), nurDatum: m.zeitgenauigkeit === 'nur_datum', art: ARTEN[m.art] || m.art, buchstabe: marke(m.art)[0], farbe: marke(m.art)[1], text: [m.mittel, m.menge !== null ? zahl(m.menge, 1) + ' ' + (m.einheit || '') : '', m.notiz].filter(Boolean).join(' · ') });
-      for (const v of e.varroa || []) z.push({ schluessel: 'v' + v.id, bearbeiten: 'varroa&id=' + v.id, t: v.von, zeit: zeitText(v.von) + ' – ' + zeitText(v.bis), nurDatum: v.zeitgenauigkeit === 'nur_datum', art: `Varroa (${METHODEN[v.methode] || v.methode})`, buchstabe: 'V', farbe: marke('varroa')[1], text: `${v.milben} Milben` + (v.milben_pro_tag !== null && v.milben_pro_tag !== undefined ? `, ${zahl(v.milben_pro_tag, 1)} pro Tag` : '') + (v.anmerkung ? ' · ' + v.anmerkung : '') });
-      for (const v of e.volk_ereignisse || []) z.push({ schluessel: 'e' + v.id, t: v.zeit, zeit: zeitText(v.zeit), art: v.art[0].toUpperCase() + v.art.slice(1), buchstabe: 'E', farbe: marke(v.art)[1], text: (v.beteiligte || []).map((b) => `${b.name} (${b.rolle})`).join(', ') });
-      return z.sort((a, b) => Date.parse(b.t) - Date.parse(a.t));
-    },
+    liste() { return chronik(this.ereignisse); },
     eingriffstage() {
       const g = (this.vergleich?.kennzahlen || []).find((k) => k.berechnung === 'gewicht_tagesbilanz@1');
       return g ? (g.eingriff_vorher || 0) + (g.eingriff_nachher || 0) : 0;
@@ -194,7 +164,7 @@ export default defineComponent({
   },
   methods: {
     zeitText, zahl,
-    vorzeichen(w) { return Math.abs(w) < 0.005 ? '±0,00' : (w > 0 ? '+' : '') + zahl(w, 2); },
+    vorzeichen,
     schluessel: reihenSchluessel,
     name(r) { return reihenName(r, this.katalogMap); },
     farbe(r) { return reihenFarbe(r, this.katalogMap[r.messgroesse]) || '#5b635e'; },

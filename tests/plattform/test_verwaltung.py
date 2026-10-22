@@ -165,6 +165,22 @@ def _():
     assert [v["name"] for v in s[0]["voelker"]] == ["Volk 1", "Volk 2"], s
 
 
+@test("Umbenennen von Stand und Volk; eigene Messgröße mit Verdichtung min; ungültige Verdichtung 422", db=True)
+def _():
+    post(f"staende/{ZUSTAND['stand']}", {"name": "Hauptstand Nord", "ort_oeffentlich": "Radeberg"}, methode="put")
+    post(f"voelker/{ZUSTAND['volk1']}", {"name": "Volk Eins", "notiz": "ruhig"}, methode="put")
+    s = cl().get("/api/staende", params={"zeit": "2026-10-02T00:00:00Z"}).json()
+    assert s[0]["name"] == "Hauptstand Nord" and s[0]["voelker"][0]["name"] == "Volk Eins", s
+    post(f"staende/{ZUSTAND['stand']}", {"name": "Hauptstand", "ort_oeffentlich": "Radeberg"}, methode="put")
+    post(f"voelker/{ZUSTAND['volk1']}", {"name": "Volk 1"}, methode="put")
+    post("staende/99999", {"name": "x"}, 404, methode="put")
+    post("messgroessen", {"code": "bodenfrost", "name": "Bodenfrost", "einheit": "°C", "semantik": "momentan",
+                          "verdichtung": "min", "achse": "temperatur"})
+    g = {m["code"]: m for m in cl().get("/api/messgroessen").json()}
+    assert g["bodenfrost"]["verdichtung"] == "min" and g["bodenfrost"]["name"] == "Bodenfrost"
+    post("messgroessen", {"code": "x", "name": "x", "einheit": "", "semantik": "momentan", "verdichtung": "avg", "achse": "x"}, 422)
+
+
 @test("Logger sendet vor der Zuordnung: Importer legt ihn an, Werte nur als unbenannte Felder", db=True)
 def _():
     protokoll_schreiben(ZUSTAND["verz"], "beelogger-01", T0, 96)

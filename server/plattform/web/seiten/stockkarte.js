@@ -7,6 +7,7 @@
 import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen, senden } from '../api.js';
 import { jetztOrtszeit, ortszeitNachUtc, zeitText } from '../diagramm.js';
+import { istZeitpunkt } from '../kennzahlen.js';
 import { Zustand } from './komponenten.js';
 
 const ARTEN = [['durchsicht', 'Durchsicht'], ['massnahme', 'Maßnahme'], ['varroa', 'Varroa'], ['aufgabe', 'Aufgabe']];
@@ -194,8 +195,7 @@ export default defineComponent({
         for (const w of e.werte) f.werte[w.code] = w.wert;
       } else if (art === 'massnahme') {
         f.zeit = ortszeit(e.von); f.notiz = e.notiz || '';
-        const kurz = Date.parse(e.bis) - Date.parse(e.von) <= 60000;
-        Object.assign(f.massnahme, { art: e.art, bis: kurz ? '' : ortszeit(e.bis), mittel: e.mittel || '', menge: e.menge ?? '', einheit: e.einheit || '' });
+        Object.assign(f.massnahme, { art: e.art, bis: istZeitpunkt(e.von, e.bis) ? '' : ortszeit(e.bis), mittel: e.mittel || '', menge: e.menge ?? '', einheit: e.einheit || '' });
       } else {
         f.zeit = ortszeit(e.bis); f.notiz = e.anmerkung || '';
         Object.assign(f.varroa, { methode: e.methode, von: ortszeit(e.von), milben: e.milben });

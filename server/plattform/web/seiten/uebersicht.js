@@ -4,9 +4,8 @@
 import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen } from '../api.js';
 import { zahl, zeitText } from '../diagramm.js';
+import { veraltet } from '../kennzahlen.js';
 import { Zustand } from './komponenten.js';
-
-const VERALTET_MS = 3 * 3600 * 1000;    // keine Messung seit 3 h: Kachel als veraltet markieren
 
 export default defineComponent({
   components: { Zustand },
@@ -47,7 +46,7 @@ export default defineComponent({
   methods: {
     zahl, zeitText,
     tag(t) { return t.slice(8, 10) + '.' + t.slice(5, 7) + '.'; },
-    veraltet(v) { return !v.letzte_messung || this.bezug - Date.parse(v.letzte_messung) > VERALTET_MS; },
+    veraltet(v) { return veraltet(v.letzte_messung, this.bezug); },
   },
   async mounted() {
     try {

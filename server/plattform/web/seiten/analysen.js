@@ -7,6 +7,7 @@ import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen } from '../api.js';
 import { zahl } from '../diagramm.js';
 import { VOLKFARBEN, bilanzVergleichOptionen, referenzOptionen, summenOptionen } from '../stapel.js';
+import { letzteBilanzMittel, vergleichHinweise, vorzeichen } from '../kennzahlen.js';
 import { Diagramm, Zeitraum, Zustand, zeitraumParameter } from './komponenten.js';
 
 export default defineComponent({
@@ -89,7 +90,7 @@ export default defineComponent({
               <div class="karte">
                 <h2>Hinweise</h2>
                 <p v-if="!hinweise.length" class="leer">Keine.</p>
-                <ul class="chronik"><li v-for="h in hinweise" :key="h.text"><span class="marke" style="background: #c77700">!</span><div class="klein">{{ h.text }}</div></li></ul>
+                <ul class="chronik"><li v-for="h in hinweise" :key="h"><span class="marke" style="background: #c77700">!</span><div class="klein">{{ h }}</div></li></ul>
               </div>
             </aside>
           </div>
@@ -124,22 +125,12 @@ export default defineComponent({
     summenDiagramm() { return summenOptionen(this.daten.voelker, { ohneEingriff: this.ohneEingriff }); },
     tage() { return [...new Set(this.daten.voelker.flatMap((v) => v.tagesreferenz.map((r) => r.tag)))].sort().reverse(); },
     berechnung() { return this.daten.voelker.find((v) => v.tagesbilanz.length)?.tagesbilanz[0].berechnung || 'gewicht_tagesbilanz@1'; },
-    letzteBilanz() {
-      const w = this.daten.voelker.map((v) => [...v.tagesbilanz].reverse().find((b) => !b.mit_eingriff)).filter(Boolean).map((b) => b.bilanz_kg);
-      return w.length ? w.reduce((a, b) => a + b, 0) / w.length : null;
-    },
-    hinweise() {
-      const h = [];
-      for (const v of this.daten.voelker) {
-        for (const t of v.spruenge) h.push({ text: `${v.name}: Sprung ${this.vorzeichen(v.tagesbilanz.find((b) => b.tag === t).bilanz_kg)} kg am ${t.slice(8, 10)}.${t.slice(5, 7)}. ohne erfassten Eingriff – Maßnahme nachtragen oder Messung prüfen` });
-        if (v.fehlcodes) h.push({ text: `${v.name}: ${v.fehlcodes} Temperaturwert(e) mit Sensor-Fehlercode (−127 / 85 °C) – Sensor prüfen (PLT26-11)` });
-      }
-      return h;
-    },
+    letzteBilanz() { return letzteBilanzMittel(this.daten.voelker); },
+    hinweise() { return vergleichHinweise(this.daten.voelker); },
   },
   methods: {
     zahl,
-    vorzeichen(w) { return Math.abs(w) < 0.005 ? '±0,00' : (w > 0 ? '+' : '') + zahl(w, 2); },
+    vorzeichen,
     summe(feld) { return this.daten.voelker.reduce((s, v) => s + v[feld].length, 0); },
     balken(v) {
       const max = Math.max(...this.daten.voelker.map((x) => x.letzte_referenz?.referenz_kg || 0));

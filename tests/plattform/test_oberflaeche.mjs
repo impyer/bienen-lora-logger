@@ -30,6 +30,10 @@ seite.on('console', (m) => { if (m.type() === 'error' && !m.text().startsWith('F
 seite.on('response', (r) => { if (r.status() >= 400 && !new URL(r.url()).pathname.startsWith('/api/')) jsFehler.push(`${r.status()} ${r.url()}`); });
 
 let schritt = 'Start';
+// Sollwerte holt der Test bei der API selbst (gleiche Sitzung), die Anzeige muss sie wiedergeben
+const api = (pfad) => seite.evaluate((p) => fetch('api/' + p).then((r) => r.json()), pfad);
+const zahlDe = (t) => Number(String(t).replace(/\s/g, '').replace('−', '-').replace('±', '').replace(/\./g, '').replace(',', '.'));
+const fmt = (w, n) => w.toLocaleString('de-DE', { minimumFractionDigits: n, maximumFractionDigits: n });
 async function oeffnen(hash) {
   await seite.goto(basis + '/' + hash, { waitUntil: 'load' });
   await seite.waitForFunction(() => !document.querySelector('main')?.innerText.includes('Lädt'), null, { timeout: 15000 });
@@ -162,6 +166,9 @@ try {
     await oeffnen('#/?zeit=2026-10-31T23:00:00Z');
     const kacheln = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
     pruefe('Übersicht: Völker nach Vereinigung', JSON.stringify(kacheln) === JSON.stringify(['Volk 1 (syn)', 'Volk 2 (syn)', 'Volk 4 (syn)']), JSON.stringify(kacheln));
+    pruefe('Übersicht: aktuelle Kacheln nicht veraltet', await seite.locator('.kachel.veraltet').count() === 0);
+    await oeffnen('#/?zeit=2026-11-02T12:00:00Z');
+    pruefe('Übersicht: zwei Tage ohne Messung → alle veraltet', await seite.locator('.kachel.veraltet').count() === 3);
 
     await oeffnen(`#/volk/${volk}?bis=2026-10-15T23:59:59Z&tage=14`);
     await seite.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
@@ -191,6 +198,22 @@ try {
     await seite.click('.segmente button:has-text("± 7 T")');
     await seite.waitForFunction(() => (window.bienenDiagramme.verlauf.getOption().series[0].markArea.data || []).length >= 4, null, { timeout: 10000 });
     pruefe('Cockpit: Vorher/Nachher-Fenster als Bänder', true);
+    schritt = 'Kennzahlen des Cockpits';
+    const p = `von=2026-10-01T23:59:59Z&bis=2026-10-15T23:59:59Z`;
+    const mr = await api(`voelker/${volk}/messreihen?${p}`);
+    const tb = await api(`voelker/${volk}/tagesbilanz?${p}`);
+    const letzt = (r) => r.punkte.filter((x) => x[1] !== null).at(-1)[1];
+    const kacheln2 = await seite.$$eval('.kennzahl', (e) => e.map((x) => x.innerText.replace(/\s+/g, ' ')));
+    const gw = letzt(mr.reihen.find((r) => r.messgroesse === 'gewicht'));
+    const bt = letzt(mr.reihen.find((r) => r.messgroesse === 'temperatur' && r.zone === 'brutnest'));
+    const lb = tb.at(-1).bilanz_kg;
+    pruefe('Kennzahl Gewicht = letzter Messwert', kacheln2[0].includes(fmt(gw, 1)), `${kacheln2[0]} / ${gw}`);
+    pruefe('Kennzahl Tagesbilanz = letzter Tag', kacheln2[0].includes((lb > 0 ? '+' : '') + fmt(lb, 2)), `${kacheln2[0]} / ${lb}`);
+    pruefe('Kennzahl Brutnest = Brutnest, nicht außen', kacheln2[1].includes(fmt(bt, 1)), `${kacheln2[1]} / ${bt}`);
+    pruefe('Kennzahl Milbenfall = jüngste Windel', kacheln2[2].includes('15,0') && kacheln2[2].includes('Windel'), kacheln2[2]);
+    const zeiten = await seite.$$eval('.chronik li', (e) => e.map((x) => x.querySelector('.klein').innerText.slice(0, 6)));
+    const ms = zeiten.map((z) => Date.UTC(2026, Number(z.slice(3, 5)) - 1, Number(z.slice(0, 2))));
+    pruefe('Chronik: neueste zuerst', ms.every((m, i) => i === 0 || ms[i - 1] >= m) && ms.length >= 3, JSON.stringify(zeiten));
     const tabelle = await seite.innerText('.chronik');
     pruefe('Cockpit: Stockkarte mit Varroa pro Tag', tabelle.includes('45 Milben, 15,0 pro Tag'), tabelle.slice(0, 300));
     // Zeitanzeige in Europe/Berlin, obwohl der Browser in New York steht
@@ -227,9 +250,40 @@ try {
     pruefe('Analysen: Völker des Stands im Vergleich', JSON.stringify(an.referenz) === '["Volk 1 (syn)","Volk 2 (syn)"]' && an.bilanz === 2, JSON.stringify(an.referenz));
     pruefe('Analysen: Tagestabelle', an.zeilen >= 28, String(an.zeilen));
     pruefe('Analysen: Sprung ohne Eingriff und Fehlcodes als Hinweis', an.text.includes('Sprung') && an.text.includes('Fehlercode'), an.text.slice(0, 200));
+    const vg = await api('vergleich?volk_ids=1,2&von=2026-10-01T23:59:59Z&bis=2026-10-31T23:59:59Z');
+    const letzte = vg.voelker.map((v) => [...v.tagesbilanz].reverse().find((b) => !b.mit_eingriff).bilanz_kg);
+    const mittel = letzte.reduce((a, b) => a + b, 0) / letzte.length;
+    const kz = await seite.$$eval('.kennzahl', (e) => e.map((x) => x.innerText.replace(/\s+/g, ' ')));
+    pruefe('Analysen: mittlere letzte Tagesbilanz ohne Eingriff', kz[1].includes(fmt(mittel, 2)), `${kz[1]} / ${mittel}`);
+    const summen = await seite.$$eval('.seitenleiste table', (t) => t.find((x) => /ohne eingriff/i.test(x.innerText))
+      .innerText.split('\n').slice(1).map((z) => z.split('\t')));
+    const v1 = vg.voelker.find((v) => v.name === 'Volk 1 (syn)');
+    const z1 = summen.find((z) => z[0].startsWith('Volk 1'));
+    pruefe('Analysen: Summen je Volk wie die API', Math.abs(zahlDe(z1[1]) - v1.summe_kg) < 0.006 && Math.abs(zahlDe(z1[2]) - v1.summe_ohne_eingriff_kg) < 0.006,
+           `${JSON.stringify(z1)} / ${v1.summe_kg} ${v1.summe_ohne_eingriff_kg}`);
     await seite.click('button:has-text("Volk 2 (syn)")');
     await seite.waitForFunction(() => window.bienenDiagramme?.referenz?.getOption().series.length === 1, null, { timeout: 10000 });
     pruefe('Analysen: Volk abwählen', true);
+
+    schritt = 'Maßnahme-Band bearbeiten';
+    const ev = await api(`voelker/${volk}/ereignisse?von=2026-09-01T00:00:00Z&bis=2026-11-01T00:00:00Z`);
+    const beh = ev.massnahmen.find((m) => m.art === 'behandlung');
+    await oeffnen(`#/stockkarte?art=massnahme&id=${beh.id}`);
+    pruefe('Bearbeiten: Ende eines Bands bleibt erhalten', await seite.inputValue('input[aria-label="Ende"]') === '2026-10-11T10:00',
+           await seite.inputValue('input[aria-label="Ende"]'));
+    // Fehlerpfade: 409 vom Server und Netzfehler erscheinen als deutsche Meldung, die Eingabe bleibt
+    await seite.fill('textarea[aria-label="Notiz"]', 'Test 409');
+    await seite.route('**/api/stockkarte/massnahmen/*', (r) => r.fulfill({ status: 409, json: { detail: 'Ende vor Beginn' } }));
+    await seite.click('button.haupt');
+    await seite.waitForSelector('.fehler', { timeout: 10000 });
+    pruefe('Fehlerpfad 409: Meldung des Servers, Eingabe bleibt', (await seite.innerText('.fehler')).includes('Ende vor Beginn')
+           && await seite.inputValue('textarea[aria-label="Notiz"]') === 'Test 409');
+    await seite.unrouteAll();
+    await seite.route('**/api/stockkarte/massnahmen/*', (r) => r.abort('connectionrefused'));
+    await seite.click('button.haupt');
+    await seite.waitForFunction(() => document.querySelector('.fehler')?.innerText.includes('nicht erreichbar'), null, { timeout: 10000 });
+    pruefe('Fehlerpfad Netz: „Server nicht erreichbar“ statt „Failed to fetch“', true);
+    await seite.unrouteAll();
 
     schritt = 'Umwelt';
     await oeffnen(`#/stand/${stand}/umwelt?bis=2026-10-31T23:59:59Z&tage=7`);
