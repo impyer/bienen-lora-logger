@@ -21,7 +21,7 @@ const leer = () => ({
 export default defineComponent({
   components: { Zustand },
   emits: ['fehler'],
-  data: () => ({ d: null, laden: true, fehler: '', meldung: '', ab: jetztOrtszeit(), abGewaehlt: false, neu: leer(), aktion: {}, laeuft: false,
+  data: () => ({ d: null, laden: true, fehler: '', meldung: '', ab: jetztOrtszeit(), abGewaehlt: false, neu: leer(), aktion: {}, laeuft: false, nachtragenOffen: {},
                  zonen: ZONEN, arten: ARTEN }),
   template: `
     <section class="verwaltung">
@@ -101,6 +101,10 @@ export default defineComponent({
               <td>{{ zonen[k.zone] || k.zone }}<template v-if="k.tiefe_cm != null"> {{ k.tiefe_cm }} cm</template><template v-if="k.bezeichnung && k.bezeichnung !== k.tiefe_cm + ' cm'"> {{ k.bezeichnung }}</template></td><td>{{ zeitText(k.von) }}<template v-if="k.bis"> – {{ zeitText(k.bis) }}</template></td>
               <td><button v-if="!k.bis" class="link" @click="kanalBeenden(g, k)">beenden</button></td></tr></tbody></table>
           <p v-if="g.unbenannt.length" class="warnung klein">Unbenannte Felder: <span v-for="u in g.unbenannt" :key="u.quellfeld"><code>{{ u.quellfeld }}</code> ({{ u.anzahl }}) </span></p>
+          <p v-if="g.kanaele.length" class="zeile">
+            <button :class="{ wichtig: nachtragenOffen[g.id] }" @click="nachtragen(g)">Werte nachtragen</button>
+            <small v-if="nachtragenOffen[g.id]" class="warnung">Kanäle wurden geändert: ältere Nachrichten erst nach „Werte nachtragen“ als Messwerte sichtbar.</small>
+            <small v-else class="klein">übernimmt ältere Nachrichten für neu angelegte Kanäle aus den Rohprotokollen</small></p>
           <details><summary>ändern</summary>
             <form class="zeile" @submit.prevent="zuordnen(g)">
               Zuordnen: <select v-model="feld(g, 'ziel', zielWert(g)).wert" aria-label="Ziel">
@@ -108,7 +112,7 @@ export default defineComponent({
                 <optgroup label="Volk (Stockwaage)"><option v-for="v in d.voelker.filter((x) => !x.aufgeloest_am)" :value="'v' + v.id">{{ v.name }}</option></optgroup>
                 <optgroup label="Stand (Umwelt)"><option v-for="s in d.staende" :value="'s' + s.id">{{ s.name }}</option></optgroup></select>
               <button type="submit">Zuordnung speichern</button></form>
-            <form class="zeile" @submit.prevent="los('verwaltung/geraete/' + g.id + '/vorlage', { zeit: zeit(), vorlage: f(g, 'vorlage', 'beelogger') })">
+            <form class="zeile" @submit.prevent="los('verwaltung/geraete/' + g.id + '/vorlage', { zeit: zeit(), vorlage: f(g, 'vorlage', 'beelogger') }, 'POST', () => offenMerken(g))">
               Vorlage: <select v-model="feld(g, 'vorlage', g.stand_id ? 's2120' : 'beelogger').wert" aria-label="Vorlage"><option v-for="(v, k) in d.vorlagen" :value="k">{{ v.name }}</option></select>
               <button type="submit">Kanäle anlegen</button></form>
             <form class="zeile" @submit.prevent="kanalAnlegen(g)">
@@ -123,8 +127,6 @@ export default defineComponent({
             <form class="zeile" @submit.prevent="los('verwaltung/geraete/' + g.id, { art: f(g, 'art', g.art), modell: g.modell, dev_eui: g.dev_eui }, 'PUT')">
               Art: <select v-model="feld(g, 'art', g.art).wert" aria-label="Art"><option v-for="(t, a) in arten" :value="a">{{ t }}</option></select>
               <button type="submit">Art speichern</button></form>
-            <p class="zeile"><button @click="los('verwaltung/geraete/' + g.id + '/nachtragen', {})">Werte nachtragen</button>
-              <small class="klein">übernimmt ältere Nachrichten für neu angelegte Kanäle aus den Rohprotokollen</small></p>
           </details>
         </article>
         <form class="zeile" @submit.prevent="los('verwaltung/geraete', { ...neu.geraet, dev_eui: neu.geraet.dev_eui || null }, 'POST', () => neu.geraet = leer().geraet)">
@@ -194,6 +196,13 @@ export default defineComponent({
       const w = this.f(g, 'ziel', this.zielWert(g));
       this.los(`verwaltung/geraete/${g.id}/zuordnen`, { zeit: this.zeit(), volk_id: w[0] === 'v' ? +w.slice(1) : null, stand_id: w[0] === 's' ? +w.slice(1) : null });
     },
+    offenMerken(g) {
+      this.nachtragenOffen = { ...this.nachtragenOffen, [g.id]: true };
+      this.meldung += ` Für ältere Nachrichten jetzt bei ${g.name} „Werte nachtragen“ klicken.`;
+    },
+    nachtragen(g) {
+      this.los(`verwaltung/geraete/${g.id}/nachtragen`, {}, 'POST', () => { const o = { ...this.nachtragenOffen }; delete o[g.id]; this.nachtragenOffen = o; });
+    },
     kanalAnlegen(g) {
       const zone = this.f(g, 'zone', 'brutnest');
       const tiefe = this.f(g, 'tiefe', null);
@@ -201,7 +210,8 @@ export default defineComponent({
       this.los(`verwaltung/geraete/${g.id}/kanaele`, { zeit: this.zeit(), quellfeld: this.f(g, 'quellfeld', ''), messgroesse: this.f(g, 'messgroesse', ''),
                                                       zone, versatz: this.f(g, 'versatz', 0) || 0,
                                                       tiefe_cm: zone === 'boden' && tiefe !== '' && tiefe != null ? +tiefe : null,
-                                                      bezeichnung: bezeichnung || (zone === 'boden' && tiefe != null && tiefe !== '' ? `${+tiefe} cm` : null) });
+                                                      bezeichnung: bezeichnung || (zone === 'boden' && tiefe != null && tiefe !== '' ? `${+tiefe} cm` : null) },
+               'POST', () => this.offenMerken(g));
     },
     async laden_() { this.d = await holen('verwaltung'); },
   },

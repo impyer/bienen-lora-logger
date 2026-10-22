@@ -38,3 +38,12 @@ node tests/formatter/test_formatter.js formatter/ttn_formatter.min.js  # verklei
 ```
 
 Zusätzlich läuft in der CI eine Prüfung in **goja**: Das ist die JavaScript-Laufzeit von The Things Stack, in der Version aus deren aktuellem Quelltext (Stand 08.10.2026), mit dem Aufruf-Rahmen von dort (`tests/formatter/goja/`). Welche Version auf den TTN-Servern läuft, kann ich nicht sehen.
+
+## Bodensonde Dragino LSN50v2-D23 (`lsn50v2_d23_formatter.js`)
+
+Eintragen beim **Gerät** (nicht an der Applikation). Gibt `temp_weiss`, `temp_rot`, `temp_schwarz` (°C, `null` bei fehlendem Fühler), `BatV`, `ALARM_status`, `Work_mode` aus.
+
+**Warum ein eigener Formatter:** Der Decoder von Dragino nennt die Bytes 2–3 `Temp_Red` und 7–8 `Temp_White`. Das stimmt nur bei der D20 (ein Fühler). Bei D22/D23 liegt laut Dragino-Handbuch (Abschnitt 2.3.1, „Decode corresponding probe color“) **weiß an C1 (Bytes 2–3)** und **rot an C2 (Bytes 7–8)**. Feldbefund 22.10.2026 am Hauptstand: Der Fühler unter dem Namen `Temp_Red` schwankt am Tag am stärksten, sitzt also in 5 cm – passt zum Handbuch. Eigene Namen statt getauschter Dragino-Namen, damit kein Feldname im Rohprotokoll je zwei Bedeutungen hat. In der Plattform zeigen alte (`Temp_Red` → 5 cm, `Temp_White` → 20 cm, `Temp_Black` → 50 cm) und neue Namen auf dieselben Messstellen.
+
+Quelle nur ASCII (Hinweis oben zur TTN-Konsole). Test: `node tests/formatter/test_lsn50v2_d23_formatter.js` (echter Uplink vom 14.10.2026 als Prüfvektor). Der goja-Vergleich fehlt für diesen Formatter noch.
+

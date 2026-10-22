@@ -69,6 +69,8 @@ jobs:
         run: VEKTOREN=vek_min.json node tests/formatter/test_formatter.js formatter/ttn_formatter.min.js
       - name: Wetterstation S2120 (Node.js)
         run: VEKTOREN=vek_s2120.json node tests/formatter/test_s2120_formatter.js
+      - name: Formatter Bodensonde LSN50v2-D23
+        run: node tests/formatter/test_lsn50v2_d23_formatter.js
       - name: Gleiche Ergebnisse in goja (Laufzeit von The Things Stack)
         working-directory: tests/formatter/goja
         run: |

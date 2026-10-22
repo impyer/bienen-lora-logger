@@ -21,13 +21,15 @@ trap aufraeumen EXIT
 : "${BIENEN_TEST_DSN:?BIENEN_TEST_DSN fehlt}"
 
 cd "$REPO/server/plattform"
-python3 - "$W/plattform_config.toml" "$PW" <<'PY'
+mkdir -p "$W/bienen_log" "$W/umwelt_log"
+python3 - "$W/plattform_config.toml" "$PW" "$W" <<'PY'
 import os, secrets, sys
 sys.path.insert(0, ".")
 from api.anmeldung import passwort_hash
 with open(sys.argv[1], "w", encoding="utf-8") as f:
     f.write(f'dsn = "{os.environ["BIENEN_TEST_DSN"]}"\npasswort_hash = "{passwort_hash(sys.argv[2])}"\n'
-            f'sitzungsschluessel = "{secrets.token_urlsafe(32)}"\ncookie_sicher = false\n')
+            f'sitzungsschluessel = "{secrets.token_urlsafe(32)}"\ncookie_sicher = false\n'
+            f'\n[protokolle]\nbienen_log = "{sys.argv[3]}/bienen_log"\numwelt_log = "{sys.argv[3]}/umwelt_log"\n')
 PY
 python3 -c 'import os, pathlib, psycopg
 c = psycopg.connect(os.environ["BIENEN_TEST_DSN"], autocommit=True)
