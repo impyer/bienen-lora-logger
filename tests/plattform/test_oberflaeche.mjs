@@ -108,6 +108,22 @@ try {
     await seite.waitForSelector('.ok:has-text("5 Kanäle angelegt")', { timeout: 10000 }).catch(() => null);
     pruefe('Verwaltung: Zuordnung und Vorlage (5 Kanäle)', (await seite.innerText('main')).includes('5 Kanäle angelegt'),
            (await seite.innerText('main')).slice(0, 300));
+    schritt = 'Werte nachtragen sichtbar';
+    const gn = seite.locator('article.geraet', { hasText: 'beelogger-07' });
+    await gn.locator('details').evaluate((d) => { d.open = false; });
+    const knopf = gn.locator('button:has-text("Werte nachtragen")');
+    // Die Meldung erscheint vor dem Neuladen der Geräteliste; der Knopf (nur bei vorhandenen Kanälen) kommt erst danach
+    await knopf.waitFor({ state: 'visible', timeout: 10000 }).catch(() => null);
+    pruefe('Werte nachtragen: sichtbar ohne „ändern“ aufzuklappen, nach der Vorlage hervorgehoben mit Hinweis',
+           (await knopf.isVisible()) && (await knopf.getAttribute('class') || '').includes('wichtig')
+             && (await seite.innerText('main')).includes('„Werte nachtragen“ klicken'),
+           `sichtbar=${await knopf.isVisible()} klasse=${await knopf.getAttribute('class')}`);
+    await knopf.click();
+    await seite.waitForSelector('.ok:has-text("Messwerte nachgetragen")', { timeout: 10000 }).catch(() => null);
+    pruefe('Werte nachtragen: Ergebnis gemeldet, Hervorhebung weg',
+           (await seite.innerText('main')).includes('Messwerte nachgetragen')
+             && !((await gn.locator('button:has-text("Werte nachtragen")').getAttribute('class')) || '').includes('wichtig'),
+           (await seite.innerText('main')).slice(0, 300));
     schritt = 'Kanal beenden';
     const g3 = seite.locator('article.geraet', { hasText: 'beelogger-07' });
     pruefe('Verwaltung: Messgröße mit Namen statt Code', (await g3.innerText()).includes('Relative Feuchte'), (await g3.innerText()).slice(0, 200));

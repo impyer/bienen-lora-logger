@@ -248,6 +248,10 @@ def kanal_anlegen(cur, geraet_id, ab, quellfeld, messgroesse, zone, bezeichnung=
     """Deutung eines Quellfelds ab 'ab'. Eine bisher offene Deutung desselben Felds endet dort (neue Zeile, z. B. nach
     Sensortausch oder neuer Kalibrierung). Die Messstelle gehört zum Ziel der Gerätezuordnung zum Zeitpunkt 'ab'."""
     _gibt_es(cur, "geraet", geraet_id)
+    if zone == "boden" and tiefe_cm is None and not bezeichnung:
+        raise Konflikt("Zone Boden braucht eine Tiefe in cm (z. B. 5, 20, 50), damit jede Tiefe eine eigene Messstelle bekommt")
+    if tiefe_cm is not None and not 0 <= tiefe_cm <= 1000:
+        raise Konflikt("Tiefe muss zwischen 0 und 1000 cm liegen")
     cur.execute("SELECT 1 FROM messgroesse WHERE code = %s", (messgroesse,))
     if cur.fetchone() is None:
         raise Konflikt(f"Messgröße {messgroesse} fehlt im Katalog")
@@ -313,7 +317,7 @@ def uebersicht(cur, zeit):
                    ORDER BY g.name""", p)
     geraete = cur.fetchall()
     cur.execute("""SELECT k.id, k.geraet_id, k.quellfeld, k.messgroesse_code, k.faktor, k.versatz, k.status, k.sensor,
-                          lower(k.gueltig) AS von, upper(k.gueltig) AS bis, ms.zone, ms.bezeichnung
+                          lower(k.gueltig) AS von, upper(k.gueltig) AS bis, ms.zone, ms.bezeichnung, ms.tiefe_cm
                    FROM kanal k LEFT JOIN messstelle ms ON ms.id = k.messstelle_id
                    ORDER BY k.geraet_id, k.quellfeld, lower(k.gueltig)""")
     kanaele = cur.fetchall()

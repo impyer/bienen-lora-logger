@@ -51,7 +51,7 @@ Konzept 0.2 §10 Schritt 4; erfüllt im Entwurf R-5 und den Erkennungsteil von R
 pip install "psycopg[binary]"          # psycopg ≥ 3.1
 BIENEN_DSN="dbname=bienen user=bienen" python3 server/datenbank/importer.py \
     --bienen /var/lib/bienen/bienen_log --umwelt /var/lib/bienen/umwelt_log
-# Altbestand vor dem 22.10.2026 einmalig dazu: --lora …/lora_log --wetter …/wetter_log
+# Altbestand vor dem 22.10.2026 einmalig dazu: --lora …/lora_log --wetter …/wetter_log --boden-alt …/boden_alt
 ```
 
 Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzeitiger Lauf beendet sich sofort (`pg_try_advisory_lock`). Rückgabe 0 = alles gelesen, 1 = eine Datei nicht lesbar oder umgeschrieben, 2 = Aufruf oder Verbindung.
@@ -70,6 +70,10 @@ Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzei
 - **Quellfelder:** verschachtelte Felder mit Punkt (`Status.zeit_ok`), Listen mit Index (`FFT_Baender_dB[0]`), `true`/`false` als 1/0; Texte (z. B. `Messzeit`) werden nicht übernommen.
 - **Messzeit:** siehe Abschnitt „Messzeit“ unten; gleich für alle Eingänge.
 - **Unbekannte Geräte** werden angelegt (Art `sonstiges`, aus `wetter_log` `wetter`) und im Bericht genannt; Art und Kanäle danach in den Stammdaten pflegen. So geht keine Rohnachricht verloren.
+
+### Altbestand des Boden-Eingangs (`altbestand_boden.py`)
+
+Der frühere Boden-Eingang (`boden_eingang.php`, 14.–22.10.2026) schrieb eigene Zeilen statt TTN-Nachrichten, mit den vom Dragino-Decoder vertauschten Fühlernamen (PLT26-21). `altbestand_boden.py` dekodiert jedes `payload_base64` neu wie `formatter/lsn50v2_d23_formatter.js` (`temp_weiss`, `temp_rot`, `temp_schwarz`) und schreibt Eingangszeilen nach `boden_alt/JJJJ-MM.jsonl`; der Importer liest sie mit `--boden-alt`. Uplinks, die schon im Umwelt-Protokoll stehen, lässt es aus (`--umwelt`). Jede Zeile nennt Datei, Zeile und SHA-256 der Originalzeile. Gleiche Eingabe ergibt die gleiche Ausgabe; eine vorhandene Zieldatei mit anderem Inhalt wird nicht überschrieben. Test: `python3 tests/datenbank/test_altbestand_boden.py`.
 
 ### Messzeit (Vertrag für Formatter, seit 22.10.2026)
 

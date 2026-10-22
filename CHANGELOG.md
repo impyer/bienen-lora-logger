@@ -1,5 +1,14 @@
 # Änderungen
 
+## 2026-10-22 – Verwaltung: Kanal mit Tiefe (Bodensonden)
+
+- **„Werte nachtragen“ sichtbar:** Der Knopf liegt nicht mehr im zugeklappten Bereich „ändern“, sondern unter der Kanalliste. Nach „Kanäle anlegen“ oder „Kanal anlegen“ ist er hervorgehoben, mit Hinweis, bis nachgetragen wurde (Feldbefund 22.10.: Knopf nie gefunden, Wetterdaten seit 11.10. fehlten in der Anzeige; PLT26-20). Browsertest prüft Sichtbarkeit, Hervorhebung und Ergebnis.
+- **Boden-Altbestand 14.–22.10.:** `server/datenbank/altbestand_boden.py` setzt die Zeilen des früheren Boden-Eingangs um (Temperaturen neu aus dem Payload, richtige Fühlerfarben), Importer-Quelle `boden_alt` (`--boden-alt`). Tests ohne und mit Datenbank.
+- **Formatter Bodensonde** `formatter/lsn50v2_d23_formatter.js`: Der Dragino-Decoder vertauscht bei der D23 die Namen von weißem und rotem Fühler; eigener Formatter mit `temp_weiss`/`temp_rot`/`temp_schwarz` (PLT26-21). Test mit echtem Uplink, in der CI.
+- Das Formular „Kanal anlegen“ fragt bei Zone **Boden** die **Tiefe in cm** ab und hat ein optionales Feld **Bezeichnung**. Bisher fehlten beide; ein Bodenkanal ließ sich in der Oberfläche nicht anlegen (Meldung „Angabe verletzt eine Regel der Datenbank“), und eine andere Zone führte zu falschen Kanälen (PLT26-19).
+- API: Zone Boden ohne Tiefe → 409 mit Klartext; Tiefe außerhalb 0–1000 cm → 409. Die Kanalliste zeigt die Tiefe.
+- Test: `test_verwaltung.py` Fall „Bodensonde“ (Gegenprobe: ohne Prüfung schlägt er fehl). Änderungsklasse D1.
+
 ## 2026-10-22 – Zwei Eingänge (Bienen, Umwelt), Messzeit einheitlich
 
 - **Entscheidung PLT-01:** genau zwei Eingänge statt einem je Sensor.
