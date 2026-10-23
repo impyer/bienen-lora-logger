@@ -46,6 +46,8 @@ Benötigt: Python ≥ 3.9, psycopg 3 (pip install "psycopg[binary]").
 Rückgabe: 0 = alles gelesen, 1 = mindestens eine Datei nicht lesbar oder umgeschrieben, 2 = Aufruf/Verbindung.
 """
 import argparse
+import base64
+import binascii
 import hashlib
 import json
 import math
@@ -55,6 +57,9 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # beep_base liegt neben dem Importer
+import beep_base  # noqa: E402
 
 try:
     from psycopg import DataError    # z. B. NUL-Zeichen in einem Text, das PostgreSQL nicht speichern kann
@@ -70,6 +75,8 @@ QUELLEN = {
     "wetter_log": {"feld": "station", "art": "wetter"},
     # Altbestand des früheren Boden-Eingangs, umgesetzt mit server/datenbank/altbestand_boden.py
     "boden_alt": {"feld": "geraet", "art": "boden"},
+    # Messdaten-Export aus BEEP, umgesetzt mit server/datenbank/altbestand_beep.py
+    "beep_alt": {"feld": "geraet", "art": "beep_base"},
 }
 EINTRAEGE = "Eintraege"         # Liste mehrerer Messungen in einem Uplink (Datalog)
 DATEINAME = re.compile(r"^\d{4}-\d{2}\.jsonl$")
@@ -235,6 +242,7 @@ class Importer:
         self.con = con
         self.max_alter_s = max_alter_s
         self.geraete = {}            # Name → id
+        self.arten = {}              # geraet_id → Art (für den Decoder der BEEP Base)
         self.kanaele = {}            # geraet_id → {quellfeld: [(von, bis, kanal_id)]}
         self.ohne_puffer = []        # Felder ohne Kanal der laufenden Datei: (geraet_id, quellfeld, zeit, zeit)
 
@@ -249,6 +257,25 @@ class Importer:
             bericht.geraete_neu.append(name)
         self.geraete[name] = r[0]
         return r[0]
+
+    def daten(self, cur, geraet_id, up):
+        """Messwerte einer Uplink-Nachricht: decoded_payload; bei BEEP Bases ohne Formatter das selbst dekodierte Payload."""
+        if not isinstance(up, dict):
+            return None
+        d = up.get("decoded_payload")
+        if isinstance(d, dict) and d:
+            return d
+        if geraet_id not in self.arten:
+            cur.execute("SELECT art FROM geraet WHERE id = %s", (geraet_id,))
+            r = cur.fetchone()
+            self.arten[geraet_id] = r[0] if r else None
+        if self.arten[geraet_id] != "beep_base" or not isinstance(up.get("frm_payload"), str):
+            return None
+        try:
+            roh = base64.b64decode(up["frm_payload"], validate=True)
+        except (ValueError, binascii.Error):
+            return None
+        return beep_base.dekodieren(roh, up.get("f_port"))
 
     def kanal(self, cur, geraet_id, quellfeld, zeit):
         if geraet_id not in self.kanaele:
@@ -286,9 +313,7 @@ class Importer:
         empf_unix, empf_zeit = empf
         geraet_id = self.geraet(cur, name, q["art"], bericht)
         up = msg.get("uplink_message")
-        daten = up.get("decoded_payload") if isinstance(up, dict) else None
-        if not isinstance(daten, dict):
-            daten = None
+        daten = self.daten(cur, geraet_id, up)
         gz = geraetezeit(daten) if daten else None
 
         cur.execute("""INSERT INTO rohnachricht(id, geraet_id, empfangen, messzeit_quelle, datei, zeile, sha256)
@@ -371,6 +396,7 @@ class Importer:
                     del bericht.geraete_neu[neu_vorher:]
                     del self.ohne_puffer[ohne_vorher:]
                     self.geraete.clear()
+                    self.arten.clear()
                     bericht.ungueltig += 1
                     bericht.uebersprungen.append(f"{datei}:{nr} {type(e).__name__}: {str(e)[:120]}")
             self.ohne_kanal_schreiben(cur)
@@ -399,6 +425,7 @@ class Importer:
                     bericht.fehler.append(f"{quelle}/{e}" if isinstance(e, Umgeschrieben) else f"{quelle}: {e}")
                     self.kanaele.clear()          # Transaktion zurückgerollt: Caches neu aufbauen
                     self.geraete.clear()
+                    self.arten.clear()
         return bericht
 
 
@@ -439,9 +466,8 @@ class Importer:
                         continue
                     e = json.loads(roh)
                     msg = e["nachricht"]
-                    up = msg.get("uplink_message")
-                    daten = up.get("decoded_payload") if isinstance(up, dict) else None
-                    if not isinstance(daten, dict):
+                    daten = self.daten(cur, gid, msg.get("uplink_message"))
+                    if not daten:
                         continue
                     bericht.uplinks += 1
                     self.messwerte(cur, QUELLEN[quelle], gid, daten, ttn_zeit(empfangszeit(msg))[0], kennung, bericht,
@@ -461,6 +487,7 @@ def main(argv=None):
     ap.add_argument("--lora", type=Path, help="Altbestand: Verzeichnis lora_log des früheren LoRa-Eingangs")
     ap.add_argument("--wetter", type=Path, help="Altbestand: Verzeichnis wetter_log des früheren Wetter-Eingangs")
     ap.add_argument("--boden-alt", type=Path, help="Altbestand: mit altbestand_boden.py umgesetzter Boden-Eingang")
+    ap.add_argument("--beep-alt", type=Path, help="Altbestand: mit altbestand_beep.py umgesetzter BEEP-Export")
     ap.add_argument("--max-alter-tage", type=float, default=MAX_ALTER_TAGE,
                     help="Gerätezeit höchstens so viele Tage vor dem Empfang übernehmen (Vorgabe 30)")
     ap.add_argument("--nachtragen", action="store_true",
@@ -470,9 +497,10 @@ def main(argv=None):
     if not a.max_alter_tage > 0:
         ap.error("--max-alter-tage muss größer als 0 sein")
     verz = {k: v for k, v in (("bienen_log", a.bienen), ("umwelt_log", a.umwelt),
-                              ("lora_log", a.lora), ("wetter_log", a.wetter), ("boden_alt", a.boden_alt)) if v is not None}
+                              ("lora_log", a.lora), ("wetter_log", a.wetter), ("boden_alt", a.boden_alt),
+                              ("beep_alt", a.beep_alt)) if v is not None}
     if not a.dsn or not verz:
-        ap.error("--dsn (oder BIENEN_DSN) und mindestens --bienen, --umwelt, --lora, --wetter oder --boden-alt angeben")
+        ap.error("--dsn (oder BIENEN_DSN) und mindestens --bienen, --umwelt, --lora, --wetter, --boden-alt oder --beep-alt angeben")
     import psycopg
     try:
         con = psycopg.connect(a.dsn)

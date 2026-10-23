@@ -439,6 +439,43 @@ def t_boden_alt(con, verz):
     assert eins(con, "SELECT datei FROM rohnachricht") == "boden_alt/2026-10.jsonl"
 
 
+@test("BEEP Base: Rohpayload nur bei Art beep_base dekodiert; kg über Kanal-Faktor/Versatz; Export-Historie im selben Gewicht", db=True)
+def t_beep_base(con, verz):
+    stamm(con, kanaele=(("my-beep-base-2", "t_i", "temperatur"),))
+    con.execute("UPDATE geraet SET art = 'beep_base' WHERE name = 'my-beep-base-2'")
+    g = eins(con, "SELECT id FROM geraet WHERE name = 'my-beep-base-2'")
+    k_t = eins(con, "SELECT messstelle_id FROM kanal WHERE geraet_id = %s", (g,))
+    mult, off = 0.000024211515512725, 83811
+    for feld, faktor, versatz in (("w_v", mult, -off * mult), ("weight_kg", 1.0, 0.0)):
+        con.execute("""INSERT INTO kanal(geraet_id, quellfeld, messgroesse_code, messstelle_id, faktor, versatz, gueltig)
+                       VALUES (%s, %s, 'gewicht', %s, %s, %s, tstzrange('2026-10-01', NULL))""", (g, feld, k_t, faktor, versatz))
+    pl = "GwzIDMFkCgEVPEQEAQeRDAoJRgAMAAgACwAEAAQAAgACAAIAAgAABwAAAAAAACsAAAAC"
+    e = u("2026-10-23 04:16")
+    m = nachricht("my-beep-base-2", 2072, e, None, fport=3)
+    m["uplink_message"].pop("decoded_payload", None)
+    m["uplink_message"]["frm_payload"] = pl
+    anhaengen(verz["bienen_log"] / OKT, uplink(m))
+    # gleiches Payload an einem Gerät anderer Art: kein Decoder, nur Rohnachricht
+    m2 = nachricht("fremd", 1, e, None, fport=3)
+    m2["uplink_message"].pop("decoded_payload", None)
+    m2["uplink_message"]["frm_payload"] = pl
+    anhaengen(verz["bienen_log"] / OKT, uplink(m2))
+    # Historie aus dem BEEP-Export (Gewicht schon in kg)
+    anhaengen(verz["beep_alt"] / OKT, uplink(nachricht("my-beep-base-2", 0, e - 86400, {"weight_kg": 31.72, "t_i": 20.81})))
+    b = imp.importieren(con, verz)
+    assert b.neu == 3, b.text()
+    r = dict(con.execute("""SELECT k.quellfeld, round(b.wert::numeric, 2) FROM messwert_bezug b JOIN kanal k ON k.id = b.kanal_id
+                            WHERE k.geraet_id = %s AND b.zeit = %s""", (g, imp.utc(e))).fetchall())
+    assert {k: float(v) for k, v in r.items()} == {"w_v": 31.67, "t_i": 19.37}, r
+    assert eins(con, "SELECT count(*) FROM messwert m JOIN kanal k ON k.id = m.kanal_id JOIN geraet x ON x.id = k.geraet_id "
+                     "WHERE x.name = 'fremd'") == 0
+    assert eins(con, "SELECT count(*) FROM quellfeld_ohne_kanal q JOIN geraet x ON x.id = q.geraet_id WHERE x.name = 'fremd'") == 0
+    assert eins(con, "SELECT count(*) FROM quellfeld_ohne_kanal WHERE geraet_id = %s AND quellfeld = 'bv'", (g,)) == 1
+    h = dict(con.execute("""SELECT k.quellfeld, b.wert FROM messwert_bezug b JOIN kanal k ON k.id = b.kanal_id
+                            WHERE k.geraet_id = %s AND b.zeit = %s""", (g, imp.utc(e - 86400))).fetchall())
+    assert h == {"weight_kg": 31.72, "t_i": 20.81}, h
+
+
 # ---------------------------------------------------------------- Ablauf
 
 def main():
@@ -474,7 +511,7 @@ def main():
             with psycopg.connect(DSN, autocommit=True) as con, tempfile.TemporaryDirectory() as d:
                 con.execute(schema)
                 con.execute("SET search_path = bienen, public")
-                verz = {q: pathlib.Path(d) / q for q in ("bienen_log", "umwelt_log", "lora_log", "wetter_log", "boden_alt")}
+                verz = {q: pathlib.Path(d) / q for q in ("bienen_log", "umwelt_log", "lora_log", "wetter_log", "boden_alt", "beep_alt")}
                 for v in verz.values():
                     v.mkdir()
                 t(con, verz)

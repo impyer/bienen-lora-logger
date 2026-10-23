@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-23 – BEEP Base: eigener Decoder und Historie aus BEEP
+
+- `server/datenbank/beep_base.py`: Decoder für Messnachrichten der BEEP Base (FPort 3), im Importer nur für Geräte der Art `beep_base` ohne `decoded_payload`. In TTN bleibt die Base ohne Formatter, damit BEEP unverändert selbst dekodiert. Gewicht über Kanal-Faktor/Versatz aus BEEPs Sensordefinition.
+- `server/datenbank/altbestand_beep.py`: CSV-Export aus BEEP → Quelle `beep_alt` (`--beep-alt`), bis zum Start des eigenen Webhooks.
+- Tests: Decoder und Export 15/15 (echter Uplink, Gegenprobe mit BEEPs Decoder), Importer 18/18 (Gegenprobe: Decoder ohne Artprüfung schlägt fehl). Änderungsklasse D2.
+
 ## 2026-10-22 – Verwaltung: Kanal mit Tiefe (Bodensonden)
 
 - **„Werte nachtragen“ sichtbar:** Der Knopf liegt nicht mehr im zugeklappten Bereich „ändern“, sondern unter der Kanalliste. Nach „Kanäle anlegen“ oder „Kanal anlegen“ ist er hervorgehoben, mit Hinweis, bis nachgetragen wurde (Feldbefund 22.10.: Knopf nie gefunden, Wetterdaten seit 11.10. fehlten in der Anzeige; PLT26-20). Browsertest prüft Sichtbarkeit, Hervorhebung und Ergebnis.
