@@ -165,3 +165,15 @@ In der CI laufen alle drei im Job `datenbank` von `tests.yml`. Die Datenbanktest
 - **Randfälle für genaue Tests:** negativer Sprung −3 kg ohne Maßnahme; Ausfall von 120 min (Lücke knapp über der Grenze); ein als ungültig markierter Wert (99,9 °C); Wetterstation 1,5 K wärmer als der Außenfühler, damit Verwechslungen auffallen.
 
 Lizenz: GPL-3.0-or-later; Fremddateien siehe `web/vendor/README.md`.
+
+## Stockkarte aus BEEP übernehmen (`beep_stockkarte_import.py`)
+
+Übernimmt aus dem BEEP-Kontoexport (Einstellungen → Daten exportieren, `beep-export-user-….xlsx`) Stand, Völker mit Beute und Königin, Durchsichten, Varroa-Zählungen, Behandlungen, Fütterungen und Erinnerungen (als Aufgaben). Liest die xlsx ohne Zusatzpaket. Wiederholbar über `extern_ref` (BEEP-IDs); vorhandene Völker gleichen Namens werden verknüpft. `--pruefen` führt alles aus und nimmt es zurück.
+
+```
+sudo -u bienen /opt/bienen/venv/bin/python /opt/bienen/repo/server/plattform/beep_stockkarte_import.py \
+    --dsn "dbname=bienen user=bienen" /var/lib/bienen/beep_export/beep-export-user-….xlsx --pruefen
+```
+
+Abbildung und Annahmen stehen im Kopf des Skripts. Die wichtigsten: Durchsichtszeiten sind Ortszeit, `12:00:00` heißt „nur Datum“; „natürlicher Fall n p/d“ wird als Windel über einen Tag mit n Milben übernommen (geschätzt, Original in der Anmerkung); Felder ohne Gegenstück in der Checkliste stehen wörtlich in der Notiz; Hives vom Typ `custom` (Wetterstation) sind keine Völker. Test: `tests/plattform/test_beep_stockkarte.py`.
+
