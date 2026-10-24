@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2026-10-24 – Stockkarte aus BEEP übernehmen
+
+- `server/plattform/beep_stockkarte_import.py`: BEEP-Kontoexport (xlsx) → Stand, Völker mit Beute, Königinnen, Durchsichten (Checkliste „Durchsicht“, Rest wörtlich in der Notiz), Varroa-Zählungen, Behandlungen, Fütterungen, Erinnerungen als Aufgaben. Wiederholbar über `extern_ref`, vorhandene Völker gleichen Namens werden verknüpft, Prüflauf mit `--pruefen`.
+- Am echten Export (23.10.2026): 15 Völker, 11 Königinnen, 26 Durchsichten, 161 Varroa-Zählungen, 2 Behandlungen, 1 Fütterung, 11 Aufgaben; Wetterstation übergangen; zweiter Lauf ohne Änderung.
+- Test `tests/plattform/test_beep_stockkarte.py` (24/24, mit Datenbank). Änderungsklasse D2.
+
 ## 2026-10-23 – BEEP Base: eigener Decoder und Historie aus BEEP
 
 - `server/datenbank/beep_base.py`: Decoder für Messnachrichten der BEEP Base (FPort 3), im Importer nur für Geräte der Art `beep_base` ohne `decoded_payload`. In TTN bleibt die Base ohne Formatter, damit BEEP unverändert selbst dekodiert. Gewicht über Kanal-Faktor/Versatz aus BEEPs Sensordefinition.

@@ -187,6 +187,10 @@ jobs:
       - name: Plattform – Stockkarte erfassen, Sitzungszeitzone UTC
         if: ${{ !cancelled() }}
         run: PGTZ=UTC python3 tests/plattform/test_stockkarte.py
+      - name: Import der Stockkarte aus BEEP (Ortszeit und UTC)
+        run: |
+          PGTZ=Europe/Berlin python3 tests/plattform/test_beep_stockkarte.py
+          PGTZ=UTC python3 tests/plattform/test_beep_stockkarte.py
       - uses: actions/setup-node@v4
         if: ${{ !cancelled() }}
         with:
