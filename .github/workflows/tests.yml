@@ -163,6 +163,8 @@ jobs:
         run: PGTZ=UTC python3 tests/datenbank/test_importer.py
       - name: Umsetzer Boden-Altbestand
         run: python3 tests/datenbank/test_altbestand_boden.py
+      - name: BEEP Base (Decoder, BEEP-Export)
+        run: python3 tests/datenbank/test_beep_base.py
       # Lese-API und Oberfläche (server/plattform/): synthetische Daten mit Fehlern und Grenzfällen
       - name: Plattform – Pakete der Lese-API
         if: ${{ !cancelled() }}

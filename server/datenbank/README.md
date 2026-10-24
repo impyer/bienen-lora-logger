@@ -71,6 +71,14 @@ Gedacht für einen systemd-Timer oder cron alle 1–5 min. Ein zweiter gleichzei
 - **Messzeit:** siehe Abschnitt „Messzeit“ unten; gleich für alle Eingänge.
 - **Unbekannte Geräte** werden angelegt (Art `sonstiges`, aus `wetter_log` `wetter`) und im Bericht genannt; Art und Kanäle danach in den Stammdaten pflegen. So geht keine Rohnachricht verloren.
 
+### BEEP Base (`beep_base.py`, `altbestand_beep.py`)
+
+Die BEEP Bases senden über eine eigene TTN-Applikation per Webhook an BEEP **und** an den Bienen-Eingang. In TTN darf für sie **kein Payload-Formatter** stehen: BEEP übernimmt ein vorhandenes `decoded_payload` (mehr als zwei Felder) statt selbst zu dekodieren (BEEP-Quelltext, `MeasurementLoRaDecoderTrait`). Deshalb dekodiert der Importer die Rohdaten selbst – nur für Geräte der Art `beep_base` und nur ohne `decoded_payload` (`beep_base.py`, eigene Umsetzung nach dem Nachrichtenaufbau, gegengeprüft mit BEEPs Decoder). Feldnamen sind die BEEP-Kürzel (`w_v`, `t_i`, `bv`, `vcc`, `bat_perc`, `s_bin_…`), damit Historie und eigene Daten in denselben Kanälen landen.
+
+**Gewicht:** Die Base sendet nur den Rohwert `w_v`. BEEP rechnet `kg = (w_v − offset) × multiplier` mit der Sensordefinition des Geräts. In der Plattform steht das im Kanal: Faktor = multiplier, Versatz = −offset × multiplier. Wird in BEEP neu tariert, braucht der Kanal ab diesem Zeitpunkt die neuen Werte (Kanal beenden, neuen anlegen).
+
+**Historie:** `altbestand_beep.py` setzt die CSV-Exporte aus BEEP (je Gerät) in Eingangszeilen um (Quelle `beep_alt`, Importer `--beep-alt`). Spalten → Kürzel belegt am Payload: Temperatur = `t_i`, Gewicht = `weight_kg` (schon kg), Spannung = `bv`, „Decibel“ = `snr`, „Signal strength“ = `rssi` (beide als Funkdaten, keine Messwerte). Unbekannte Spalten brechen ab. Gerät = TTN-Gerätename (`--geraet BEEPBASE-5A76=my-beep-base-2`). Mit `--bienen` endet die Historie 60 s vor dem ersten Uplink im Bienen-Eingang. Gewicht vor einer Neukalibrierung in BEEP ist mit der damaligen Kalibrierung gespeichert und lässt sich nicht umrechnen (der Export enthält keinen Rohwert). Tests: `python3 tests/datenbank/test_beep_base.py`.
+
 ### Altbestand des Boden-Eingangs (`altbestand_boden.py`)
 
 Der frühere Boden-Eingang (`boden_eingang.php`, 14.–22.10.2026) schrieb eigene Zeilen statt TTN-Nachrichten, mit den vom Dragino-Decoder vertauschten Fühlernamen (PLT26-21). `altbestand_boden.py` dekodiert jedes `payload_base64` neu wie `formatter/lsn50v2_d23_formatter.js` (`temp_weiss`, `temp_rot`, `temp_schwarz`) und schreibt Eingangszeilen nach `boden_alt/JJJJ-MM.jsonl`; der Importer liest sie mit `--boden-alt`. Uplinks, die schon im Umwelt-Protokoll stehen, lässt es aus (`--umwelt`). Jede Zeile nennt Datei, Zeile und SHA-256 der Originalzeile. Gleiche Eingabe ergibt die gleiche Ausgabe; eine vorhandene Zieldatei mit anderem Inhalt wird nicht überschrieben. Test: `python3 tests/datenbank/test_altbestand_boden.py`.
