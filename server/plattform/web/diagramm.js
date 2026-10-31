@@ -168,6 +168,7 @@ export function verlaufOptionen(antwort, katalogListe, { sichtbar = null, relati
       type: 'value', name: (relativ && a === 'gewicht' ? 'Δ ' : '') + (einheit || a), position: i % 2 ? 'right' : 'left',
       offset: Math.floor(i / 2) * 52, scale: true, alignTicks: false, splitLine: { show: i === 0 },
       ...(a === 'richtung' ? { min: 0, max: 360, interval: 90 } : {}),
+      ...(['regenmenge', 'regen', 'regenrate'].includes(a) ? { min: 0, scale: false } : {}),   // Mengen ab 0, sonst verschwinden kleine Balken
     };
   });
   const marken = ereignisMarken(ereignisse);
@@ -244,4 +245,70 @@ export function bilanzOptionen(tage) {
     yAxis: { type: 'value', name: 'kg/Tag', ...(bereich || {}) },
     series: [{ type: 'bar', name: 'Tagesbilanz', data: daten, encode: { x: 0, y: 1 }, clip: true }],
   };
+}
+
+// ---------------------------------------------------------------- Umwelt (Konzept: Regen als Balken, Wind als Windrose)
+
+// Regenmenge je Zeitabschnitt (mm) aus dem Zählerstand der Station: Zuwachs zwischen aufeinanderfolgenden Werten;
+// fällt der Zähler (Neustart), zählt der neue Stand ab 0. abschnitt: 'stunde' oder 'tag' (Ortstag Europe/Berlin).
+export function regenMengen(punkte, abschnitt = 'stunde') {
+  const summen = new Map();
+  let vorher = null;
+  for (const [t, w] of punkte || []) {
+    if (w === null || w === undefined) continue;
+    const ms = typeof t === 'number' ? t : Date.parse(t);
+    if (vorher !== null) {
+      const zuwachs = w >= vorher ? w - vorher : w;
+      if (zuwachs > 0) {
+        const start = abschnitt === 'tag' ? ortstag(new Date(ms - 1).toISOString())[0].getTime()
+                                          : Math.floor((ms - 1) / 3600000) * 3600000;
+        summen.set(start, (summen.get(start) || 0) + zuwachs);
+      }
+    }
+    vorher = w;
+  }
+  return [...summen.entries()].sort((a, b) => a[0] - b[0]).map(([t, mm]) => [t, Math.round(mm * 10) / 10]);
+}
+
+const RICHTUNGEN = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+export const WINDKLASSEN = [[0, 1, '< 1 m/s'], [1, 2, '1–2 m/s'], [2, 4, '2–4 m/s'], [4, Infinity, '≥ 4 m/s']];
+
+// Windrose: Anteil der Zeit (%) je Richtung (16 Sektoren, Herkunft) und Geschwindigkeitsklasse.
+// richtung, wind: Punkte [t, wert] mit gleichem Raster; nur Zeitpunkte mit beiden Werten zählen.
+export function windrose(richtung, wind) {
+  const v = new Map((wind || []).filter(([, w]) => w !== null && w !== undefined).map(([t, w]) => [String(t), w]));
+  const zaehler = WINDKLASSEN.map(() => RICHTUNGEN.map(() => 0));
+  let n = 0;
+  for (const [t, r] of richtung || []) {
+    const w = v.get(String(t));
+    if (r === null || r === undefined || w === undefined) continue;
+    const sektor = Math.round((((r % 360) + 360) % 360) / 22.5) % 16;
+    const k = WINDKLASSEN.findIndex(([a, b]) => w >= a && w < b);
+    zaehler[k][sektor]++;
+    n++;
+  }
+  return { n, richtungen: RICHTUNGEN, klassen: zaehler.map((z) => z.map((x) => (n ? Math.round((x / n) * 1000) / 10 : 0))) };
+}
+
+export function windroseOptionen(rose) {
+  const farben = ['#a3d9c9', '#5fbf9f', '#17a589', '#0e6655'];
+  return {
+    animation: false,
+    legend: { top: 0 }, tooltip: { trigger: 'item', valueFormatter: (w) => zahl(w, 1) + ' %' },
+    polar: { radius: ['8%', '72%'], center: ['50%', '56%'] },
+    angleAxis: { type: 'category', data: rose.richtungen, startAngle: 90 + 11.25, clockwise: true },
+    radiusAxis: { axisLabel: { formatter: (w) => w + ' %', fontSize: 10 } },
+    series: WINDKLASSEN.map(([, , name], i) => ({ type: 'bar', coordinateSystem: 'polar', stack: 'wind', name, data: rose.klassen[i], color: farben[i] })),
+  };
+}
+
+// Erster Zeitpunkt mit Daten (Messwerte, Milbenfall, Ereignisse) – für eine Zeitachse, die nicht vor den Daten beginnt
+export function datenBeginn(reihen, extra = []) {
+  let min = Infinity;
+  for (const r of reihen || []) {
+    const p = (r.punkte || []).find(([, w]) => w !== null && w !== undefined);
+    if (p) min = Math.min(min, typeof p[0] === 'number' ? p[0] : Date.parse(p[0]));
+  }
+  for (const t of extra) if (Number.isFinite(t)) min = Math.min(min, t);
+  return Number.isFinite(min) ? min : null;
 }

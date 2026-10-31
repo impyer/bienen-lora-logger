@@ -2,7 +2,7 @@
 // Tests der Diagrammlogik der Oberfläche (server/plattform/web/diagramm.js), ohne Browser.
 // Aufruf: node tests/plattform/test_diagramm.mjs
 import assert from 'node:assert/strict';
-import { achsenText, bilanzOptionen, bisTag, ereignisMarken, farbenAnpassen, ortstag, tagesEnde, verlaufOptionen, zeitraum } from '../../server/plattform/web/diagramm.js';
+import { achsenText, bilanzOptionen, bisTag, datenBeginn, ereignisMarken, farbenAnpassen, ortstag, regenMengen, tagesEnde, verlaufOptionen, windrose, windroseOptionen, zeitraum } from '../../server/plattform/web/diagramm.js';
 import { bilanzVergleichOptionen, ereignisListe, milbenTage, referenzOptionen, stapelOptionen, summenOptionen } from '../../server/plattform/web/stapel.js';
 import { chronik, cockpitKennzahlen, istZeitpunkt, letzteBilanzMittel, vergleichHinweise, veraltet, vorzeichen } from '../../server/plattform/web/kennzahlen.js';
 
@@ -293,6 +293,39 @@ test('Dunkles Schema: helle Entwurfsfarben ersetzt, Datenfarben und Formatierer 
   assert.equal(typeof d.tooltip.valueFormatter, 'function');
   assert.equal(d.textStyle.color, '#9aa39d');
   assert.equal(farbenAnpassen(o, { ...p, dunkel: false }), o);
+});
+
+test('Regen je Stunde/Tag aus dem Zählerstand: Zuwachs, Neustart der Station zählt ab 0, Ortstag', () => {
+  const h = (t) => '2026-10-16T' + t + ':00Z';
+  const p = [[h('03:15'), 10.0], [h('03:30'), 10.4], [h('03:45'), 11.0], [h('04:00'), 11.0], [h('04:15'), null], [h('04:30'), 0.3], [h('04:45'), 0.5]];
+  assert.deepEqual(regenMengen(p, 'stunde'), [[Date.parse(h('03:00')), 1.0], [Date.parse(h('04:00')), 0.5]]);
+  const tag = regenMengen([['2026-10-16T21:50:00Z', 1], ['2026-10-16T22:10:00Z', 2], ['2026-10-17T09:00:00Z', 3]], 'tag');
+  assert.deepEqual(tag.map(([t, mm]) => [new Date(t).toISOString(), mm]), [['2026-10-16T22:00:00.000Z', 2]]);   // 17.10. Ortszeit
+  assert.deepEqual(regenMengen([], 'stunde'), []);
+});
+
+test('Windrose: 16 Sektoren nach Herkunft, Klassen nach Geschwindigkeit, Anteile in %', () => {
+  const t = (i) => '2026-10-16T0' + i + ':00:00Z';
+  const r = windrose([[t(0), 0], [t(1), 359], [t(2), 90], [t(3), 180], [t(4), null]], [[t(0), 0.5], [t(1), 1.5], [t(2), 5], [t(3), 3]]);
+  assert.equal(r.n, 4);
+  assert.equal(r.klassen[0][0], 25); assert.equal(r.klassen[1][0], 25);      // N: 0° und 359°
+  assert.equal(r.klassen[3][4], 25); assert.equal(r.klassen[2][8], 25);      // O ≥ 4 m/s, S 2–4 m/s
+  const regen = verlaufOptionen({ von: '2026-10-16T00:00:00Z', bis: '2026-10-17T00:00:00Z', reihen: [{ messgroesse: 'regen_menge', punkte: [['2026-10-16T03:00:00Z', 1.2]] }] },
+                                [{ code: 'regen_menge', name: 'Regen', einheit: 'mm', achse: 'regenmenge', darstellung: 'balken' }]);
+  assert.equal(regen.yAxis[0].min, 0);                                        // Regenbalken beginnen bei 0
+  const o = windroseOptionen(r);
+  assert.equal(o.series.length, 4); assert.equal(o.angleAxis.data[0], 'N');
+});
+
+test('Zeitachse beginnt beim ersten Wert, nicht am Anfang des Zeitraums (90 Tage / 1 Jahr)', () => {
+  assert.equal(datenBeginn([{ punkte: [['2026-10-15T08:00:00Z', null], ['2026-10-15T09:00:00Z', 1]] }, { punkte: [] }]), Date.parse('2026-10-15T09:00:00Z'));
+  assert.equal(datenBeginn([], [Date.parse('2026-10-03T10:00:00Z')]), Date.parse('2026-10-03T10:00:00Z'));
+  assert.equal(datenBeginn([]), null);
+  const lang = { ...antwort, von: '2025-10-25T00:00:00+00:00' };
+  const o = stapelOptionen(lang, katalog, {});
+  assert.equal(o.xAxis[0].min, Date.parse('2026-10-24T23:30:00+00:00'));
+  const frueh = { ...antwort, reihen: [{ ...antwort.reihen[0], punkte: [['2026-10-24T20:00:00+00:00', 30], ...antwort.reihen[0].punkte] }] };
+  assert.equal(stapelOptionen(frueh, katalog, {}).xAxis[0].min, Date.parse(antwort.von));     // nie vor dem Zeitraum
 });
 
 console.log(`${anz - fehler} von ${anz} bestanden`);

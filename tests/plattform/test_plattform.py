@@ -322,6 +322,32 @@ def _():
     assert v1d["koenigin"]["farbe"] == "grün"
 
 
+@test("Dashboard (Design v0.3): Beute, Königin, Messquelle, Varroa, offene Aufgaben je Volk; Standleiste mit Regen trotz Zähler-Neustart", db=True)
+def _():
+    from api import abfragen
+    s = {x["name"]: x for x in c_().get("/api/staende", params={"zeit": "2026-10-16T08:00:00Z"}).json()}
+    haupt = s["Hauptstand (synthetisch)"]
+    v1 = {v["name"]: v for v in haupt["voelker"]}["Volk 1 (syn)"]
+    assert v1["beute"] and v1["beute"]["bezeichnung"] and "brutzargen" in v1["beute"], v1["beute"]
+    assert v1["koenigin"]["farbe"] == "grün" and v1["messquellen"] == 1 and isinstance(v1["aufgaben_offen"], list), v1
+    u = haupt["umwelt"]
+    codes = {w["messgroesse"] for w in u["werte"]}
+    assert {"temperatur", "feuchte", "luftdruck", "wind"} <= codes, codes
+    assert not any(w["zone"] in ("elektronik", "funk") for w in u["werte"]), u["werte"]
+    import psycopg
+    # Regen: unabhängig nachgerechnet aus den Zählerständen der 24 h (Neustart der Station am 16.10. 06:00 UTC)
+    with psycopg.connect(DSN) as con:
+        z = [r[0] for r in con.execute("""SELECT wert FROM bienen.messwert_bezug WHERE messgroesse_code = 'regen_summe'
+                 AND stand_id = (SELECT id FROM bienen.stand WHERE name = 'Hauptstand (synthetisch)')
+                 AND zeit > '2026-10-15T08:00:00Z' AND zeit <= '2026-10-16T08:00:00Z' ORDER BY zeit""").fetchall()]
+    assert any(b < a for a, b in zip(z, z[1:])), "Testfall braucht einen Zähler-Neustart im Fenster"
+    soll = round(sum((b - a) if b >= a else b for a, b in zip(z, z[1:])), 1)
+    assert u["regen_24h"] == soll and u["regen_24h"] >= 0, (u["regen_24h"], soll)
+    assert abfragen.regen_zuwachs([1.0, 2.5, None, 0.5, 1.0]) == 2.5 and abfragen.regen_zuwachs([]) == 0
+    alt = {x["name"]: x for x in c_().get("/api/staende", params={"zeit": "2026-12-31T12:00:00Z"}).json()}
+    assert alt["Hauptstand (synthetisch)"]["umwelt"]["werte"] == [], "Werte älter als 3 h gehören nicht in die Standleiste"
+
+
 @test("Winterzeit-Nacht 25.10.: alle 7 Messungen in UTC, aufsteigend", db=True)
 def _():
     r = c_().get(f"/api/voelker/{k_('volk1')}/messreihen",
@@ -452,10 +478,10 @@ def _():
         if k["vorher"] is not None and k["nachher"] is not None:
             assert abs(k["delta"] - (k["nachher"] - k["vorher"])) < 1e-9, k
     assert t(r["vorher"]["von"]) == syn.FAELLE["tarieren"] - timedelta(minutes=1) - timedelta(days=3)
-    assert any(n.startswith("Temperatur brutnest") for n in g) and any(n.startswith("Luft am Stand") for n in g), list(g)
+    assert "Temperatur Brutnest" in g and "Temperatur Luft am Stand" in g and "Temperatur außen" in g, list(g)
     # Im Vorher-Fenster liegt der als ungültig markierte Wert 99,9 °C (20.10. 03:00): Mittel bleibt beim Sensorwert
     # 33,0 °C (Logger 1: 33,5 − 0,5; nach dem Sensortausch +0,5 roh, Versatz −0,5)
-    brut = [x for n, x in g.items() if n.startswith("Temperatur brutnest")][0]
+    brut = g["Temperatur Brutnest"]
     assert abs(brut["vorher"] - 33.0) < 0.05 and brut["n_vorher"] == 143, brut
     assert c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren}).status_code == 404
     assert c_().get(f"/api/voelker/{k_('volk1')}/vorher_nachher", params={"art": "massnahme", "ereignis_id": tarieren, "tage": 5}).status_code == 400
@@ -552,8 +578,8 @@ def _():
     m = {x["name"]: x for x in r["kennzahlen"]}["Milbenfall"]
     assert m["n_nachher"] == 1 and m["nachher"] == 15.0, m
     g = {x["name"]: x for x in r["kennzahlen"]}
-    aussen = [x for n, x in g.items() if n.startswith("Temperatur") and "aussen" in n][0]
-    luft = [x for n, x in g.items() if n.startswith("Luft am Stand")][0]
+    aussen = g["Temperatur außen"]
+    luft = g["Temperatur Luft am Stand"]
     assert abs((luft["vorher"] - aussen["vorher"]) - syn.VERSATZ_STATION) < 0.05, (luft, aussen)
     assert c_().get(f"/api/voelker/{k_('volk2')}/vorher_nachher", params={"art": "x", "ereignis_id": b}).status_code == 404
 

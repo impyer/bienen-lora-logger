@@ -3,7 +3,7 @@
 // Diagramme nach dem Designentwurf (16.10.2026): übereinander gestapelte Felder mit gemeinsamer Zeitachse
 // (Gewicht, Temperatur, Milbenfall …), Ereignisleiste mit Buchstabenmarken, Vorher/Nachher-Fenster, Völkervergleich.
 // Reine Funktionen ohne DOM (Test: tests/plattform/test_diagramm.mjs).
-import { achsenText, bilanzBereich, eingriffLabel, ereignisMarken, esc, ortstag, reihenName, reihenSchluessel, zahl, zeitText } from './diagramm.js';
+import { achsenText, bilanzBereich, datenBeginn, eingriffLabel, ereignisMarken, esc, ortstag, reihenName, reihenSchluessel, zahl, zeitText } from './diagramm.js';
 
 // Farben des Entwurfs; Temperaturen nach Messstelle, damit Brutnest, Deckel und außen unterscheidbar bleiben
 export const FARBEN = {
@@ -62,7 +62,7 @@ export function ereignisListe(e) {
 
 // Felder: eine Gruppe je Katalog-Achse in fester Reihenfolge, Milbenfall als eigenes Feld
 function felder(reihen, katalog, milben) {
-  const reihenfolge = ['gewicht', 'temperatur', 'feuchte', 'druck', 'licht', 'spannung'];
+  const reihenfolge = ['gewicht', 'temperatur', 'feuchte', 'regenmenge', 'druck', 'licht', 'spannung'];
   const gruppen = new Map();
   for (const r of reihen) {
     const a = katalog[r.messgroesse]?.achse || r.messgroesse;
@@ -85,7 +85,12 @@ export function stapelOptionen(antwort, katalogListe, { sichtbar = null, relativ
   const fs = felder(reihen, katalog, milben);
   const liste = ereignisListe(ereignisse);
   const marken = ereignisMarken(ereignisse);
-  const min = antwort ? Date.parse(antwort.von) : undefined, max = antwort ? Date.parse(antwort.bis) : undefined;
+  const max = antwort ? Date.parse(antwort.bis) : undefined;
+  // Zeitachse beginnt beim ersten Wert im Zeitraum (alle Reihen, auch ausgeblendete), nicht vor den Daten:
+  // sonst stehen bei 90 Tagen oder 1 Jahr zwei Wochen Daten als schmaler Streifen am rechten Rand
+  const beginn = datenBeginn(antwort?.reihen, [...milbenTage(ereignisse?.varroa).map((p) => p[0] - 43200000),
+                                               ...liste.map((e) => e.zeit)]);
+  const min = antwort ? Math.max(Date.parse(antwort.von), beginn !== null ? beginn : -Infinity) : undefined;
   const links = 56, rechts = 18, leiste = liste.length ? 34 : 8, titel = 22, abstand = 18;
   let oben = 8 + leiste;
   const grid = [], xAxis = [], yAxis = [], series = [], graphic = [];
@@ -99,7 +104,7 @@ export function stapelOptionen(antwort, katalogListe, { sichtbar = null, relativ
     grid.push({ left: links, right: rechts, top: oben, height: hoehe });
     xAxis.push({ type: 'time', gridIndex: i, min, max, axisLabel: { show: i === fs.length - 1, formatter: achsenText, hideOverlap: true, color: '#5b635e' },
                  axisTick: { show: i === fs.length - 1 }, axisLine: { lineStyle: { color: '#cdd3cb' } }, splitLine: { show: true, lineStyle: { color: '#eef1ec' } } });
-    yAxis.push({ type: 'value', gridIndex: i, scale: f.achse !== 'milbenfall', splitNumber: 3, axisLabel: { color: '#5b635e', fontSize: 11 },
+    yAxis.push({ type: 'value', gridIndex: i, scale: !['milbenfall', 'regenmenge'].includes(f.achse), splitNumber: 3, axisLabel: { color: '#5b635e', fontSize: 11 },
                  splitLine: { lineStyle: { color: '#eef1ec' } }, ...(f.achse === 'richtung' ? { min: 0, max: 360, interval: 90, scale: false } : {}) });
     // Namen nur im obersten Feld (für Tooltip und Tests); die Bänder laufen über alle Felder
     const baender = { silent: true, label: { show: false }, data: [...marken.flaechen.map(([a, b]) => [{ ...a, name: i === 0 ? a.name : '' }, b]),

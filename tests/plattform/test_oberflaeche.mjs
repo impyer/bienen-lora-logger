@@ -197,11 +197,53 @@ try {
     const kacheln = await seite.$$eval('.kachel strong', (e) => e.map((x) => x.textContent));
     pruefe('Übersicht: Völker nach Vereinigung', JSON.stringify(kacheln) === JSON.stringify(['Volk 1 (syn)', 'Volk 2 (syn)', 'Volk 4 (syn)']), JSON.stringify(kacheln));
     pruefe('Übersicht: aktuelle Kacheln nicht veraltet', await seite.locator('.kachel.veraltet').count() === 0);
-    const hinweis = await seite.innerText('main .warnung');
+    const hinweis = await seite.innerText('main .technik-hinweis');
     pruefe('Übersicht: Hinweise nach Art, Steuerfelder nicht gezählt (M-05)', hinweis.includes('2 Geräte ohne Zuordnung')
            && hinweis.includes('7 unbenannte Felder') && !/\b3\d\b/.test(hinweis), hinweis);
     await oeffnen('#/?zeit=2026-11-02T12:00:00Z');
     pruefe('Übersicht: zwei Tage ohne Messung → alle veraltet', await seite.locator('.kachel.veraltet').count() === 3);
+
+    // Dashboard nach Design v0.3: Standleiste, Beutensymbol, drei Status, Liste/Kacheln, keine Gerätenamen
+    await oeffnen('#/?zeit=2026-10-16T08:00:00Z');
+    const leiste = await seite.innerText('.standleiste');
+    const dash = await api('staende?zeit=2026-10-16T08:00:00Z');
+    const regen24 = dash.find((x) => x.name === 'Hauptstand (synthetisch)').umwelt.regen_24h;
+    pruefe('Dashboard: Standleiste mit Luft, Luftdruck, Wind und Regen (Wert der API)', ['Luft', 'Luftdruck', 'Wind', 'Regen'].every((t) => leiste.includes(t))
+           && leiste.includes(fmt(regen24, 1) + ' mm in 24 h'), leiste);
+    pruefe('Dashboard: Beutensymbol und drei Status je Volk', await seite.locator('.volkkachel svg.beute').count() === 3
+           && await seite.locator('.volkkachel .status .chip').count() === 9, String(await seite.locator('.volkkachel .status .chip').count()));
+    const v2 = dash.find((x) => x.name === 'Hauptstand (synthetisch)').voelker.find((v) => v.name === 'Volk 2 (syn)');
+    const v2kachel = await seite.innerText('.volkkachel:has-text("Volk 2 (syn)") .status');
+    pruefe('Dashboard: Varroa-Status zeigt die Zählung der API', !!v2.varroa && v2kachel.includes(fmt(v2.varroa.milben_pro_tag, 1) + ' Milben/Tag'), v2kachel);
+    pruefe('Dashboard: Technik-Hinweis nur einmal', await seite.locator('.technik-hinweis').count() === 1);
+    const kachelText = await seite.innerText('.kacheln');
+    pruefe('Dashboard: keine Gerätenamen', !/logger-0|wetterstation/i.test(kachelText), kachelText.slice(0, 200));
+    await seite.click('.segmente button:has-text("Liste")');
+    await seite.waitForSelector('table.volkliste', { timeout: 5000 });
+    pruefe('Dashboard: Liste statt Kacheln, eine Zeile je Volk', await seite.locator('table.volkliste tbody tr').count() === 3);
+    await seite.selectOption('select[aria-label=Sortierung]', 'name');
+    const namen = await seite.$$eval('table.volkliste tbody tr td:first-child', (e) => e.map((x) => x.textContent.trim()));
+    pruefe('Dashboard: sortiert nach Name', JSON.stringify(namen) === JSON.stringify(['Volk 1 (syn)', 'Volk 2 (syn)', 'Volk 4 (syn)']), JSON.stringify(namen));
+    await seite.click('.segmente button:has-text("Kacheln")');
+
+    // Umwelt nach Konzept: je Thema ein Diagramm, Windrose, Regen je Stunde aus dem Zähler, keine Gerätespannung
+    const stand = dash.find((x) => x.name === 'Hauptstand (synthetisch)').id;
+    await oeffnen(`#/stand/${stand}/umwelt?bis=2026-10-17T00:00:00Z&tage=7`);
+    await seite.waitForFunction(() => window.bienenDiagramme?.umwelt_windrose && window.bienenDiagramme?.umwelt_regen, null, { timeout: 10000 });
+    const umw = await seite.evaluate(() => Object.fromEntries(Object.entries(window.bienenDiagramme).filter(([k]) => k.startsWith('umwelt_'))
+      .map(([k, c]) => [k, c.getOption().series.map((x) => x.name)])));
+    pruefe('Umwelt: Luft, Druck, Wind, Windrose, Regen, Licht getrennt', ['umwelt_luft', 'umwelt_druck', 'umwelt_wind', 'umwelt_windrose', 'umwelt_regen', 'umwelt_licht']
+           .every((k) => umw[k]), JSON.stringify(Object.keys(umw)));
+    pruefe('Umwelt: keine Spannung, Feuchte nicht beim Luftdruck', !JSON.stringify(umw).includes('Spannung') && !umw.umwelt_druck.some((n) => n.includes('Feuchte')), JSON.stringify(umw));
+    const regenBalken = await seite.evaluate(() => window.bienenDiagramme.umwelt_regen.getOption().series[0].data.filter((p) => p[1] > 0).length);
+    pruefe('Umwelt: Regen als Stundenbalken mit Werten', regenBalken > 0, String(regenBalken));
+
+    // Volk-Cockpit: 1 Jahr beginnt beim ersten Wert, keine Gerätenamen im Kopf
+    await oeffnen(`#/volk/${volk}?bis=2026-11-01T00:00:00Z&tage=365`);
+    await seite.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
+    const jahr = await seite.evaluate(() => window.bienenDiagramme.verlauf.getOption().xAxis[0].min);
+    pruefe('Cockpit 1 Jahr: Zeitachse beginnt bei den Daten (Oktober), nicht im Vorjahr', jahr >= Date.parse('2026-09-01T00:00:00Z'), new Date(jahr).toISOString());
+    pruefe('Cockpit: keine Gerätenamen im Kopf', !/logger-0/.test(await seite.innerText('.stammdaten')), await seite.innerText('.stammdaten'));
 
     await oeffnen(`#/volk/${volk}?bis=2026-10-15T23:59:59Z&tage=14`);
     await seite.waitForFunction(() => window.bienenDiagramme?.verlauf, null, { timeout: 10000 });
@@ -363,10 +405,13 @@ try {
 
     schritt = 'Umwelt';
     await oeffnen(`#/stand/${stand}/umwelt?bis=2026-10-31T23:59:59Z&tage=7`);
-    await seite.waitForFunction(() => window.bienenDiagramme?.umwelt_wind, null, { timeout: 10000 });
-    const w = await seite.evaluate(() => window.bienenDiagramme.umwelt_wind.getOption().series.map((s) => [s.name, s.type, s.symbol]));
-    pruefe('Umwelt: Windrichtung als Pfeile', w.some(([n, t, s]) => n.startsWith('Windrichtung') && t === 'scatter' && s === 'arrow'), JSON.stringify(w));
-    pruefe('Umwelt: Regenzähler als Balken', await seite.evaluate(() => window.bienenDiagramme.umwelt_regen.getOption().series.some((s) => s.type === 'bar')));
+    await seite.waitForFunction(() => window.bienenDiagramme?.umwelt_wind && window.bienenDiagramme?.umwelt_windrose, null, { timeout: 10000 });
+    const w = await seite.evaluate(() => window.bienenDiagramme.umwelt_wind.getOption().series.map((s) => s.name));
+    const rose = await seite.evaluate(() => { const o = window.bienenDiagramme.umwelt_windrose.getOption();
+      return { polar: o.series.every((x) => x.coordinateSystem === 'polar' && x.type === 'bar'), sektoren: o.angleAxis[0].data.length }; });
+    pruefe('Umwelt: Windrichtung als Windrose (16 Sektoren), nicht als Pfeile im Liniendiagramm',
+           rose.polar && rose.sektoren === 16 && !w.some((n) => n.startsWith('Windrichtung')), JSON.stringify([w, rose]));
+    pruefe('Umwelt: Regen als Balken', await seite.evaluate(() => window.bienenDiagramme.umwelt_regen.getOption().series.some((s) => s.type === 'bar')));
 
     await oeffnen('#/datenquellen');
     const d = await seite.innerText('main');
