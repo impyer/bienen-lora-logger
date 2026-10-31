@@ -1,5 +1,13 @@
 # Änderungen
 
+## 2026-10-31 – Oberfläche nach Zielbild (Design v0.3, Konzept §6)
+
+- **Bienenstand-Dashboard:** Standleiste (Luft, Luftdruck mit 3-h-Tendenz, Wind, Regen heute/24 h aus dem Zähler mit Neustarts, Boden 5/20/50 cm), Handlungsbedarf (fällige Aufgaben, Varroa rot, Messquelle ohne aktuelle Messung), Kacheln oder Liste, Sortierung, wählbare Kennzahlen, Beutensymbol mit Zargen und Königinnenfarbe, drei Status je Volk (Stockkarte, Technik, Varroa; „keine Messquelle“ grau), keine Gerätenamen. `/api/staende` liefert dazu Beute, Königin, Messquellen, Varroa, offene Aufgaben, Standwerte.
+- **Volk-Cockpit:** keine Gerätenamen; Zeitachse ab dem ersten Wert (30/90/365 Tage lesbar); Spur „Regen am Stand“.
+- **Umwelt:** je Thema ein Diagramm (Luft, Luftdruck, Boden, Wind, Windrose, Regen je Stunde/Tag, Licht/UV), keine Gerätespannungen, Regenachsen ab 0; Flugkreise/Saison als Platzhalter.
+- **Vorher/nachher:** „Temperatur Boden 5 cm“, „Temperatur Luft am Stand“ statt „Luft am Stand – 5 cm“.
+- Tests: Diagrammlogik 29/29, Plattform 36/36, Browsertest 9/9, 19/19, 59/59. Offen: Akustik-Spur (Kanäle für `s_bin_…`), Behandlungsbänder und Vereinigungen (Import, Punkt 4).
+
 ## 2026-10-24 – Stockkarte aus BEEP übernehmen
 
 - `server/plattform/beep_stockkarte_import.py`: BEEP-Kontoexport (xlsx) → Stand, Völker mit Beute, Königinnen, Durchsichten (Checkliste „Durchsicht“, Rest wörtlich in der Notiz), Varroa-Zählungen, Behandlungen, Fütterungen, Erinnerungen als Aufgaben. Wiederholbar über `extern_ref`, vorhandene Völker gleichen Namens werden verknüpft, Prüflauf mit `--pruefen`.

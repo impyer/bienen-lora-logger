@@ -46,6 +46,18 @@ def _mittel(cur, spalte, bezug_id, von, bis, messgroesse):
     return {r["messstelle_id"]: r for r in cur.fetchall()}
 
 
+ZONEN = {"brutnest": "Brutnest", "deckel": "Deckel", "aussen": "außen", "waage": "Waage", "flugloch": "Flugloch",
+         "boden": "Boden", "luft_stand": "Luft am Stand", "elektronik": "Elektronik", "funk": "Funk"}
+
+
+def _ort(groesse, r):
+    """'Temperatur Boden 5 cm', 'Temperatur Luft am Stand' – Messgröße, Zone und Bezeichnung wie in der Oberfläche."""
+    teile = [groesse, ZONEN.get(r.get("zone"), r.get("zone") or "")]
+    if r.get("bezeichnung") and r["bezeichnung"] not in teile:
+        teile.append(r["bezeichnung"])
+    return " ".join(t for t in teile if t)
+
+
 def vorher_nachher(cur, volk_id, art, id_, tage):
     e = ereignis_zeitraum(cur, art, id_)
     if e["volk_id"] != volk_id:
@@ -75,7 +87,7 @@ def vorher_nachher(cur, volk_id, art, id_, tage):
     tv, tn = _mittel(cur, "volk_id", volk_id, *vorher, "temperatur"), _mittel(cur, "volk_id", volk_id, *nachher, "temperatur")
     for ms in sorted(set(tv) | set(tn), key=lambda x: (x is None, x)):
         r = tv.get(ms) or tn.get(ms)
-        zeile(f"Temperatur {r['bezeichnung'] or r['zone'] or ''}".strip(), "°C",
+        zeile(_ort("Temperatur", r), "°C",
               tv[ms]["mittel"] if ms in tv else None, tn[ms]["mittel"] if ms in tn else None,
               tv[ms]["n"] if ms in tv else 0, tn[ms]["n"] if ms in tn else 0)
 
@@ -86,7 +98,7 @@ def vorher_nachher(cur, volk_id, art, id_, tage):
         lv, ln = _mittel(cur, "stand_id", stand, *vorher, "temperatur"), _mittel(cur, "stand_id", stand, *nachher, "temperatur")
         for ms in sorted(set(lv) | set(ln), key=lambda x: (x is None, x)):
             r = lv.get(ms) or ln.get(ms)
-            zeile("Luft am Stand" + (f" – {r['bezeichnung']}" if r["bezeichnung"] else ""), "°C",
+            zeile(_ort("Temperatur", r), "°C",
                   lv[ms]["mittel"] if ms in lv else None, ln[ms]["mittel"] if ms in ln else None,
                   lv[ms]["n"] if ms in lv else 0, ln[ms]["n"] if ms in ln else 0)
 

@@ -73,6 +73,27 @@ def staende(cur, zeit):
         cur.execute("""SELECT volk_id, max(zeit) AS zeit FROM durchsicht
                        WHERE volk_id = ANY(%(ids)s) AND zeit <= %(t)s GROUP BY volk_id""", {"ids": ids, "t": zeit})
         durchsicht = {r["volk_id"]: r["zeit"] for r in cur.fetchall()}
+        # Beute mit Konfiguration, Königin, Messquelle, letzte Varroa-Zählung, offene Aufgaben (Dashboard, Design v0.3)
+        cur.execute("""SELECT b.volk_id, be.beutentyp, be.bezeichnung, k.brutzargen, k.honigzargen, k.rahmen
+                       FROM belegung b JOIN beute be ON be.id = b.beute_id
+                       LEFT JOIN beute_konfiguration k ON k.beute_id = be.id AND k.gueltig @> %(t)s
+                       WHERE b.volk_id = ANY(%(ids)s) AND b.gueltig @> %(t)s""", {"ids": ids, "t": zeit})
+        beute = {r["volk_id"]: r for r in cur.fetchall()}
+        cur.execute("""SELECT kv.volk_id, k.farbe, k.jahrgang FROM koenigin_volk kv JOIN koenigin k ON k.id = kv.koenigin_id
+                       WHERE kv.volk_id = ANY(%(ids)s) AND kv.gueltig @> %(t)s""", {"ids": ids, "t": zeit})
+        koenigin = {r["volk_id"]: r for r in cur.fetchall()}
+        cur.execute("""SELECT volk_id, count(*) AS n FROM geraet_zuordnung
+                       WHERE volk_id = ANY(%(ids)s) AND gueltig @> %(t)s GROUP BY volk_id""", {"ids": ids, "t": zeit})
+        quellen = {r["volk_id"]: r["n"] for r in cur.fetchall()}
+        cur.execute("""SELECT DISTINCT ON (volk_id) volk_id, bis, milben_pro_tag::float8 AS milben_pro_tag
+                       FROM varroa_pro_tag WHERE volk_id = ANY(%(ids)s) AND bis <= %(t)s
+                       ORDER BY volk_id, bis DESC""", {"ids": ids, "t": zeit})
+        varroa = {r["volk_id"]: r for r in cur.fetchall()}
+        cur.execute("""SELECT volk_id, faellig_am, text FROM aufgabe
+                       WHERE volk_id = ANY(%(ids)s) AND erledigt_am IS NULL ORDER BY faellig_am, id""", {"ids": ids})
+        offen = {}
+        for r in cur.fetchall():
+            offen.setdefault(r["volk_id"], []).append({"faellig_am": r["faellig_am"], "text": r["text"]})
     for v in voelker:
         g, b = gewicht.get(v["id"]), bilanz.get(v["id"])
         aus[v["stand_id"]]["voelker"].append({
@@ -82,8 +103,55 @@ def staende(cur, zeit):
                              "berechnung": b["berechnung"]} if b else None),
             "letzte_messung": letzte.get(v["id"]),
             "aufgaben_faellig": aufgaben.get(v["id"], 0), "letzte_durchsicht": durchsicht.get(v["id"]),
+            "beute": beute.get(v["id"]), "koenigin": koenigin.get(v["id"]), "messquellen": quellen.get(v["id"], 0),
+            "varroa": varroa.get(v["id"]), "aufgaben_offen": offen.get(v["id"], []),
         })
+    for s_ in aus.values():
+        s_["umwelt"] = stand_kurz(cur, s_["id"], zeit)
     return list(aus.values())
+
+
+AKTUELL = "3 hours"     # Umweltwerte älter als 3 h gelten in der Standleiste nicht mehr als aktuell
+
+
+def regen_zuwachs(werte):
+    """Regenmenge (mm) aus Zählerständen in zeitlicher Folge: Summe der Zuwächse; fällt der Zähler (Neustart der
+    Station), zählt der neue Stand als Zuwachs ab 0."""
+    summe, vorher = 0.0, None
+    for w in werte:
+        if w is None:
+            continue
+        if vorher is not None:
+            summe += w - vorher if w >= vorher else w
+        vorher = w
+    return round(summe, 1)
+
+
+def stand_kurz(cur, stand_id, zeit):
+    """Aktuelle Umweltwerte des Stands für die Standleiste: letzter Wert je Messgröße und Messstelle (höchstens 3 h
+    alt), Luftdruck-Tendenz über 3 h, Regen seit Mitternacht (Ortszeit) und in 24 h aus dem Zähler."""
+    p = {"s": stand_id, "t": zeit}
+    cur.execute(f"""SELECT DISTINCT ON (m.messgroesse_code, m.messstelle_id) m.messgroesse_code AS messgroesse,
+                          ms.zone, ms.bezeichnung, ms.tiefe_cm, m.zeit, m.wert
+                   FROM messwert_bezug m LEFT JOIN messstelle ms ON ms.id = m.messstelle_id
+                   WHERE m.stand_id = %(s)s AND m.zeit <= %(t)s AND m.zeit > %(t)s::timestamptz - interval '{AKTUELL}'
+                     AND m.qualitaet <> 'ungueltig' AND coalesce(ms.zone, '') NOT IN ('elektronik', 'funk')
+                   ORDER BY m.messgroesse_code, m.messstelle_id, m.zeit DESC""", p)
+    werte = cur.fetchall()
+    cur.execute(f"""SELECT wert FROM messwert_bezug WHERE stand_id = %(s)s AND messgroesse_code = 'luftdruck'
+                      AND zeit <= %(t)s::timestamptz - interval '{AKTUELL}' AND qualitaet <> 'ungueltig'
+                      AND zeit > %(t)s::timestamptz - interval '6 hours' ORDER BY zeit DESC LIMIT 1""", p)
+    r = cur.fetchone()
+    druck_vor = r["wert"] if r else None
+    cur.execute("""SELECT zeit, wert FROM messwert_bezug WHERE stand_id = %(s)s AND messgroesse_code = 'regen_summe'
+                     AND zeit <= %(t)s AND zeit > %(t)s::timestamptz - interval '24 hours' AND qualitaet <> 'ungueltig'
+                   ORDER BY zeit""", p)
+    zaehler = cur.fetchall()
+    cur.execute("SELECT date_trunc('day', %(t)s::timestamptz AT TIME ZONE 'Europe/Berlin') AT TIME ZONE 'Europe/Berlin' AS m", p)
+    mitternacht = cur.fetchone()["m"]
+    return {"werte": werte, "druck_vor_3h": druck_vor,
+            "regen_24h": regen_zuwachs([z["wert"] for z in zaehler]) if zaehler else None,
+            "regen_heute": regen_zuwachs([z["wert"] for z in zaehler if z["zeit"] >= mitternacht]) if zaehler else None}
 
 
 # ---------------------------------------------------------------- Volk

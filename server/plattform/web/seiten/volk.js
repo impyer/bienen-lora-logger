@@ -4,12 +4,15 @@
 // Stockkarten-Marken (Vorbild beelogger + BEEP), Messwerte-Auswahl, Vorher/Nachher zu einem Ereignis, Chronik.
 import { defineComponent } from '../vendor/vue.esm-browser.prod.js';
 import { holen } from '../api.js';
-import { bilanzOptionen, reihenName, reihenSchluessel, zahl, zeitText } from '../diagramm.js';
+import { bilanzOptionen, regenMengen, reihenName, reihenSchluessel, zahl, zeitText } from '../diagramm.js';
 import { MARKEN, ereignisListe, reihenFarbe, stapelOptionen } from '../stapel.js';
 import { METHODEN, chronik, cockpitKennzahlen, vorzeichen } from '../kennzahlen.js';
 import { Diagramm, Zeitraum, Zustand, zeitraumParameter } from './komponenten.js';
 
-const VORWAHL = ['gewicht', 'temperatur'];
+const VORWAHL = ['gewicht', 'temperatur', 'regen_menge'];
+// Regen am Stand als eigene Spur (Konzept: Spuren Gewicht, Temperatur, Akustik, Milbenfall, Regen, Akku): Menge je
+// Stunde bzw. je Tag aus dem Zählerstand der Wetterstation; keine Messgröße im Katalog, nur für die Anzeige gebildet
+const REGEN = { code: 'regen_menge', name: 'Regen', einheit: 'mm', achse: 'regenmenge', darstellung: 'balken', farbe: '#1f618d' };
 const ZONEN = { brutnest: 'Brutnest', deckel: 'Deckel', aussen: 'außen', luft_stand: 'Luft am Stand', waage: 'Waage',
                 boden: 'Boden', flugloch: 'Flugloch', elektronik: 'Elektronik', funk: 'Funk' };
 
@@ -31,7 +34,6 @@ export default defineComponent({
               <span v-if="volk.koenigin">Königin {{ volk.koenigin.farbe }} {{ volk.koenigin.jahrgang }}<template v-if="volk.koenigin.rasse"> · {{ volk.koenigin.rasse }}</template></span>
               <span v-if="volk.beute">{{ volk.beute.beutentyp || volk.beute.bezeichnung }} · {{ volk.beute.brutzargen ?? '?' }} Brutzarge(n){{ volk.beute.honigzargen ? ' · ' + volk.beute.honigzargen + ' Honigraum' : '' }}</span>
               <span v-if="volk.stand">{{ volk.stand.name }}</span>
-              <span v-for="g in volk.geraete.filter((x) => !x.bis)" :key="g.name">{{ g.name }}</span>
             </p>
           </div>
           <a :href="'#/stockkarte?volk=' + id" class="knopf">Eintrag erfassen</a>
@@ -79,8 +81,7 @@ export default defineComponent({
               <template v-for="(gruppe, titel) in gruppen" :key="titel">
                 <h3>{{ titel }}</h3>
                 <label v-for="r in gruppe" :key="schluessel(r)"><input type="checkbox" :checked="!sichtbar || sichtbar.has(schluessel(r))" @change="umschalten(schluessel(r))">
-                  <span class="farbe" :style="{ background: farbe(r) }"></span>{{ zonen[r.zone] || r.bezeichnung || name(r) }}
-                  <small v-if="r.ohne_geraetezeit" class="klein" title="Zeit vom Empfang, nicht vom Gerät">({{ r.ohne_geraetezeit }} ohne Gerätezeit)</small></label>
+                  <span class="farbe" :style="{ background: farbe(r) }"></span>{{ r.messgroesse === 'regen_menge' ? 'Stand, ' + (regenJeTag ? 'je Tag' : 'je Stunde') : (zonen[r.zone] || r.bezeichnung || name(r)) }}</label>
               </template>
               <template v-if="hatMilben"><h3>Milbenfall</h3>
                 <label><input type="checkbox" :checked="!sichtbar || sichtbar.has('milbenfall')" @change="umschalten('milbenfall')"><span class="farbe" style="background: #9f1239"></span>Windel, pro Tag</label></template>
@@ -162,6 +163,7 @@ export default defineComponent({
     },
     offeneAufgaben() { return (this.ereignisse?.aufgaben || []).filter((a) => !a.erledigt_am); },
     methoden: () => METHODEN,
+    regenJeTag() { return this.zr.tage > 14; },
   },
   watch: {
     vergleichWahl() { this.vergleichLaden(); },
@@ -191,10 +193,22 @@ export default defineComponent({
   async mounted() {
     const p = { von: this.zr.von, bis: this.zr.bisIso };
     try {
-      [this.volk, this.katalog, this.reihen, this.bilanz, this.ereignisse] = await Promise.all([
+      let reihen;
+      [this.volk, this.katalog, reihen, this.bilanz, this.ereignisse] = await Promise.all([
         holen(`voelker/${this.id}`, { zeit: this.zr.bisIso }), holen('messgroessen'),
         holen(`voelker/${this.id}/messreihen`, p), holen(`voelker/${this.id}/tagesbilanz`, p),
         holen(`voelker/${this.id}/ereignisse`, p)]);
+      if (this.volk.stand) {
+        const u = await holen(`staende/${this.volk.stand.id}/umwelt`, { ...p, groessen: 'regen_summe' });
+        const zaehler = (u.reihen || []).find((r) => r.messgroesse === 'regen_summe');
+        if (zaehler) {
+          const mengen = regenMengen(zaehler.punkte, this.regenJeTag ? 'tag' : 'stunde');
+          reihen = { ...reihen, reihen: [...reihen.reihen, { messgroesse: REGEN.code, messstelle_id: null, zone: 'luft_stand', bezeichnung: null,
+            punkte: mengen.map(([t, mm]) => [new Date(t).toISOString(), mm]), werte: mengen.length }] };
+          this.katalog = [...this.katalog, REGEN];
+        }
+      }
+      this.reihen = reihen;
       // Zu Beginn Gewicht, Temperaturen und Milbenfall zeigen (wie im Entwurf); weitere Kurven über die Auswahl
       const start = this.reihen.reihen.filter((r) => VORWAHL.includes(r.messgroesse)).map(reihenSchluessel);
       this.sichtbar = start.length ? new Set([...start, 'milbenfall']) : null;
